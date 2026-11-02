@@ -753,7 +753,7 @@ function bookData(){
     credits:Object.fromEntries(Object.keys(TRACKS).map(t=>[t,{total:sumCr(trackCourses(t)),byGroup:Object.fromEntries(Object.keys(GROUPS).map(g=>[g,sumCr(trackCourses(t),c=>c.g===g)]))}])),
     groups:GROUPS,terms:TERMS,termTh:TERM_TH,
     faculty:F.map(f=>({id:f.id,name:f.name,email:f.email||"",role:roleOf(f.id),deg:qualOf(f.id).deg,pos:qualOf(f.id).pos,formal:formalName(f)})),
-    intake:state.intake,fmt:bookFmt(),plan:bookPlan()};
+    intake:state.intake,fmt:bookFmtAll(),plan:bookPlan()};
 }
 function bookReadiness(){
   const ta=teamAnalysis(),na=needsAnalysis(),L=[];
@@ -777,12 +777,15 @@ function bookReadiness(){
   return L;
 }
 // ---- ค1 จัดทำเล่ม: ตัวอย่างเล่มรายส่วน รูปแบบตัวอักษร และนับถอยหลัง ----
-const BOOK_FMT0={font:"Angsana New",body:16,table:14,line:1.15,mL:1,mR:1,mT:1,mB:1,pAfter:2,hBefore:8,cGap:2.2};
+const BOOK_FMT0={font:"Angsana New",body:16,table:14,line:1.15,mL:1,mR:1,mT:1,mB:1,pAfter:2,hBefore:8,cGap:2.2,tabW:1.27};
 const BOOK_FONTS=[["Angsana New","Angsana New (ตามแบบฟอร์ม)"],["TH SarabunPSK","TH SarabunPSK"],["TH Sarabun New","TH Sarabun New"],["Sarabun","Sarabun (เว็บ)"]];
 const BOOK_PLAN0={deadline:"2026-11-14T16:30",review:"2026-11-15T09:00",note:"ส่งเล่มฉบับสมบูรณ์ให้คณะกรรมการวิพากษ์หลักสูตร"};
 const BOOK_SECS=[["cover","ปกนอกและปกใน"],["front","คำนำและสารบัญ"],["h1","หมวดที่ 1 ข้อมูลทั่วไป"],["h2","หมวดที่ 2 ข้อมูลเฉพาะของหลักสูตร"],["h3","หมวดที่ 3 ระบบการจัดการศึกษา การดำเนินการ และโครงสร้างของหลักสูตร"],["h4","หมวดที่ 4 การจัดกระบวนการเรียนรู้"],["h5","หมวดที่ 5 ความพร้อมและศักยภาพในการบริหารจัดการหลักสูตร"],["h6","หมวดที่ 6 การประเมินผลการเรียนรู้และเกณฑ์การสำเร็จการศึกษา"],["h7","หมวดที่ 7 การประกันคุณภาพของหลักสูตร"],["h8","หมวดที่ 8 ระบบและกลไกในการพัฒนาหลักสูตร"],["apx","ภาคผนวก ก ข ค"]];
 const defd=o=>Object.fromEntries(Object.entries(o||{}).filter(([k,v])=>v!=null&&v!==""));
-const bookFmt=()=>({...BOOK_FMT0,...defd(state.bookFmt)});
+const bookFmtAll=()=>{const g={...BOOK_FMT0,...defd(state.bookFmt)};g.sec={...((state.bookFmt&&state.bookFmt.sec)||{})};return g};
+const bookFmt=s=>{const g=bookFmtAll(),o=s&&g.sec[s];const r={...g,...defd(o||{})};delete r.sec;return r};
+const secFmtOv=s=>{const o=bookFmtAll().sec[s];return o&&Object.keys(defd(o)).length?o:null};
+async function saveFmtAll(f,label){const y=window.scrollY;await saveBookDoc("program/bookfmt","bookFmt",f,label||"รูปแบบเล่ม");window.scrollTo(0,y)}
 const bookPlan=()=>({...BOOK_PLAN0,...defd(state.bookPlan)});
 const TR_EN={ME:"Mechanical Engineering",EV:"New Energy Vehicle Engineering",CE:"Energy Engineering"};
 const crTxt=c=>c.fl&&c.fl.nc?`${c.t} (${c.t}-${c.p}-${c.s})*`:`${c.cr} (${c.t}-${c.p}-${c.s})`;
@@ -803,7 +806,7 @@ const BFh=k=>esc(BF(k)).replace(/\n/g,"<br>");
 const BFlines=k=>BF(k).split(/\n+/).map(s=>s.trim()).filter(Boolean);
 const bookLogo=()=>(state.bookEdit&&state.bookEdit.logo)||"";
 const logoH=()=>+((state.bookEdit&&state.bookEdit.logoH)||3);
-const coverBar=()=>{const g=+bookFmt().cGap;const bx=`<span style="display:inline-flex;align-items:center;gap:6px;flex-wrap:nowrap;white-space:nowrap;border:1px solid #ddd;border-radius:8px;padding:3px 10px">`;return `${bx}<span class="small"><b>ขนาดตรา</b></span><button class="sm" id="bkLgMinus" title="เล็กลง">−</button><b class="small" style="min-width:52px;text-align:center">${logoH().toFixed(2).replace(/0$/,"")} ซม.</b><button class="sm" id="bkLgPlus" title="ใหญ่ขึ้น">+</button></span>${bx}<span class="small"><b>กลุ่มข้อความ คณะฯ</b></span><button class="sm" id="bkCgUp" title="เลื่อนขึ้น">▲ ขึ้น</button><button class="sm" id="bkCgDown" title="เลื่อนลง">▼ ลง</button><span class="small muted">ระยะเว้น ${g.toFixed(1)} นิ้ว</span></span>`};
+const coverBar=()=>{const g=+bookFmt("cover").cGap;const bx=`<span style="display:inline-flex;align-items:center;gap:6px;flex-wrap:nowrap;white-space:nowrap;border:1px solid #ddd;border-radius:8px;padding:3px 10px">`;return `${bx}<span class="small"><b>ขนาดตรา</b></span><button class="sm" id="bkLgMinus" title="เล็กลง">−</button><b class="small" style="min-width:52px;text-align:center">${logoH().toFixed(2).replace(/0$/,"")} ซม.</b><button class="sm" id="bkLgPlus" title="ใหญ่ขึ้น">+</button></span>${bx}<span class="small"><b>กลุ่มข้อความ คณะฯ</b></span><button class="sm" id="bkCgUp" title="เลื่อนขึ้น">▲ ขึ้น</button><button class="sm" id="bkCgDown" title="เลื่อนลง">▼ ลง</button><span class="small muted">ระยะเว้น ${g.toFixed(1)} นิ้ว</span></span>`};
 const BOOK_TOC=[
 ["h1","H","รายละเอียดหลักสูตร",0,1],["h1","H1","หมวดที่ 1 ข้อมูลทั่วไป",0],
 ["h1",1,"รหัสและชื่อหลักสูตร"],["h1",2,"ชื่อปริญญาและสาขาวิชา"],["h1",3,"วิชาเอก"],["h1",4,"จำนวนหน่วยกิตที่เรียนตลอดหลักสูตร"],["h1",5,"รูปแบบของหลักสูตร"],["h1",6,"การรับเข้าศึกษา"],["h1",7,"ความร่วมมือกับสถาบันอื่น/องค์กรภายนอก"],["h1",8,"การให้ปริญญาแก่ผู้สำเร็จการศึกษา"],["h1",9,"สถานภาพของหลักสูตรและการพิจารณาอนุมัติ/เห็นชอบหลักสูตร"],["h1",10,"ความพร้อมในการเผยแพร่หลักสูตรที่มีคุณภาพและมาตรฐาน"],["h1",11,"อาชีพที่สามารถประกอบได้หลังสำเร็จการศึกษา"],["h1",12,"ชื่อ-นามสกุล ตำแหน่งและคุณวุฒิการศึกษาของอาจารย์ผู้รับผิดชอบหลักสูตร"],["h1",13,"สถานที่จัดการเรียนการสอน"],["h1",14,"แนวคิดการออกแบบหลักสูตร"],
@@ -821,27 +824,51 @@ function bookTocHtml(){let n={};return `<h2 class="bk-h big">สารบัญ<
   const key=s+":"+k;if(lv===0)return `<div class="toc" style="font-weight:700;margin-top:${k==="H1"?0:.3}em"><span>${esc(t)}</span><span class="dots"></span><span class="tocpg" data-tocpg="${key}">…</span></div>`;
   if(lv===2){const no=String(k).slice(1);return `<div class="toc" style="padding-left:1.6em"><span>${no}. ${esc(t)}</span><span class="dots" style="border:0"></span><span></span></div>`}
   return `<div class="toc" style="padding-left:1.6em"><span style="padding-left:1.6em;text-indent:-1.6em">${k}. ${esc(t)}</span><span class="dots"></span><span class="tocpg" data-tocpg="${key}">…</span></div>`}).join("")+`<p class="small-note" data-tocnote="1">เลขหน้าคำนวณจากการจัดหน้าจริงของเล่ม (ปรับอัตโนมัติเมื่อเนื้อหาหรือรูปแบบเปลี่ยน)</p>`}
-async function computeTocPages(fmt){const map={};let no=0;
-  for(const [k] of BOOK_SECS.slice(2)){const pages=await paginateHtml(bookSecFinal(k),fmt);
+async function computeTocPages(){const map={};let no=0;
+  for(const [k] of BOOK_SECS.slice(2)){const pages=await paginateHtml(bookSecFinal(k),bookFmt(k));
     pages.forEach(pg=>{no++;const d=document.createElement("div");d.innerHTML=pg;
       d.querySelectorAll("h2,h3").forEach(e=>{const t=e.textContent.replace(/\s+/g," ").trim();
         if(e.tagName==="H2"){if(k==="h1"&&t==="รายละเอียดหลักสูตร")map["h1:H"]=map["h1:H"]||no;else if(k==="h1"&&/^หมวดที่ 1/.test(t))map["h1:H1"]=map["h1:H1"]||no;else if(k==="apx"){const m=t.match(/^ภาคผนวก ([กขค])/);if(m)map["apx:"+m[1]]=map["apx:"+m[1]]||no}else if(!map[k+":H"])map[k+":H"]=no}
         else{const m=t.match(/^(\d+)\.\s/);if(m&&!map[k+":"+m[1]])map[k+":"+m[1]]=no}})})}
   return map}
 function fillToc(html,map){if(!map||html.indexOf("data-tocpg")<0)return html;const d=document.createElement("div");d.innerHTML=html;d.querySelectorAll("[data-tocpg]").forEach(e=>{const v=map[e.dataset.tocpg];e.textContent=v||"–";e.classList.toggle("bk-todo",!v)});return d.innerHTML}
-function bookSecFinal(id){const o=state.bookEdit&&state.bookEdit.html&&state.bookEdit.html[id];if(!o)return bookSecHtml(id);
+const FIELD_SUB={code14:1,rvno:9,acad:9,council:9,careers:11,place:13,swot:14,philo:1,obj:1,sys:1,qual:2,proj:6};
+const secSubs=s=>BOOK_TOC.filter(x=>x[0]===s&&typeof x[1]==="number");
+const subKey=(s,n)=>`x_${s}_${n}`;
+function applySubs(sec,html){const subs=secSubs(sec);if(!subs.length)return html;
+  const d=document.createElement("div");d.innerHTML=html;
+  const isSub=e=>e.tagName==="H2"||(e.tagName==="H3"&&/^\d+\.\s/.test(e.textContent.trim()));
+  const findH=n=>[...d.children].find(e=>e.tagName==="H3"&&new RegExp("^"+n+"\\.\\s").test(e.textContent.trim()));
+  subs.forEach(([s,n,t])=>{const extra=BF(subKey(s,n));let hd=findH(n);
+    if(!hd){hd=document.createElement("h3");hd.textContent=`${n}. ${t}`;const nx=[...d.children].find(e=>{const m=e.tagName==="H3"&&e.textContent.trim().match(/^(\d+)\.\s/);return m&&+m[1]>n});d.insertBefore(hd,nx||null);
+      if(!extra){const p=document.createElement("p");p.innerHTML=bkTodo("ยังไม่มีเนื้อหา — กรอกได้ที่ ✎ แก้ไขข้อมูลส่วนนี้ หัวข้อ "+n);hd.after(p)}}
+    if(extra){let end=hd.nextElementSibling;while(end&&!isSub(end))end=end.nextElementSibling;
+      extra.split(/\n+/).map(x=>x.trim()).filter(Boolean).forEach(x=>{const p=document.createElement("p");p.className="ind";p.textContent=x;d.insertBefore(p,end||null)})}});
+  return d.innerHTML}
+function bookSecFinal(id){const o=state.bookEdit&&state.bookEdit.html&&state.bookEdit.html[id];if(!o)return applySubs(id,bookSecHtml(id));
   if(id==="front"){const i=o.h.indexOf("สารบัญ</h2>");if(i>0){const s=o.h.lastIndexOf("<h2",i);if(s>=0)return o.h.slice(0,s)+bookTocHtml()}}return o.h}
 function resizeImg(file,max){return new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const s=Math.min(1,max/Math.max(im.width,im.height));const c=document.createElement("canvas");c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext("2d").drawImage(im,0,0,c.width,c.height);ok(c.toDataURL("image/png"))};im.onerror=no;im.src=r.result};r.onerror=no;r.readAsDataURL(file)})}
 async function saveBookEdit(v,label){state.bookEdit=v;render();await dbWrite(db=>db.doc("program/bookedit").set({...v,updatedAt:new Date().toISOString()}),label||"แก้ไขเล่ม")}
 function bookEditPanel(sec,adm){
   const ed=state.bookEdit||{},F=BOOK_FIELDS[sec]||[],ov=ed.html&&ed.html[sec];
   if(!adm)return "";
-  if(state.bookDirect===sec)return `<div class="bk-edit"><b>แก้ข้อความบนหน้าโดยตรง</b><p class="small muted">คลิกที่ข้อความในหน้ากระดาษด้านล่างแล้วพิมพ์แก้ได้เลย เสร็จแล้วกดบันทึก ส่วนนี้จะใช้ฉบับที่แก้มือแทนข้อมูลอัตโนมัติ</p><div class="row" style="gap:8px"><button class="sm primary" id="bkDirectSave">บันทึกหน้านี้</button><button class="sm" id="bkDirectCancel">ยกเลิก</button></div></div>`;
+  if(state.bookDirect===sec){const tw=bookFmt(sec).tabW||1.27,B=(a,t,ti)=>`<button class="sm" data-dfx="${a}" title="${ti||""}">${t}</button>`,G=(l,x)=>`<span class="dfx-g"><span class="small muted">${l}</span>${x}</span>`;
+   return `<div class="bk-edit dfx-wrap"><b>แก้ข้อความบนหน้าโดยตรง · ${esc((BOOK_SECS.find(x=>x[0]===sec)||[])[1]||"")}</b><p class="small muted">คลิกหรือลากคลุมย่อหน้าในหน้ากระดาษ แล้วกดปุ่มจัดรูปแบบ · กดแป้น <b>Tab</b> เพื่อเว้นระยะแท็บให้ข้อความตรงกัน · การแก้ส่วนนี้ไม่กระทบส่วนอื่น</p>
+   <div class="dfx-bar">${G("ระยะบรรทัด",`<select id="dfxLH"><option value="">–</option>${[0.9,1,1.1,1.15,1.2,1.3,1.5,2].map(v=>`<option>${v}</option>`).join("")}</select>`)}
+    ${G("ก่อนย่อหน้า",B("sb-","−","ลดระยะก่อนย่อหน้า 2pt")+B("sb+","+","เพิ่มระยะก่อนย่อหน้า 2pt"))}${G("หลังย่อหน้า",B("sa-","−")+B("sa+","+"))}
+    ${G("เยื้องทั้งย่อหน้า",B("ml-","◂","เลื่อนซ้าย 0.25 นิ้ว")+B("ml+","▸","เลื่อนขวา 0.25 นิ้ว"))}${G("เยื้องบรรทัดแรก",B("ti-","◂")+B("ti+","▸"))}
+    ${G("จัดแนว",B("al:left","ชิดซ้าย")+B("al:center","กลาง")+B("al:right","ชิดขวา")+B("al:justify","เต็มแนว"))}
+    ${G("ระยะแท็บ",`<select id="dfxTab">${[...new Set([0.5,0.75,1,1.27,1.5,2,2.5,3,4,5,tw])].sort((a,b)=>a-b).map(v=>`<option ${v==tw?"selected":""}>${v}</option>`).join("")}</select><span class="small">ซม.</span>`)}
+    ${B("tab","⇥ แท็บ","แทรกแท็บที่ตำแหน่งเคอร์เซอร์")}${B("clr","ล้างรูปแบบย่อหน้า")}${B("undo","↶ ย้อนกลับ")}</div>
+   <div class="row" style="gap:8px;margin-top:6px"><button class="sm primary" id="bkDirectSave">บันทึกส่วนนี้</button><button class="sm" id="bkDirectCancel">ยกเลิก</button><span class="small muted" id="dfxMsg"></span></div></div>`}
   if(state.bookEditing!==sec)return `<div class="row" style="gap:8px;margin-bottom:6px;flex-wrap:wrap"><button class="sm" id="bkEditOpen">✎ แก้ไขข้อมูลส่วนนี้${sec==="cover"?" / ใส่ตรามหาวิทยาลัย":""}</button><button class="sm" id="bkDirectOpen">แก้ข้อความบนหน้าโดยตรง</button>${sec==="cover"&&state.isAdmin?coverBar():""}${ov?`<span class="pill warn">ใช้ฉบับแก้มือ (${esc(new Date(ov.at).toLocaleString("th-TH",{dateStyle:"short",timeStyle:"short"}))})</span><button class="sm" id="bkDirectClear">กลับไปใช้ข้อมูลอัตโนมัติ</button>`:""}</div>`;
   const logo=sec==="cover"||sec==="front"?`<div class="fl" style="align-items:center;gap:10px"><span class="small"><b>ตรามหาวิทยาลัย</b></span>${bookLogo()?`<img src="${bookLogo()}" alt="ตรามหาวิทยาลัย" style="height:60px">`:'<span class="small muted">ยังไม่มีรูป</span>'}<label class="sm btnlink" style="cursor:pointer">เลือกรูป (PNG/JPG)<input type="file" id="bkLogo" accept="image/*" style="display:none"></label>${bookLogo()?`<button class="sm" id="bkLogoDel">ลบรูป</button>`:""}<label class="ctl small">ความสูงบนปก <select id="bkLogoH">${[...new Set([1.5,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7,logoH()])].sort((a,b)=>a-b).map(v=>`<option ${logoH()==v?"selected":""}>${v}</option>`).join("")}</select> ซม.</label></div>`:"";
   return `<div class="bk-edit" id="bkEditForm"><div class="row" style="justify-content:space-between"><b>แก้ไขข้อมูล: ${esc((BOOK_SECS.find(x=>x[0]===sec)||[])[1]||"")}</b><button class="sm" id="bkEditClose">ปิด</button></div>${logo}
-   ${F.map(([k,l,d,t])=>`<label class="small">${esc(l)}${t==="area"?`<textarea data-bkf="${k}" rows="${Math.min(8,Math.max(2,(BF(k).match(/\n/g)||[]).length+2))}">${esc(BF(k))}</textarea>`:`<input type="text" data-bkf="${k}" value="${esc(BF(k))}">`}</label>`).join("")}
-   ${F.length?`<div class="row" style="gap:8px"><button class="sm primary" id="bkEditSave">บันทึกและดูตัวอย่าง</button><button class="sm" id="bkEditReset">คืนค่าตั้งต้นของส่วนนี้</button></div>`:`<p class="small muted">ส่วนนี้ดึงข้อมูลจากแพลตฟอร์มทั้งหมด แก้ที่แถบออกแบบ/บริหารหลักสูตร หรือใช้ "แก้ข้อความบนหน้าโดยตรง"</p>`}
+   ${(()=>{const fld=([k,l,d,t])=>`<label class="small">${esc(l)}${t==="area"?`<textarea data-bkf="${k}" rows="${Math.min(8,Math.max(2,(BF(k).match(/\n/g)||[]).length+2))}">${esc(BF(k))}</textarea>`:`<input type="text" data-bkf="${k}" value="${esc(BF(k))}">`}</label>`;
+     const subs=secSubs(sec);if(!subs.length)return F.map(fld).join("");
+     const auto=bookSecHtml(sec);return `<p class="small muted">หัวข้อย่อยตามแบบฟอร์มเล่มหลักสูตร กดเปิดหัวข้อที่ต้องการแก้ ช่อง "ข้อความเพิ่มเติม" จะต่อท้ายเนื้อหาของหัวข้อนั้น (บรรทัดละ 1 ย่อหน้า)</p>`+subs.map(([s,n,t])=>{const fs=F.filter(([k])=>FIELD_SUB[k]===n),has=new RegExp("<h3>"+n+"\\.\\s").test(auto),xk=subKey(s,n);
+       return `<details class="bk-subed" data-subed="${s}:${n}" ${state.bookSubOpen===s+":"+n||fs.length||BF(xk)?"open":""}><summary><b>${n}. ${esc(t)}</b> ${has||BF(xk)?'<span class="pill pass">มีในเล่ม</span>':'<span class="pill warn">ยังไม่มีเนื้อหา</span>'}${has&&!fs.length?' <span class="small muted">เนื้อหาหลักดึงจากแพลตฟอร์ม</span>':""}</summary>${fs.map(fld).join("")}<label class="small">ข้อความเพิ่มเติมในหัวข้อ ${n}<textarea data-bkf="${xk}" rows="${Math.min(8,Math.max(2,(BF(xk).match(/\n/g)||[]).length+2))}">${esc(BF(xk))}</textarea></label></details>`}).join("")+F.filter(([k])=>!FIELD_SUB[k]).map(fld).join("")})()}
+   ${F.length||secSubs(sec).length?`<div class="row" style="gap:8px"><button class="sm primary" id="bkEditSave">บันทึกและดูตัวอย่าง</button><button class="sm" id="bkEditReset">คืนค่าตั้งต้นของส่วนนี้</button></div>`:`<p class="small muted">ส่วนนี้ดึงข้อมูลจากแพลตฟอร์มทั้งหมด แก้ที่แถบออกแบบ/บริหารหลักสูตร หรือใช้ "แก้ข้อความบนหน้าโดยตรง"</p>`}
    <p class="small muted">ข้อมูลที่มาจากแพลตฟอร์ม (PLO รายวิชา อาจารย์ ฯลฯ) แก้ที่แถบต้นทาง เล่มจะเปลี่ยนตามเอง</p></div>`;
 }
 function bookSecHtml(id){
@@ -943,11 +970,11 @@ let bookTimer=null;
 function startBookTimer(){clearInterval(bookTimer);bookTimer=setInterval(()=>{const a=document.getElementById("cdDl"),b=document.getElementById("cdRv");if(!a){clearInterval(bookTimer);return}const c=bookCountdown();a.textContent=c.dl;b.textContent=c.rv;a.classList.toggle("late",c.late)},1000)}
 function viewBook(){
   const R=bookReadiness(),cnt=k=>R.filter(r=>r[2]===k).length;
-  const fmt=bookFmt(),plan=bookPlan(),chk=state.bookCheck||{},sec=state.bookSec||"cover",cd=bookCountdown();
+  const sec=state.bookSec||"cover",fmt=bookFmt(sec),plan=bookPlan(),chk=state.bookCheck||{},cd=bookCountdown(),fov=secFmtOv(sec);
   const done=BOOK_SECS.filter(([k])=>chk[k]).length,adm=state.isAdmin&&state.canWrite;
   const dt=v=>new Date(v).toLocaleString("th-TH",{dateStyle:"long",timeStyle:"short"});
   setTimeout(startBookTimer,0);setTimeout(()=>{if(state.bookDirect!==sec)paginatePreview(sec)},0);
-  const css=`--bk-font:'${fmt.font}','Angsana New','TH SarabunPSK','TH Sarabun New','Sarabun',serif;--bk-body:${fmt.body}pt;--bk-table:${fmt.table}pt;--bk-line:${fmt.line};--bk-mL:${fmt.mL}in;--bk-mR:${fmt.mR}in;--bk-mT:${fmt.mT}in;--bk-mB:${fmt.mB}in;--bk-zoom:${state.bookZoom||0.8};--bk-pafter:${fmt.pAfter}pt;--bk-hbefore:${fmt.hBefore}pt;--bk-cgap:${fmt.cGap}in`;
+  const css=`--bk-font:'${fmt.font}','Angsana New','TH SarabunPSK','TH Sarabun New','Sarabun',serif;--bk-body:${fmt.body}pt;--bk-table:${fmt.table}pt;--bk-line:${fmt.line};--bk-mL:${fmt.mL}in;--bk-mR:${fmt.mR}in;--bk-mT:${fmt.mT}in;--bk-mB:${fmt.mB}in;--bk-zoom:${state.bookZoom||0.8};--bk-pafter:${fmt.pAfter}pt;--bk-hbefore:${fmt.hBefore}pt;--bk-cgap:${fmt.cGap}in;--bk-tabw:${fmt.tabW||1.27}cm`;
   return `<p class="lead">เล่มหลักสูตรตามแบบฟอร์มของ มทร.กรุงเทพ แบ่งเป็น 11 ส่วน ดูหน้าตาเล่มทีละส่วน ปรับรูปแบบตัวอักษรให้ตรงแบบฟอร์ม แล้วติ๊ก "ตรวจแล้ว" จนครบทุกส่วนก่อนส่งวิพากษ์</p>
   <section class="panel cd-box"><div class="cd-col"><span class="small muted">นับถอยหลังส่งเล่มฉบับสมบูรณ์ · ${esc(dt(plan.deadline))}</span><span class="cd-big${cd.late?" late":""}" id="cdDl">${cd.dl}</span></div>
    <div class="cd-col"><span class="small muted">วันวิพากษ์หลักสูตร · ${esc(dt(plan.review))}</span><span class="cd-mid" id="cdRv">${cd.rv}</span></div>
@@ -963,10 +990,11 @@ function viewBook(){
     <label class="ctl">ขอบซ้าย <select id="bfML" ${adm?"":"disabled"}>${[1,1.25,1.5].map(v=>`<option ${fmt.mL==v?"selected":""}>${v}</option>`).join("")}</select> นิ้ว</label>
     <label class="ctl">ระยะหลังย่อหน้า <select id="bfPA" ${adm?"":"disabled"}>${[0,1,2,3,4,6,8].map(v=>`<option ${fmt.pAfter==v?"selected":""}>${v}</option>`).join("")}</select> pt</label>
     <label class="ctl">ระยะก่อนหัวข้อ <select id="bfHB" ${adm?"":"disabled"}>${[0,4,6,8,10,12,18].map(v=>`<option ${fmt.hBefore==v?"selected":""}>${v}</option>`).join("")}</select> pt</label>
-    <label class="ctl">ช่องว่างกลางปก <select id="bfCG" ${adm?"":"disabled"}>${[...new Set([0,0.5,1,1.5,2,2.2,2.5,3,3.5,4,4.5,5,+fmt.cGap])].sort((a,b)=>a-b).map(v=>`<option ${fmt.cGap==v?"selected":""}>${v}</option>`).join("")}</select> นิ้ว</label>
+    
     <label class="ctl">ซูม <select id="bfZoom">${[0.5,0.65,0.8,1].map(v=>`<option ${(state.bookZoom||0.8)==v?"selected":""} value="${v}">${v*100}%</option>`).join("")}</select></label>
-    ${adm?`<button class="sm" id="bfReset">ตามแบบฟอร์ม</button>`:""}<button class="sm primary" id="bkPdf">สร้าง PDF ส่วนนี้</button><button class="sm" id="bkPdfAll">สร้าง PDF ทั้งเล่ม</button></div></div>
-   <div class="bk-wrap"><nav class="bk-nav">${BOOK_SECS.map(([k,t],i)=>{const s=bookSecStatus(k);return `<button class="bk-sec${k===sec?" on":""}" data-bksec="${k}"><span class="bk-no">${i+1}</span><span class="bk-tt">${esc(t)}</span><span class="bk-st">${chk[k]?'<span class="pill pass">ตรวจแล้ว</span>':s==="pass"?'<span class="pill" style="background:var(--soft);color:var(--muted)">รอตรวจ</span>':pill(s,s==="warn"?"ควรเติม":"ยังขาด")}</span></button>`}).join("")}</nav>
+    ${adm?`<button class="sm" id="bfReset" title="คืนค่ารูปแบบทุกส่วนตามแบบฟอร์ม">ตามแบบฟอร์ม</button>`:""}<button class="sm primary" id="bkPdf">สร้าง PDF ส่วนนี้</button><button class="sm" id="bkPdfAll">สร้าง PDF ทั้งเล่ม</button></div></div>
+   <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:6px"><span class="small">การปรับรูปแบบด้านบนมีผลกับ <b>${esc((BOOK_SECS.find(x=>x[0]===sec)||[])[1]||"")}</b> เท่านั้น</span>${fov?`<span class="pill warn">ส่วนนี้ใช้รูปแบบเฉพาะ</span>${adm?`<button class="sm" id="bfSecAll">ใช้รูปแบบนี้กับทุกส่วน</button><button class="sm" id="bfSecClear">กลับไปใช้รูปแบบรวม</button>`:""}`:`<span class="pill" style="background:var(--soft);color:var(--muted)">ใช้รูปแบบรวมของเล่ม</span>`}</div>
+   <div class="bk-wrap"><nav class="bk-nav">${BOOK_SECS.map(([k,t],i)=>{const s=bookSecStatus(k);return `<button class="bk-sec${k===sec?" on":""}" data-bksec="${k}"><span class="bk-no">${i+1}</span><span class="bk-tt">${esc(t)}</span><span class="bk-st">${chk[k]?'<span class="pill pass">ตรวจแล้ว</span>':s==="pass"?'<span class="pill" style="background:var(--soft);color:var(--muted)">รอตรวจ</span>':pill(s,s==="warn"?"ควรเติม":"ยังขาด")}</span></button>${k===sec&&secSubs(k).length?`<div class="bk-subs">${secSubs(k).map(([s,n,t])=>`<button class="bk-sub" data-bksub="${s}:${n}"><span>${n}. ${esc(t)}</span><span class="small muted" data-subpg="${s}:${n}"></span></button>`).join("")}</div>`:""}`}).join("")}</nav>
     <div class="bk-main">${bookEditPanel(sec,adm)}<div class="row" style="justify-content:space-between;margin-bottom:6px"><b>${esc((BOOK_SECS.find(x=>x[0]===sec)||[])[1]||"")}</b><label class="ctl"><input type="checkbox" id="bkChk" ${chk[sec]?"checked":""} ${adm?"":"disabled"}> ตรวจแล้ว ถูกต้องตามแบบฟอร์ม${chk[sec]&&chk[sec].by?` <span class="small muted">(${esc(chk[sec].by)})</span>`:""}</label></div>
      ${state.bookPdf&&(state.bookPdf.sec===sec||state.bookPdf.sec==="all")?`<div class="row" style="gap:8px;margin-bottom:6px"><span class="pill pass">PDF ${state.bookPdf.sec==="all"?"ทั้งเล่ม":"ส่วนนี้"} · ${esc(state.bookPdf.at)}</span><a class="sm btnlink" href="${state.bookPdf.url}" download="${esc(state.bookPdf.name)}">ดาวน์โหลด .pdf</a><a class="sm btnlink" href="${state.bookPdf.url}" target="_blank" rel="noopener">เปิดในแท็บใหม่</a><button class="sm" id="bkPdfClose">กลับไปหน้าจอแก้ไข</button></div><iframe class="bk-pdf" src="${state.bookPdf.url}#view=FitH" title="PDF preview"></iframe>`:state.bookPdfBusy?`<div class="note">กำลังสร้าง PDF… ส่วนที่ยาวอาจใช้เวลา 10–40 วินาที</div>${state.bookDirect===sec?`<div class="bk-view" style="${css}"><div class="bk-sheet editing" id="bkSheet" contenteditable="true">${bookSecFinal(sec)}</div></div>`:`<div class="bk-view bk-paged" style="${css}" id="bkPaged"><div class="bk-pages" id="bkPages"><div class="note">กำลังจัดหน้า…</div></div></div>`}`:`${state.bookDirect===sec?`<div class="bk-view" style="${css}"><div class="bk-sheet editing" id="bkSheet" contenteditable="true">${bookSecFinal(sec)}</div></div>`:`<div class="bk-view bk-paged" style="${css}" id="bkPaged"><div class="bk-pages" id="bkPages"><div class="note">กำลังจัดหน้า…</div></div></div>`}`}
      <p class="small muted"><span id="bkPgInfo"></span> หน้า A4 ตามแบบฟอร์ม (ขอบ ${fmt.mT} นิ้ว · ${esc(fmt.font)} ${fmt.body} pt · ตาราง ${fmt.table} pt) PDF ที่สร้างจะแบ่งหน้าตรงตามตัวอย่างนี้ ข้อความ<span class="bk-todo">สีเหลือง</span>คือส่วนที่ต้องกรอกเพิ่ม เล่ม Word ที่สร้างจากข้อมูลนี้ใช้รูปแบบตัวอักษรชุดเดียวกัน</p></div></div></section>
@@ -979,7 +1007,7 @@ function viewBook(){
 async function saveBookDoc(path,key,val,label){state[key]=val;render();await dbWrite(db=>db.doc(path).set({...val,updatedAt:new Date().toISOString()}),label)}
 function confirmClear(){return window.confirm("ล้างข้อความที่แก้บนหน้าของส่วนนี้ แล้วกลับไปใช้ข้อมูลอัตโนมัติ?")}
 
-const pgCssVars=fmt=>`--bk-font:'${fmt.font}','Angsana New','TH SarabunPSK','TH Sarabun New','Sarabun',serif;--bk-body:${fmt.body}pt;--bk-table:${fmt.table}pt;--bk-line:${fmt.line};--bk-mL:${fmt.mL}in;--bk-mR:${fmt.mR}in;--bk-mT:${fmt.mT}in;--bk-mB:${fmt.mB}in;--bk-pafter:${fmt.pAfter}pt;--bk-hbefore:${fmt.hBefore}pt;--bk-cgap:${fmt.cGap}in`;
+const pgCssVars=fmt=>`--bk-font:'${fmt.font}','Angsana New','TH SarabunPSK','TH Sarabun New','Sarabun',serif;--bk-body:${fmt.body}pt;--bk-table:${fmt.table}pt;--bk-line:${fmt.line};--bk-mL:${fmt.mL}in;--bk-mR:${fmt.mR}in;--bk-mT:${fmt.mT}in;--bk-mB:${fmt.mB}in;--bk-pafter:${fmt.pAfter}pt;--bk-hbefore:${fmt.hBefore}pt;--bk-cgap:${fmt.cGap}in;--bk-tabw:${fmt.tabW||1.27}cm`;
 async function paginateHtml(html,fmt){
   try{await document.fonts.ready}catch(e){}
   const host=document.createElement("div");host.className="bk-view";host.setAttribute("style",pgCssVars(fmt)+";position:fixed;left:-20000px;top:0;visibility:hidden");
@@ -1008,14 +1036,15 @@ async function paginateHtml(html,fmt){
 }
 const pageFoot=(i,n)=>`<div class="bk-foot"><span>หลักสูตรวิศวกรรมศาสตรบัณฑิต สาขาวิชาวิศวกรรมเครื่องกล (หลักสูตรปรับปรุง พ.ศ. 2571)</span><span>${i}</span></div>`;
 const BK_NOFOOT=["cover","front"];
-const pageHtml=(p,i,n,fmt,nofoot)=>`<div class="bk-pg"><div class="bk-pgc" style="position:absolute;left:${fmt.mL}in;top:${fmt.mT}in;width:calc(8.27in - ${fmt.mL}in - ${fmt.mR}in)">${p}</div>${nofoot?"":pageFoot(i,n)}</div>`;
+const pageHtml=(p,i,n,fmt,nofoot)=>`<div class="bk-pg" style="${pgCssVars(fmt)}"><div class="bk-pgc" style="position:absolute;left:${fmt.mL}in;top:${fmt.mT}in;width:calc(8.27in - ${fmt.mL}in - ${fmt.mR}in)">${p}</div>${nofoot?"":pageFoot(i,n)}</div>`;
 let pgSeq=0;
 async function paginatePreview(sec){
-  const my=++pgSeq,fmt=bookFmt();let html=bookSecFinal(sec);
-  if(sec==="front"){const inf0=document.getElementById("bkPgInfo");if(inf0)inf0.textContent="กำลังคำนวณเลขหน้าสารบัญ… ·";const map=await computeTocPages(fmt);if(my!==pgSeq)return;html=fillToc(html,map)}
+  const my=++pgSeq,fmt=bookFmt(sec);let html=bookSecFinal(sec);
+  if(sec==="front"){const inf0=document.getElementById("bkPgInfo");if(inf0)inf0.textContent="กำลังคำนวณเลขหน้าสารบัญ… ·";const map=await computeTocPages();if(my!==pgSeq)return;html=fillToc(html,map)}
   const pages=await paginateHtml(html,fmt);
   if(my!==pgSeq)return;const box=document.getElementById("bkPages");if(!box)return;
   box.innerHTML=pages.map((p,i)=>pageHtml(p,i+1,pages.length,fmt,BK_NOFOOT.includes(sec))).join("");
+  const pgs=[...box.querySelectorAll(".bk-pg")];pgs.forEach((pg,i)=>pg.querySelectorAll("h3").forEach(e=>{const m=e.textContent.trim().match(/^(\d+)\.\s/);if(m&&!box.querySelector(`[data-sub="${sec}:${m[1]}"]`)){e.dataset.sub=`${sec}:${m[1]}`;const t=document.querySelector(`[data-subpg="${sec}:${m[1]}"]`);if(t)t.textContent="น."+(i+1)}}));
   const inf=document.getElementById("bkPgInfo");if(inf)inf.textContent=`ส่วนนี้มี ${pages.length} หน้า ·`;
 }
 function bookFileName(all){const sec=state.bookSec||"cover";return `เล่มหลักสูตร-วศบ-เครื่องกล-2571-${all?"ฉบับสมบูรณ์":(BOOK_SECS.find(x=>x[0]===sec)||["",sec])[1].split(" ").slice(0,2).join("")}`}
@@ -1023,7 +1052,7 @@ async function bookPrint(all){
   const fmt=bookFmt();const w=window.open("","_blank");if(!w){alert("เบราว์เซอร์บล็อกหน้าต่างใหม่ อนุญาต pop-up แล้วลองอีกครั้ง");return}
   w.document.write('<p style="font:16px sans-serif;padding:20px">กำลังจัดหน้า…</p>');
   const secs=all?BOOK_SECS.map(([k])=>k):[state.bookSec||"cover"];let pages=[];
-  const tmap=secs.includes("front")?await computeTocPages(fmt):null;let no=0;for(const k of secs){const nf=BK_NOFOOT.includes(k);pages=pages.concat((await paginateHtml(k==="front"?fillToc(bookSecFinal(k),tmap):bookSecFinal(k),fmt)).map(p=>pageHtml(p,nf?0:++no,0,fmt,nf)))}
+  const tmap=secs.includes("front")?await computeTocPages():null;let no=0;for(const k of secs){const nf=BK_NOFOOT.includes(k);const fk=bookFmt(k);pages=pages.concat((await paginateHtml(k==="front"?fillToc(bookSecFinal(k),tmap):bookSecFinal(k),fk)).map(p=>pageHtml(p,nf?0:++no,0,fk,nf)))}
   const body=pages.join("");
   w.document.open();w.document.write(`<!doctype html><html lang="th"><head><meta charset="utf-8"><title>${esc(bookFileName(all))}</title><style>${BOOK_CSS}${PAGE_CSS}@page{size:A4;margin:0}body{margin:0}.pbar{font:14px sans-serif;background:#fff8d6;border:1px solid #e0c96b;padding:8px 12px;margin:10px}.pbar button{margin-left:8px}@media print{.pbar{display:none}.bk-pg{margin:0!important;box-shadow:none!important;break-after:page}}@media screen{body{background:#e8e6e2}}</style></head><body><div class="pbar">ในหน้าต่างพิมพ์ ให้เลือกปลายทาง <b>“บันทึกเป็น PDF / Save as PDF”</b> ขนาด A4 ระยะขอบ “ไม่มี/None” แล้วกดบันทึก (${pages.length} หน้า) <button onclick="print()">เปิดหน้าต่างบันทึก PDF อีกครั้ง</button></div><div class="bk-view" style="${pgCssVars(fmt)}">${body}</div><script>document.fonts.ready.then(()=>setTimeout(()=>print(),400))<\/script></body></html>`);w.document.close();
 }
@@ -1034,11 +1063,11 @@ const BOOK_CSS=`.bk-view{font-family:var(--bk-font);font-size:var(--bk-body);lin
 .bk-view h2.bk-h{font-size:1em;font-weight:700;text-align:center;margin:.4em 0 .6em}.bk-view h2.big{font-size:1.25em}.bk-view h3{font-size:1em;font-weight:700;margin:var(--bk-hbefore,8pt) 0 .2em}
 .bk-view table.bk-t{border-collapse:collapse;margin:.3em auto .6em;font-size:var(--bk-table);line-height:1.1;page-break-inside:auto}.bk-view .bk-t th,.bk-view .bk-t td{border:1px solid #000;padding:2px 5px;vertical-align:top}.bk-view .bk-t th{background:#e7e6e6;text-align:center;font-size:inherit;font-weight:700;color:#000;text-transform:none;letter-spacing:0;white-space:normal}.bk-view .bk-t td.c{text-align:center}.bk-view .bk-t td.r{text-align:right}.bk-view .bk-t td.b{font-weight:700}.bk-view .bk-t td.grp{background:#f2f2f2;font-weight:700}.bk-view tr{break-inside:avoid}
 .bk-view .bk-cover{display:flex;flex-direction:column;align-items:center;text-align:center;font-weight:700}.bk-view .bk-cv{font-size:calc(var(--s)*1pt);line-height:1.25}.bk-view .bk-gap{height:var(--bk-cgap,2.2in)}.bk-view .bk-cvlogo{text-align:center;color:#888;font-size:12pt;margin:.2in 0 .5in}
-.bk-view .bk-sign{text-align:right;margin-top:1em;padding-right:.3in}.bk-view .toc{display:flex;gap:6px}.bk-view .toc .dots{flex:1;border-bottom:1px dotted #555;margin-bottom:.35em}.bk-view .toc{align-items:flex-end}.bk-view .toc>span:first-child{max-width:85%}.bk-view .toc .dots{min-width:2em}.bk-view .toc>span:last-child{min-width:1.6em;text-align:right}.bk-view .small-note{font-size:.85em;color:#555}.bk-view .bk-todo{background:#fff3b0}`;
+.dfx-bar{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-top:6px}.dfx-g{display:inline-flex;align-items:center;gap:3px;border:1px solid var(--line);border-radius:8px;padding:2px 6px;background:#fff}.dfx-g select{padding:2px}.bk-subed{border:1px solid var(--line);border-radius:8px;padding:6px 10px;margin:6px 0}.bk-subed summary{cursor:pointer}.bk-subed label{display:block;margin-top:6px}.bk-subed textarea,.bk-subed input{width:100%}.bk-view{tab-size:var(--bk-tabw,1.27cm)}.bk-view .bk-tab{white-space:pre}.bk-sheet.editing .bk-tab{background:rgba(0,110,255,.10)}.bk-view .bk-sign{text-align:right;margin-top:1em;padding-right:.3in}.bk-view .toc{display:flex;gap:6px}.bk-view .toc .dots{flex:1;border-bottom:1px dotted #555;margin-bottom:.35em}.bk-view .toc{align-items:flex-end}.bk-view .toc>span:first-child{max-width:85%}.bk-view .toc .dots{min-width:2em}.bk-view .toc>span:last-child{min-width:1.6em;text-align:right}.bk-view .small-note{font-size:.85em;color:#555}.bk-view .bk-todo{background:#fff3b0}`;
 
 const BOOK_UI_CSS=`.cd-box{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;align-items:end}.cd-col{display:grid;gap:2px}.cd-big{font-size:28px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}.cd-big.late{color:var(--fail)}.cd-mid{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
 .cd-box .bar{height:8px;background:var(--soft);border-radius:4px;overflow:hidden}.cd-box .bar i{display:block;height:100%;background:var(--accent)}.cd-edit{grid-column:1/-1}
-.bk-wrap{display:grid;grid-template-columns:250px 1fr;gap:12px;margin-top:10px}.bk-nav{display:grid;gap:4px;align-content:start}.bk-sec{display:grid;grid-template-columns:22px 1fr;gap:2px 6px;text-align:left;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:none;cursor:pointer;font:inherit}.bk-sec.on{border-color:var(--accent);background:var(--accent-soft)}.bk-no{font-weight:700;color:var(--accent)}.bk-tt{font-size:12.5px}.bk-st{grid-column:2}
+.bk-subs{display:grid;gap:1px;margin:0 0 4px 14px;border-left:2px solid var(--line);padding-left:6px}.bk-sub{display:flex;justify-content:space-between;gap:6px;text-align:left;background:none;border:0;padding:3px 4px;font:inherit;font-size:12.5px;cursor:pointer;border-radius:4px;color:inherit}.bk-sub:hover{background:var(--soft)}.bk-sub span:last-child{white-space:nowrap}.bk-wrap{display:grid;grid-template-columns:250px 1fr;gap:12px;margin-top:10px}.bk-nav{display:grid;gap:4px;align-content:start}.bk-sec{display:grid;grid-template-columns:22px 1fr;gap:2px 6px;text-align:left;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:none;cursor:pointer;font:inherit}.bk-sec.on{border-color:var(--accent);background:var(--accent-soft)}.bk-no{font-weight:700;color:var(--accent)}.bk-tt{font-size:12.5px}.bk-st{grid-column:2}
 .bk-main{min-width:0}.bk-view{background:#eceae6;border-radius:8px;padding:14px;overflow:auto;max-height:78vh}.bk-view .bk-sheet{zoom:var(--bk-zoom);width:210mm;min-height:297mm;box-sizing:border-box;margin:0 auto;background:#fff repeating-linear-gradient(to bottom,transparent 0,transparent calc(297mm - 1px),#d33 calc(297mm - 1px),#d33 297mm);padding:var(--bk-mT) var(--bk-mR) var(--bk-mB) var(--bk-mL);box-shadow:0 1px 4px rgba(0,0,0,.2)}
 .bk-view .bk-break{border-top:2px dashed #999;margin:.5in 0}.bk-paged{max-height:80vh}.bk-pages{zoom:var(--bk-zoom)}.bk-pdfsrc .bk-break{border:0;margin:0;height:0}.bk-pdfsrc,.bk-pdfsrc *{letter-spacing:.01px}.bk-pdfsrc p{text-align:left}.bk-pdfsrc .bk-todo{background:#fff3b0}.bk-edit{border:1px solid var(--accent);background:var(--accent-soft);border-radius:8px;padding:10px 12px;margin-bottom:8px;display:grid;gap:6px}.bk-edit textarea,.bk-edit input[type=text]{width:100%;font:inherit}.bk-sheet.editing{outline:3px dashed var(--accent);outline-offset:-6px;cursor:text}.bk-pdf{width:100%;height:80vh;border:1px solid var(--line);border-radius:8px;background:#eee}
 @media (max-width:820px){.bk-wrap{grid-template-columns:1fr}.bk-nav{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}}`;
@@ -1497,6 +1526,33 @@ function route(){
 window.addEventListener("hashchange",route);
 function markCloDirty(){const it=readCloForm();if(it)state.cloDraft={code:state.cloCourse,items:it,dirty:true}}
 
+// ---- direct-edit paragraph formatting
+const dfxUndo=[];let dfxRange=null;
+const DFX_BLK="p,h1,h2,h3,h4,li,td,th,.toc,.bk-cv,.bk-sign,.small-note,.bk-cvlogo";
+document.addEventListener("selectionchange",()=>{const s=document.getSelection(),sh=document.getElementById("bkSheet");if(sh&&s.rangeCount&&sh.contains(s.anchorNode))dfxRange=s.getRangeAt(0).cloneRange()});
+function dfxBlocks(){const sh=document.getElementById("bkSheet");if(!sh||!dfxRange)return [];
+  let L=[...sh.querySelectorAll(DFX_BLK)].filter(el=>dfxRange.intersectsNode(el));
+  if(!L.length){let n=dfxRange.startContainer;n=n.nodeType===1?n:n.parentElement;const c=n&&n.closest(DFX_BLK);if(c&&sh.contains(c))L=[c];else if(n&&n!==sh&&sh.contains(n))L=[n]}
+  return L.filter(el=>!L.some(o=>o!==el&&el.contains(o)))}
+function dfxDo(act,val){const sh=document.getElementById("bkSheet");if(!sh)return;const msg=document.getElementById("dfxMsg");
+  if(act==="undo"){if(dfxUndo.length){sh.innerHTML=dfxUndo.pop();msg&&(msg.textContent="ย้อนกลับแล้ว")}else document.execCommand("undo");return}
+  if(act==="tab"){sh.focus();if(dfxRange){const s=document.getSelection();s.removeAllRanges();s.addRange(dfxRange)}document.execCommand("insertHTML",false,'<span class="bk-tab">\t</span>');return}
+  const L=dfxBlocks();if(!L.length){msg&&(msg.textContent="คลิกที่ย่อหน้าในหน้ากระดาษก่อน");return}
+  dfxUndo.push(sh.innerHTML);if(dfxUndo.length>40)dfxUndo.shift();
+  const px=(el,p)=>parseFloat(getComputedStyle(el)[p])||0;
+  L.forEach(el=>{const st=el.style;
+    if(act==="lh")st.lineHeight=val||"";
+    else if(act==="sb+"||act==="sb-")st.marginTop=Math.max(0,px(el,"marginTop")*0.75+(act==="sb+"?2:-2))+"pt";
+    else if(act==="sa+"||act==="sa-")st.marginBottom=Math.max(0,px(el,"marginBottom")*0.75+(act==="sa+"?2:-2))+"pt";
+    else if(act==="ml+"||act==="ml-")st.marginLeft=Math.max(0,Math.round((px(el,"marginLeft")/96+(act==="ml+"?0.25:-0.25))*100)/100)+"in";
+    else if(act==="ti+"||act==="ti-")st.textIndent=Math.round((px(el,"textIndent")/96+(act==="ti+"?0.25:-0.25))*100)/100+"in";
+    else if(act.startsWith("al:"))st.textAlign=act.slice(3);
+    else if(act==="clr")["lineHeight","marginTop","marginBottom","marginLeft","textIndent","textAlign"].forEach(k=>st[k]="");
+    if(!el.getAttribute("style"))el.removeAttribute("style")});
+  msg&&(msg.textContent=`ปรับ ${L.length} ย่อหน้า (ยังไม่บันทึก)`)}
+document.addEventListener("mousedown",e=>{const b=e.target.closest&&e.target.closest("[data-dfx]");if(!b)return;e.preventDefault();dfxDo(b.dataset.dfx)});
+document.addEventListener("keydown",e=>{if(e.key==="Tab"&&e.target&&e.target.id==="bkSheet"&&!e.ctrlKey&&!e.altKey){e.preventDefault();document.execCommand("insertHTML",false,'<span class="bk-tab">\t</span>')}});
+document.addEventListener("change",e=>{const t=e.target;if(t.id==="dfxLH"){dfxDo("lh",t.value);t.value=""}else if(t.id==="dfxTab"){state.bookTabDraft=+t.value;const v=t.closest(".bk-main")&&t.closest(".bk-main").querySelector("#bkSheet");if(v)v.parentElement.style.setProperty("--bk-tabw",t.value+"cm");const m=document.getElementById("dfxMsg");if(m)m.textContent="ระยะแท็บ "+t.value+" ซม. (ยังไม่บันทึก)"}},true);
 document.addEventListener("click",async e=>{
   const j=e.target.closest("[data-jump]");if(j){e.preventDefault();const t=document.getElementById(j.dataset.jump);if(t)t.scrollIntoView({behavior:"smooth",block:"start"});return}
   const b=e.target.closest("button");if(!b)return;const d=b.dataset;
@@ -1536,19 +1592,22 @@ document.addEventListener("click",async e=>{
   else if(b.id==="ownFromLoad"){const o={...state.owners};let n=0;COURSES.forEach(c=>{if(o[c.code])return;for(const s of ["S1","S2","SS"]){const f=state.assign[s][c.code+"|L1"]||state.assign[s][c.code+"|P1"];if(f){o[c.code]=f;n++;break}}});state.owners=o;state.msg=n?`กำหนดผู้รับผิดชอบจากภาระสอน ${n} วิชา`:"ไม่พบข้อมูลภาระสอนที่ยังไม่ได้ใช้ จัดผู้สอนใน ข2 ก่อน";render();if(n)await dbWrite(db=>db.doc("owners/map").set({map:o,cv:5,updatedAt:new Date().toISOString()}),"ผู้รับผิดชอบรายวิชา")}
   else if(b.id==="bkEditOpen"){state.bookEditing=state.bookSec;state.bookDirect=null;render()}
   else if(b.id==="bkEditClose"){state.bookEditing=null;render()}
-  else if(b.id==="bkEditSave"||b.id==="bkEditReset"){const ed={...(state.bookEdit||{})},f={...(ed.f||{})};const sec=state.bookSec;if(b.id==="bkEditReset")(BOOK_FIELDS[sec]||[]).forEach(([k])=>delete f[k]);else document.querySelectorAll("[data-bkf]").forEach(x=>{f[x.dataset.bkf]=x.value.trim()});ed.f=f;const y=window.scrollY;await saveBookEdit(ed,"ข้อมูลเล่ม");window.scrollTo(0,y)}
+  else if(b.id==="bkEditSave"||b.id==="bkEditReset"){const ed={...(state.bookEdit||{})},f={...(ed.f||{})};const sec=state.bookSec;if(b.id==="bkEditReset"){(BOOK_FIELDS[sec]||[]).forEach(([k])=>delete f[k]);secSubs(sec).forEach(([s,n])=>delete f[subKey(s,n)])}else document.querySelectorAll("[data-bkf]").forEach(x=>{f[x.dataset.bkf]=x.value.trim()});ed.f=f;const y=window.scrollY;await saveBookEdit(ed,"ข้อมูลเล่ม");window.scrollTo(0,y)}
   else if(b.id==="bkLgMinus"||b.id==="bkLgPlus"){const v=Math.min(8,Math.max(1,Math.round((logoH()+(b.id==="bkLgPlus"?0.25:-0.25))*100)/100));const y=window.scrollY;await saveBookEdit({...(state.bookEdit||{}),logoH:v},"ขนาดตรา");window.scrollTo(0,y)}
-  else if(b.id==="bkCgUp"||b.id==="bkCgDown"){const f={...bookFmt()};f.cGap=Math.min(6,Math.max(0,Math.round((+f.cGap+(b.id==="bkCgDown"?0.1:-0.1))*10)/10));const y=window.scrollY;await saveBookDoc("program/bookfmt","bookFmt",f,"ตำแหน่งข้อความปก");window.scrollTo(0,y)}
+  else if(b.id==="bkCgUp"||b.id==="bkCgDown"){const f=bookFmtAll();f.cGap=Math.min(6,Math.max(0,Math.round((+f.cGap+(b.id==="bkCgDown"?0.1:-0.1))*10)/10));const y=window.scrollY;await saveBookDoc("program/bookfmt","bookFmt",f,"ตำแหน่งข้อความปก");window.scrollTo(0,y)}
   else if(b.id==="bkLogoDel"){const ed={...(state.bookEdit||{})};delete ed.logo;await saveBookEdit(ed,"ตรามหาวิทยาลัย")}
   else if(b.id==="bkDirectOpen"){state.bookDirect=state.bookSec;state.bookEditing=null;render()}
-  else if(b.id==="bkDirectCancel"){state.bookDirect=null;render()}
-  else if(b.id==="bkDirectSave"){const el=document.getElementById("bkSheet");const ed={...(state.bookEdit||{})},hh={...(ed.html||{})};hh[state.bookSec]={h:el.innerHTML,at:new Date().toISOString()};ed.html=hh;state.bookDirect=null;await saveBookEdit(ed,"หน้าที่แก้มือ")}
+  else if(b.id==="bkDirectCancel"){state.bookDirect=null;state.bookTabDraft=null;dfxUndo.length=0;render()}
+  else if(b.id==="bkDirectSave"){const el=document.getElementById("bkSheet");if(state.bookTabDraft!=null){const f=bookFmtAll(),s=state.bookSec;f.sec[s]={...(f.sec[s]||{}),tabW:state.bookTabDraft};state.bookTabDraft=null;await saveFmtAll(f,"ระยะแท็บ")}const ed={...(state.bookEdit||{})},hh={...(ed.html||{})};hh[state.bookSec]={h:el.innerHTML,at:new Date().toISOString()};ed.html=hh;state.bookDirect=null;await saveBookEdit(ed,"หน้าที่แก้มือ")}
   else if(b.id==="bkDirectClear"){if(!confirmClear())return;const ed={...(state.bookEdit||{})},hh={...(ed.html||{})};delete hh[state.bookSec];ed.html=hh;await saveBookEdit(ed,"หน้าที่แก้มือ")}
   else if(d.bksec){state.bookSec=d.bksec;state.bookEditing=null;state.bookDirect=null;const y=window.scrollY;render();window.scrollTo(0,y)}
   else if(b.id==="bkPrint"){bookPrint(false)}
   else if(b.id==="bkPdf"||b.id==="bkPdfAll"){bookPrint(b.id==="bkPdfAll")}
   else if(b.id==="bkPdfClose"){state.bookPdf=null;render()}
-  else if(b.id==="bfReset"){await saveBookDoc("program/bookfmt","bookFmt",{...BOOK_FMT0},"รูปแบบเล่ม")}
+  else if(b.id==="bfReset"){if(!confirm("คืนค่ารูปแบบทุกส่วนตามแบบฟอร์ม?"))return;await saveFmtAll({...BOOK_FMT0,cGap:bookFmtAll().cGap,sec:{}})}
+  else if(b.id==="bfSecAll"){const s=state.bookSec,f=bookFmtAll(),cur=bookFmt(s);await saveFmtAll({...cur,cGap:f.cGap,sec:{}},"รูปแบบเล่ม")}
+  else if(b.id==="bfSecClear"){const f=bookFmtAll();delete f.sec[state.bookSec];await saveFmtAll(f)}
+  else if(b.dataset&&b.dataset.bksub){state.bookSubOpen=b.dataset.bksub;const de=document.querySelector(`[data-subed="${b.dataset.bksub}"]`);if(de){de.open=true;de.scrollIntoView({behavior:"smooth",block:"center"});const ta=de.querySelector("textarea");if(ta)ta.focus({preventScroll:true});return}const el=document.querySelector(`#bkPages [data-sub="${b.dataset.bksub}"]`);if(el)el.scrollIntoView({behavior:"smooth",block:"start"});else{state.bookEditing=state.bookSec;state.bookDirect=null;state.bookSubOpen=b.dataset.bksub;render();const f=document.getElementById("bkEditForm");if(f)f.scrollIntoView({behavior:"smooth"})}}
   else if(b.id==="bpSave"){const dl=document.getElementById("bpDl").value,rv=document.getElementById("bpRv").value;if(!dl||!rv)return;await saveBookDoc("program/bookplan","bookPlan",{...bookPlan(),deadline:dl,review:rv},"กำหนดส่งเล่ม")}
   else if(b.id==="aiSuggest"){const c=COURSES.find(x=>x.code===state.cloCourse);const items=readCloForm()||[];const prompt=aiPrompt(c,items);state.cloDraft={code:c.code,items,dirty:true};state.ai={code:c.code,status:"loading",prompt};render();
     if(typeof window.__aiSuggest==="function"){try{const txt=await window.__aiSuggest(prompt);state.ai={code:c.code,status:"done",prompt,res:parseAi(txt)}}catch(x){state.ai={code:c.code,status:"manual",prompt,err:"เรียก AI อัตโนมัติไม่สำเร็จ ("+((x&&x.message)||x)+") ใช้วิธีคัดลอกคำสั่งแทนได้"}}}
@@ -1575,7 +1634,7 @@ document.addEventListener("change",async e=>{
   if(t.id==="bkLogoH"){await saveBookEdit({...(state.bookEdit||{}),logoH:+t.value},"ตรามหาวิทยาลัย");return}
   if(t.dataset&&t.dataset.bkf)return;
   if(t.id==="bfZoom"){state.bookZoom=+t.value;try{localStorage.setItem("mecp_bkzoom",t.value)}catch(x){}const y=window.scrollY;render();window.scrollTo(0,y);return}
-  if(["bfFont","bfBody","bfTable","bfLine","bfML","bfPA","bfHB","bfCG"].includes(t.id)){const f={...bookFmt()};const k={bfFont:"font",bfBody:"body",bfTable:"table",bfLine:"line",bfML:"mL",bfPA:"pAfter",bfHB:"hBefore",bfCG:"cGap"}[t.id];f[k]=t.id==="bfFont"?t.value:+t.value;const y=window.scrollY;await saveBookDoc("program/bookfmt","bookFmt",f,"รูปแบบเล่ม");window.scrollTo(0,y);return}
+  if(["bfFont","bfBody","bfTable","bfLine","bfML","bfPA","bfHB"].includes(t.id)){const f=bookFmtAll(),s=state.bookSec||"cover";const k={bfFont:"font",bfBody:"body",bfTable:"table",bfLine:"line",bfML:"mL",bfPA:"pAfter",bfHB:"hBefore"}[t.id];f.sec[s]={...(f.sec[s]||{}),[k]:t.id==="bfFont"?t.value:+t.value};await saveFmtAll(f,"รูปแบบเล่ม");return}
   if(t.id==="bkChk"){const m={...(state.bookCheck||{})};const k=state.bookSec||"cover";if(t.checked)m[k]={by:(state.user&&state.user.email)||String(state.user||""),at:new Date().toISOString()};else delete m[k];const y=window.scrollY;await saveBookDoc("program/bookcheck","bookCheck",m,"สถานะตรวจเล่ม");window.scrollTo(0,y);return}
   if(t.closest("#cloForm")){state.cloDraft={code:state.cloCourse,items:readCloForm(),dirty:true};const y=window.scrollY;render();window.scrollTo(0,y);return}
   if(t.dataset.extowner!==undefined){const o={...(state.extOwners||{})};const v=t.value.trim().replace(/\s+/g," ");if(v)o[t.dataset.extowner]=v;else delete o[t.dataset.extowner];state.extOwners=o;render();await dbWrite(db=>db.doc("owners/ext").set({map:o,updatedAt:new Date().toISOString()}),"ผู้สอนจากหน่วยงานอื่น");return}
@@ -1701,7 +1760,7 @@ function loginScreen(msg){
   db.doc("owners/ext").onSnapshot(s=>{state.extOwners=aliasKeys((s.exists&&s.data().map)||{},true);softRender()},err);
   db.doc("program/intake").onSnapshot(s=>{const d=s.exists&&s.data();if(d&&d.ME!=null)state.intake={ME:+d.ME||0,EV:+d.EV||0,CE:+d.CE||0};softRender()},err);
   db.doc("program/bookedit").onSnapshot(s=>{const d=s.exists&&s.data();state.bookEdit=d?{logo:d.logo||"",logoH:d.logoH,f:d.f||{},html:d.html||{}}:null;softRender()},err);
-  db.doc("program/bookfmt").onSnapshot(s=>{const d=s.exists&&s.data();state.bookFmt=d?{font:d.font,body:d.body,table:d.table,line:d.line,mL:d.mL,mR:d.mR,mT:d.mT,mB:d.mB,pAfter:d.pAfter,hBefore:d.hBefore,cGap:d.cGap}:null;softRender()},err);
+  db.doc("program/bookfmt").onSnapshot(s=>{const d=s.exists&&s.data();state.bookFmt=d?{font:d.font,body:d.body,table:d.table,line:d.line,mL:d.mL,mR:d.mR,mT:d.mT,mB:d.mB,pAfter:d.pAfter,hBefore:d.hBefore,cGap:d.cGap,sec:d.sec||{}}:null;softRender()},err);
   db.doc("program/bookplan").onSnapshot(s=>{const d=s.exists&&s.data();state.bookPlan=d?{deadline:d.deadline,review:d.review,note:d.note}:null;softRender()},err);
   db.doc("program/bookcheck").onSnapshot(s=>{const d=s.exists&&s.data();const m={...(d||{})};delete m.updatedAt;state.bookCheck=m;softRender()},err);
   db.doc("program/team").onSnapshot(s=>{const d=s.exists&&s.data();state.team={role:(d&&d.role)||{},qual:(d&&d.qual)||{}};softRender()},err);
