@@ -981,12 +981,13 @@ async function paginateHtml(html,fmt){
   flush();host.remove();return pages;
 }
 const pageFoot=(i,n)=>`<div class="bk-foot"><span>หลักสูตรวิศวกรรมศาสตรบัณฑิต สาขาวิชาวิศวกรรมเครื่องกล (หลักสูตรปรับปรุง พ.ศ. 2571)</span><span>${i}</span></div>`;
-const pageHtml=(p,i,n,fmt)=>`<div class="bk-pg"><div class="bk-pgc" style="position:absolute;left:${fmt.mL}in;top:${fmt.mT}in;width:calc(8.27in - ${fmt.mL}in - ${fmt.mR}in)">${p}</div>${pageFoot(i,n)}</div>`;
+const BK_NOFOOT=["cover","front"];
+const pageHtml=(p,i,n,fmt,nofoot)=>`<div class="bk-pg"><div class="bk-pgc" style="position:absolute;left:${fmt.mL}in;top:${fmt.mT}in;width:calc(8.27in - ${fmt.mL}in - ${fmt.mR}in)">${p}</div>${nofoot?"":pageFoot(i,n)}</div>`;
 let pgSeq=0;
 async function paginatePreview(sec){
   const my=++pgSeq,fmt=bookFmt();const pages=await paginateHtml(bookSecFinal(sec),fmt);
   if(my!==pgSeq)return;const box=document.getElementById("bkPages");if(!box)return;
-  box.innerHTML=pages.map((p,i)=>pageHtml(p,i+1,pages.length,fmt)).join("");
+  box.innerHTML=pages.map((p,i)=>pageHtml(p,i+1,pages.length,fmt,BK_NOFOOT.includes(sec))).join("");
   const inf=document.getElementById("bkPgInfo");if(inf)inf.textContent=`ส่วนนี้มี ${pages.length} หน้า ·`;
 }
 function bookFileName(all){const sec=state.bookSec||"cover";return `เล่มหลักสูตร-วศบ-เครื่องกล-2571-${all?"ฉบับสมบูรณ์":(BOOK_SECS.find(x=>x[0]===sec)||["",sec])[1].split(" ").slice(0,2).join("")}`}
@@ -994,8 +995,8 @@ async function bookPrint(all){
   const fmt=bookFmt();const w=window.open("","_blank");if(!w){alert("เบราว์เซอร์บล็อกหน้าต่างใหม่ อนุญาต pop-up แล้วลองอีกครั้ง");return}
   w.document.write('<p style="font:16px sans-serif;padding:20px">กำลังจัดหน้า…</p>');
   const secs=all?BOOK_SECS.map(([k])=>k):[state.bookSec||"cover"];let pages=[];
-  for(const k of secs)pages=pages.concat(await paginateHtml(bookSecFinal(k),fmt));
-  const body=pages.map((p,i)=>pageHtml(p,i+1,pages.length,fmt)).join("");
+  let no=0;for(const k of secs){const nf=BK_NOFOOT.includes(k);pages=pages.concat((await paginateHtml(bookSecFinal(k),fmt)).map(p=>pageHtml(p,nf?0:++no,0,fmt,nf)))}
+  const body=pages.join("");
   w.document.open();w.document.write(`<!doctype html><html lang="th"><head><meta charset="utf-8"><title>${esc(bookFileName(all))}</title><style>${BOOK_CSS}${PAGE_CSS}@page{size:A4;margin:0}body{margin:0}.pbar{font:14px sans-serif;background:#fff8d6;border:1px solid #e0c96b;padding:8px 12px;margin:10px}.pbar button{margin-left:8px}@media print{.pbar{display:none}.bk-pg{margin:0!important;box-shadow:none!important;break-after:page}}@media screen{body{background:#e8e6e2}}</style></head><body><div class="pbar">ในหน้าต่างพิมพ์ ให้เลือกปลายทาง <b>“บันทึกเป็น PDF / Save as PDF”</b> ขนาด A4 ระยะขอบ “ไม่มี/None” แล้วกดบันทึก (${pages.length} หน้า) <button onclick="print()">เปิดหน้าต่างบันทึก PDF อีกครั้ง</button></div><div class="bk-view" style="${pgCssVars(fmt)}">${body}</div><script>document.fonts.ready.then(()=>setTimeout(()=>print(),400))<\/script></body></html>`);w.document.close();
 }
 const YEAR_TXT="2571";
