@@ -576,8 +576,10 @@ async function savePlo(){
 }
 async function resetPlo(){applyPloDoc(null);state.ploEdit=null;state.ploDraft=null;state.ploReset=false;render();await dbWrite(db=>db.doc("program/plos").delete(),"PLO")}
 function ploList(na){
-  return `<section class="panel"><h2>PLOs ของหลักสูตร · ${PLOS.length} ข้อ</h2><div class="plo-grid">${PLOS.map(p=>{const n=na.per[p.n].filter(x=>x.st==="have").length;
-    return `<div class="plo-card"><div class="plo-no">PLO<br>${p.n}</div><div><div class="small" style="font-weight:600;color:var(--accent)">${esc(PLO_SHORT[p.n]||"")}</div><div class="pt">${esc(p.t)}</div>
+  const canEd=state.isAdmin&&state.canWrite;
+  return `<section class="panel"><div class="row" style="justify-content:space-between"><h2 style="margin:0">PLOs ของหลักสูตร · ${PLOS.length} ข้อ</h2>${canEd?`<span class="small muted">${PLO_CUSTOM?"ใช้ PLO ที่แก้ไขแล้ว":"ใช้ PLO ตั้งต้น"} · กดแก้ไขที่การ์ดเพื่อปรับ PLO และ Sub-PLO</span>`:""}</div><div class="plo-grid" style="margin-top:10px">${PLOS.map(p=>{const n=na.per[p.n].filter(x=>x.st==="have").length;
+    if(state.ploEdit===p.n)return `<div class="panel" style="grid-column:1/-1;border-color:var(--accent);margin:0"><h2>แก้ไข PLO${p.n}</h2>${ploForm()}</div>`;
+    return `<div class="plo-card"><div class="plo-no">PLO<br>${p.n}</div><div style="flex:1;min-width:0"><div class="row" style="justify-content:space-between;gap:6px;flex-wrap:nowrap"><div class="small" style="font-weight:600;color:var(--accent)">${esc(PLO_SHORT[p.n]||"")}</div>${canEd?`<button class="sm" data-ploedit="${p.n}" ${state.ploEdit?"disabled":""} style="flex:none">แก้ไข</button>`:""}</div><div class="pt">${esc(p.t)}</div>
     <div class="pm"><span class="tag">${esc(String(p.d).split(/,\s*/).map(x=>DOM_TH[x]||x).join(" · "))}</span><span class="tag">Bloom: ${esc(p.b)}</span><span class="tag">สภาวิศวกร ข้อ ${p.coe.join(", ")}</span><span class="tag">ที่มา ${n} รายการ</span></div></div></div>`}).join("")}</div></section>`;
 }
 function mindMap(na){
