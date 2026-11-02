@@ -163,6 +163,10 @@ td.r,th.r{text-align:right} td.c,th.c{text-align:center}
 .chips{display:flex;flex-wrap:wrap;gap:2px 4px}
 .err{color:var(--fail);font-size:12.5px}
 .clo-row{border-top:1px solid var(--line);padding:10px 0;display:grid;gap:6px}
+.desc-box{display:grid;gap:6px;margin:4px 0 12px}.desc-box textarea{width:100%;min-height:72px}
+.ai-box{border:1px solid var(--accent);background:var(--accent-soft);border-radius:8px;padding:10px 12px;margin:8px 0 12px;display:grid;gap:6px}
+.ai-item{background:var(--bg,#fff);border-radius:6px;padding:8px;display:grid;gap:4px;justify-items:start}
+.btnlink{display:inline-block;border:1px solid var(--line);border-radius:6px;padding:4px 10px;text-decoration:none;color:inherit}
 .clo-row:first-child{border-top:0}
 .flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12.5px;color:var(--muted);margin-bottom:12px}
 .flow span{padding:2px 8px;border-radius:4px;background:var(--soft)}
@@ -416,7 +420,7 @@ const CLO0={
 };
 
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10},
-  faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false};
+  faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null};
 try{const s=JSON.parse(localStorage.getItem("mecp")||"{}");if(s.intake)state.intake=s.intake;if(s.track)state.track=s.track}catch(e){}
 try{state.me=localStorage.getItem("mecp_me")||""}catch(e){}
 function savePrefs(){try{localStorage.setItem("mecp",JSON.stringify({intake:state.intake,track:state.track}))}catch(e){}}
@@ -442,6 +446,63 @@ const PLO_V3={1:1,2:3,3:4,4:5,5:6,6:6};
 const upgradeNeed3=x=>{if(!x||x.pv===3||!Array.isArray(x.plos))return x;return {...x,pv:3,plos:[...new Set(x.plos.map(n=>PLO_V2[n]||n))].sort()}};
 const upgradeNeed=x=>{if(!x||x.pv===4||!Array.isArray(x.plos))return x;const y=upgradeNeed3(x);return {...y,pv:4,plos:[...new Set(y.plos.map(n=>PLO_V3[n]||n))].sort((a,b)=>a-b)}};
 const subOf=code=>SUBS.find(s=>s.code===code);
+// ---- course descriptions + AI CLO suggestions ----
+const DESC0={"4-000-101": ["หลักการพื้นฐานทางกลศาสตร์วิศวกรรม การประยุกต์ใช้กลศาสตร์วิศวกรรมในการวิเคราะห์ปัญหาทางวิศวกรรม ระบบแรงและโมเมนต์ของแรง แผนภาพวัตถุอิสระ สภาวะสมดุลของอนุภาคและวัตถุแข็งเกร็ง แรงปฏิกิริยาและแรงภายในโครงสร้าง โครงข้อหมุนและชิ้นส่วนโครงสร้างเบื้องต้น ความเสียดทานในระบบวิศวกรรม จุดศูนย์ถ่วง จุดเซนทรอยด์ และโมเมนต์ความเฉื่อยของพื้นที่ สถิตยศาสตร์ของไหลและแรงดันของไหลเบื้องต้น การเคลื่อนที่ของอนุภาคและวัตถุแข็งเกร็ง จลนศาสตร์และจลนพลศาสตร์ งานและพลังงาน การดลและโมเมนตัม", "Fundamental principles of engineering mechanics, application of mechanics to engineering problem analysis, force systems and moments of forces, free-body diagrams, equilibrium of particles and rigid bodies, reaction forces and internal forces in structures, basic trusses and structural members, friction in engineering systems, center of gravity, centroids, and area moments of inertia, introduction to fluid statics and fluid pressure, motion of particles and rigid bodies, kinematics and kinetics, work and energy, impulse and momentum."], "4-000-102": ["การเขียนอักษร การเขียนภาพด้วยมือและการสเก็ตภาพ การมองภาพฉาย การเขียนภาพฉายและภาพสามมิติ การกำหนดขนาดและพิกัดความเผื่อ ภาพช่วย ภาพตัด แผ่นคลี่ และแบบประกอบ การเขียนแบบด้วยคอมพิวเตอร์เบื้องต้น", "Engineering lettering, freehand drawing and sketching, orthographic projection visualization, orthographic and pictorial drawings, dimensioning and tolerancing, auxiliary views, sectional views, surface developments, and assembly drawings, introduction to computer-aided drafting."], "4-000-103": ["แนวคิดและองค์ประกอบของระบบคอมพิวเตอร์ การอันตรกิริยาระหว่างฮาร์ดแวร์และซอฟต์แวร์ การประมวลผลข้อมูลทางอิเล็กทรอนิกส์ วิธีการออกแบบและการพัฒนาโปรแกรม การเขียนโปรแกรมด้วยภาษาระดับสูง การประยุกต์ใช้โปรแกรมสำเร็จรูปทางวิศวกรรม", "Concepts and components of computer systems, hardware-software interactions, electronic data processing, program design and development methodologies, programming using high-level languages, application of engineering software packages."], "4-110-101": ["การฝึกปฏิบัติงานพื้นฐานเบื้องต้นทางด้านวิศวกรรมที่เกี่ยวข้องกับเครื่องมือทั่วไป เครื่องมือวัด เครื่องมือร่างแบบ งานเครื่องมือกล งานเชื่อม การวางแผนขั้นตอนการทำงาน ความปลอดภัยในการปฏิบัติงานและจรรยาบรรณวิศวกร", "Basic engineering workshop practices involving general tools, measuring instruments, and layout tools, machine tool operations and welding processes, workflow planning, occupational safety and engineering ethics."], "0-110-001": ["โครงสร้างไวยากรณ์ และคำศัพท์ภาษาอังกฤษในบริบทที่เกี่ยวข้องกับการทำข้อสอบวัดมาตรฐานภาษาอังกฤษ กลยุทธ์การฟังและการอ่านเพื่อจับใจความสำคัญ การฝึกความคุ้นเคยและบริหารเวลาในการทำข้อสอบวัดมาตรฐานภาษาอังกฤษในระดับสากล", "English grammar structures and vocabulary in contexts of the standardized tests, listening and reading strategies for main ideas, familiarization with international standardized test formats and time management."], "0-110-002": ["ประวัติศาสตร์และวิวัฒนาการของปัญญาประดิษฐ์ ความหมายและประเภทของปัญญาประดิษฐ์ วิธีการทำงานของปัญญาประดิษฐ์ ปัญญาประดิษฐ์กับข้อมูลขนาดใหญ่ การประยุกต์ใช้ปัญญาประดิษฐ์ ปัญญาประดิษฐ์กับอาชีพ ปัญญาประดิษฐ์กับจริยธรรม ทักษะที่จำเป็นในยุคปัญญาประดิษฐ์ แนวโน้มการพัฒนาปัญญาประดิษฐ์ในอนาคต ปัญญาประดิษฐ์กับความยั่งยืน", "History and evolution of artificial intelligence, meaning and types of artificial intelligence, working principles of artificial intelligence, artificial intelligence and big data, applications of artificial intelligence, artificial intelligence and careers, artificial intelligence and ethics, essential skills in the artificial intelligence era, future trends in artificial intelligence development, artificial intelligence and sustainability."]};
+const DESC_FAC={"4-110-101":"คณะให้ใช้คำอธิบายนี้ได้ไม่เกินร้อยละ 50 ผู้สอนเพิ่มเนื้อหาเฉพาะทางวิศวกรรมเครื่องกล"};
+const descSaved=code=>{const o=state.cloOv[code]||{},d=DESC0[code]||[];return {th:o.descTh!=null?o.descTh:(d[0]||""),en:o.descEn!=null?o.descEn:(d[1]||"")}};
+const descOf=code=>state.descDraft[code]||descSaved(code);
+function aiPrompt(c,items){
+  const e=EXPECTED[c.code]||{},d=descOf(c.code);
+  const pl=PLOS.filter(p=>e[p.n]);const use=pl.length?pl:PLOS;
+  const subs=SUBS.filter(s=>use.some(p=>p.n===s.plo));
+  const L=[];
+  L.push("คุณเป็นผู้เชี่ยวชาญการออกแบบหลักสูตรแบบ OBE ของหลักสูตรวิศวกรรมศาสตรบัณฑิต สาขาวิชาวิศวกรรมเครื่องกล มทร.กรุงเทพ (หลักสูตรปรับปรุง พ.ศ. 2571) ช่วยอาจารย์ร่างผลลัพธ์การเรียนรู้ระดับรายวิชา (CLO)");
+  L.push("");L.push("รายวิชา: "+c.code+" "+c.th);
+  L.push("หน่วยกิต "+c.cr+"("+c.t+"-"+c.p+"-"+c.s+") · "+(GROUPS[c.g]||"")+" · "+(TERM_TH[c.term]||"")+" · แขนง "+(c.tr==="ALL"?"ทุกแขนง":[].concat(c.tr).map(t=>TRACKS[t]).join(", ")));
+  L.push("คำอธิบายรายวิชา (ไทย): "+(d.th||"(ยังไม่มี)"));
+  if(d.en)L.push("Course description (EN): "+d.en);
+  L.push("");L.push("ระดับที่หลักสูตรกำหนดให้วิชานี้รับผิดชอบ (I = แนะนำ, R = ฝึกซ้ำ, M = ประเมินการบรรลุ):");
+  L.push(pl.length?pl.map(p=>"- PLO"+p.n+" ระดับ "+e[p.n]+": "+p.t).join("\n"):"- ยังไม่กำหนด ให้เสนอตามเนื้อหาวิชา");
+  L.push("");L.push("Sub-PLO ที่เลือกใช้ได้ (รหัส · ด้าน · Bloom · ข้อความ):");
+  subs.forEach(s=>L.push("- "+s.code+" · "+s.dom+" · "+s.bloom+" · "+s.t));
+  const cur=(items||[]).filter(x=>x.t);
+  if(cur.length){L.push("");L.push("CLO ที่อาจารย์ร่างไว้แล้ว (ปรับปรุงหรือเสริมได้):");cur.forEach((x,i)=>L.push((i+1)+". "+x.t+" ["+(x.subs||[]).join(", ")+" · "+x.bloom+" · "+x.lv+"]"))}
+  L.push("");L.push("ข้อกำหนด:");
+  L.push("1. เสนอ CLO 3–6 ข้อ ครอบคลุมเนื้อหาในคำอธิบายรายวิชาและทุก PLO ที่หลักสูตรกำหนด");
+  L.push("2. ขึ้นต้นด้วยคำกริยาที่วัดได้ตาม Bloom ห้ามใช้คำว่า "+BANNED.join(", "));
+  L.push("3. แต่ละ CLO อ้างอิง Sub-PLO 1–2 รหัสจากรายการข้างบนเท่านั้น และระดับ lv ต้องไม่ต่ำกว่าที่หลักสูตรกำหนดให้ PLO นั้นอย่างน้อยหนึ่งข้อ");
+  L.push("4. bloom ใช้คำภาษาอังกฤษหนึ่งคำจาก: "+BLOOM.join(", "));
+  L.push("5. ระบุวิธีประเมินที่เป็นหลักฐานเชิงประจักษ์ เช่น สอบ ใบงาน rubric ชิ้นงาน รายงาน");
+  L.push("6. ถ้าคำอธิบายรายวิชายังไม่มี ให้ร่าง descTh และ descEn ด้วย ถ้ามีแล้วให้เป็นค่าว่าง");
+  L.push("");L.push('ตอบเป็น JSON อย่างเดียว ไม่มีข้อความอื่น ตามรูปแบบ {"descTh":"","descEn":"","clos":[{"t":"ข้อความ CLO","subs":["S4-2"],"bloom":"Apply","lv":"R","as":"วิธีประเมิน","why":"เหตุผลสั้น ๆ"}]}');
+  return L.join("\n");
+}
+function parseAi(text){
+  const s=String(text||""),a=s.indexOf("{"),b=s.lastIndexOf("}");
+  if(a<0||b<=a)throw new Error("ไม่พบ JSON ในคำตอบ");
+  const j=JSON.parse(s.slice(a,b+1));const codes=new Set(SUBS.map(x=>x.code));
+  const clos=(j.clos||j.CLOs||[]).map(x=>({t:String(x.t||x.text||"").trim(),subs:[].concat(x.subs||[]).map(String).filter(c=>codes.has(c)),bloom:BLOOM.includes(x.bloom)?x.bloom:"Apply",lv:["I","R","M"].includes(x.lv)?x.lv:"R",as:String(x.as||"").trim(),why:String(x.why||"").trim()})).filter(x=>x.t);
+  if(!clos.length)throw new Error("คำตอบไม่มี CLO");
+  return {clos,descTh:String(j.descTh||"").trim(),descEn:String(j.descEn||"").trim()};
+}
+function aiPanel(c,cdis){
+  const a=state.ai;if(!a||a.code!==c.code)return "";
+  const head=`<div class="row" style="justify-content:space-between"><b>AI แนะนำแนวทาง CLO</b><button type="button" class="sm" id="aiClose">ปิด</button></div>`;
+  if(a.status==="loading")return `<div class="ai-box">${head}<p class="small muted">AI กำลังร่าง CLO จากคำอธิบายรายวิชาและ PLO ที่หลักสูตรกำหนด…</p></div>`;
+  if(a.status==="done"){const r=a.res,d=descOf(c.code);
+    return `<div class="ai-box">${head}<p class="small muted">เป็นเพียงแนวทาง อาจารย์เลือกใช้แล้วปรับถ้อยคำให้ตรงกับรายวิชา CLO จะเข้าไปในแบบฟอร์มด้านล่าง ยังไม่บันทึกจนกว่าจะกดบันทึก</p>
+    ${(r.descTh||r.descEn)?`<div class="ai-item"><div class="small"><b>ร่างคำอธิบายรายวิชา</b></div><div class="small">${esc(r.descTh)}</div><div class="small muted">${esc(r.descEn)}</div><button type="button" class="sm" id="aiDesc" ${cdis}>${d.th||d.en?"ใช้แทนคำอธิบายเดิม":"ใช้คำอธิบายนี้"}</button></div>`:""}
+    ${r.clos.map((x,i)=>`<div class="ai-item"><div><b class="mono">${i+1}.</b> ${esc(x.t)}</div><div class="small muted">${x.subs.join(", ")||"—"} · ${x.bloom} · ระดับ ${x.lv} · ${esc(x.as)}${x.why?` · ${esc(x.why)}`:""}</div><button type="button" class="sm" data-aiadd="${i}" ${cdis}>เพิ่มข้อนี้</button></div>`).join("")}
+    <div class="row" style="gap:8px;margin-top:6px"><button type="button" class="primary sm" id="aiReplace" ${cdis}>ใช้แทน CLO ทั้งหมด</button><button type="button" class="sm" id="aiAppend" ${cdis}>เพิ่มต่อท้ายทั้งหมด</button><button type="button" class="sm" id="aiSuggest">ขอแนวทางใหม่</button></div></div>`}
+  return `<div class="ai-box">${head}
+    ${a.err?`<p class="small err">${esc(a.err)}</p>`:""}
+    <p class="small">ระบบยังไม่ได้เชื่อมต่อ AI โดยตรง ใช้ได้ 3 ขั้น: <b>1)</b> กดคัดลอกคำสั่ง <b>2)</b> เปิด Claude หรือ Gemini แล้ววางคำสั่ง <b>3)</b> คัดลอกคำตอบทั้งหมดมาวางในช่องด้านล่างแล้วกดนำเข้า</p>
+    <textarea readonly rows="5" id="aiPrompt" style="width:100%;font-size:12px">${esc(a.prompt)}</textarea>
+    <div class="row" style="gap:8px;margin:6px 0"><button type="button" class="sm primary" id="aiCopy">คัดลอกคำสั่ง</button><a class="sm btnlink" href="https://claude.ai/new" target="_blank" rel="noopener">เปิด Claude</a><a class="sm btnlink" href="https://gemini.google.com/app" target="_blank" rel="noopener">เปิด Gemini</a><span class="small muted" id="aiCopied"></span></div>
+    <textarea rows="4" id="aiPaste" style="width:100%" placeholder="วางคำตอบของ AI ที่นี่ (รูปแบบ JSON)"></textarea>
+    <div class="row" style="margin-top:6px"><button type="button" class="sm" id="aiImport" ${cdis}>นำเข้าคำตอบ</button></div></div>`;
+}
+
 
 // ---- merged data ----
 let COURSES=[];
@@ -686,7 +747,7 @@ function bookData(){
     program:{th:"วิศวกรรมศาสตรบัณฑิต สาขาวิชาวิศวกรรมเครื่องกล",year:2571,tracks:TRACKS},
     plos:PLOS.map(p=>({...p,sh:PLO_SHORT[p.n]||""})),subs:SUBS.map(s=>({...s})),ylos:YLOS,peos:PEOS,wa:WA,
     needGroups:NEED_GROUPS,needs:needs(),
-    courses:COURSES.map(c=>{const r=ploOf(c);return {...c,ploMap:r.map,ploSrc:r.src,clos:clos(c.code),owner:ownerLabel(c)}}),
+    courses:COURSES.map(c=>{const r=ploOf(c);return {...c,ploMap:r.map,ploSrc:r.src,clos:clos(c.code),owner:ownerLabel(c),descTh:descSaved(c.code).th,descEn:descSaved(c.code).en}}),
     credits:Object.fromEntries(Object.keys(TRACKS).map(t=>[t,{total:sumCr(trackCourses(t)),byGroup:Object.fromEntries(Object.keys(GROUPS).map(g=>[g,sumCr(trackCourses(t),c=>c.g===g)]))}])),
     groups:GROUPS,terms:TERMS,termTh:TERM_TH,
     faculty:F.map(f=>({id:f.id,name:f.name,email:f.email||"",role:roleOf(f.id),deg:qualOf(f.id).deg,pos:qualOf(f.id).pos,formal:formalName(f)})),
@@ -704,7 +765,7 @@ function bookReadiness(){
   L.push(["หมวด 2 ข้อ 1","ปรัชญา วัตถุประสงค์ PLO และ Sub-PLO","pass",`PLO ${PLOS.length} ข้อ · Sub-PLO ${SUBS.length} ข้อ`]);
   L.push(["หมวด 2 ข้อ 2–4","วัตถุประสงค์ × PLO · ผลลัพธ์ 4 ด้าน · YLO","pass","ดึงจากแพลตฟอร์ม"]);
   L.push(["หมวด 3 ข้อ 3","โครงสร้าง รายชื่อวิชา และแผนการศึกษา","pass","3 แขนง"]);
-  L.push(["หมวด 3 ข้อ 3.4","คำอธิบายรายวิชา","fail","แพลตฟอร์มยังไม่มีคำอธิบายรายวิชา ใช้จากเล่มเดิมหรือเพิ่มภายหลัง"]);
+  {const sp=COURSES.filter(c=>c.g!=="GE"&&c.g!=="FREE"),miss=sp.filter(c=>!descSaved(c.code).th);L.push(["หมวด 3 ข้อ 3.4","คำอธิบายรายวิชา (หมวดวิชาเฉพาะ)",st(!miss.length,miss.length<sp.length),miss.length?`ยังไม่มีคำอธิบาย ${miss.length} จาก ${sp.length} วิชา ผู้สอนกรอกได้ที่ ก3`:"ครบทุกวิชา"])}
   L.push(["หมวด 4 ข้อ 2","กลยุทธ์การสอนและการประเมินตาม PLO","warn","ร่างจากวิธีประเมินใน CLO"]);
   L.push(["หมวด 4 ข้อ 3–4","Curriculum Mapping และแผนการศึกษารายชั้นปี",st(!defaults,true),defaults?`${defaults} วิชายังใช้ระดับตั้งต้น (ยังไม่มี CLO)`:"ทุกวิชามี CLO"]);
   L.push(["หมวด 5 ข้อ 4","รายชื่อ ตำแหน่ง และคุณวุฒิอาจารย์",st(!noQual(state.faculty),true),noQual(state.faculty)?`ยังไม่ระบุคุณวุฒิ ${noQual(state.faculty)} คน`:`${state.faculty.length} คน`]);
@@ -875,13 +936,18 @@ function viewClo(){
    ${!canEd?`<div class="note">วิชานี้มอบหมายให้ ${esc(facName(owner))||"ผู้สอนที่ยังไม่กำหนด"} ท่านดูได้อย่างเดียว ผู้รับผิดชอบรายวิชาหรือกรรมการหลักสูตรเป็นผู้แก้ไข</div>`:state.me&&owner&&state.me!==owner?`<div class="note">วิชานี้มอบหมายให้ ${esc(facName(owner))} ท่านแก้ไขได้ในฐานะกรรมการหลักสูตร</div>`:""}
    ${!state.cloOv[c.code]&&CLO0[c.code]?'<div class="note">CLO ชุดนี้เป็นร่างตั้งต้น ผู้สอนแก้ไขแล้วกดบันทึกเพื่อยืนยัน</div>':""}
    ${courseIssues.length?`<div style="margin-bottom:8px">${issueList(courseIssues)}</div>`:items.length?`<div style="margin-bottom:8px">${pill("pass","CLO ทั้งวิชาสอดรับกับ PLO ที่หลักสูตรกำหนด")}</div>`:""}
-   <form id="cloForm">${items.map((x,i)=>{const own=issues.filter(y=>y.i===i);return `<div class="clo-row" data-i="${i}" style="${own.some(y=>y.lv==="err")?"border-left:3px solid var(--fail);padding-left:8px":own.some(y=>y.lv==="warn")?"border-left:3px solid var(--warn);padding-left:8px":""}"><div class="fl row" style="gap:8px"><b class="mono">CLO${i+1}</b>
+   <form id="cloForm"><div class="desc-box"><h3 style="margin:0;font-size:14px">คำอธิบายรายวิชา</h3>${DESC_FAC[c.code]?`<div class="small muted">${DESC_FAC[c.code]}</div>`:DESC0[c.code]?'<div class="small muted">ข้อความตั้งต้นตามที่มหาวิทยาลัยหรือคณะกำหนด</div>':""}
+     <label class="small">ภาษาไทย<textarea data-desc="th" rows="4" placeholder="เขียนเป็นหัวข้อเนื้อหาต่อกัน คั่นด้วยเว้นวรรค" ${cdis}>${esc(descOf(c.code).th)}</textarea></label>
+     <label class="small">ภาษาอังกฤษ<textarea data-desc="en" rows="4" placeholder="Course description in English" ${cdis}>${esc(descOf(c.code).en)}</textarea></label></div>
+   <div class="row" style="justify-content:space-between;margin-top:6px"><h3 style="margin:0;font-size:14px">ผลลัพธ์การเรียนรู้ระดับรายวิชา (CLOs)</h3><button type="button" class="sm" id="aiSuggest" ${cdis}>✨ ให้ AI แนะนำแนวทาง CLO</button></div>
+   ${aiPanel(c,cdis)}
+   ${items.map((x,i)=>{const own=issues.filter(y=>y.i===i);return `<div class="clo-row" data-i="${i}" style="${own.some(y=>y.lv==="err")?"border-left:3px solid var(--fail);padding-left:8px":own.some(y=>y.lv==="warn")?"border-left:3px solid var(--warn);padding-left:8px":""}"><div class="fl row" style="gap:8px"><b class="mono">CLO${i+1}</b>
      <label class="ctl">Bloom <select name="bl" ${cdis}>${BLOOM.map(b=>`<option ${x.bloom===b?"selected":""}>${b}</option>`).join("")}</select></label>
      <label class="ctl">ระดับ <select name="lv" ${cdis}>${["I","R","M"].map(l=>`<option ${x.lv===l?"selected":""}>${l}</option>`).join("")}</select></label>
      <label class="ctl">วิธีประเมิน <input type="text" name="as" value="${esc(x.as)}" ${cdis}></label>
      <button type="button" class="sm" data-clodel="${i}" ${cdis}>ลบ</button></div>
      <textarea name="t" aria-label="ข้อความ CLO${i+1}" placeholder="ขึ้นต้นด้วยคำกริยาที่วัดได้ เช่น วิเคราะห์ คำนวณ ออกแบบ" ${cdis}>${esc(x.t)}</textarea>${subChips(x.subs||[],i)}${own.length?`<div>${issueList(own)}</div>`:""}</div>`}).join("")}
-   <div class="row" style="margin-top:8px"><button type="button" id="cloAdd" ${cdis}>+ เพิ่ม CLO</button><button type="button" id="cloCheck">ตรวจความสอดรับ</button><button class="primary" type="submit" ${cdis}>บันทึก CLO</button>${state.cloOv[c.code]&&CLO0[c.code]?`<button type="button" id="cloReset" ${cdis}>กลับไปใช้ร่างตั้งต้น</button>`:""}<span class="err" id="cloErr"></span></div></form>
+   <div class="row" style="margin-top:8px"><button type="button" id="cloAdd" ${cdis}>+ เพิ่ม CLO</button><button type="button" id="cloCheck">ตรวจความสอดรับ</button><button class="primary" type="submit" ${cdis}>บันทึกคำอธิบายและ CLO</button>${state.cloOv[c.code]&&CLO0[c.code]?`<button type="button" id="cloReset" ${cdis}>กลับไปใช้ร่างตั้งต้น</button>`:""}<span class="err" id="cloErr"></span></div></form>
    <p class="small muted">ระบบตรวจทันทีเมื่อเปลี่ยนตัวเลือก และเมื่อพิมพ์ข้อความเสร็จแล้วคลิกออกจากช่อง บันทึกได้แม้ยังมีคำเตือน แต่สถานะจะแจ้งกรรมการหลักสูตร</p></section>`;
   const alerts=all.map(x=>({x,s:courseStatus(x.code)})).filter(o=>o.s.e>0);
   return flowBar("clo")+`<p class="lead">ผู้สอนกรอก CLO ของวิชาที่รับผิดชอบ ระบบเทียบกับ PLO และระดับที่หลักสูตรกำหนด แล้วแจ้งเตือนทันทีถ้าไม่สอดรับ</p>
@@ -1207,6 +1273,14 @@ document.addEventListener("click",async e=>{
   else if(d.opencourse){state.cloCourse=d.opencourse;state.cloDraft=null;render();const ed=document.getElementById("cloEditor");if(ed)ed.scrollIntoView({behavior:"smooth",block:"start"})}
   else if(b.id==="cloCheck"){state.cloDraft={code:state.cloCourse,items:readCloForm(),dirty:true};render()}
   else if(b.id==="ownFromLoad"){const o={...state.owners};let n=0;COURSES.forEach(c=>{if(o[c.code])return;for(const s of ["S1","S2","SS"]){const f=state.assign[s][c.code+"|L1"]||state.assign[s][c.code+"|P1"];if(f){o[c.code]=f;n++;break}}});state.owners=o;state.msg=n?`กำหนดผู้รับผิดชอบจากภาระสอน ${n} วิชา`:"ไม่พบข้อมูลภาระสอนที่ยังไม่ได้ใช้ จัดผู้สอนใน ข2 ก่อน";render();if(n)await dbWrite(db=>db.doc("owners/map").set({map:o,cv:5,updatedAt:new Date().toISOString()}),"ผู้รับผิดชอบรายวิชา")}
+  else if(b.id==="aiSuggest"){const c=COURSES.find(x=>x.code===state.cloCourse);const items=readCloForm()||[];const prompt=aiPrompt(c,items);state.cloDraft={code:c.code,items,dirty:true};state.ai={code:c.code,status:"loading",prompt};render();
+    if(typeof window.__aiSuggest==="function"){try{const txt=await window.__aiSuggest(prompt);state.ai={code:c.code,status:"done",prompt,res:parseAi(txt)}}catch(x){state.ai={code:c.code,status:"manual",prompt,err:"เรียก AI อัตโนมัติไม่สำเร็จ ("+((x&&x.message)||x)+") ใช้วิธีคัดลอกคำสั่งแทนได้"}}}
+    else state.ai={code:c.code,status:"manual",prompt};render()}
+  else if(b.id==="aiClose"){state.ai=null;render()}
+  else if(b.id==="aiCopy"){const p=state.ai&&state.ai.prompt||"";try{await navigator.clipboard.writeText(p);document.getElementById("aiCopied").textContent="คัดลอกแล้ว"}catch(x){const ta=document.getElementById("aiPrompt");ta.select();document.execCommand("copy");document.getElementById("aiCopied").textContent="คัดลอกแล้ว"}}
+  else if(b.id==="aiImport"){const v=(document.getElementById("aiPaste")||{}).value||"";try{state.ai={...state.ai,status:"done",res:parseAi(v),err:""}}catch(x){state.ai={...state.ai,err:"อ่านคำตอบไม่ได้: "+x.message+" ตรวจว่าคัดลอกคำตอบมาครบ"}}const y=window.scrollY;render();window.scrollTo(0,y)}
+  else if(b.id==="aiDesc"){const r=state.ai.res;state.descDraft[state.cloCourse]={th:r.descTh,en:r.descEn};const y=window.scrollY;render();window.scrollTo(0,y)}
+  else if(b.id==="aiReplace"||b.id==="aiAppend"||d.aiadd!==undefined){const r=state.ai.res;const pick=d.aiadd!==undefined?[r.clos[+d.aiadd]]:r.clos;const cur=(readCloForm()||[]).filter(x=>x.t);const add=pick.map(({why,...x})=>({...x,subs:[...x.subs]}));state.cloDraft={code:state.cloCourse,items:b.id==="aiReplace"?add:[...cur,...add],dirty:true};const y=window.scrollY;render();window.scrollTo(0,y);state.msg="นำ CLO จาก AI เข้าแบบฟอร์มแล้ว ตรวจและปรับถ้อยคำ แล้วกดบันทึก"}
   else if(b.id==="cloAdd"){const it=readCloForm()||[];it.push({t:"",subs:[],bloom:"Apply",lv:"R",as:""});state.cloDraft={code:state.cloCourse,items:it,dirty:true};render()}
   else if(d.clodel!==undefined){const it=readCloForm()||[];it.splice(+d.clodel,1);state.cloDraft={code:state.cloCourse,items:it,dirty:true};render()}
   else if(b.id==="cloReset"){const code=state.cloCourse;delete state.cloOv[code];state.cloDraft=null;render();await dbWrite(db=>db.doc("clo/"+key(code)).delete(),"CLO")}
@@ -1215,10 +1289,11 @@ document.addEventListener("click",async e=>{
   else if(b.id==="courseDel"){const code=state.courseEdit;const base=BASE.find(x=>x.code===code)||COURSES.find(x=>x.code===code);state.courseOv[code]={...(state.courseOv[code]||{}),code,deleted:true};state.courseEdit=null;rebuild();render();await dbWrite(db=>db.doc("courses/"+key(code)).set({...state.courseOv[code],cv:5,__new:undefined}),"รายวิชา")}
   else if(b.id==="courseRevert"){const code=state.courseEdit;delete state.courseOv[code];state.courseEdit=null;rebuild();render();await dbWrite(db=>db.doc("courses/"+key(code)).delete(),"รายวิชา")}
 });
-document.addEventListener("input",e=>{if(e.target.closest("#cloForm"))state.cloDraft={code:state.cloCourse,items:state.cloDraft&&state.cloDraft.code===state.cloCourse?state.cloDraft.items:clos(state.cloCourse),dirty:true}});
+document.addEventListener("input",e=>{if(e.target.dataset&&e.target.dataset.desc){const code=state.cloCourse;state.descDraft[code]={...descOf(code),[e.target.dataset.desc]:e.target.value};return}if(e.target.id==="aiPaste"||e.target.id==="aiPrompt")return;if(e.target.closest("#cloForm"))state.cloDraft={code:state.cloCourse,items:state.cloDraft&&state.cloDraft.code===state.cloCourse?state.cloDraft.items:clos(state.cloCourse),dirty:true}});
 document.addEventListener("change",async e=>{
   if(e.target.dataset&&e.target.dataset.photo){try{await setPhoto(e.target.dataset.photo,e.target.files[0])}catch(x){state.msg="อ่านรูปไม่ได้";render()}return}
   const t=e.target;
+  if(t.dataset&&t.dataset.desc||t.id==="aiPaste")return;
   if(t.closest("#cloForm")){state.cloDraft={code:state.cloCourse,items:readCloForm(),dirty:true};const y=window.scrollY;render();window.scrollTo(0,y);return}
   if(t.dataset.extowner!==undefined){const o={...(state.extOwners||{})};const v=t.value.trim().replace(/\s+/g," ");if(v)o[t.dataset.extowner]=v;else delete o[t.dataset.extowner];state.extOwners=o;render();await dbWrite(db=>db.doc("owners/ext").set({map:o,updatedAt:new Date().toISOString()}),"ผู้สอนจากหน่วยงานอื่น");return}
   if(t.dataset.owner!==undefined){const o={...state.owners};if(t.value)o[t.dataset.owner]=t.value;else delete o[t.dataset.owner];state.owners=o;render();await dbWrite(db=>db.doc("owners/map").set({map:o,cv:5,updatedAt:new Date().toISOString()}),"ผู้รับผิดชอบรายวิชา");return}
@@ -1266,8 +1341,8 @@ document.addEventListener("submit",async e=>{
     const items=readCloForm();const err=document.getElementById("cloErr");
     const bad=items.findIndex(x=>!x.t);
     if(bad>=0){err.textContent=`CLO${bad+1} ยังไม่มีข้อความ กรอกหรือลบข้อนี้ก่อนบันทึก`;return}
-    const code=state.cloCourse;state.cloOv[code]={code,items};state.cloDraft=null;state.msg="";render();
-    if(await dbWrite(db=>db.doc("clo/"+key(code)).set({code,items,sv:5,updatedAt:new Date().toISOString()}),"CLO")){const s=courseStatus(code);if(window.__afterCloSave)try{window.__afterCloSave(code,s,alignIssues(code,items))}catch(x){};state.msg=s.e?`บันทึก CLO ของ ${code} แล้ว แต่ยังไม่สอดรับกับ PLO ${s.e} ข้อ ระบบแจ้งกรรมการหลักสูตรไว้แล้ว`:`บันทึก CLO ของ ${code} แล้ว`;render()}
+    const code=state.cloCourse;const ds=descOf(code);const descTh=(ds.th||"").trim(),descEn=(ds.en||"").trim();state.cloOv[code]={code,items,descTh,descEn};state.cloDraft=null;delete state.descDraft[code];state.ai=null;state.msg="";render();
+    if(await dbWrite(db=>db.doc("clo/"+key(code)).set({code,items,descTh,descEn,sv:5,updatedAt:new Date().toISOString()}),"CLO")){const s=courseStatus(code);if(window.__afterCloSave)try{window.__afterCloSave(code,s,alignIssues(code,items))}catch(x){};state.msg=s.e?`บันทึก CLO ของ ${code} แล้ว แต่ยังไม่สอดรับกับ PLO ${s.e} ข้อ ระบบแจ้งกรรมการหลักสูตรไว้แล้ว`:`บันทึก CLO ของ ${code} แล้ว`;render()}
   }else if(f.id==="courseForm"){
     const v=id=>document.getElementById(id).value,err=document.getElementById("cfErr");
     const code=v("cfCode").trim(),th=v("cfTh").trim();
@@ -1310,6 +1385,7 @@ function makeSbDb(){
     collection:c=>({onSnapshot:cb=>sub(()=>cb(snapCol(c)))})
   };
 }
+window.__aiSuggest=async prompt=>{if(!sb)throw new Error("ยังไม่ได้เชื่อมต่อ");const {data,error}=await sb.functions.invoke("clo-suggest",{body:{prompt}});if(error)throw error;if(!data||!data.text)throw new Error((data&&data.error)||"ไม่มีคำตอบ");return data.text};
 function loginScreen(msg){
   document.getElementById("phase").innerHTML="";document.getElementById("tabs").innerHTML="";
   document.getElementById("view").innerHTML=`<section class="panel" style="max-width:460px;margin:40px auto;text-align:center;padding:28px">
