@@ -372,7 +372,7 @@ const CLO0={
 };
 
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10},
-  faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,needEdit:null,courseEdit:null,pending:false};
+  faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false};
 try{const s=JSON.parse(localStorage.getItem("mecp")||"{}");if(s.intake)state.intake=s.intake;if(s.track)state.track=s.track}catch(e){}
 try{state.me=localStorage.getItem("mecp_me")||""}catch(e){}
 function savePrefs(){try{localStorage.setItem("mecp",JSON.stringify({intake:state.intake,track:state.track}))}catch(e){}}
@@ -502,8 +502,79 @@ function compressLabs(labs){
   Object.entries(groups).forEach(([pre,nums])=>out.push(pre+[...new Set(nums)].join(", ")));
   return out.join(", ");
 }
-const PLO_SHORT={1:"ความรู้และการประยุกต์",2:"ทักษะวิศวกรรมและการทดลอง",3:"ปฏิบัติงานและบริหารโครงการ",4:"สื่อสารและทำงานเป็นทีม",5:"จรรยาบรรณและความรับผิดชอบ",6:"นวัตกรรมและเรียนรู้ด้วยตนเอง"};
+const PLO_SHORT0={1:"ความรู้และการประยุกต์",2:"ทักษะวิศวกรรมและการทดลอง",3:"ปฏิบัติงานและบริหารโครงการ",4:"สื่อสารและทำงานเป็นทีม",5:"จรรยาบรรณและความรับผิดชอบ",6:"นวัตกรรมและเรียนรู้ด้วยตนเอง"};
 const DOM_TH={K:"ความรู้",S:"ทักษะ",E:"จริยธรรม",C:"ลักษณะบุคคล"};
+
+const PLO_SHORT={...PLO_SHORT0};
+const PLOS0=JSON.parse(JSON.stringify(PLOS)),SUBS0=JSON.parse(JSON.stringify(SUBS));
+let PLO_CUSTOM=null;
+function applyPloDoc(d){
+  const ok=d&&Array.isArray(d.plos)&&d.plos.length&&Array.isArray(d.subs);
+  PLO_CUSTOM=ok?d:null;
+  const P=ok?d.plos:PLOS0,S=ok?d.subs:SUBS0;
+  PLOS.splice(0,PLOS.length,...JSON.parse(JSON.stringify(P)));SUBS.splice(0,SUBS.length,...JSON.parse(JSON.stringify(S)));
+  Object.keys(PLO_SHORT).forEach(k=>delete PLO_SHORT[k]);Object.assign(PLO_SHORT,PLO_SHORT0);PLOS.forEach(p=>{if(p.sh)PLO_SHORT[p.n]=p.sh});
+  try{buildExpected()}catch(e){}
+}
+const BLOOM_K=["Remember","Understand","Apply","Analyze","Evaluate","Create"],BLOOM_A=["Receive","Respond","Value","Organize","Characterize"];
+const bloomOpts=sel=>`<optgroup label="ความรู้/ทักษะ">${BLOOM_K.map(b=>`<option ${b===sel?"selected":""}>${b}</option>`).join("")}</optgroup><optgroup label="จริยธรรม/ลักษณะบุคคล">${BLOOM_A.map(b=>`<option ${b===sel?"selected":""}>${b}</option>`).join("")}</optgroup>`;
+function surveyItems(){
+  const out=[];PLOS.forEach(p=>{const subs=SUBS.filter(s=>s.plo===p.n);
+    if(!subs.length||subs.every(s=>s.dom==="K"))out.push({code:"PLO"+p.n,q:p.q||p.t,plo:p.n});
+    else subs.forEach(s=>out.push({code:s.code,q:s.q||s.t,plo:p.n}))});
+  return out;
+}
+function cloRefCount(code){let n=0;COURSES.forEach(c=>clos(c.code).forEach(i=>{if((i.subs||[]).includes(code))n++}));return n}
+function readPloForm(){
+  const f=document.getElementById("ploForm");if(!f)return state.ploDraft;
+  const g=k=>f.querySelector(`[name=${k}]`);
+  const d=state.ploDraft;
+  d.p.sh=g("sh").value.trim();d.p.t=g("pt").value.trim().replace(/\s+/g," ");d.p.q=g("pq").value.trim();
+  d.p.d=["K","S","E","C"].filter(k=>f.querySelector(`input[name=dom][value=${k}]`).checked).join(", ");
+  d.p.b=g("pb").value;d.p.ga=g("ga").value.trim();
+  d.p.coe=[...f.querySelectorAll("input[name=coe]:checked")].map(x=>+x.value);
+  d.subs=[...f.querySelectorAll(".sub-row")].map(r=>({code:r.dataset.code,plo:d.p.n,dom:r.querySelector("[name=sd]").value,bloom:r.querySelector("[name=sb]").value,t:r.querySelector("[name=st]").value.trim().replace(/\s+/g," "),q:r.querySelector("[name=sq]").value.trim(),isNew:!!r.dataset.new}));
+  return d;
+}
+function ploForm(){
+  const d=state.ploDraft,p=d.p,dom=String(p.d||"").split(/,\s*/);
+  return `<form id="ploForm" class="form">
+   <div class="fl"><label style="flex:0 0 260px">ชื่อย่อ <input type="text" name="sh" value="${esc(p.sh||PLO_SHORT[p.n]||"")}" style="width:100%"></label>
+    <label>Bloom <select name="pb">${bloomOpts(p.b)}</select></label>
+    <span class="row" style="gap:6px"><span class="small muted">ด้าน</span>${["K","S","E","C"].map(k=>`<label class="chk"><input type="checkbox" name="dom" value="${k}" ${dom.includes(k)?"checked":""}>${k} ${DOM_TH[k]}</label>`).join("")}</span></div>
+   <label>ข้อความ PLO <textarea name="pt" rows="3" style="width:100%">${esc(p.t)}</textarea></label>
+   <div class="small err" id="ploVerb"></div>
+   <label>ข้อความในแบบสำรวจ <span class="small muted">(ใช้เมื่อถาม PLO ทั้งข้อ เว้นว่าง = ใช้ข้อความ PLO)</span><input type="text" name="pq" value="${esc(p.q||"")}" style="width:100%"></label>
+   <div class="fl"><span class="row" style="gap:4px;flex-wrap:wrap"><span class="small muted">สภาวิศวกร ข้อ</span>${Array.from({length:11},(_,i)=>i+1).map(k=>`<label class="chk"><input type="checkbox" name="coe" value="${k}" ${(p.coe||[]).includes(k)?"checked":""}>${k}</label>`).join("")}</span>
+    <label style="flex:1">คุณลักษณะบัณฑิต <input type="text" name="ga" value="${esc(p.ga||"")}" style="width:100%"></label></div>
+   <h3 style="margin:10px 0 4px;font-size:14px">Sub-PLO ของ PLO${p.n}</h3>
+   <div class="scroll"><table><tr><th>รหัส</th><th>ด้าน</th><th>Bloom</th><th>ผลลัพธ์ (วัดได้)</th><th>ข้อความในแบบสำรวจ</th><th></th></tr>
+   ${d.subs.map((s,i)=>{const n=s.isNew?0:cloRefCount(s.code);return `<tr class="sub-row" data-code="${esc(s.code)}" data-new="${s.isNew?1:""}"><td><span class="code">${esc(s.code)}</span></td>
+    <td><select name="sd">${["K","S","E","C"].map(k=>`<option ${k===s.dom?"selected":""}>${k}</option>`).join("")}</select></td>
+    <td><select name="sb">${bloomOpts(s.bloom)}</select></td>
+    <td><textarea name="st" rows="3" style="width:100%;min-width:220px">${esc(s.t)}</textarea></td>
+    <td><textarea name="sq" rows="3" style="width:100%;min-width:180px" placeholder="เว้นว่าง = ใช้ข้อความผลลัพธ์">${esc(s.q||"")}</textarea></td>
+    <td><button type="button" class="sm" data-subdel="${i}">ลบ</button>${n?`<div class="small" style="color:var(--warn)">มี CLO อ้างอิง ${n}</div>`:""}</td></tr>`}).join("")}</table></div>
+   <div class="row" style="margin-top:8px;gap:8px"><button type="button" class="sm" id="subAdd">+ เพิ่ม Sub-PLO</button><span style="flex:1"></span><span id="ploErr" class="err"></span>
+    <button type="button" id="ploCancel">ยกเลิก</button><button class="primary" type="submit">บันทึก PLO${p.n}</button></div>
+   <p class="small muted" style="margin:6px 0 0">บันทึกแล้วทุกหน้าที่ใช้ PLO นี้จะเปลี่ยนตาม ได้แก่ การ์ด PLO, Mind map, CLO รายวิชา, Curriculum Mapping, ตรวจเกณฑ์ และคลังคำถามแบบสำรวจ รหัส Sub-PLO เดิมคงไว้เพื่อไม่ให้ CLO ที่ผู้สอนบันทึกไว้หลุด</p>
+  </form>`;
+}
+async function savePlo(){
+  const d=readPloForm(),p=d.p;
+  const err=m=>{const e=document.getElementById("ploErr");if(e)e.textContent=m};
+  if(!p.t)return err("ใส่ข้อความ PLO");if(!p.d)return err("เลือกด้านอย่างน้อย 1 ด้าน");if(!d.subs.length)return err("ต้องมี Sub-PLO อย่างน้อย 1 ข้อ");
+  if(d.subs.some(s=>!s.t))return err("กรอกผลลัพธ์ของ Sub-PLO ให้ครบ");
+  const bad=BANNED.filter(w=>p.t.includes(w)||d.subs.some(s=>s.t.includes(w)));if(bad.length)return err("แม่แบบห้ามใช้คำ: "+bad.join(", "));
+  const taken=new Set([...SUBS.filter(s=>s.plo!==p.n).map(s=>s.code),...d.subs.filter(s=>!s.isNew).map(s=>s.code)]);
+  d.subs.forEach(s=>{if(!s.isNew)return;const used=[...taken].filter(c=>new RegExp(`^[KSEC]${p.n}-`).test(c)).map(c=>+c.split("-")[1]);const k=Math.max(0,...used)+1;s.code=`${s.dom}${p.n}-${k}`;taken.add(s.code)});
+  const plos=PLOS.map(x=>x.n===p.n?{...x,...p}:{...x}).map(x=>({...x,sh:x.sh||PLO_SHORT[x.n]||""}));
+  const subs=[...SUBS.filter(s=>s.plo<p.n),...d.subs.map(({isNew,...s})=>s),...SUBS.filter(s=>s.plo>p.n)];
+  const doc={plos,subs,updatedAt:new Date().toISOString()};
+  applyPloDoc(doc);state.ploEdit=null;state.ploDraft=null;rebuild();render();
+  await dbWrite(db=>db.doc("program/plos").set(doc),"PLO");
+}
+async function resetPlo(){applyPloDoc(null);state.ploEdit=null;state.ploDraft=null;state.ploReset=false;render();await dbWrite(db=>db.doc("program/plos").delete(),"PLO")}
 function ploList(na){
   return `<section class="panel"><h2>PLOs ของหลักสูตร · ${PLOS.length} ข้อ</h2><div class="plo-grid">${PLOS.map(p=>{const n=na.per[p.n].filter(x=>x.st==="have").length;
     return `<div class="plo-card"><div class="plo-no">PLO<br>${p.n}</div><div><div class="small" style="font-weight:600;color:var(--accent)">${esc(PLO_SHORT[p.n]||"")}</div><div class="pt">${esc(p.t)}</div>
@@ -581,17 +652,23 @@ function viewPlo(){
   const pc=ploTextChecks(),ya=yloAnalysis();
   return flowBar("plo")+`<p class="lead">PLO ชุดเดียวใช้กับทั้ง 3 แขนง แต่ละ PLO แตกเป็น Sub-PLO ที่วัดได้ แล้วกำหนดว่าปีไหนต้องทำ Sub-PLO ใดได้ (YLO) ระบบตรวจคำกริยาตามแม่แบบ 2570 และตรวจว่าระดับ Bloom สูงขึ้นตามชั้นปี</p>
   <div class="sum">
-   <div class="panel"><span class="muted small">PLO / Sub-PLO</span><span class="big num">${PLOS.length} / ${SUBS.length}</span><span class="small muted">ครบ K S E C</span></div>
+   <div class="panel"><span class="muted small">PLO / Sub-PLO</span><span class="big num">${PLOS.length} / ${SUBS.length}</span>${(()=>{const has=["K","S","E","C"].filter(k=>SUBS.some(s=>s.dom===k));return has.length===4?'<span class="small muted">ครบ K S E C</span>':pill("warn","ขาด "+["K","S","E","C"].filter(k=>!has.includes(k)).join(" "))})()}</div>
    <div class="panel"><span class="muted small">คำกริยาที่แม่แบบห้ามใช้</span><span class="big num">${pc.filter(x=>x.bad.length).length}</span>${pc.some(x=>x.bad.length)?pill("fail","ต้องแก้"):pill("pass","ไม่พบ")}</div>
    <div class="panel"><span class="muted small">Sub-PLO ที่ไม่อยู่ใน YLO</span><span class="big num">${ya.unused.length}</span>${ya.unused.length?pill("warn",ya.unused.map(s=>s.code).join(" ")):pill("pass","ครบ")}</div>
    <div class="panel"><span class="muted small">Bloom ตามชั้นปี</span><span class="big num">${ya.peak.join(" → ")}</span>${ya.prog?pill("pass","สูงขึ้นตามปี"):pill("warn","มีปีที่ลดลง")}</div>
   </div>
-  ${PLOS.map(p=>{const subs=SUBS.filter(s=>s.plo===p.n),x=pc.find(q=>q.p.n===p.n);return `<section class="panel"><div class="row" style="justify-content:space-between"><h2>PLO${p.n} <span class="tag">${p.d}</span> <span class="tag">${p.b}</span></h2><span class="small muted">สภาวิศวกรข้อ ${p.coe.join(", ")} · ${p.ga}</span></div>
+  ${state.isAdmin&&state.canWrite?`<div class="row" style="gap:8px;margin-bottom:10px"><span class="small muted">${PLO_CUSTOM?`ใช้ PLO ที่แก้ไขแล้ว · บันทึกล่าสุด ${esc(new Date(PLO_CUSTOM.updatedAt||Date.now()).toLocaleString("th-TH"))}`:"ใช้ PLO ตั้งต้นของร่างหลักสูตร"}</span>${PLO_CUSTOM?(state.ploReset?`<span class="small" style="color:var(--fail)">ย้อนกลับเป็น PLO ตั้งต้นทั้ง 6 ข้อ?</span><button class="sm" id="ploResetOk" style="color:var(--fail);border-color:var(--fail)">ยืนยัน</button><button class="sm" id="ploResetNo">ยกเลิก</button>`:`<button class="sm" id="ploReset">ย้อนกลับเป็นค่าตั้งต้น</button>`):""}</div>`:""}
+  ${PLOS.map(p=>{const subs=SUBS.filter(s=>s.plo===p.n),x=pc.find(q=>q.p.n===p.n);
+   if(state.ploEdit===p.n)return `<section class="panel" style="border-color:var(--accent)"><h2>แก้ไข PLO${p.n}</h2>${ploForm()}</section>`;
+   return `<section class="panel"><div class="row" style="justify-content:space-between"><h2>PLO${p.n} <span class="small" style="color:var(--accent);font-weight:600">${esc(PLO_SHORT[p.n]||"")}</span> <span class="tag">${p.d}</span> <span class="tag">${p.b}</span></h2><span class="row small muted" style="gap:8px">สภาวิศวกรข้อ ${(p.coe||[]).join(", ")} · ${esc(p.ga||"")}${state.isAdmin&&state.canWrite?`<button class="sm" data-ploedit="${p.n}" ${state.ploEdit?"disabled":""}>แก้ไข PLO${p.n}</button>`:""}</span></div>
    <p style="margin:0 0 8px">${esc(p.t)}</p>${x.bad.length?`<div class="err">พบคำ: ${x.bad.join(", ")}</div>`:""}
    <div class="scroll"><table><tr><th>Sub-PLO</th><th>ด้าน</th><th>Bloom</th><th>ผลลัพธ์</th><th>อยู่ใน YLO ปี</th></tr>${subs.map(s=>`<tr><td><span class="code">${s.code}</span></td><td>${s.dom}</td><td class="small">${s.bloom}</td><td>${esc(s.t)}</td><td class="num">${YLOS.filter(y=>y.subs.includes(s.code)).map(y=>y.y).join(", ")||'<span class="pill warn">ไม่มี</span>'}</td></tr>`).join("")}</table></div></section>`}).join("")}
   <section class="panel"><h2>ผลลัพธ์การเรียนรู้รายชั้นปี (YLO)</h2><div class="scroll"><table><tr><th>ปี</th><th>ผลลัพธ์การเรียนรู้</th><th>Sub-PLO</th><th>Bloom สูงสุด</th><th>สมรรถนะ / อาชีพ</th><th>เกณฑ์ (เสนอ)</th></tr>
-  ${YLOS.map((y,i)=>`<tr><td class="num">${y.y}</td><td>${esc(y.t)}</td><td><div class="chips">${y.subs.map(s=>`<span class="code">${s}</span>`).join("")}</div></td><td class="num">${ya.peak[i]}</td><td class="small">${esc(y.job)}</td><td class="small">${esc(y.cri)}</td></tr>`).join("")}</table></div>
-  <p class="small muted">ระดับ Bloom แปลงเป็นตัวเลข 1–6 ด้านความรู้และทักษะใช้ Remember–Create ด้านจริยธรรมและลักษณะบุคคลใช้ Receive–Characterize ของ Krathwohl</p></section>`;
+  ${YLOS.map((y,i)=>`<tr><td class="num">${y.y}</td><td>${esc(y.t)}</td><td><div class="chips">${y.subs.filter(subOf).map(s=>`<span class="code">${s}</span>`).join("")}</div></td><td class="num">${ya.peak[i]}</td><td class="small">${esc(y.job)}</td><td class="small">${esc(y.cri)}</td></tr>`).join("")}</table></div>
+  <p class="small muted">ระดับ Bloom แปลงเป็นตัวเลข 1–6 ด้านความรู้และทักษะใช้ Remember–Create ด้านจริยธรรมและลักษณะบุคคลใช้ Receive–Characterize ของ Krathwohl</p></section>
+  ${(()=>{const S=surveyItems();return `<section class="panel"><div class="row" style="justify-content:space-between"><h2 style="margin:0">คลังคำถามแบบสำรวจ ชุด A · ${S.length} ข้อ</h2>${state.isAdmin?`<button class="sm" id="copySetA">คัดลอกเป็นโค้ด SET_A</button>`:""}</div>
+  <p class="small muted">สร้างจาก PLO และ Sub-PLO ปัจจุบันโดยอัตโนมัติ PLO ที่มีแต่ด้านความรู้ถามทั้งข้อ PLO อื่นถามตาม Sub-PLO แล้วรวมคะแนนเป็น PLO ยังไม่ต้องส่งแบบสำรวจ ใช้ตรวจถ้อยคำก่อน</p>
+  <div class="scroll"><table><tr><th>รหัส</th><th>ข้อความในแบบสำรวจ</th><th>รวมเป็น</th></tr>${S.map(x=>`<tr><td><span class="code">(${esc(x.code)})</span></td><td>${esc(x.q)}</td><td>PLO${x.plo}</td></tr>`).join("")}</table></div><span id="copyMsg" class="small muted"></span></section>`})()}`;
 }
 
 // ---- CLO by instructor: expected mapping, alignment checks ----
@@ -973,7 +1050,7 @@ function render(){
   document.getElementById("view").innerHTML=(state.msg?`<div class="note" role="status">${esc(state.msg)}</div>`:"")+VIEWS[state.view]();
   requestAnimationFrame(drawMM);
 }
-const busy=()=>state.sEdit||state.needEdit||state.courseEdit||state.editing||(state.cloDraft&&state.cloDraft.dirty);
+const busy=()=>state.ploEdit||state.sEdit||state.needEdit||state.courseEdit||state.editing||(state.cloDraft&&state.cloDraft.dirty);
 function softRender(){if(busy())state.pending=true;else render()}
 function route(){
   const [p,v]=(location.hash||"#design/needs").slice(1).split("/");
@@ -997,6 +1074,16 @@ document.addEventListener("click",async e=>{
     const t={role:{...(state.team.role||{})},qual:{...(state.team.qual||{})}};delete t.role[id];delete t.qual[id];const hadPhoto=!!state.photos[id];delete state.photos[id];
     render();await dbWrite(db=>db.doc("faculty/"+id).delete(),"รายชื่ออาจารย์");await saveTeam(t);if(hadPhoto)await dbWrite(db=>db.doc("photo/"+id).delete(),"รูปอาจารย์")}
   else if(b.id==="orgPrint"){window.print()}
+  else if(d.ploedit){const n=+d.ploedit,p=PLOS.find(x=>x.n===n);state.ploEdit=n;state.ploDraft={p:{...p,coe:[...(p.coe||[])],sh:p.sh||PLO_SHORT[n]||""},subs:SUBS.filter(s=>s.plo===n).map(s=>({...s}))};render();const f=document.getElementById("ploForm");if(f)f.scrollIntoView({block:"start"})}
+  else if(b.id==="ploCancel"){state.ploEdit=null;state.ploDraft=null;render()}
+  else if(b.id==="subAdd"){const dr=readPloForm(),n=dr.p.n;const used=[...SUBS.filter(s=>s.plo===n),...dr.subs].map(s=>+String(s.code).split("-")[1]||0);const dom0=(String(dr.p.d).split(/,\s*/)[0]||"S").trim()||"S";
+    dr.subs.push({code:`${dom0}${n}-${Math.max(0,...used)+1}`,plo:n,dom:dom0,bloom:dom0==="K"||dom0==="S"?"Apply":"Value",t:"",q:"",isNew:true});render()}
+  else if(d.subdel!==undefined){const dr=readPloForm();dr.subs.splice(+d.subdel,1);render()}
+  else if(b.id==="ploReset"){state.ploReset=true;render()}
+  else if(b.id==="ploResetNo"){state.ploReset=false;render()}
+  else if(b.id==="ploResetOk"){await resetPlo()}
+  else if(b.id==="copySetA"){const S=surveyItems();const code="const SET_A = [\n"+S.map(x=>`  ['${x.code}', '${x.q.replace(/\\/g,"\\\\").replace(/'/g,"\\'")}']`).join(",\n")+"\n];";
+    try{await navigator.clipboard.writeText(code);document.getElementById("copyMsg").textContent="คัดลอกแล้ว นำไปวางแทน SET_A ในสคริปต์สร้างแบบสำรวจ"}catch(x){document.getElementById("copyMsg").textContent="คัดลอกไม่ได้ในเบราว์เซอร์นี้"}}
   else if(d.tt){state.ttMode=d.tt;state.ttKey="";render()}
   else if(b.id==="auto")await saveAssign(state.sem,autoAssign(state.sem,false));
   else if(b.id==="reauto")await saveAssign(state.sem,autoAssign(state.sem,true));
@@ -1035,6 +1122,7 @@ document.addEventListener("change",async e=>{
 });
 document.addEventListener("submit",async e=>{
   const f=e.target;e.preventDefault();
+  if(f.id==="ploForm"){await savePlo();return}
   if(f.id==="sNameForm"){
     const name=document.getElementById("sName").value.trim().replace(/\s+/g," ");
     if(!name){document.getElementById("sErr").textContent="ใส่ชื่อก่อน";return}
@@ -1142,6 +1230,7 @@ function loginScreen(msg){
   db.doc("program/team").onSnapshot(s=>{const d=s.exists&&s.data();state.team={role:(d&&d.role)||{},qual:(d&&d.qual)||{}};softRender()},err);
   db.collection("photo").onSnapshot(s=>{const m={};s.docs.forEach(d=>{const x=d.data();if(x&&x.fid&&x.img)m[x.fid]=x.img});state.photos=m;softRender()},err);
   db.collection("courses").onSnapshot(s=>{const m={};s.docs.forEach(d=>{const x=d.data();if(x&&x.code)m[x.code]=x});state.courseOv=m;rebuild();buildExpected();softRender()},err);
+  db.doc("program/plos").onSnapshot(s=>{applyPloDoc(s.exists&&s.data());rebuild();softRender()},err);
   await db.refresh();
   const isFac=state.faculty.some(f=>(f.email||"").toLowerCase()===email);
   if(!state.isAdmin&&!isFac)state.msg="ท่านเปิดดูได้อย่างเดียว ถ้าเป็นผู้สอน ให้กรรมการหลักสูตรเพิ่มอีเมลของท่านในรายชื่ออาจารย์";
