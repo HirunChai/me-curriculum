@@ -27,6 +27,34 @@
   --accent:#5cc2b6; --accent-soft:#1d3a36; --pass:#7fd08a; --pass-bg:#1e3322; --warn:#f0b54a; --warn-bg:#3a2e14; --fail:#ff8a80; --fail-bg:#3d1f1d;
   --bar:#5cc2b6; --bar-over:#ff8a80; color-scheme:dark}
 *{box-sizing:border-box}
+/* org chart ข1 */
+.org{--t-ME:#2f5f9e;--t-EV:#b4552a;--t-CE:#2f7d3a;position:relative;padding:4px 0 0}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .org{--t-ME:#8fb4ea;--t-EV:#f0a37c;--t-CE:#7fd08a}}
+:root[data-theme="dark"] .org{--t-ME:#8fb4ea;--t-EV:#f0a37c;--t-CE:#7fd08a}
+.org-top{max-width:560px;margin:0 auto;text-align:center;border:2px solid var(--accent);border-radius:10px;background:var(--accent-soft);padding:12px 16px}
+.org-top b{display:block;font-size:17px;color:var(--ink)}
+.org-core{max-width:620px;margin:0 auto;display:flex;flex-wrap:wrap;justify-content:center;gap:6px;padding:10px 0 0}
+.org-core span{font-size:12.5px;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:2px 10px}
+.org-stem{width:2px;height:18px;background:var(--line);margin:0 auto}
+.org-bus{height:2px;background:var(--line);margin:0 16.66%}
+.org-tracks{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.org-tr{position:relative;padding-top:18px}
+.org-tr::before{content:"";position:absolute;top:0;left:50%;width:2px;height:18px;background:var(--line)}
+.org-box{border:1px solid var(--line);border-top:5px solid var(--tc);border-radius:10px;background:var(--panel);padding:12px;height:100%}
+.org-box h3{margin:0;font-size:15px;color:var(--tc)}
+.org-ppl{display:flex;flex-wrap:wrap;gap:12px 8px;justify-content:center;margin-top:12px}
+.person{width:96px;text-align:center;font-size:12px;line-height:1.35}
+.person .nm{font-weight:600;color:var(--ink)}
+.av{width:64px;height:64px;border-radius:50%;margin:0 auto 4px;display:grid;place-items:center;overflow:hidden;background:var(--soft);color:var(--tc,var(--accent));font-weight:700;font-size:20px;border:3px solid var(--tc,var(--accent))}
+.av img{width:100%;height:100%;object-fit:cover;display:block}
+.av.sm{width:44px;height:44px;font-size:15px;border-width:2px}
+.av.empty{border-style:dashed;color:var(--muted);font-weight:400}
+.org-reg{margin-top:14px;border:1px dashed var(--line);border-radius:10px;padding:10px 12px}
+.org-reg .person{width:84px}
+.av-edit{display:flex;align-items:center;gap:8px}
+@media (max-width:760px){.org-tracks{grid-template-columns:1fr}.org-bus{display:none}.org-tr::before{display:none}.org-tr{padding-top:10px}}
+@media print{nav,.no-print{display:none!important}}
+
 body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.55;margin:0}
 .wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 48px}
 header.top{display:flex;flex-wrap:nowrap;align-items:center;gap:6px 14px;margin-bottom:12px}
@@ -121,6 +149,7 @@ td.r,th.r{text-align:right} td.c,th.c{text-align:center}
 .lg{display:inline-block;width:12px;height:12px;border-left:4px solid;margin-right:4px;vertical-align:middle}
 .lg.k-meet{border-color:#c0583a}.lg.k-pol{border-color:var(--accent)}.lg.k-acc{border-color:#6a5acd}.lg.k-sur{border-color:var(--muted);border-left-style:dashed}
 @media (max-width:720px){.mm{grid-template-columns:1fr;grid-template-areas:"z" "a" "b" "c" "d" "e" "f"}}
+@media (max-width:640px){header.top{flex-wrap:wrap}header.top .userbar{margin-left:0!important;width:100%;flex:1 1 100%!important}}
 @media (max-width:520px){header.top h1{font-size:18px}.checks{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:no-preference){.bar i{transition:width .3s}}
 </style>
@@ -324,7 +353,7 @@ const CLO0={
 };
 
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10},
-  faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},needEdit:null,courseEdit:null,pending:false};
+  faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,needEdit:null,courseEdit:null,pending:false};
 try{const s=JSON.parse(localStorage.getItem("mecp")||"{}");if(s.intake)state.intake=s.intake;if(s.track)state.track=s.track}catch(e){}
 try{state.me=localStorage.getItem("mecp_me")||""}catch(e){}
 function savePrefs(){try{localStorage.setItem("mecp",JSON.stringify({intake:state.intake,track:state.track}))}catch(e){}}
@@ -650,6 +679,41 @@ function teamAnalysis(){
   return {per,lowDeg,noQual,regular,short:Object.keys(TRACKS).filter(t=>per[t].length<3)};
 }
 async function saveTeam(t){state.team=t;render();await dbWrite(db=>db.doc("program/team").set({...t,updatedAt:new Date().toISOString()}),"อาจารย์ผู้รับผิดชอบหลักสูตร")}
+const shortName=n=>String(n||"").replace(/^(?:[ก-๙A-Za-z]{1,4}\.)+\s*/,"").trim();
+const initials=n=>{const s=shortName(n);return /^[เแโใไ]/.test(s)?s.slice(0,2):s.slice(0,1)};
+const avatar=(f,cls="")=>{const img=state.photos[f.id];return `<div class="av ${cls}">${img?`<img src="${esc(img)}" alt="">`:esc(initials(f.name))}</div>`};
+const person=(f,cls="")=>{const q=qualOf(f.id);return `<div class="person">${avatar(f,cls)}<div class="nm">${esc(f.name)}</div><div class="muted">${[POS[q.pos],DEG[q.deg]].filter(Boolean).join(" · ")}</div></div>`};
+function orgChart(ta){
+  const sp=["MS","EB","CORE","EXP"];
+  const core=COURSES.filter(c=>c.tr===A&&sp.includes(c.g));
+  const anyT=Object.keys(TRACKS)[0],L0=trackCourses(anyT);
+  const totals=[...new Set(Object.keys(TRACKS).map(t=>sumCr(trackCourses(t))))];
+  const box=t=>{const L=trackCourses(t),ppl=ta.per[t],need=Math.max(0,3-ppl.length);
+    const trCr=sumCr(L,c=>(c.g==="TR"||c.g==="TE")&&c.tr!==A);
+    return `<div class="org-tr" style="--tc:var(--t-${t})"><div class="org-box"><span class="small muted">แขนง</span><h3>${esc(TRACKS[t])}</h3>
+    <div class="small muted">วิชาเฉพาะแขนง ${trCr} นก. · รวม ${sumCr(L)} นก.</div>
+    <div class="small" style="margin-top:8px;font-weight:600">ผู้รับผิดชอบหลักสูตร ${ppl.length} คน ${need?pill("fail","ขาด "+need):pill("pass","ครบ")}</div>
+    <div class="org-ppl">${ppl.map(f=>person(f)).join("")}${Array.from({length:need},()=>`<div class="person"><div class="av empty">?</div><div class="muted">ยังไม่ได้เลือก</div></div>`).join("")}</div></div></div>`};
+  return `<section class="panel"><div class="row" style="justify-content:space-between"><h2 style="margin:0">ภาพโครงสร้างหลักสูตรและผู้รับผิดชอบ</h2><button class="sm no-print" id="orgPrint">พิมพ์ / บันทึก PDF</button></div>
+  <div class="org" style="margin-top:12px">
+   <div class="org-top"><span class="small muted">หลักสูตรปรับปรุง พ.ศ. 2571</span><b>วิศวกรรมศาสตรบัณฑิต สาขาวิชาวิศวกรรมเครื่องกล</b><span class="small">${totals.join(" / ")} หน่วยกิต · ${Object.keys(TRACKS).length} แขนง · อาจารย์ ${state.faculty.length} คน</span></div>
+   <div class="org-core"><span>ศึกษาทั่วไป ${sumCr(L0,c=>c.g==="GE")} นก.</span><span>แกนร่วมทุกแขนง ${sumCr(core)} นก.</span><span>เลือกเสรี ${sumCr(L0,c=>c.g==="FREE")} นก.</span></div>
+   <div class="org-stem"></div><div class="org-bus"></div>
+   <div class="org-tracks">${Object.keys(TRACKS).map(box).join("")}</div>
+   <div class="org-reg"><div class="small" style="font-weight:600">อาจารย์ประจำหลักสูตร ${ta.regular.length} คน <span class="muted" style="font-weight:400">· สอนร่วมทุกแขนง</span></div>
+   <div class="org-ppl" style="justify-content:flex-start">${ta.regular.map(f=>person(f,"sm")).join("")||'<span class="muted small">ไม่มี</span>'}</div></div>
+  </div><p class="small muted no-print" style="margin-top:8px">เปลี่ยนรูปอาจารย์ได้ที่ปุ่ม "รูป" ในตารางด้านล่าง ระบบย่อรูปให้อัตโนมัติ</p></section>`;
+}
+async function setPhoto(fid,file){
+  if(!file||!/^image\//.test(file.type)){state.msg="เลือกไฟล์รูปภาพ";render();return}
+  const url=await new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=no;r.readAsDataURL(file)});
+  const im=await new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=url});
+  const S=200,cv=document.createElement("canvas");cv.width=cv.height=S;const s=Math.min(im.width,im.height);
+  const g=cv.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,S,S);g.drawImage(im,(im.width-s)/2,(im.height-s)/2*0.6,s,s,0,0,S,S);
+  const img=cv.toDataURL("image/jpeg",0.82);state.photos[fid]=img;render();
+  await dbWrite(db=>db.doc("photo/"+fid).set({fid,img,updatedAt:new Date().toISOString()}),"รูปอาจารย์");
+}
+async function delPhoto(fid){delete state.photos[fid];render();await dbWrite(db=>db.doc("photo/"+fid).delete(),"รูปอาจารย์")}
 function viewStruct(){
   const F=state.faculty,ta=teamAnalysis();
   const roleSel=f=>`<select data-role="${f.id}" aria-label="บทบาท ${esc(f.name)}" ${dis()}><option value="">อาจารย์ประจำหลักสูตร</option>${Object.entries(TRACKS).map(([k,v])=>`<option value="${k}" ${roleOf(f.id)===k?"selected":""}>ผู้รับผิดชอบหลักสูตร · แขนง${v}</option>`).join("")}</select>`;
@@ -659,12 +723,19 @@ function viewStruct(){
   const sp=["MS","EB","CORE","EXP"];
   const rows=[["GE","หมวดวิชาศึกษาทั่วไป",c=>c.g==="GE"],["SP","หมวดวิชาเฉพาะ",c=>sp.includes(c.g)||c.g==="TR"||c.g==="TE"],["MS","  พื้นฐานวิชาชีพ: คณิตศาสตร์และวิทยาศาสตร์",c=>c.g==="MS"],["EB","  พื้นฐานวิชาชีพ: พื้นฐานทางวิศวกรรม",c=>c.g==="EB"],["CORE","  วิชาชีพบังคับ (แกนร่วม)",c=>c.g==="CORE"],["TR","  วิชาบังคับแขนง",c=>c.g==="TR"],["TE","  วิชาเลือกแขนง",c=>c.g==="TE"],["EXP","  กลุ่มวิชาเสริมสร้างประสบการณ์",c=>c.g==="EXP"],["FREE","หมวดวิชาเลือกเสรี",c=>c.g==="FREE"]];
   const struct=`<div class="scroll"><table><tr><th>หมวด / กลุ่มวิชา</th>${Object.values(TRACKS).map(v=>`<th class="r">แขนง${v}</th>`).join("")}</tr>${rows.map(([k,t,f])=>`<tr${k==="GE"||k==="SP"||k==="FREE"?' style="font-weight:600"':""}><td>${t.startsWith("  ")?'<span style="padding-left:16px">'+esc(t.trim())+"</span>":esc(t)}</td>${Object.keys(TRACKS).map(tr=>`<td class="r num">${sumCr(trackCourses(tr),f)}</td>`).join("")}</tr>`).join("")}<tr style="font-weight:700"><td>รวมตลอดหลักสูตร</td>${Object.keys(TRACKS).map(tr=>`<td class="r num">${sumCr(trackCourses(tr))}</td>`).join("")}</tr></table></div>`;
-  return `<p class="lead">เลือกอาจารย์ผู้รับผิดชอบหลักสูตรของแต่ละแขนง แขนงละอย่างน้อย 3 คน อาจารย์ที่ไม่ได้เลือกเป็นอาจารย์ประจำหลักสูตรโดยอัตโนมัติ หนึ่งคนรับผิดชอบได้แขนงเดียว</p>
+  const nameCell=f=>{
+    if(state.sEdit===f.id)return `<form class="row" id="sNameForm" data-id="${f.id}" style="gap:6px"><input type="text" id="sName" value="${esc(f.name)}" aria-label="แก้ชื่อ" style="min-width:220px" autofocus><button class="primary sm" type="submit">บันทึก</button><button class="sm" type="button" data-scancel="1">ยกเลิก</button><span id="sErr" class="err"></span></form>`;
+    if(state.sDel===f.id)return `<div>${esc(f.name)}</div><div class="row small" style="gap:6px;margin-top:4px"><span style="color:var(--fail)">ลบชื่อนี้ออกจากหลักสูตร?</span><button class="sm" type="button" data-sdelok="${f.id}" style="color:var(--fail);border-color:var(--fail)">ยืนยันลบ</button><button class="sm" type="button" data-scancel="1">ยกเลิก</button></div>`;
+    return `<div class="row" style="gap:6px;justify-content:space-between;flex-wrap:nowrap"><span>${esc(f.name)}</span>${state.canWrite?`<span class="row no-print" style="gap:4px;flex:none"><button class="sm" type="button" data-sedit="${f.id}">แก้ไข</button><button class="sm" type="button" data-sdel="${f.id}">ลบ</button></span>`:""}</div>`};
+  const photoCell=f=>`<div class="av-edit">${avatar(f,"sm")}<span class="no-print"><label class="sm" style="cursor:pointer;text-decoration:underline;font-size:12px">${state.photos[f.id]?"เปลี่ยนรูป":"รูป"}<input type="file" accept="image/*" data-photo="${f.id}" ${dis()} hidden></label>${state.photos[f.id]&&state.canWrite?` <button type="button" class="sm" data-photodel="${f.id}" style="font-size:11px">ลบ</button>`:""}</span></div>`;
+  return orgChart(ta)+`<p class="lead">เลือกอาจารย์ผู้รับผิดชอบหลักสูตรของแต่ละแขนง แขนงละอย่างน้อย 3 คน อาจารย์ที่ไม่ได้เลือกเป็นอาจารย์ประจำหลักสูตรโดยอัตโนมัติ หนึ่งคนรับผิดชอบได้แขนงเดียว</p>
   <div class="sum">${Object.keys(TRACKS).map(card).join("")}</div>
   ${ta.lowDeg.length?`<div class="note" style="color:var(--fail)">ผู้รับผิดชอบหลักสูตรต้องมีคุณวุฒิขั้นต่ำปริญญาโท: ${ta.lowDeg.map(f=>esc(f.name)).join(", ")}</div>`:""}
   ${ta.noQual.length?`<div class="note">ยังไม่ระบุคุณวุฒิ: ${ta.noQual.map(f=>esc(f.name)).join(", ")}</div>`:""}
   <section class="panel"><h2>อาจารย์ของหลักสูตร · ${F.length} คน</h2>
-  ${F.length?`<div class="scroll"><table><tr><th>อาจารย์</th><th>บทบาทในหลักสูตร</th><th>คุณวุฒิสูงสุด</th><th>ตำแหน่งทางวิชาการ</th></tr>${F.map(f=>`<tr${roleOf(f.id)?' style="background:var(--accent-soft)"':""}><td>${esc(f.name)}${f.email?`<div class="small muted">${esc(f.email)}</div>`:""}</td><td>${roleSel(f)}</td><td>${degSel(f)}</td><td>${posSel(f)}</td></tr>`).join("")}</table></div>`:`<div class="empty">ยังไม่มีรายชื่ออาจารย์ เพิ่มได้ในแท็บ ข2 ภาระสอน</div>`}
+  <div class="scroll"><table><tr><th>รูป</th><th>อาจารย์</th><th>บทบาทในหลักสูตร</th><th>คุณวุฒิสูงสุด</th><th>ตำแหน่งทางวิชาการ</th></tr>${F.map(f=>`<tr${roleOf(f.id)?' style="background:var(--accent-soft)"':""}><td style="--tc:var(--accent)">${photoCell(f)}</td><td>${nameCell(f)}</td><td>${roleSel(f)}</td><td>${degSel(f)}</td><td>${posSel(f)}</td></tr>`).join("")}
+  ${state.canWrite?`<tr><td></td><td colspan="4">${state.sEdit==="new"?`<form class="row" id="sNameForm" data-id="" style="gap:6px"><input type="text" id="sName" placeholder="ชื่อ-นามสกุล เช่น ผศ.ดร.สมชาย ใจดี" style="min-width:260px" autofocus><button class="primary sm" type="submit">เพิ่ม</button><button class="sm" type="button" data-scancel="1">ยกเลิก</button><span id="sErr" class="err"></span></form>`:`<button class="sm" type="button" id="sAdd">+ เพิ่มชื่ออาจารย์ใหม่</button>`}</td></tr>`:""}</table></div>
+  ${F.length?"":`<div class="empty">ยังไม่มีรายชื่ออาจารย์</div>`}
   <p class="small muted">คุณวุฒิตั้งต้นมาจากเล่มหลักสูตร 2566 ตรวจและแก้ให้เป็นปัจจุบัน ตามเกณฑ์มาตรฐาน 2565 ผู้รับผิดชอบหลักสูตรต้องมีผลงานทางวิชาการตามเกณฑ์ด้วย ซึ่งระบบยังไม่ได้ตรวจ</p></section>
   <section class="panel"><h2>อาจารย์ประจำหลักสูตร · ${ta.regular.length} คน</h2><div class="chips">${ta.regular.map(f=>`<span class="tag" style="font-size:13px;padding:2px 8px">${esc(f.name)}</span>`).join("")||'<span class="muted small">ไม่มี</span>'}</div></section>
   <section class="panel"><h2>โครงสร้างหลักสูตร (หน่วยกิต)</h2>${struct}<p class="small muted">รายละเอียดรายวิชาและแผนการเรียนอยู่ใน ออกแบบหลักสูตร → ก5</p></section>`;
@@ -843,7 +914,7 @@ function render(){
   const ac=alertCount();document.getElementById("tabs").innerHTML=NAV[state.phase].tabs.map(([k,n,t])=>`<a href="#${state.phase}/${k}" aria-current="${state.view===k?"page":"false"}"><b>${n}</b>${t}${k==="clo"&&ac?` <span class="pill fail" title="วิชาที่ CLO ไม่สอดรับกับ PLO">${ac}</span>`:""}</a>`).join("");
   document.getElementById("view").innerHTML=(state.msg?`<div class="note" role="status">${esc(state.msg)}</div>`:"")+VIEWS[state.view]();
 }
-const busy=()=>state.needEdit||state.courseEdit||state.editing||(state.cloDraft&&state.cloDraft.dirty);
+const busy=()=>state.sEdit||state.needEdit||state.courseEdit||state.editing||(state.cloDraft&&state.cloDraft.dirty);
 function softRender(){if(busy())state.pending=true;else render()}
 function route(){
   const [p,v]=(location.hash||"#design/needs").slice(1).split("/");
@@ -858,6 +929,15 @@ document.addEventListener("click",async e=>{
   const b=e.target.closest("button");if(!b)return;const d=b.dataset;
   if(d.track){if(state.cloDraft&&state.cloDraft.dirty)markCloDirty();state.track=d.track;savePrefs();render()}
   else if(d.sem){state.sem=d.sem;render()}
+  else if(d.photodel){await delPhoto(d.photodel)}
+  else if(b.id==="sAdd"){state.sEdit="new";state.sDel=null;render();const i=document.getElementById("sName");if(i)i.focus()}
+  else if(d.sedit){state.sEdit=d.sedit;state.sDel=null;render();const i=document.getElementById("sName");if(i){i.focus();i.select()}}
+  else if(d.sdel){state.sDel=d.sdel;state.sEdit=null;render()}
+  else if(d.scancel){state.sEdit=null;state.sDel=null;render()}
+  else if(d.sdelok){const id=d.sdelok;state.sDel=null;state.faculty=state.faculty.filter(f=>f.id!==id);
+    const t={role:{...(state.team.role||{})},qual:{...(state.team.qual||{})}};delete t.role[id];delete t.qual[id];const hadPhoto=!!state.photos[id];delete state.photos[id];
+    render();await dbWrite(db=>db.doc("faculty/"+id).delete(),"รายชื่ออาจารย์");await saveTeam(t);if(hadPhoto)await dbWrite(db=>db.doc("photo/"+id).delete(),"รูปอาจารย์")}
+  else if(b.id==="orgPrint"){window.print()}
   else if(d.tt){state.ttMode=d.tt;state.ttKey="";render()}
   else if(b.id==="auto")await saveAssign(state.sem,autoAssign(state.sem,false));
   else if(b.id==="reauto")await saveAssign(state.sem,autoAssign(state.sem,true));
@@ -880,6 +960,7 @@ document.addEventListener("click",async e=>{
 });
 document.addEventListener("input",e=>{if(e.target.closest("#cloForm"))state.cloDraft={code:state.cloCourse,items:state.cloDraft&&state.cloDraft.code===state.cloCourse?state.cloDraft.items:clos(state.cloCourse),dirty:true}});
 document.addEventListener("change",async e=>{
+  if(e.target.dataset&&e.target.dataset.photo){try{await setPhoto(e.target.dataset.photo,e.target.files[0])}catch(x){state.msg="อ่านรูปไม่ได้";render()}return}
   const t=e.target;
   if(t.closest("#cloForm")){state.cloDraft={code:state.cloCourse,items:readCloForm(),dirty:true};const y=window.scrollY;render();window.scrollTo(0,y);return}
   if(t.dataset.owner!==undefined){const o={...state.owners};if(t.value)o[t.dataset.owner]=t.value;else delete o[t.dataset.owner];state.owners=o;render();await dbWrite(db=>db.doc("owners/map").set({map:o,updatedAt:new Date().toISOString()}),"ผู้รับผิดชอบรายวิชา");return}
@@ -895,6 +976,15 @@ document.addEventListener("change",async e=>{
 });
 document.addEventListener("submit",async e=>{
   const f=e.target;e.preventDefault();
+  if(f.id==="sNameForm"){
+    const name=document.getElementById("sName").value.trim().replace(/\s+/g," ");
+    if(!name){document.getElementById("sErr").textContent="ใส่ชื่อก่อน";return}
+    const id=f.dataset.id||("f"+Date.now().toString(36));const old=state.faculty.find(x=>x.id===id);
+    if(state.faculty.some(x=>x.id!==id&&x.name.replace(/\s+/g,"")===name.replace(/\s+/g,""))){document.getElementById("sErr").textContent="มีชื่อนี้อยู่แล้ว";return}
+    const rec={name,email:(old&&old.email)||"",tags:(old&&old.tags)||[],order:old?old.order:Math.max(0,...state.faculty.map(x=>x.order||0))+1};
+    if(old)Object.assign(old,rec);else state.faculty.push({id,...rec});
+    state.sEdit=null;render();await dbWrite(db=>db.doc("faculty/"+id).set(rec),"รายชื่ออาจารย์");return;
+  }
   if(f.id==="facForm"){
     const name=document.getElementById("facName").value.trim();
     if(!name){document.getElementById("facErr").textContent="ใส่ชื่ออาจารย์ก่อน";return}
@@ -991,12 +1081,13 @@ function loginScreen(msg){
   db.collection("clo").onSnapshot(s=>{const m={};s.docs.forEach(d=>{const x=d.data();if(x&&x.code)m[x.code]=x});state.cloOv=m;softRender()},err);
   db.doc("owners/map").onSnapshot(s=>{state.owners=(s.exists&&s.data().map)||{};softRender()},err);
   db.doc("program/team").onSnapshot(s=>{const d=s.exists&&s.data();state.team={role:(d&&d.role)||{},qual:(d&&d.qual)||{}};softRender()},err);
+  db.collection("photo").onSnapshot(s=>{const m={};s.docs.forEach(d=>{const x=d.data();if(x&&x.fid&&x.img)m[x.fid]=x.img});state.photos=m;softRender()},err);
   db.collection("courses").onSnapshot(s=>{const m={};s.docs.forEach(d=>{const x=d.data();if(x&&x.code)m[x.code]=x});state.courseOv=m;rebuild();buildExpected();softRender()},err);
   await db.refresh();
   const isFac=state.faculty.some(f=>(f.email||"").toLowerCase()===email);
   if(!state.isAdmin&&!isFac)state.msg="ท่านเปิดดูได้อย่างเดียว ถ้าเป็นผู้สอน ให้กรรมการหลักสูตรเพิ่มอีเมลของท่านในรายชื่ออาจารย์";
   render();
-  const bar=document.createElement("div");bar.className="row small muted";bar.style.cssText="margin-left:auto;gap:8px;flex:none";
+  const bar=document.createElement("div");bar.className="row small muted userbar";bar.style.cssText="margin-left:auto;gap:8px;flex:none";
   bar.innerHTML=`<span>${esc(email)} · ${state.isAdmin?"กรรมการหลักสูตร":isFac?"ผู้สอน":"ผู้เยี่ยมชม"}</span><button class="sm" id="logout">ออกจากระบบ</button>`;
   document.querySelector("header.top").appendChild(bar);
   document.getElementById("logout").onclick=async()=>{await sb.auth.signOut();location.reload()};
