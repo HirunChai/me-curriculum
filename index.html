@@ -27,6 +27,34 @@
   --accent:#5cc2b6; --accent-soft:#1d3a36; --pass:#7fd08a; --pass-bg:#1e3322; --warn:#f0b54a; --warn-bg:#3a2e14; --fail:#ff8a80; --fail-bg:#3d1f1d;
   --bar:#5cc2b6; --bar-over:#ff8a80; color-scheme:dark}
 *{box-sizing:border-box}
+
+/* PLO list + mind map v2 */
+.plo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px}
+.plo-card{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--panel);display:flex;gap:12px;align-items:flex-start}
+.plo-no{flex:none;width:46px;height:46px;border-radius:12px;background:var(--accent);color:var(--panel);display:grid;place-items:center;font-weight:700;font-size:13px;line-height:1.1;text-align:center}
+.plo-card .pt{font-size:14px;line-height:1.55}
+.plo-card .pm{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.mmx{--k-meet:#c0583a;--k-pol:var(--accent);--k-acc:#6a5acd;--k-sur:#8a938f;position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(200px,.75fr) minmax(0,1fr);gap:18px 64px;align-items:center}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .mmx{--k-meet:#f0906e;--k-acc:#a99bf5;--k-sur:#7d8783}}
+:root[data-theme="dark"] .mmx{--k-meet:#f0906e;--k-acc:#a99bf5;--k-sur:#7d8783}
+.mmx svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.mmx path{fill:none;stroke-linecap:round;opacity:.55;transition:opacity .15s}
+.mmx.hl path{opacity:.08}.mmx.hl path.on{opacity:.95}
+.mmx-col{display:flex;flex-direction:column;gap:14px;position:relative;z-index:1}
+.mmx-src{display:block;text-decoration:none;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;box-shadow:0 1px 2px rgba(0,0,0,.05);transition:box-shadow .15s,border-color .15s}
+.mmx-src:hover,.mmx-src.on{border-color:var(--kc);box-shadow:0 0 0 3px color-mix(in srgb,var(--kc) 18%,transparent)}
+.mmx-src .hd{display:flex;align-items:center;gap:8px;font-weight:600;font-size:13.5px}
+.mmx-src .ic{width:10px;height:10px;border-radius:50%;background:var(--kc);flex:none}
+.mmx-src.pending .ic{background:transparent;border:2px dashed var(--kc)}
+.mmx-src .bd{font-size:12px;line-height:1.5;color:var(--muted);margin-top:4px}
+.mmx-src .bd b{color:var(--ink);font-weight:600}
+.mmx-hub{position:relative;z-index:1;display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:16px;background:var(--soft);border:1px solid var(--line)}
+.mmx-hub .ttl{text-align:center;font-weight:700;font-size:14px}
+.mmx-plo{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:5px 10px 5px 5px;font-size:12.5px;cursor:default;transition:border-color .15s}
+.mmx-plo.on{border-color:var(--accent)}
+.mmx-plo .n{flex:none;background:var(--accent);color:var(--panel);border-radius:999px;padding:2px 8px;font-weight:700;font-size:11.5px}
+.mmx-plo .c{margin-left:auto;color:var(--muted);font-size:11px;white-space:nowrap}
+@media (max-width:820px){.mmx{grid-template-columns:1fr;gap:12px}.mmx svg{display:none}.mmx-hub{order:-1}}
 /* org chart ข1 */
 .org{--t-ME:#2f5f9e;--t-EV:#b4552a;--t-CE:#2f7d3a;position:relative;padding:4px 0 0}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .org{--t-ME:#8fb4ea;--t-EV:#f0a37c;--t-CE:#7fd08a}}
@@ -480,18 +508,52 @@ function compressLabs(labs){
   Object.entries(groups).forEach(([pre,nums])=>out.push(pre+[...new Set(nums)].join(", ")));
   return out.join(", ");
 }
-function mindMap(na){
-  const card=g=>{const rows=na.L.filter(n=>n.g===g),have=rows.filter(n=>n.st==="have");
-    let body;
-    if(!have.length)body=`<div class="mm-l">${rows.length} กลุ่ม · รอผล</div>`+rows.slice(0,4).map(n=>`<div class="mm-l muted">${esc(n.src)}</div>`).join("");
-    else body=PLOS.map(p=>{const labs=have.filter(n=>(n.plos||[]).includes(p.n)).map(n=>n.sh||n.src);return labs.length?`<div class="mm-l"><b>PLO${p.n}</b> ← ${esc(compressLabs(labs))}</div>`:""}).join("")+(rows.length>have.length?`<div class="mm-l muted">รอผล ${rows.length-have.length} รายการ</div>`:"");
-    return `<a class="mm-card k-${NEED_KIND[g]}" style="grid-area:${MAP_POS[g]}" href="#design/needs" data-jump="ng-${g}"><b class="mm-t">${NEED_GROUPS[g]}</b>${body}</a>`};
-  const per=PLOS.map(p=>na.per[p.n].filter(n=>n.st==="have").length);
-  return `<section class="panel"><h2>Mind map ที่มาของ PLOs</h2><div class="mm">
-   <div class="mm-c" style="grid-area:z"><b>PLOs ${PLOS.length} ข้อ</b><span class="small muted">ที่มา ${Object.keys(NEED_GROUPS).length} แหล่ง</span><div class="chips" style="justify-content:center;margin-top:6px">${PLOS.map((p,i)=>`<span class="code" title="${per[i]} แหล่งที่มีข้อมูล">PLO${p.n} · ${per[i]}</span>`).join("")}</div></div>
-   ${Object.keys(NEED_GROUPS).map(card).join("")}</div>
-   <div class="row small muted" style="margin-top:8px"><span><i class="lg k-meet"></i>มติที่ประชุม</span><span><i class="lg k-pol"></i>นโยบายและแผน</span><span><i class="lg k-acc"></i>ข้อกำหนดรับรอง</span><span><i class="lg k-sur"></i>ยังรอผล</span><span>ตัวเลขหลัง PLO = จำนวนแหล่งที่มีข้อมูล · คลิกกล่องเพื่อไปที่แถวในตาราง</span></div></section>`;
+const PLO_SHORT={1:"ความรู้และการประยุกต์",2:"ทักษะวิศวกรรมและการทดลอง",3:"ปฏิบัติงานและบริหารโครงการ",4:"สื่อสารและทำงานเป็นทีม",5:"จรรยาบรรณและความรับผิดชอบ",6:"นวัตกรรมและเรียนรู้ด้วยตนเอง"};
+const DOM_TH={K:"ความรู้",S:"ทักษะ",E:"จริยธรรม",C:"ลักษณะบุคคล"};
+function ploList(na){
+  return `<section class="panel"><h2>PLOs ของหลักสูตร · ${PLOS.length} ข้อ</h2><div class="plo-grid">${PLOS.map(p=>{const n=na.per[p.n].filter(x=>x.st==="have").length;
+    return `<div class="plo-card"><div class="plo-no">PLO<br>${p.n}</div><div><div class="small" style="font-weight:600;color:var(--accent)">${esc(PLO_SHORT[p.n]||"")}</div><div class="pt">${esc(p.t)}</div>
+    <div class="pm"><span class="tag">${esc(String(p.d).split(/,\s*/).map(x=>DOM_TH[x]||x).join(" · "))}</span><span class="tag">Bloom: ${esc(p.b)}</span><span class="tag">สภาวิศวกร ข้อ ${p.coe.join(", ")}</span><span class="tag">ที่มา ${n} รายการ</span></div></div></div>`}).join("")}</div></section>`;
 }
+function mindMap(na){
+  const L=["MEET","POL","NAT"],R=["COE","TAB","SUR"];
+  const links=[];
+  const card=g=>{const rows=na.L.filter(n=>n.g===g),have=rows.filter(n=>n.st==="have"),pend=!have.length;
+    const use=pend?rows:have;
+    PLOS.forEach(p=>{const k=use.filter(n=>(n.plos||[]).includes(p.n)).length;if(k)links.push({g,p:p.n,k,pend})});
+    const body=pend?`รอผล ${rows.length} กลุ่ม: ${esc(rows.slice(0,3).map(n=>n.sh||n.src).join(", "))}${rows.length>3?" …":""}`
+      :PLOS.map(p=>{const labs=have.filter(n=>(n.plos||[]).includes(p.n)).map(n=>n.sh||n.src);return labs.length?`<div><b>PLO${p.n}</b> ${esc(compressLabs(labs))}</div>`:""}).join("")+(rows.length>have.length?`<div>รอผล ${rows.length-have.length} รายการ</div>`:"");
+    return `<a class="mmx-src${pend?" pending":""}" style="--kc:var(--k-${NEED_KIND[g]})" href="#design/needs" data-jump="ng-${g}" data-mmg="${g}"><div class="hd"><span class="ic"></span>${NEED_GROUPS[g]}</div><div class="bd">${body}</div></a>`};
+  const left=L.map(card).join(""),right=R.map(card).join("");
+  const per=PLOS.map(p=>new Set(links.filter(l=>l.p===p.n&&!l.pend).map(l=>l.g)).size);
+  state.mmLinks=links;
+  return `<section class="panel"><h2>Mind map ที่มาของ PLOs</h2><p class="small muted" style="margin:0 0 12px">เส้นโยงจากแหล่งที่มาไปยัง PLO ความหนาของเส้นตามจำนวนรายการ เส้นประคือแหล่งที่ยังรอผล ชี้ที่กล่องหรือ PLO เพื่อเน้นเส้นที่เกี่ยวข้อง</p>
+   <div class="mmx" id="mmx"><svg aria-hidden="true"></svg>
+    <div class="mmx-col">${left}</div>
+    <div class="mmx-hub"><div class="ttl">PLOs ${PLOS.length} ข้อ</div>${PLOS.map((p,i)=>`<div class="mmx-plo" data-mmp="${p.n}"><span class="n">PLO${p.n}</span><span>${esc(PLO_SHORT[p.n]||"")}</span><span class="c">${per[i]} แหล่ง</span></div>`).join("")}</div>
+    <div class="mmx-col">${right}</div>
+   </div>
+   <div class="row small muted" style="margin-top:12px;gap:14px"><span><i class="lg k-meet"></i>มติที่ประชุม</span><span><i class="lg k-pol"></i>นโยบายและแผน</span><span><i class="lg k-acc"></i>ข้อกำหนดรับรอง</span><span><i class="lg k-sur"></i>ยังรอผล</span><span>คลิกกล่องเพื่อไปที่แถวในตาราง</span></div></section>`;
+}
+function drawMM(){
+  const box=document.getElementById("mmx");if(!box)return;const svg=box.querySelector("svg");
+  if(getComputedStyle(svg).display==="none"){svg.innerHTML="";return}
+  const B=box.getBoundingClientRect(),W=Math.max(B.width,1);
+  const hubR=box.querySelector(".mmx-hub").getBoundingClientRect();
+  const paths=(state.mmLinks||[]).map(l=>{const s=box.querySelector(`[data-mmg="${l.g}"]`),t=box.querySelector(`[data-mmp="${l.p}"]`);if(!s||!t)return"";
+    const a=s.getBoundingClientRect(),b=t.getBoundingClientRect();const isL=a.left<hubR.left;
+    const x1=(isL?a.right:a.left)-B.left,y1=a.top+a.height/2-B.top,x2=(isL?b.left:b.right)-B.left,y2=b.top+b.height/2-B.top,dx=(x2-x1)*.5;
+    const kind=NEED_KIND[l.g];return `<path data-g="${l.g}" data-p="${l.p}" d="M${x1},${y1} C${x1+dx},${y1} ${x2-dx},${y2} ${x2},${y2}" stroke="var(--k-${kind})" stroke-width="${Math.min(1.5+l.k*1.2,5)}"${l.pend?' stroke-dasharray="4 5"':""}/>`}).join("");
+  svg.setAttribute("viewBox",`0 0 ${W} ${B.height}`);svg.innerHTML=paths;
+}
+function mmHover(e){const box=document.getElementById("mmx");if(!box)return;const el=e.target.closest&&e.target.closest("[data-mmg],[data-mmp]");
+  box.querySelectorAll(".on").forEach(x=>x.classList.remove("on"));
+  if(!el||!box.contains(el)){box.classList.remove("hl");return}
+  box.classList.add("hl");el.classList.add("on");const g=el.dataset.mmg,p=el.dataset.mmp;
+  box.querySelectorAll("path").forEach(x=>{const hit=g?x.dataset.g===g:x.dataset.p===p;if(hit){x.classList.add("on");const o=box.querySelector(g?`[data-mmp="${x.dataset.p}"]`:`[data-mmg="${x.dataset.g}"]`);if(o)o.classList.add("on")}})}
+document.addEventListener("mouseover",mmHover);
+window.addEventListener("resize",()=>requestAnimationFrame(drawMM));
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>drawMM());
 function viewNeeds(){
   const na=needsAnalysis();
   const head=`<tr><th>แหล่งที่มา</th><th>ความต้องการ</th>${PLOS.map(p=>`<th class="c">PLO${p.n}</th>`).join("")}<th>สถานะ</th><th></th></tr>`;
@@ -503,6 +565,7 @@ function viewNeeds(){
    <div class="panel"><span class="muted small">กลุ่มสำรวจที่ได้ผลแล้ว</span><span class="big num">${na.surveyHave.length}/${na.L.filter(n=>n.g==="SUR").length}</span>${na.surveyHave.length?"":pill("warn","ยังไม่มีผลสำรวจ")}</div>
    <div class="panel"><span class="muted small">PLO ที่ไม่มีที่มา</span><span class="big num">${na.noSrc.length}</span>${na.noSrc.length?pill("fail","ต้องแก้"):pill("pass","ครบทุก PLO")}</div>
   </div>
+  ${ploList(na)}
   ${mindMap(na)}
   <section class="panel"><h2>ความต้องการของผู้มีส่วนได้ส่วนเสีย × PLO</h2><div class="scroll"><table>${Object.entries(NEED_GROUPS).map(([g,gt])=>{const rows=na.L.filter(n=>n.g===g);return `<tr id="ng-${g}"><th colspan="${PLOS.length+4}" style="background:var(--soft);color:var(--ink)">${gt}</th></tr>${head}${rows.map(row).join("")}`}).join("")}</table></div>
   ${state.needEdit==="new"?needForm({id:"new",g:"SUR",src:"",t:"",how:"",plos:[],st:"have"}):`<button data-neededit="new" style="margin-top:8px" ${dis()}>+ เพิ่มความต้องการ</button>`}</section>
@@ -914,6 +977,7 @@ function render(){
   document.getElementById("phase").innerHTML=Object.entries(NAV).map(([k,v])=>`<a href="#${k}/${v.tabs[0][0]}" aria-current="${state.phase===k?"page":"false"}">${v.t}<span>${v.s}</span></a>`).join("");
   const ac=alertCount();document.getElementById("tabs").innerHTML=NAV[state.phase].tabs.map(([k,n,t])=>`<a href="#${state.phase}/${k}" aria-current="${state.view===k?"page":"false"}"><b>${n}</b>${t}${k==="clo"&&ac?` <span class="pill fail" title="วิชาที่ CLO ไม่สอดรับกับ PLO">${ac}</span>`:""}</a>`).join("");
   document.getElementById("view").innerHTML=(state.msg?`<div class="note" role="status">${esc(state.msg)}</div>`:"")+VIEWS[state.view]();
+  requestAnimationFrame(drawMM);
 }
 const busy=()=>state.sEdit||state.needEdit||state.courseEdit||state.editing||(state.cloDraft&&state.cloDraft.dirty);
 function softRender(){if(busy())state.pending=true;else render()}
