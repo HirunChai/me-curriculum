@@ -420,9 +420,10 @@ const CLO0={
 };
 
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10},
-  faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null};
+  faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8};
 try{const s=JSON.parse(localStorage.getItem("mecp")||"{}");if(s.intake)state.intake=s.intake;if(s.track)state.track=s.track}catch(e){}
 try{state.me=localStorage.getItem("mecp_me")||""}catch(e){}
+try{const z=+localStorage.getItem("mecp_bkzoom");if(z)state.bookZoom=z}catch(e){}
 function savePrefs(){try{localStorage.setItem("mecp",JSON.stringify({intake:state.intake,track:state.track}))}catch(e){}}
 
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -752,7 +753,7 @@ function bookData(){
     credits:Object.fromEntries(Object.keys(TRACKS).map(t=>[t,{total:sumCr(trackCourses(t)),byGroup:Object.fromEntries(Object.keys(GROUPS).map(g=>[g,sumCr(trackCourses(t),c=>c.g===g)]))}])),
     groups:GROUPS,terms:TERMS,termTh:TERM_TH,
     faculty:F.map(f=>({id:f.id,name:f.name,email:f.email||"",role:roleOf(f.id),deg:qualOf(f.id).deg,pos:qualOf(f.id).pos,formal:formalName(f)})),
-    intake:state.intake};
+    intake:state.intake,fmt:bookFmt(),plan:bookPlan()};
 }
 function bookReadiness(){
   const ta=teamAnalysis(),na=needsAnalysis(),L=[];
@@ -775,15 +776,167 @@ function bookReadiness(){
   L.push(["ส่วนอื่น ๆ","ระบบการศึกษา งบประมาณ การประกันคุณภาพ ภาคผนวก ข–ค","warn","ใช้ข้อความมาตรฐานของแบบฟอร์ม ช่องเฉพาะหลักสูตรเว้นไว้ให้กรอก"]);
   return L;
 }
+// ---- ค1 จัดทำเล่ม: ตัวอย่างเล่มรายส่วน รูปแบบตัวอักษร และนับถอยหลัง ----
+const BOOK_FMT0={font:"Angsana New",body:16,table:14,line:1.15,mL:1,mR:1,mT:1,mB:1};
+const BOOK_FONTS=[["Angsana New","Angsana New (ตามแบบฟอร์ม)"],["TH SarabunPSK","TH SarabunPSK"],["TH Sarabun New","TH Sarabun New"],["Sarabun","Sarabun (เว็บ)"]];
+const BOOK_PLAN0={deadline:"2026-11-14T16:30",review:"2026-11-15T09:00",note:"ส่งเล่มฉบับสมบูรณ์ให้คณะกรรมการวิพากษ์หลักสูตร"};
+const BOOK_SECS=[["cover","ปกนอกและปกใน"],["front","คำนำและสารบัญ"],["h1","หมวดที่ 1 ข้อมูลทั่วไป"],["h2","หมวดที่ 2 ข้อมูลเฉพาะของหลักสูตร"],["h3","หมวดที่ 3 ระบบการจัดการศึกษา การดำเนินการ และโครงสร้างของหลักสูตร"],["h4","หมวดที่ 4 การจัดกระบวนการเรียนรู้"],["h5","หมวดที่ 5 ความพร้อมและศักยภาพในการบริหารจัดการหลักสูตร"],["h6","หมวดที่ 6 การประเมินผลการเรียนรู้และเกณฑ์การสำเร็จการศึกษา"],["h7","หมวดที่ 7 การประกันคุณภาพของหลักสูตร"],["h8","หมวดที่ 8 ระบบและกลไกในการพัฒนาหลักสูตร"],["apx","ภาคผนวก ก ข ค"]];
+const defd=o=>Object.fromEntries(Object.entries(o||{}).filter(([k,v])=>v!=null&&v!==""));
+const bookFmt=()=>({...BOOK_FMT0,...defd(state.bookFmt)});
+const bookPlan=()=>({...BOOK_PLAN0,...defd(state.bookPlan)});
+const TR_EN={ME:"Mechanical Engineering",EV:"New Energy Vehicle Engineering",CE:"Energy Engineering"};
+const crTxt=c=>c.fl&&c.fl.nc?`${c.t} (${c.t}-${c.p}-${c.s})*`:`${c.cr} (${c.t}-${c.p}-${c.s})`;
+const bkT=(rows,head,opt={})=>`<table class="bk-t"${opt.w?` style="width:${opt.w}"`:""}>${head?`<thead><tr>${head.map(h=>`<th>${h}</th>`).join("")}</tr></thead>`:""}<tbody>${rows.map(r=>`<tr>${r.map(c=>typeof c==="object"&&c?`<td colspan="${c.span||1}" class="${c.cls||""}">${c.h??esc(c.t)}</td>`:`<td>${esc(c??"")}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+const bkTodo=t=>`<span class="bk-todo">${esc(t)}</span>`;
+const bkP=(t,cls="")=>`<p class="${cls}">${t}</p>`;
+function bookSecHtml(id){
+  const plos=PLOS,subs=SUBS,YEAR=2571,trs=Object.keys(TRACKS);
+  const all=COURSES.filter(c=>c.g!=="FREE");
+  const core=all.filter(c=>c.tr===A);
+  const ME=trackCourses("ME");const cr=g=>sumCr(ME,c=>g.includes(c.g));
+  const SPEC=cr(["MS","EB","CORE","TR","TE","EXP"]);
+  const F=state.faculty,resp=F.filter(f=>roleOf(f.id)),reg=F.filter(f=>!roleOf(f.id));
+  const na=needs();
+  const OBJ=[["เพื่อผลิตวิศวกรเครื่องกลที่มีองค์ความรู้ครบตามเกณฑ์ของสภาวิศวกร และเชี่ยวชาญในแขนงวิชาที่ศึกษา",[2,3,4]],["เพื่อผลิตบัณฑิตนักปฏิบัติที่ทดสอบ วินิจฉัย และปฏิบัติงานในภาคอุตสาหกรรมได้ทันทีที่สำเร็จการศึกษา",[2,4,5]],["เพื่อผลิตบัณฑิตที่สื่อสาร ทำงานเป็นทีม และยึดมั่นในจรรยาบรรณวิชาชีพ",[1,5,6]],["เพื่อผลิตบัณฑิตที่เรียนรู้ตลอดชีวิตและสร้างนวัตกรรมทางเทคโนโลยี",[1,6]]];
+  const H=t=>`<h2 class="bk-h">${t}</h2>`,h3=t=>`<h3>${t}</h3>`,ind=t=>`<p class="ind">${t}</p>`,li=t=>`<p class="li">${t}</p>`;
+  const ctab=L=>bkT(L.map(c=>[c.code,c.th,crTxt(c)]),null,{w:"92%"});
+  if(id==="cover"){
+    const blk=sz=>`<div class="bk-cv" style="--s:${sz}">`;
+    const page=(a,b,c,d)=>`<div class="bk-page bk-cover">${blk(a)}หลักสูตรวิศวกรรมศาสตรบัณฑิต</div>${blk(b)}สาขาวิชาวิศวกรรมเครื่องกล</div>${blk(c)}(หลักสูตรปรับปรุง พ.ศ. ${YEAR})</div>${blk(c)}(หลักสูตรสหกิจศึกษาและการศึกษาเชิงบูรณาการกับการทำงาน)</div><div class="bk-gap"></div>${blk(d)}คณะวิศวกรรมศาสตร์</div>${blk(b)}มหาวิทยาลัยเทคโนโลยีราชมงคลกรุงเทพ</div>${blk(b)}กระทรวงการอุดมศึกษา วิทยาศาสตร์ วิจัยและนวัตกรรม</div></div>`;
+    return `<div class="bk-cvlogo">[ ตรามหาวิทยาลัย ]</div>`+page(28,24,22,28)+`<div class="bk-break"></div><div class="bk-cvlogo">[ ตรามหาวิทยาลัย ]</div>`+page(24,24,24,24);
+  }
+  if(id==="front"){
+    const toc=BOOK_SECS.slice(2).map(([k,t])=>`<div class="toc"><span>${esc(t)}</span><span class="dots"></span><span>${bkTodo("หน้า")}</span></div>`).join("");
+    return `<h2 class="bk-h big">คำนำ</h2>${ind("ตามที่กระทรวงการอุดมศึกษา วิทยาศาสตร์ วิจัยและนวัตกรรมได้มีประกาศเรื่อง มาตรฐานคุณวุฒิระดับอุดมศึกษา พ.ศ.2565 และเกณฑ์มาตรฐานหลักสูตรระดับปริญญาตรี พ.ศ.2565 โดยมีวัตถุประสงค์เพื่อเป็นมาตรฐานให้สถาบันอุดมศึกษาใช้เป็นแนวทางในการพัฒนาหรือปรับปรุงหลักสูตร การจัดการเรียนการสอน และพัฒนาคุณภาพการจัดการศึกษา ให้สามารถผลิตบัณฑิตที่มีคุณภาพ และเพื่อประโยชน์ต่อการรับรองมาตรฐานคุณวุฒิในระดับอุดมศึกษา")}${ind(`คณะวิศวกรรมศาสตร์ จึงได้ปรับปรุงหลักสูตรวิศวกรรมศาสตรบัณฑิต สาขาวิชาวิศวกรรมเครื่องกล (หลักสูตรปรับปรุง พ.ศ. ${YEAR}) แบ่งเป็น 3 แขนงวิชา ได้แก่ ${trs.map(t=>"แขนงวิชา"+TRACKS[t]).join(" ")} โดยออกแบบตามแนวทางผลลัพธ์การเรียนรู้เป็นฐาน (OBE)`)}${ind("จึงหวังเป็นอย่างยิ่งว่า จะสามารถนำหลักสูตรนี้ไปใช้ในการจัดการเรียนการสอน และผลิตบัณฑิตออกสู่สังคมได้อย่างมีคุณภาพ")}<div class="bk-sign">คณะวิศวกรรมศาสตร์<br>มหาวิทยาลัยเทคโนโลยีราชมงคลกรุงเทพ</div><div class="bk-break"></div><h2 class="bk-h big">สารบัญ</h2><div class="toc"><b>รายละเอียดหลักสูตร</b><span class="dots"></span><b>หน้า</b></div>${toc}<p class="small-note">เลขหน้าจะได้หลังจัดหน้าในไฟล์ Word (อัปเดตสารบัญด้วยคำสั่ง Update Field)</p>`;
+  }
+  if(id==="h1"){
+    const rt=[];trs.forEach(t=>{rt.push([{t:"แขนงวิชา"+TRACKS[t],span:3,cls:"grp"}]);const L=resp.filter(f=>roleOf(f.id)===t);if(!L.length)rt.push([{h:bkTodo("ยังไม่ได้กำหนดผู้รับผิดชอบ"),span:3}]);L.forEach((f,i)=>rt.push([`${i+1}. ${formalName(f)}`,POS[qualOf(f.id).pos]||"",(DEG[qualOf(f.id).deg]||"")+" (สาขา สถาบัน ปีที่สำเร็จ)"]))});
+    const grpNeeds=g=>na.filter(n=>n.g===g&&n.st==="have");
+    return `<h2 class="bk-h big">รายละเอียดหลักสูตร</h2><h2 class="bk-h big">หลักสูตรวิศวกรรมศาสตรบัณฑิต สาขาวิชาวิศวกรรมเครื่องกล<br>หลักสูตรปรับปรุง พ.ศ. ${YEAR}</h2>
+    <p><b>ชื่อสถาบันอุดมศึกษา</b> มหาวิทยาลัยเทคโนโลยีราชมงคลกรุงเทพ</p><p><b>คณะ / ภาควิชา</b> คณะวิศวกรรมศาสตร์ ภาควิชาวิศวกรรมเครื่องกล</p>${H("หมวดที่ 1 ข้อมูลทั่วไป")}
+    ${h3("1. รหัสและชื่อหลักสูตร")}${li("รหัสหลักสูตร "+bkTodo("(14 หลัก)"))}${li("ภาษาไทย: หลักสูตรวิศวกรรมศาสตรบัณฑิต สาขาวิชาวิศวกรรมเครื่องกล")}${li("ภาษาอังกฤษ: Bachelor of Engineering Program in Mechanical Engineering")}
+    ${h3("2. ชื่อปริญญาและสาขาวิชา")}${li("ชื่อเต็ม (ภาษาไทย): วิศวกรรมศาสตรบัณฑิต (วิศวกรรมเครื่องกล)")}${li("ชื่อย่อ (ภาษาไทย): วศ.บ. (วิศวกรรมเครื่องกล)")}${li("ชื่อเต็ม (ภาษาอังกฤษ): Bachelor of Engineering (Mechanical Engineering)")}${li("ชื่อย่อ (ภาษาอังกฤษ): B.Eng. (Mechanical Engineering)")}
+    ${h3("3. วิชาเอก")}${trs.map((t,i)=>li(`3.${i+1} แขนงวิชา${TRACKS[t]} (${TR_EN[t]})`)).join("")}
+    ${h3("4. จำนวนหน่วยกิตที่เรียนตลอดหลักสูตร")}${ind(`ไม่น้อยกว่า ${sumCr(ME)} หน่วยกิต`)}
+    ${h3("5. รูปแบบของหลักสูตร")}${li("5.1 รูปแบบ หลักสูตรระดับปริญญาตรี หลักสูตร 4 ปี")}${li("5.2 ประเภทของหลักสูตร หลักสูตรปริญญาตรีทางวิชาชีพ")}${li("5.3 ภาษาที่ใช้ หลักสูตรภาษาไทย")}
+    ${h3("6. การรับเข้าศึกษา")}${ind("รับนักศึกษาไทย และนักศึกษาต่างประเทศที่สามารถใช้ภาษาไทยได้เป็นอย่างดี")}${h3("7. ความร่วมมือกับสถาบันอื่น / องค์กรภายนอก")}${ind("จัดการเรียนการสอนโดยตรง")}${h3("8. การให้ปริญญาแก่ผู้สำเร็จการศึกษา")}${ind("ให้ปริญญาเพียงสาขาวิชาเดียว")}
+    ${h3("9. สถานภาพของหลักสูตรและการพิจารณาอนุมัติ/เห็นชอบหลักสูตร")}${ind(`หลักสูตรปรับปรุง พ.ศ. ${YEAR} ปรับปรุงมาจากหลักสูตรวิศวกรรมศาสตรบัณฑิต สาขาวิชาวิศวกรรมเครื่องกล หลักสูตรปรับปรุง พ.ศ. 2566`)}${li("คณะกรรมการวิพากษ์หลักสูตร ครั้งที่ "+bkTodo("…")+" วันที่ "+bkTodo(new Date(bookPlan().review).toLocaleDateString("th-TH",{day:"numeric",month:"long",year:"numeric"})))}${li("สภาวิชาการ / สภามหาวิทยาลัย "+bkTodo("ครั้งที่ … วันที่ …"))}${li(`เปิดสอน ภาคการศึกษาที่ 1 ปีการศึกษา ${YEAR}`)}
+    ${h3("10. ความพร้อมในการเผยแพร่หลักสูตรที่มีคุณภาพและมาตรฐาน")}${ind(`หลักสูตรพร้อมเผยแพร่ว่าเป็นไปตามมาตรฐานคุณวุฒิระดับอุดมศึกษา พ.ศ. 2565 ในปีการศึกษา ${YEAR+2}`)}
+    ${h3("11. อาชีพที่สามารถประกอบได้หลังสำเร็จการศึกษา")}${["วิศวกรเครื่องกลด้านการออกแบบ การผลิต การติดตั้ง และการบำรุงรักษาเครื่องจักรกลและระบบในอาคาร","วิศวกรยานยนต์ไฟฟ้าและยานยนต์พลังงานใหม่ ด้านการทดสอบ การซ่อมบำรุง และระบบแบตเตอรี่","วิศวกรพลังงาน ผู้ตรวจสอบและจัดการพลังงาน และวิศวกรระบบพลังงานทดแทน","วิศวกรโครงการ วิศวกรทดสอบ หรือวิศวกรฝ่ายเทคนิคในสถานประกอบการ","ผู้ประกอบการด้านเทคโนโลยี นักวิจัย หรือศึกษาต่อในระดับบัณฑิตศึกษา"].map((x,i)=>li(`${i+1}) ${x}`)).join("")}
+    ${h3("12. ชื่อ-นามสกุล ตำแหน่ง และคุณวุฒิการศึกษาของอาจารย์ผู้รับผิดชอบหลักสูตร")}${bkT(rt,["ชื่อ-นามสกุล","ตำแหน่งทางวิชาการ","คุณวุฒิการศึกษา"])}
+    ${h3("13. สถานที่จัดการเรียนการสอน")}${ind("คณะวิศวกรรมศาสตร์ มหาวิทยาลัยเทคโนโลยีราชมงคลกรุงเทพ พื้นที่เทคนิคกรุงเทพ")}
+    ${h3("14. แนวคิดการออกแบบหลักสูตร")}${li("<b>14.1 สถานการณ์ภายนอกหรือการพัฒนาที่จำเป็นของประเทศ</b>")}${grpNeeds("NAT").map(n=>ind(esc(n.src+": "+n.t))).join("")}${li("<b>14.2 วิสัยทัศน์ พันธกิจ และอัตลักษณ์ของมหาวิทยาลัย</b>")}${grpNeeds("POL").map(n=>ind(esc(n.src+": "+n.t))).join("")}${li("<b>14.3 การวิเคราะห์ความเสี่ยง</b>")}${ind(bkTodo("(เขียน SWOT Analysis ของหลักสูตร)"))}${li("<b>14.4 การกำหนดผู้มีส่วนได้ส่วนเสีย</b>")}${na.filter(n=>n.g==="SUR").map((n,i)=>li(`${i+1}) ${esc(n.src)} — ${esc(n.how||"")}`)).join("")}${li("<b>14.5 ความต้องการของผู้มีส่วนได้ส่วนเสีย</b>")}${Object.entries(NEED_GROUPS).map(([g,t])=>{const L=grpNeeds(g);return L.length?li(esc(t+": "+L.map(n=>n.sh||n.t).join(" · "))):""}).join("")}`;
+  }
+  if(id==="h2"){
+    const ksec=plos.map(p=>[`PLO ${p.n} ${p.t}`,...["K","S","E","C"].map(d=>subs.filter(s=>s.plo===p.n&&s.dom===d).map(s=>s.code+": "+s.t).join("\n"))]);
+    return `${H("หมวดที่ 2 ข้อมูลเฉพาะของหลักสูตร")}${h3("1. ปรัชญา วัตถุประสงค์และผลลัพธ์การเรียนรู้ของหลักสูตร")}${li("<b>1.1 ปรัชญาของหลักสูตร</b>")}${ind("มุ่งผลิตวิศวกรเครื่องกลนักปฏิบัติที่มีความรู้ทางทฤษฎีมั่นคง เชี่ยวชาญในแขนงวิศวกรรมเครื่องกล วิศวกรรมยานยนต์พลังงานใหม่ และวิศวกรรมพลังงาน ใช้เทคโนโลยีและสร้างนวัตกรรม ยึดมั่นในจรรยาบรรณวิชาชีพ และรับผิดชอบต่อสังคมและสิ่งแวดล้อม")}${li("<b>1.2 วัตถุประสงค์ของหลักสูตร</b>")}${OBJ.map((o,i)=>li(`${i+1}. ${o[0]}`)).join("")}${li("<b>1.3 ผลลัพธ์การเรียนรู้ระดับหลักสูตร (PLOs)</b>")}${ind("เมื่อสิ้นสุดการเรียนการสอนในหลักสูตร ผู้สำเร็จการศึกษาจะสามารถ")}${plos.map(p=>`<p class="li"><b>PLO ${p.n}</b> ${esc(p.t)}</p>`+subs.filter(s=>s.plo===p.n).map(s=>`<p class="li2">Sub PLO ${s.code} ${esc(s.t)}</p>`).join("")).join("")}
+    ${h3("2. ตารางแสดงความสัมพันธ์ระหว่างวัตถุประสงค์ของหลักสูตรกับ PLOs")}${bkT(OBJ.map((o,i)=>[`${i+1}. ${o[0]}`,...plos.map(p=>({t:o[1].includes(p.n)?"✓":"",cls:"c"}))]),["วัตถุประสงค์ของหลักสูตร",...plos.map(p=>"PLO"+p.n)])}
+    ${h3("3. รายละเอียดของผลลัพธ์การเรียนรู้ของหลักสูตรในแต่ละด้าน")}${bkT(ksec.map(r=>r.map(x=>({h:esc(x).replace(/\n/g,"<br>")}))),["PLO","ด้านความรู้ (K)","ด้านทักษะ (S)","ด้านจริยธรรม (E)","ด้านลักษณะบุคคล (C)"],{w:"100%"})}
+    ${h3("4. ความคาดหวังของผลลัพธ์การเรียนรู้ต่อการพัฒนาผู้เรียน (YLOs)")}${bkT(YLOS.map(y=>[`ปีที่ ${y.y}`,{h:esc(y.t).replace(/ · /g,"<br>- ")},{h:"Sub PLO: "+y.subs.join(", ")+"<br>อาชีพ: "+esc(y.job||"")},y.cri||""]),["ช่วงเวลา","ผลลัพธ์การเรียนรู้","สมรรถนะ / อาชีพ","เกณฑ์การประเมิน"],{w:"100%"})}`;
+  }
+  if(id==="h3"){
+    const plans=trs.map(t=>{const L=trackCourses(t);return `<p class="li"><b>แผน ก. แผนสหกิจศึกษาและการศึกษาเชิงบูรณาการกับการทำงาน · แขนงวิชา${TRACKS[t]}</b></p>`+TERMS.map(tm=>{const R=L.filter(c=>c.term===tm);if(!R.length)return "";const rows=R.map(c=>[c.g==="FREE"?"x-xxx-xxx":c.g==="TE"?"x-xxx-xxx":c.code,c.g==="FREE"?"วิชาเลือกเสรี":c.g==="TE"?"วิชาชีพเลือก (แขนง)":c.th,c.fl&&c.fl.nc?`(${c.t})`:String(c.cr),String(c.t),String(c.p),String(c.s)]);rows.push([{t:"รวม",span:2,cls:"r b"},{t:String(sumCr(R)),cls:"b"},"","",""]);return bkT(rows,[TERM_TH[tm],"","หน่วยกิต","ทฤษฎี","ปฏิบัติ","ศึกษาด้วยตนเอง"],{w:"88%"})}).join("")}).join('<div class="bk-break"></div>');
+    const grp=(t,L)=>li(`<b>${t}</b> ${sumCr(L)} หน่วยกิต`)+ctab(L);
+    const desc=all.filter(c=>c.g!=="GE").sort((a,b)=>a.code.localeCompare(b.code)).filter((c,i,s)=>s.findIndex(x=>x.code===c.code)===i).map(c=>{const d=descSaved(c.code),cl=clos(c.code);return bkT([[c.code,c.th,crTxt(c)]],null,{w:"92%"})+(d.th?ind(esc(d.th)):ind(bkTodo("(คำอธิบายรายวิชาภาษาไทย)")))+(d.en?ind(esc(d.en)):ind(bkTodo("(Course description)")))+(cl.length?`<p class="li"><b>ผลลัพธ์การเรียนรู้</b></p>`+cl.map((x,i)=>`<p class="li2">${i+1}. ${esc(x.t)}</p>`).join(""):"")}).join("");
+    const n1=Object.values(state.intake).reduce((a,b)=>a+b,0);
+    return `${H("หมวดที่ 3 ระบบการจัดการศึกษา การดำเนินการ และโครงสร้างของหลักสูตร")}${h3("1. ระบบการจัดการศึกษา")}${ind("ใช้ระบบทวิภาค โดย 1 ปีการศึกษาแบ่งออกเป็น 2 ภาคการศึกษาปกติ มีระยะเวลาศึกษาไม่น้อยกว่า 15 สัปดาห์ และมีภาคฤดูร้อนไม่น้อยกว่า 7 สัปดาห์")}${h3("2. การดำเนินการหลักสูตร")}${li("2.1 วัน-เวลาในการดำเนินการเรียนการสอน ภาคการศึกษาที่ 1 มิถุนายน – ตุลาคม · ภาคการศึกษาที่ 2 พฤศจิกายน – มีนาคม · ภาคฤดูร้อน มีนาคม – พฤษภาคม")}${li("2.3 คุณสมบัติของผู้เข้าศึกษา สำเร็จการศึกษา ม.6 หรือ ปวช. สาขาช่างอุตสาหกรรม หรือเทียบเท่า")}${li(`2.7 แผนการรับนักศึกษา ปีละ ${n1} คน (${trs.map(t=>TRACKS[t]+" "+state.intake[t]).join(" · ")})`)}${bkT([1,2,3,4].map(y=>[`ชั้นปีที่ ${y}`,...[0,1,2,3,4].map(k=>({t:k>=y-1?String(n1):"-",cls:"c"}))]).concat([["รวม",...[0,1,2,3,4].map(k=>({t:String(n1*Math.min(k+1,4)),cls:"c b"}))]]),["จำนวนนักศึกษา",...[0,1,2,3,4].map(k=>String(YEAR+k))],{w:"80%"})}
+    ${h3("3. โครงสร้างหลักสูตร")}${bkT([["ก. หมวดวิชาศึกษาทั่วไป",{t:String(cr(["GE"])),cls:"r"}],["ข. หมวดวิชาเฉพาะ",{t:String(SPEC),cls:"r"}],["   1. กลุ่มวิชาพื้นฐานวิชาชีพ",{t:String(cr(["MS","EB"])),cls:"r"}],["   2. กลุ่มวิชาชีพบังคับ",{t:String(cr(["CORE","TR"])),cls:"r"}],["   3. กลุ่มวิชาชีพเลือก",{t:String(cr(["TE"])),cls:"r"}],["   4. กลุ่มวิชาเสริมสร้างประสบการณ์ในวิชาชีพ",{t:String(cr(["EXP"])),cls:"r"}],["ค. หมวดวิชาเลือกเสรี",{t:String(cr(["FREE"])),cls:"r"}],[{t:"รวมไม่น้อยกว่า",cls:"b"},{t:String(sumCr(ME)),cls:"r b"}]],["หมวด / กลุ่มวิชา","หน่วยกิต"],{w:"70%"})}
+    ${li("<b>3.2 ชื่อรายวิชา · ก. หมวดวิชาศึกษาทั่วไป</b>")}${ctab(all.filter(c=>c.g==="GE"))}<p class="small-note">* รายวิชาไม่นับหน่วยกิต</p>${li("<b>ข. หมวดวิชาเฉพาะ</b>")}${grp("1. กลุ่มวิชาพื้นฐานวิชาชีพ",core.filter(c=>["MS","EB"].includes(c.g)))}${grp("2.1 วิชาชีพบังคับร่วม",core.filter(c=>c.g==="CORE"))}${trs.map((t,i)=>grp(`2.${i+2} วิชาบังคับแขนงวิชา${TRACKS[t]}`,all.filter(c=>c.g==="TR"&&inTrack(c,t)))).join("")}${trs.map((t,i)=>grp(`3.${i+1} วิชาชีพเลือก แขนงวิชา${TRACKS[t]}`,all.filter(c=>c.g==="TE"&&inTrack(c,t)))).join("")}${grp("4. กลุ่มวิชาเสริมสร้างประสบการณ์ในวิชาชีพ",core.filter(c=>c.g==="EXP"))}
+    <div class="bk-break"></div>${h3("3.3 แผนการศึกษา")}${plans}<div class="bk-break"></div>${h3("3.4 คำอธิบายรายวิชา (หมวดวิชาเฉพาะ)")}<p class="small-note">หมวดวิชาศึกษาทั่วไปใช้คำอธิบายตามแบบฟอร์มของมหาวิทยาลัย</p>${desc}`;
+  }
+  if(id==="h4"){
+    const STR={K:"บรรยายร่วมกับการแก้โจทย์ปัญหา กรณีศึกษา และการเรียนรู้แบบใช้ปัญหาเป็นฐาน",S:"ปฏิบัติการ การประลอง การเรียนรู้แบบโครงงาน และ CWIE",E:"กรณีศึกษาจรรยาบรรณวิศวกร และกำกับความซื่อสัตย์ทางวิชาการในงานทุกชิ้น",C:"กิจกรรมกลุ่ม การนำเสนอ กิจกรรมจิตอาสา และการเรียนรู้ด้วยตนเอง"};
+    const asm=p=>{const ss=new Set(subs.filter(s=>s.plo===p.n).map(s=>s.code)),o=new Set();COURSES.forEach(c=>clos(c.code).forEach(x=>{if((x.subs||[]).some(s=>ss.has(s))&&x.as)x.as.split(/[·,/]/).forEach(a=>{a=a.trim();if(a)o.add(a)})}));return [...o].slice(0,6).join(" · ")||"การสอบ · ชิ้นงาน · rubric"};
+    const map=all.filter(c=>c.g!=="GE").sort((a,b)=>TERMS.indexOf(a.term)-TERMS.indexOf(b.term)).filter((c,i,s)=>s.findIndex(x=>x.code===c.code)===i).map(c=>{const m=ploOf(c).map||{};return [c.code,c.th,...plos.map(p=>({t:m[p.n]||"",cls:"c"}))]});
+    return `${H("หมวดที่ 4 การจัดกระบวนการเรียนรู้")}${h3("1. การพัฒนาคุณลักษณะพิเศษของนักศึกษา")}${bkT([["ทักษะปฏิบัติงานวิศวกรรมในแขนงเฉพาะทาง","วิชาปฏิบัติงานแขนงปีที่ 2 การประลองแขนงปีที่ 4 และสหกิจศึกษาตรงแขนง"],["ใช้เครื่องมือและซอฟต์แวร์วิศวกรรมสมัยใหม่","CAD/CAE ในวิชาออกแบบและโครงงาน"],["ความพร้อมสอบใบอนุญาต กว.","จัดวิชาครบตามเกณฑ์สภาวิศวกร และติวสอบก่อนสำเร็จการศึกษา"]],["คุณลักษณะพิเศษ","กลยุทธ์หรือกิจกรรม"])}
+    ${h3("2. การออกแบบการจัดกระบวนการเรียนรู้และการประเมินผล")}${bkT(plos.map(p=>[`PLO ${p.n} ${p.t}`,{h:String(p.d).split(/,\s*/).map(d=>"- "+esc(STR[d]||"")).join("<br>")},asm(p)]),["PLOs","กลยุทธ์การจัดการเรียนรู้","วิธีการประเมินผล"],{w:"100%"})}
+    ${h3("3. แผนที่กระจายความรับผิดชอบของผลลัพธ์การเรียนรู้สู่รายวิชา (Curriculum Mapping)")}${bkT(map,["รหัสวิชา","รายวิชา",...plos.map(p=>"PLO"+p.n)],{w:"100%"})}<p class="small-note">I = แนะนำ · R = ฝึกซ้ำ · M = ประเมินการบรรลุ</p>
+    ${h3("5. องค์ประกอบเกี่ยวกับประสบการณ์ภาคสนาม (สหกิจศึกษา)")}${clos("4-116-302").map((x,i)=>li(`${i+1}) ${esc(x.t)}`)).join("")}${h3("6. ข้อกำหนดเกี่ยวกับการทำโครงงาน")}${ind("นักศึกษาทุกแขนงทำโครงงาน 2 รายวิชาต่อเนื่อง (4-116-307 และ 4-116-408) หัวข้ออยู่ในแขนงวิชาของตน และมีบทวิเคราะห์ผลกระทบต่อความปลอดภัยสาธารณะ สังคม และสิ่งแวดล้อม")}`;
+  }
+  if(id==="h5"){
+    const l1=loads("S1").m,l2=loads("S2").m,ls=loads("SS").m;
+    const wk=f=>{const a=(l1[f.id]||{}).h||0,b=(l2[f.id]||{}).h||0,c=(ls[f.id]||{}).h||0;const v=(a+b+c)/2;return v?String(Math.round(v*10)/10):""};
+    const fr=(L,star)=>L.map((f,i)=>{const w=wk(f);return [String(i+1),formalName(f)+(star&&roleOf(f.id)?" *":""),DEG[qualOf(f.id).deg]||"",{h:bkTodo("สาขา")},POS[qualOf(f.id).pos]||"",...[0,1,2,3].map(()=>({t:w,cls:"c"}))]});
+    const ext=[...new Set(Object.values(state.extOwners||{}).map(x=>String(x).trim()).filter(Boolean))];
+    const extCodes=n=>Object.entries(state.extOwners||{}).filter(([c,v])=>String(v).trim()===n).map(([c])=>c).join(", ");
+    return `${H("หมวดที่ 5 ความพร้อมและศักยภาพในการบริหารจัดการหลักสูตร")}${h3("1. การเตรียมการสำหรับอาจารย์ใหม่")}${ind("ตามระบบของมหาวิทยาลัยและคณะ (ข้อความมาตรฐานตามแบบฟอร์ม)")}${h3("4. ชื่อ-นามสกุล ตำแหน่ง และคุณวุฒิของอาจารย์")}${li("<b>4.1 อาจารย์ประจำหลักสูตร (* อาจารย์ผู้รับผิดชอบหลักสูตร)</b>")}${bkT(fr([...resp,...reg],true),["ลำดับ","ชื่อ – นามสกุล","คุณวุฒิ","สาขาวิชาเอก","ตำแหน่งวิชาการ",String(YEAR),String(YEAR+1),String(YEAR+2),String(YEAR+3)],{w:"100%"})}<p class="small-note">ภาระการสอน ชม./สัปดาห์ เฉลี่ยต่อภาคการศึกษา คำนวณจากการจัดผู้สอนในแถบบริหารหลักสูตร (ข2) ของปีการศึกษาแรก และใช้เป็นค่าประมาณของปีถัดไป</p>${li("<b>4.2 อาจารย์ผู้สอนจากหน่วยงานอื่น</b>")}${ext.length?bkT(ext.map((n,i)=>[String(i+1),n,extCodes(n)]),["ลำดับ","ชื่อ – นามสกุล","รายวิชาที่สอน"],{w:"90%"}):ind(bkTodo("(ยังไม่ได้กรอกชื่อผู้สอนจากหน่วยงานอื่นใน ก3)"))}`;
+  }
+  if(id==="h6")return `${H("หมวดที่ 6 การประเมินผลการเรียนรู้และเกณฑ์การสำเร็จการศึกษา")}${h3("1. กฎระเบียบหรือหลักเกณฑ์ในการให้ระดับคะแนน (เกรด)")}${ind("เป็นไปตามข้อบังคับมหาวิทยาลัยเทคโนโลยีราชมงคลกรุงเทพ ว่าด้วยการศึกษาระดับปริญญาตรี")}${h3("2. กระบวนการทวนสอบผลลัพธ์การเรียนรู้ของนักศึกษา")}${ind("ทวนสอบระดับรายวิชาทุกภาคการศึกษา และทวนสอบผลลัพธ์รายชั้นปี (YLO) ผ่านรายวิชาระดับ M ทุกปีการศึกษา")}${h3("3. เกณฑ์การสำเร็จการศึกษาตามหลักสูตร")}${li(`1) ศึกษารายวิชาครบตามโครงสร้างหลักสูตร ไม่น้อยกว่า ${sumCr(ME)} หน่วยกิต และได้ระดับคะแนนเฉลี่ยไม่ต่ำกว่า 2.00 และบรรลุผลลัพธ์การเรียนรู้ตามมาตรฐานคุณวุฒิระดับปริญญาตรี`)}${li("2) มีคุณสมบัติครบตามข้อบังคับมหาวิทยาลัยเทคโนโลยีราชมงคลกรุงเทพ ว่าด้วยการศึกษาระดับปริญญาตรี")}`;
+  if(id==="h7")return `${H("หมวดที่ 7 การประกันคุณภาพของหลักสูตร")}${["1. ด้านปัจจัยนำเข้า (Input)","2. ด้านกระบวนการ (Process)","3. ด้านผลลัพธ์ (Output)"].map(t=>h3(t)+ind("ใช้ข้อความและตัวบ่งชี้มาตรฐานตามแบบฟอร์มของมหาวิทยาลัย (คงไว้ในไฟล์ Word)")).join("")}`;
+  if(id==="h8")return `${H("หมวดที่ 8 ระบบและกลไกในการพัฒนาหลักสูตร")}${["1. ระบบพัฒนาปรับปรุงหลักสูตร","2. การประเมินการจัดกระบวนการเรียนรู้","3. การประเมินผลการดำเนินงานของหลักสูตรตามมาตรฐานคุณวุฒิ","4. การจัดการข้อร้องเรียนและการอุทธรณ์ของนักศึกษา"].map(t=>h3(t)+ind("ใช้ข้อความมาตรฐานตามแบบฟอร์มของมหาวิทยาลัย (คงไว้ในไฟล์ Word)")).join("")}`;
+  if(id==="apx"){
+    let k=0;const rows=[];Object.entries(NEED_GROUPS).forEach(([g,t])=>{const L=na.filter(n=>n.g===g);if(!L.length)return;rows.push([{t,span:4,cls:"grp"}]);L.forEach(n=>rows.push([String(++k),n.src,n.t||"(รอผลสำรวจ)",n.how||""]))});
+    const r3=na.filter(n=>n.st==="have"&&(n.plos||[]).length).map((n,i)=>[String(i+1),n.src+": "+n.t,n.plos.map(p=>"PLO "+p).join(", ")]);
+    return `<h2 class="bk-h big">ภาคผนวก ก</h2>${h3("1. ตารางแสดงความต้องการจำเป็นของผู้มีส่วนได้ส่วนเสีย")}${bkT(rows,["ลำดับ","Stakeholders/Input","ความต้องการจำเป็น","วิธีการได้ข้อมูล"],{w:"100%"})}${h3("2. รายงานการสำรวจความต้องการของผู้มีส่วนได้ส่วนเสีย")}${ind(bkTodo("(แนบผลสำรวจเมื่อได้ผลแล้ว)"))}${h3("3. ตารางวิเคราะห์ความสอดคล้องระหว่าง Stakeholders’ Needs กับ PLOs")}${bkT(r3,["ลำดับ","คุณลักษณะ / Stakeholders’ Needs","PLOs"],{w:"100%"})}${h3("4. ตารางเปรียบเทียบหลักสูตรเดิมกับหลักสูตรปรับปรุง")}${ind(bkTodo("(กรอกในไฟล์ Word)"))}<div class="bk-break"></div><h2 class="bk-h big">ภาคผนวก ข</h2>${["ข้อบังคับมหาวิทยาลัยว่าด้วยการศึกษาระดับปริญญาตรี","ข้อบังคับ/ประกาศเรื่องการเทียบโอนผลการเรียน","ประกาศมหาวิทยาลัยที่เกี่ยวข้อง","คำสั่งแต่งตั้งคณะกรรมการพัฒนาหลักสูตร"].map((t,i)=>li(`${i+1}. ${t} ${bkTodo("(แนบเอกสาร)")}`)).join("")}<h2 class="bk-h big">ภาคผนวก ค</h2>${["ประวัติอาจารย์ประจำหลักสูตร","ผลสอบภาษาอังกฤษของอาจารย์ผู้รับผิดชอบหลักสูตร","เอกสารแสดงประสบการณ์ด้านปฏิบัติการ","เอกสารลงนามความร่วมมือ (MOU/MOA) ถ้ามี"].map((t,i)=>li(`${i+1}. ${t} ${bkTodo("(แนบเอกสาร)")}`)).join("")}`;
+  }
+  return "";
+}
+function bookSecStatus(id){
+  const R=bookReadiness();const pick=k=>R.filter(r=>r[0].startsWith(k));
+  const m={cover:[],front:[],h1:pick("หมวด 1"),h2:pick("หมวด 2"),h3:pick("หมวด 3"),h4:pick("หมวด 4"),h5:pick("หมวด 5"),h6:[],h7:[],h8:[],apx:pick("ภาคผนวก")};
+  const L=m[id]||[];return L.some(r=>r[2]==="fail")?"fail":L.some(r=>r[2]==="warn")?"warn":"pass";
+}
+function bookCountdown(){
+  const p=bookPlan(),now=Date.now(),d=new Date(p.deadline).getTime(),rv=new Date(p.review).getTime();
+  const f=ms=>{if(isNaN(ms))return "—";const neg=ms<0;ms=Math.abs(ms);const D=Math.floor(ms/864e5),h=Math.floor(ms%864e5/36e5),m=Math.floor(ms%36e5/6e4),s=Math.floor(ms%6e4/1e3);return (neg?"เลยกำหนด ":"")+`${D} วัน ${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`};
+  return {dl:f(d-now),rv:f(rv-now),late:d<now};
+}
+let bookTimer=null;
+function startBookTimer(){clearInterval(bookTimer);bookTimer=setInterval(()=>{const a=document.getElementById("cdDl"),b=document.getElementById("cdRv");if(!a){clearInterval(bookTimer);return}const c=bookCountdown();a.textContent=c.dl;b.textContent=c.rv;a.classList.toggle("late",c.late)},1000)}
 function viewBook(){
   const R=bookReadiness(),cnt=k=>R.filter(r=>r[2]===k).length;
-  return `<p class="lead">เล่มหลักสูตรจัดทำตามแบบฟอร์มของมหาวิทยาลัยเทคโนโลยีราชมงคลกรุงเทพ โดยดึงข้อมูลจากส่วนออกแบบและบริหารหลักสูตร ตารางด้านล่างบอกว่าหมวดไหนพร้อมแล้ว และหมวดไหนต้องเติมข้อมูลก่อนส่งกรรมการ</p>
-  <div class="sum"><div class="panel"><span class="muted small">พร้อม</span><span class="big num">${cnt("pass")}</span></div><div class="panel"><span class="muted small">ใช้ได้แต่ควรเติม</span><span class="big num">${cnt("warn")}</span></div><div class="panel"><span class="muted small">ยังขาด</span><span class="big num">${cnt("fail")}</span></div></div>
-  <section class="panel"><h2>ความพร้อมของเล่มตามหมวด</h2><div class="scroll"><table><tr><th>หมวด</th><th>เนื้อหา</th><th>สถานะ</th><th>รายละเอียด</th></tr>
+  const fmt=bookFmt(),plan=bookPlan(),chk=state.bookCheck||{},sec=state.bookSec||"cover",cd=bookCountdown();
+  const done=BOOK_SECS.filter(([k])=>chk[k]).length,adm=state.isAdmin&&state.canWrite;
+  const dt=v=>new Date(v).toLocaleString("th-TH",{dateStyle:"long",timeStyle:"short"});
+  setTimeout(startBookTimer,0);
+  const css=`--bk-font:'${fmt.font}','Angsana New','TH SarabunPSK','TH Sarabun New','Sarabun',serif;--bk-body:${fmt.body}pt;--bk-table:${fmt.table}pt;--bk-line:${fmt.line};--bk-mL:${fmt.mL}in;--bk-mR:${fmt.mR}in;--bk-mT:${fmt.mT}in;--bk-mB:${fmt.mB}in;--bk-zoom:${state.bookZoom||0.8}`;
+  return `<p class="lead">เล่มหลักสูตรตามแบบฟอร์มของ มทร.กรุงเทพ แบ่งเป็น 11 ส่วน ดูหน้าตาเล่มทีละส่วน ปรับรูปแบบตัวอักษรให้ตรงแบบฟอร์ม แล้วติ๊ก "ตรวจแล้ว" จนครบทุกส่วนก่อนส่งวิพากษ์</p>
+  <section class="panel cd-box"><div class="cd-col"><span class="small muted">นับถอยหลังส่งเล่มฉบับสมบูรณ์ · ${esc(dt(plan.deadline))}</span><span class="cd-big${cd.late?" late":""}" id="cdDl">${cd.dl}</span></div>
+   <div class="cd-col"><span class="small muted">วันวิพากษ์หลักสูตร · ${esc(dt(plan.review))}</span><span class="cd-mid" id="cdRv">${cd.rv}</span></div>
+   <div class="cd-col"><span class="small muted">ตรวจแล้ว</span><span class="cd-mid">${done} / ${BOOK_SECS.length} ส่วน</span><div class="bar"><i style="width:${Math.round(done/BOOK_SECS.length*100)}%"></i></div></div>
+   ${adm?`<details class="cd-edit"><summary class="small">ตั้งเวลา</summary><div class="fl"><label class="small">กำหนดส่งเล่ม <input type="datetime-local" id="bpDl" value="${esc(plan.deadline)}"></label><label class="small">วันวิพากษ์ <input type="datetime-local" id="bpRv" value="${esc(plan.review)}"></label><button class="sm primary" id="bpSave">บันทึก</button></div></details>`:""}
+   <div class="small muted" style="grid-column:1/-1">${esc(plan.note)}</div></section>
+  <section class="panel"><div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:8px"><h2 style="margin:0">ตัวอย่างเล่มรายส่วน</h2>
+   <div class="row bk-tools" style="gap:6px;flex-wrap:wrap">
+    <label class="ctl">ฟอนต์ <select id="bfFont" ${adm?"":"disabled"}>${BOOK_FONTS.map(([v,t])=>`<option value="${v}" ${fmt.font===v?"selected":""}>${t}</option>`).join("")}</select></label>
+    <label class="ctl">เนื้อหา <select id="bfBody" ${adm?"":"disabled"}>${[14,15,16,17,18].map(v=>`<option ${fmt.body==v?"selected":""}>${v}</option>`).join("")}</select> pt</label>
+    <label class="ctl">ตาราง <select id="bfTable" ${adm?"":"disabled"}>${[12,13,14,15,16].map(v=>`<option ${fmt.table==v?"selected":""}>${v}</option>`).join("")}</select> pt</label>
+    <label class="ctl">ระยะบรรทัด <select id="bfLine" ${adm?"":"disabled"}>${[1,1.05,1.1,1.15,1.2,1.3,1.5].map(v=>`<option ${fmt.line==v?"selected":""}>${v}</option>`).join("")}</select></label>
+    <label class="ctl">ขอบซ้าย <select id="bfML" ${adm?"":"disabled"}>${[1,1.25,1.5].map(v=>`<option ${fmt.mL==v?"selected":""}>${v}</option>`).join("")}</select> นิ้ว</label>
+    <label class="ctl">ซูม <select id="bfZoom">${[0.5,0.65,0.8,1].map(v=>`<option ${(state.bookZoom||0.8)==v?"selected":""} value="${v}">${v*100}%</option>`).join("")}</select></label>
+    ${adm?`<button class="sm" id="bfReset">ตามแบบฟอร์ม</button>`:""}<button class="sm primary" id="bkPdf">สร้าง PDF ส่วนนี้</button><button class="sm" id="bkPdfAll">สร้าง PDF ทั้งเล่ม</button></div></div>
+   <div class="bk-wrap"><nav class="bk-nav">${BOOK_SECS.map(([k,t],i)=>{const s=bookSecStatus(k);return `<button class="bk-sec${k===sec?" on":""}" data-bksec="${k}"><span class="bk-no">${i+1}</span><span class="bk-tt">${esc(t)}</span><span class="bk-st">${chk[k]?'<span class="pill pass">ตรวจแล้ว</span>':s==="pass"?'<span class="pill" style="background:var(--soft);color:var(--muted)">รอตรวจ</span>':pill(s,s==="warn"?"ควรเติม":"ยังขาด")}</span></button>`}).join("")}</nav>
+    <div class="bk-main"><div class="row" style="justify-content:space-between;margin-bottom:6px"><b>${esc((BOOK_SECS.find(x=>x[0]===sec)||[])[1]||"")}</b><label class="ctl"><input type="checkbox" id="bkChk" ${chk[sec]?"checked":""} ${adm?"":"disabled"}> ตรวจแล้ว ถูกต้องตามแบบฟอร์ม${chk[sec]&&chk[sec].by?` <span class="small muted">(${esc(chk[sec].by)})</span>`:""}</label></div>
+     ${state.bookPdf&&(state.bookPdf.sec===sec||state.bookPdf.sec==="all")?`<div class="row" style="gap:8px;margin-bottom:6px"><span class="pill pass">PDF ${state.bookPdf.sec==="all"?"ทั้งเล่ม":"ส่วนนี้"} · ${esc(state.bookPdf.at)}</span><a class="sm btnlink" href="${state.bookPdf.url}" download="${esc(state.bookPdf.name)}">ดาวน์โหลด .pdf</a><a class="sm btnlink" href="${state.bookPdf.url}" target="_blank" rel="noopener">เปิดในแท็บใหม่</a><button class="sm" id="bkPdfClose">กลับไปหน้าจอแก้ไข</button></div><iframe class="bk-pdf" src="${state.bookPdf.url}#view=FitH" title="PDF preview"></iframe>`:state.bookPdfBusy?`<div class="note">กำลังสร้าง PDF… ส่วนที่ยาวอาจใช้เวลา 10–40 วินาที</div><div class="bk-view" style="${css}"><div class="bk-sheet" id="bkSheet">${bookSecHtml(sec)}</div></div>`:`<div class="bk-view" style="${css}"><div class="bk-sheet" id="bkSheet">${bookSecHtml(sec)}</div></div>`}
+     <p class="small muted">ตัวอย่างนี้จำลองหน้า A4 ตามแบบฟอร์ม (ขอบ ${fmt.mT} นิ้ว · ${esc(fmt.font)} ${fmt.body} pt · ตาราง ${fmt.table} pt) เส้นประคือรอยตัดหน้าโดยประมาณ ข้อความ<span class="bk-todo">สีเหลือง</span>คือส่วนที่ต้องกรอกเพิ่ม เล่ม Word ที่สร้างจากข้อมูลนี้ใช้รูปแบบตัวอักษรชุดเดียวกัน</p></div></div></section>
+  <section class="panel"><h2>ความพร้อมของข้อมูลตามหมวด</h2><div class="sum" style="margin-bottom:8px"><div class="panel"><span class="muted small">พร้อม</span><span class="big num">${cnt("pass")}</span></div><div class="panel"><span class="muted small">ใช้ได้แต่ควรเติม</span><span class="big num">${cnt("warn")}</span></div><div class="panel"><span class="muted small">ยังขาด</span><span class="big num">${cnt("fail")}</span></div></div>
+  <div class="scroll"><table><tr><th>หมวด</th><th>เนื้อหา</th><th>สถานะ</th><th>รายละเอียด</th></tr>
   ${R.map(([a,b,s,d])=>`<tr><td class="small" style="white-space:nowrap">${esc(a)}</td><td>${esc(b)}</td><td>${pill(s,s==="pass"?"พร้อม":s==="warn"?"ควรเติม":"ยังขาด")}</td><td class="small">${esc(d)}</td></tr>`).join("")}</table></div></section>
-  <section class="panel"><h2>ข้อมูลสำหรับจัดทำเล่ม</h2><p class="small">กดปุ่มเพื่อบันทึกไฟล์ข้อมูลล่าสุดของหลักสูตร (PLO, Sub-PLO, YLO, รายวิชา, CLO, Mapping, อาจารย์ และความต้องการ) แล้วส่งไฟล์นี้ให้ Claude เพื่อสร้างเล่มหลักสูตรตามแบบฟอร์ม</p>
+  <section class="panel"><h2>ข้อมูลสำหรับจัดทำเล่ม Word</h2><p class="small">ไฟล์ข้อมูลนี้ใช้สร้างเล่ม Word ตามแบบฟอร์มของมหาวิทยาลัย (รวมการตั้งค่าฟอนต์และขนาดด้านบน) ส่งไฟล์ให้ผู้จัดทำเล่มเพื่อสร้างเล่มฉบับล่าสุด</p>
   <button class="primary" id="bookExport">ดาวน์โหลดข้อมูลเล่ม (.json)</button> <span id="bookMsg" class="small muted"></span></section>`;
 }
+async function saveBookDoc(path,key,val,label){state[key]=val;render();await dbWrite(db=>db.doc(path).set({...val,updatedAt:new Date().toISOString()}),label)}
+function bookFileName(all){const sec=state.bookSec||"cover";return `เล่มหลักสูตร-วศบ-เครื่องกล-2571-${all?"ฉบับสมบูรณ์":(BOOK_SECS.find(x=>x[0]===sec)||["",sec])[1].split(" ").slice(0,2).join("")}`}
+function bookPrint(all){
+  const fmt=bookFmt();const html=all?BOOK_SECS.map(([k])=>bookSecHtml(k)).join('<div class="bk-break"></div>'):bookSecHtml(state.bookSec||"cover");
+  const w=window.open("","_blank");if(!w){alert("เบราว์เซอร์บล็อกหน้าต่างใหม่ อนุญาต pop-up แล้วลองอีกครั้ง");return}
+  w.document.write(`<!doctype html><html lang="th"><head><meta charset="utf-8"><title>${esc(bookFileName(all))}</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap"><style>${BOOK_CSS}@page{size:A4;margin:${fmt.mT}in ${fmt.mR}in ${fmt.mB}in ${fmt.mL}in}body{margin:0}.pbar{font:14px sans-serif;background:#fff8d6;border:1px solid #e0c96b;padding:8px 12px;margin:10px}.pbar button{margin-left:8px}@media print{.pbar{display:none}}@media screen{body{background:#eee}.bk-view{max-width:calc(8.27in - ${fmt.mL+fmt.mR}in);margin:0 auto;background:#fff;padding:${fmt.mT}in ${fmt.mR}in ${fmt.mB}in ${fmt.mL}in}}.bk-sheet{width:auto;padding:0;box-shadow:none;background:none}.bk-break{break-after:page;border:0;margin:0}.bk-todo{background:#fff3b0}</style></head><body><div class="bk-view" style="--bk-font:'${fmt.font}','Angsana New','TH SarabunPSK','Sarabun',serif;--bk-body:${fmt.body}pt;--bk-table:${fmt.table}pt;--bk-line:${fmt.line};--bk-zoom:1"><div class="bk-sheet">${html}</div></div><div class="pbar">หน้านี้คือ PDF ตัวอย่าง ในหน้าต่างพิมพ์ให้เลือกปลายทาง <b>“บันทึกเป็น PDF / Save as PDF”</b> แล้วกดบันทึก จะได้ไฟล์ .pdf ชื่อ ${esc(bookFileName(all))} <button onclick="print()">เปิดหน้าต่างบันทึก PDF อีกครั้ง</button></div><script>document.fonts.ready.then(()=>setTimeout(()=>print(),400))<\/script></body></html>`);w.document.close();
+}
+const YEAR_TXT="2571";
+const BOOK_CSS=`.bk-view{font-family:var(--bk-font);font-size:var(--bk-body);line-height:var(--bk-line);color:#000}
+.bk-view p{margin:0 0 .15em;text-align:left}.bk-view .ind{text-indent:.5in;text-align:justify}.bk-view .li{padding-left:.5in}.bk-view .li2{padding-left:1in}
+.bk-view h2.bk-h{font-size:1em;font-weight:700;text-align:center;margin:.4em 0 .6em}.bk-view h2.big{font-size:1.25em}.bk-view h3{font-size:1em;font-weight:700;margin:.6em 0 .2em}
+.bk-view table.bk-t{border-collapse:collapse;margin:.3em auto .6em;font-size:var(--bk-table);line-height:1.1;page-break-inside:auto}.bk-view .bk-t th,.bk-view .bk-t td{border:1px solid #000;padding:2px 5px;vertical-align:top}.bk-view .bk-t th{background:#e7e6e6;text-align:center}.bk-view .bk-t td.c{text-align:center}.bk-view .bk-t td.r{text-align:right}.bk-view .bk-t td.b{font-weight:700}.bk-view .bk-t td.grp{background:#f2f2f2;font-weight:700}.bk-view tr{break-inside:avoid}
+.bk-view .bk-cover{display:flex;flex-direction:column;align-items:center;text-align:center;font-weight:700}.bk-view .bk-cv{font-size:calc(var(--s)*1pt);line-height:1.25}.bk-view .bk-gap{height:2.2in}.bk-view .bk-cvlogo{text-align:center;color:#888;font-size:12pt;margin:.2in 0 .5in}
+.bk-view .bk-sign{text-align:right;margin-top:1em;padding-right:.3in}.bk-view .toc{display:flex;gap:6px}.bk-view .toc .dots{flex:1;border-bottom:1px dotted #555;margin-bottom:.35em}.bk-view .small-note{font-size:.85em;color:#555}.bk-view .bk-todo{background:#fff3b0}`;
+
+const BOOK_UI_CSS=`.cd-box{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;align-items:end}.cd-col{display:grid;gap:2px}.cd-big{font-size:28px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}.cd-big.late{color:var(--fail)}.cd-mid{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
+.cd-box .bar{height:8px;background:var(--soft);border-radius:4px;overflow:hidden}.cd-box .bar i{display:block;height:100%;background:var(--accent)}.cd-edit{grid-column:1/-1}
+.bk-wrap{display:grid;grid-template-columns:250px 1fr;gap:12px;margin-top:10px}.bk-nav{display:grid;gap:4px;align-content:start}.bk-sec{display:grid;grid-template-columns:22px 1fr;gap:2px 6px;text-align:left;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:none;cursor:pointer;font:inherit}.bk-sec.on{border-color:var(--accent);background:var(--accent-soft)}.bk-no{font-weight:700;color:var(--accent)}.bk-tt{font-size:12.5px}.bk-st{grid-column:2}
+.bk-main{min-width:0}.bk-view{background:#eceae6;border-radius:8px;padding:14px;overflow:auto;max-height:78vh}.bk-view .bk-sheet{zoom:var(--bk-zoom);width:210mm;min-height:297mm;box-sizing:border-box;margin:0 auto;background:#fff repeating-linear-gradient(to bottom,transparent 0,transparent calc(297mm - 1px),#d33 calc(297mm - 1px),#d33 297mm);padding:var(--bk-mT) var(--bk-mR) var(--bk-mB) var(--bk-mL);box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.bk-view .bk-break{border-top:2px dashed #999;margin:.5in 0}.bk-pdfsrc .bk-break{border:0;margin:0;height:0}.bk-pdfsrc,.bk-pdfsrc *{letter-spacing:.01px}.bk-pdfsrc p{text-align:left}.bk-pdfsrc .bk-todo{background:#fff3b0}.bk-pdf{width:100%;height:80vh;border:1px solid var(--line);border-radius:8px;background:#eee}
+@media (max-width:820px){.bk-wrap{grid-template-columns:1fr}.bk-nav{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}}`;
+try{document.head.appendChild(Object.assign(document.createElement("style"),{textContent:BOOK_CSS+BOOK_UI_CSS}));const l=document.createElement("link");l.rel="stylesheet";l.href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap";document.head.appendChild(l)}catch(e){}
 function viewNeeds(){
   const na=needsAnalysis();
   const head=`<tr><th>แหล่งที่มา</th><th>ความต้องการ</th>${PLOS.map(p=>`<th class="c">PLO${p.n}</th>`).join("")}<th>สถานะ</th><th></th></tr>`;
@@ -1275,6 +1428,12 @@ document.addEventListener("click",async e=>{
   else if(d.opencourse){state.cloCourse=d.opencourse;state.cloDraft=null;render();const ed=document.getElementById("cloEditor");if(ed)ed.scrollIntoView({behavior:"smooth",block:"start"})}
   else if(b.id==="cloCheck"){state.cloDraft={code:state.cloCourse,items:readCloForm(),dirty:true};render()}
   else if(b.id==="ownFromLoad"){const o={...state.owners};let n=0;COURSES.forEach(c=>{if(o[c.code])return;for(const s of ["S1","S2","SS"]){const f=state.assign[s][c.code+"|L1"]||state.assign[s][c.code+"|P1"];if(f){o[c.code]=f;n++;break}}});state.owners=o;state.msg=n?`กำหนดผู้รับผิดชอบจากภาระสอน ${n} วิชา`:"ไม่พบข้อมูลภาระสอนที่ยังไม่ได้ใช้ จัดผู้สอนใน ข2 ก่อน";render();if(n)await dbWrite(db=>db.doc("owners/map").set({map:o,cv:5,updatedAt:new Date().toISOString()}),"ผู้รับผิดชอบรายวิชา")}
+  else if(d.bksec){state.bookSec=d.bksec;const y=window.scrollY;render();window.scrollTo(0,y)}
+  else if(b.id==="bkPrint"){bookPrint(false)}
+  else if(b.id==="bkPdf"||b.id==="bkPdfAll"){bookPrint(b.id==="bkPdfAll")}
+  else if(b.id==="bkPdfClose"){state.bookPdf=null;render()}
+  else if(b.id==="bfReset"){await saveBookDoc("program/bookfmt","bookFmt",{...BOOK_FMT0},"รูปแบบเล่ม")}
+  else if(b.id==="bpSave"){const dl=document.getElementById("bpDl").value,rv=document.getElementById("bpRv").value;if(!dl||!rv)return;await saveBookDoc("program/bookplan","bookPlan",{...bookPlan(),deadline:dl,review:rv},"กำหนดส่งเล่ม")}
   else if(b.id==="aiSuggest"){const c=COURSES.find(x=>x.code===state.cloCourse);const items=readCloForm()||[];const prompt=aiPrompt(c,items);state.cloDraft={code:c.code,items,dirty:true};state.ai={code:c.code,status:"loading",prompt};render();
     if(typeof window.__aiSuggest==="function"){try{const txt=await window.__aiSuggest(prompt);state.ai={code:c.code,status:"done",prompt,res:parseAi(txt)}}catch(x){state.ai={code:c.code,status:"manual",prompt,err:"เรียก AI อัตโนมัติไม่สำเร็จ ("+((x&&x.message)||x)+") ใช้วิธีคัดลอกคำสั่งแทนได้"}}}
     else state.ai={code:c.code,status:"manual",prompt};render()}
@@ -1296,6 +1455,9 @@ document.addEventListener("change",async e=>{
   if(e.target.dataset&&e.target.dataset.photo){try{await setPhoto(e.target.dataset.photo,e.target.files[0])}catch(x){state.msg="อ่านรูปไม่ได้";render()}return}
   const t=e.target;
   if(t.dataset&&t.dataset.desc||t.id==="aiPaste")return;
+  if(t.id==="bfZoom"){state.bookZoom=+t.value;try{localStorage.setItem("mecp_bkzoom",t.value)}catch(x){}const y=window.scrollY;render();window.scrollTo(0,y);return}
+  if(["bfFont","bfBody","bfTable","bfLine","bfML"].includes(t.id)){const f={...bookFmt()};const k={bfFont:"font",bfBody:"body",bfTable:"table",bfLine:"line",bfML:"mL"}[t.id];f[k]=t.id==="bfFont"?t.value:+t.value;const y=window.scrollY;await saveBookDoc("program/bookfmt","bookFmt",f,"รูปแบบเล่ม");window.scrollTo(0,y);return}
+  if(t.id==="bkChk"){const m={...(state.bookCheck||{})};const k=state.bookSec||"cover";if(t.checked)m[k]={by:(state.user&&state.user.email)||String(state.user||""),at:new Date().toISOString()};else delete m[k];const y=window.scrollY;await saveBookDoc("program/bookcheck","bookCheck",m,"สถานะตรวจเล่ม");window.scrollTo(0,y);return}
   if(t.closest("#cloForm")){state.cloDraft={code:state.cloCourse,items:readCloForm(),dirty:true};const y=window.scrollY;render();window.scrollTo(0,y);return}
   if(t.dataset.extowner!==undefined){const o={...(state.extOwners||{})};const v=t.value.trim().replace(/\s+/g," ");if(v)o[t.dataset.extowner]=v;else delete o[t.dataset.extowner];state.extOwners=o;render();await dbWrite(db=>db.doc("owners/ext").set({map:o,updatedAt:new Date().toISOString()}),"ผู้สอนจากหน่วยงานอื่น");return}
   if(t.dataset.owner!==undefined){const o={...state.owners};if(t.value)o[t.dataset.owner]=t.value;else delete o[t.dataset.owner];state.owners=o;render();await dbWrite(db=>db.doc("owners/map").set({map:o,cv:5,updatedAt:new Date().toISOString()}),"ผู้รับผิดชอบรายวิชา");return}
@@ -1304,7 +1466,7 @@ document.addEventListener("change",async e=>{
   if(t.id==="meSel"){state.me=t.value;if(!state.me)state.cloMine=false;try{localStorage.setItem("mecp_me",state.me)}catch(e){};render();return}
   if(t.id==="mineOnly"){state.cloMine=t.checked;render();return}
   if(t.id==="cmp"){state.countComputing=t.checked;render()}
-  else if(t.dataset.intake){state.intake[t.dataset.intake]=Math.max(0,Math.min(200,+t.value||0));savePrefs();render()}
+  else if(t.dataset.intake){state.intake={...state.intake,[t.dataset.intake]:Math.max(0,Math.min(200,+t.value||0))};savePrefs();render();if(state.isAdmin)await dbWrite(db=>db.doc("program/intake").set({...state.intake,updatedAt:new Date().toISOString()}),"จำนวนรับนักศึกษา")}
   else if(t.dataset.unit){const o={...state.assign[state.sem]};if(t.value)o[t.dataset.unit]=t.value;else delete o[t.dataset.unit];await saveAssign(state.sem,o)}
   else if(t.id==="ttKey"){state.ttKey=t.value;render()}
   else if(t.id==="cloSel"){state.cloCourse=t.value;state.cloDraft=null;render()}
@@ -1418,6 +1580,10 @@ function loginScreen(msg){
   db.collection("clo").onSnapshot(s=>{const m={};s.docs.forEach(d=>{const r=d.data(),x=upgradeClo(r);if(x&&x.code&&!(m[x.code]&&m[x.code].__new))m[x.code]={...x,__new:r&&r.sv===5}});state.cloOv=m;softRender()},err);
   db.doc("owners/map").onSnapshot(s=>{const d=s.exists?s.data():{};state.owners=aliasKeys(d.map,d.cv===5);softRender()},err);
   db.doc("owners/ext").onSnapshot(s=>{state.extOwners=aliasKeys((s.exists&&s.data().map)||{},true);softRender()},err);
+  db.doc("program/intake").onSnapshot(s=>{const d=s.exists&&s.data();if(d&&d.ME!=null)state.intake={ME:+d.ME||0,EV:+d.EV||0,CE:+d.CE||0};softRender()},err);
+  db.doc("program/bookfmt").onSnapshot(s=>{const d=s.exists&&s.data();state.bookFmt=d?{font:d.font,body:d.body,table:d.table,line:d.line,mL:d.mL,mR:d.mR,mT:d.mT,mB:d.mB}:null;softRender()},err);
+  db.doc("program/bookplan").onSnapshot(s=>{const d=s.exists&&s.data();state.bookPlan=d?{deadline:d.deadline,review:d.review,note:d.note}:null;softRender()},err);
+  db.doc("program/bookcheck").onSnapshot(s=>{const d=s.exists&&s.data();const m={...(d||{})};delete m.updatedAt;state.bookCheck=m;softRender()},err);
   db.doc("program/team").onSnapshot(s=>{const d=s.exists&&s.data();state.team={role:(d&&d.role)||{},qual:(d&&d.qual)||{}};softRender()},err);
   db.collection("photo").onSnapshot(s=>{const m={};s.docs.forEach(d=>{const x=d.data();if(x&&x.fid&&x.img)m[x.fid]=x.img});state.photos=m;softRender()},err);
   db.collection("courses").onSnapshot(s=>{const m={};s.docs.forEach(d=>{const r=d.data(),x=aliasCourse(r);if(x&&x.code&&!(m[x.code]&&m[x.code].__new))m[x.code]={...x,__new:r&&r.cv===5}});state.courseOv=m;rebuild();buildExpected();softRender()},err);
