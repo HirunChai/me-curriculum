@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>แพลตฟอร์มหลักสูตรเครื่องกล</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0f6b63">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: workbench — two-level nav (phase → step), dense working panels; drafting-ink teal accent on graphite neutrals */
+:root{
+  --bg:#f5f6f4; --panel:#ffffff; --ink:#1d2421; --muted:#5d6762; --line:#d9dedb; --soft:#eef1ef;
+  --accent:#0f6b63; --accent-soft:#dcefec; --pass:#2f7d3a; --pass-bg:#e3f2e4; --warn:#9a6200; --warn-bg:#fbefd6; --fail:#b3261e; --fail-bg:#fbe3e1;
+  --bar:#0f6b63; --bar-over:#b3261e;
+  --sans:"IBM Plex Sans Thai","Noto Sans Thai","Leelawadee UI",Tahoma,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141917; --panel:#1c2220; --ink:#e4e9e6; --muted:#9aa5a0; --line:#2f3835; --soft:#232a28;
+  --accent:#5cc2b6; --accent-soft:#1d3a36; --pass:#7fd08a; --pass-bg:#1e3322; --warn:#f0b54a; --warn-bg:#3a2e14; --fail:#ff8a80; --fail-bg:#3d1f1d;
+  --bar:#5cc2b6; --bar-over:#ff8a80; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141917; --panel:#1c2220; --ink:#e4e9e6; --muted:#9aa5a0; --line:#2f3835; --soft:#232a28;
+  --accent:#5cc2b6; --accent-soft:#1d3a36; --pass:#7fd08a; --pass-bg:#1e3322; --warn:#f0b54a; --warn-bg:#3a2e14; --fail:#ff8a80; --fail-bg:#3d1f1d;
+  --bar:#5cc2b6; --bar-over:#ff8a80; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.55;margin:0}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 48px}
+header.top{display:flex;flex-wrap:nowrap;align-items:center;gap:6px 14px;margin-bottom:12px}
+header.top img.logo{width:52px;height:52px;border-radius:50%;background:#fff;flex:none}
+header.top .ttl{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 auto}
+header.top h1{font-size:20px;font-weight:600;margin:0;text-wrap:balance}
+header.top .sub{color:var(--muted);font-size:13px}
+nav.phase{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+nav.phase a{padding:7px 14px;border:1px solid var(--line);border-radius:6px;color:var(--ink);text-decoration:none;font-weight:500;background:var(--panel)}
+nav.phase a[aria-current="page"]{background:var(--accent);border-color:var(--accent);color:var(--panel)}
+nav.phase a span{font-weight:400;font-size:12px;opacity:.8;margin-left:4px}
+nav.tabs{display:flex;gap:2px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin-bottom:16px}
+nav.tabs a{padding:8px 12px;color:var(--muted);text-decoration:none;border-bottom:2px solid transparent;font-weight:500;margin-bottom:-1px}
+nav.tabs a b{font-family:var(--mono);font-size:12px;margin-right:4px}
+nav.tabs a[aria-current="page"]{color:var(--accent);border-color:var(--accent)}
+a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;min-width:0;margin-bottom:12px}
+.panel h2{font-size:15px;font-weight:600;margin:0 0 8px}
+.panel h3{font-size:14px;font-weight:600;margin:12px 0 6px}
+.lead{color:var(--muted);font-size:13px;margin:-4px 0 12px;max-width:80ch}
+.muted{color:var(--muted)} .small{font-size:12px}
+.mono{font-family:var(--mono);font-size:12.5px}
+td.mono{white-space:nowrap}
+.num{font-variant-numeric:tabular-nums}
+label.ctl{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:13px}
+select,input[type=number],input[type=text],textarea{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:5px 8px}
+textarea{width:100%;min-height:52px;resize:vertical}
+input[type=number]{width:64px}
+button{font:inherit;cursor:pointer;border-radius:6px;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:6px 12px}
+button.sm{padding:2px 8px;font-size:12.5px}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--panel);font-weight:500}
+button:disabled{opacity:.5;cursor:not-allowed}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;flex-wrap:wrap}
+.seg button{border:0;border-radius:0;border-right:1px solid var(--line);padding:5px 12px}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:12px;white-space:nowrap}
+td.r,th.r{text-align:right} td.c,th.c{text-align:center}
+.pill{display:inline-flex;align-items:center;gap:4px;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.pass{color:var(--pass);background:var(--pass-bg)} .warn{color:var(--warn);background:var(--warn-bg)} .fail{color:var(--fail);background:var(--fail-bg)}
+.tag{display:inline-block;padding:0 6px;border-radius:4px;background:var(--soft);color:var(--muted);font-size:11.5px;margin:1px 2px 1px 0}
+.code{font-family:var(--mono);font-size:11.5px;font-weight:600;padding:0 5px;border-radius:3px;background:var(--accent-soft);color:var(--accent);margin:1px 2px 1px 0;display:inline-block}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:12px}
+.sum .panel{display:flex;flex-direction:column;gap:4px;margin:0}
+.sum .big{font-size:22px;font-weight:600}
+.checks{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.checks .panel{margin:0}
+.check{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;padding:8px 0;border-top:1px solid var(--line)}
+.check:first-of-type{border-top:0}
+.check .t{font-weight:500}
+.check .d{grid-column:2;color:var(--muted);font-size:12.5px}
+.lv{font-family:var(--mono);font-size:11.5px;font-weight:600;padding:0 5px;border-radius:3px}
+.lv.I{color:var(--muted);background:var(--soft)} .lv.R{color:var(--accent);background:var(--accent-soft)} .lv.M{color:var(--panel);background:var(--accent)}
+.lv.dft{outline:1px dashed var(--muted);outline-offset:1px}
+.dot{display:inline-block;width:14px;height:14px;border-radius:3px;background:var(--accent);vertical-align:middle}
+.bar{height:8px;background:var(--soft);border-radius:4px;position:relative;min-width:80px}
+.bar i{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:var(--bar)}
+.bar i.over{background:var(--bar-over)}
+.bar b{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink);opacity:.5}
+.tt{display:grid;grid-template-columns:52px repeat(5,minmax(110px,1fr));min-width:640px;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.tt .h{background:var(--soft);font-weight:600;font-size:12px;padding:6px;text-align:center;border-bottom:1px solid var(--line)}
+.tt .tm{font-family:var(--mono);font-size:11px;color:var(--muted);padding:4px;border-top:1px solid var(--line);text-align:right}
+.tt .cell{border-top:1px solid var(--line);border-left:1px solid var(--line);min-height:34px;position:relative}
+.tt .ev{position:absolute;left:2px;right:2px;top:2px;border-radius:4px;padding:3px 5px;font-size:11.5px;line-height:1.3;background:var(--accent-soft);color:var(--ink);border-left:3px solid var(--accent);overflow:hidden;z-index:1}
+.tt .ev.p{border-left-color:var(--warn);background:var(--warn-bg)}
+.tt .ev .c{font-family:var(--mono);font-weight:600}
+.tt .lunch{background:repeating-linear-gradient(45deg,var(--soft),var(--soft) 4px,transparent 4px,transparent 8px)}
+.note{background:var(--soft);border-radius:6px;padding:8px 10px;font-size:12.5px;color:var(--muted);margin-bottom:12px}
+.empty{padding:20px;text-align:center;color:var(--muted)}
+.form{display:grid;gap:8px;padding:10px;border:1px solid var(--accent);border-radius:8px;background:var(--accent-soft);margin:8px 0}
+.form .fl{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.form label{font-size:12.5px;color:var(--muted)}
+.chk{display:inline-flex;align-items:center;gap:3px;font-size:12.5px;color:var(--muted);margin-right:6px;white-space:nowrap}
+.chips{display:flex;flex-wrap:wrap;gap:2px 4px}
+.err{color:var(--fail);font-size:12.5px}
+.clo-row{border-top:1px solid var(--line);padding:10px 0;display:grid;gap:6px}
+.clo-row:first-child{border-top:0}
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12.5px;color:var(--muted);margin-bottom:12px}
+.flow span{padding:2px 8px;border-radius:4px;background:var(--soft)}
+.flow span.on{background:var(--accent);color:var(--panel);font-weight:600}
+.mm{display:grid;gap:10px;grid-template-columns:1fr minmax(150px,.8fr) 1fr;grid-template-areas:"a . b" "c z d" "e . f"}
+.mm-c{align-self:center;text-align:center;border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--soft);display:flex;flex-direction:column;gap:2px}
+.mm-card{display:block;text-decoration:none;color:var(--ink);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:8px 10px;background:var(--panel)}
+.mm-card:hover{background:var(--soft)}
+.mm-t{display:block;margin-bottom:4px;font-size:13.5px}
+.mm-l{font-size:12.5px;line-height:1.5}
+.k-meet{border-left-color:#c0583a} .k-pol{border-left-color:var(--accent)} .k-acc{border-left-color:#6a5acd} .k-sur{border-left-style:dashed;border-left-color:var(--muted)}
+.lg{display:inline-block;width:12px;height:12px;border-left:4px solid;margin-right:4px;vertical-align:middle}
+.lg.k-meet{border-color:#c0583a}.lg.k-pol{border-color:var(--accent)}.lg.k-acc{border-color:#6a5acd}.lg.k-sur{border-color:var(--muted);border-left-style:dashed}
+@media (max-width:720px){.mm{grid-template-columns:1fr;grid-template-areas:"z" "a" "b" "c" "d" "e" "f"}}
+@media (max-width:520px){header.top h1{font-size:18px}.checks{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:no-preference){.bar i{transition:width .3s}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <img class="logo" src="icons/icon-192.png" alt="ตราสาขาวิชาวิศวกรรมเครื่องกล คณะวิศวกรรมศาสตร์">
+    <div class="ttl"><h1>แพลตฟอร์มหลักสูตร วศ.บ. วิศวกรรมเครื่องกล</h1>
+    <span class="sub">ร่างหลักสูตรปรับปรุง พ.ศ. 2571 · 3 แขนง · มทร.กรุงเทพ</span></div>
+  </header>
+  <nav class="phase" aria-label="กลุ่มงาน" id="phase"></nav>
+  <nav class="tabs" aria-label="ขั้นตอน" id="tabs"></nav>
+  <main id="view"></main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script>
+const TRACKS={ME:"วิศวกรรมเครื่องกล",EV:"วิศวกรรมยานยนต์พลังงานใหม่",CE:"วิศวกรรมพลังงาน"};
+const GROUPS={GE:"ศึกษาทั่วไป",MS:"คณิตศาสตร์และวิทยาศาสตร์",EB:"พื้นฐานทางวิศวกรรม",CORE:"วิชาชีพบังคับ (แกนร่วม)",TR:"บังคับแขนง",TE:"เลือกแขนง",EXP:"เสริมสร้างประสบการณ์",FREE:"เลือกเสรี"};
+const TERMS=["Y1S1","Y1S2","Y2S1","Y2S2","Y2SS","Y3S1","Y3S2","Y4S1","Y4S2"];
+const TERM_TH={Y1S1:"ปี 1 ภาค 1",Y1S2:"ปี 1 ภาค 2",Y2S1:"ปี 2 ภาค 1",Y2S2:"ปี 2 ภาค 2",Y2SS:"ปี 2 ภาคฤดูร้อน",Y3S1:"ปี 3 ภาค 1",Y3S2:"ปี 3 ภาค 2",Y4S1:"ปี 4 ภาค 1",Y4S2:"ปี 4 ภาค 2"};
+const SEM={S1:["Y1S1","Y2S1","Y3S1","Y4S1"],S2:["Y1S2","Y2S2","Y3S2","Y4S2"],SS:["Y2SS"]};
+const SEM_TH={S1:"ภาคการศึกษาที่ 1",S2:"ภาคการศึกษาที่ 2",SS:"ภาคฤดูร้อน"};
+const EXPERTISE={mech:"กลศาสตร์และการออกแบบ",thermo:"ความร้อนและของไหล",ctrl:"ระบบควบคุมและไฟฟ้า",auto:"ยานยนต์และ EV",energy:"พลังงาน",shop:"ปฏิบัติการและโรงฝึกงาน",math:"คณิตศาสตร์วิศวกรรม"};
+const A="ALL";
+const C=(code,th,cr,t,p,s,g,tr,term,dept,dom,plo,coe=[],fl={})=>({code,th,cr,t,p,s,g,tr,term,dept,dom,plo,coe,fl});
+const BASE=[
+C("GE-1","ศึกษาทั่วไป: ภาษาเพื่อการสื่อสารในโลกสมัยใหม่",3,3,0,6,"GE",A,"Y1S1","EXT","",{4:"I"}),
+C("GE-2","ศึกษาทั่วไป: การพัฒนาตนเอง",3,3,0,6,"GE",A,"Y1S2","EXT","",{6:"I"}),
+C("GE-3","ศึกษาทั่วไป: พลเมืองเข้มแข็ง",3,3,0,6,"GE",A,"Y1S2","EXT","",{5:"I"}),
+C("GE-4","ศึกษาทั่วไป: วิทยาศาสตร์กับชีวิตวิถีใหม่ 1",3,3,0,6,"GE",A,"Y2S1","EXT","",{5:"I"}),
+C("GE-5","ศึกษาทั่วไป: วิทยาศาสตร์กับชีวิตวิถีใหม่ 2",3,3,0,6,"GE",A,"Y2S1","EXT","",{5:"I"}),
+C("GE-6","ศึกษาทั่วไป: ก้าวทันเทคโนโลยีดิจิทัล",3,3,0,6,"GE",A,"Y2S2","EXT","",{6:"I"}),
+C("GE-7","ศึกษาทั่วไป: วิชาเลือก 1",3,3,0,6,"GE",A,"Y3S1","EXT","",{4:"I"}),
+C("GE-8","ศึกษาทั่วไป: วิชาเลือก 2",3,3,0,6,"GE",A,"Y3S2","EXT","",{4:"I"}),
+C("2-110-152","เคมีสำหรับวิศวกร",3,3,0,6,"MS",A,"Y1S1","EXT","",{1:"I"}),
+C("2-110-153","ปฏิบัติการเคมีสำหรับวิศวกร",1,0,3,0,"MS",A,"Y1S1","EXT","",{1:"I",2:"I"}),
+C("2-131-101","ฟิสิกส์สำหรับวิศวกร 1",3,3,0,6,"MS",A,"Y1S1","EXT","",{1:"I"}),
+C("2-131-102","ปฏิบัติการฟิสิกส์สำหรับวิศวกร 1",1,0,3,0,"MS",A,"Y1S1","EXT","",{1:"I",2:"I"}),
+C("2-131-103","ฟิสิกส์สำหรับวิศวกร 2",3,3,0,6,"MS",A,"Y1S2","EXT","",{1:"I"}),
+C("2-131-104","ปฏิบัติการฟิสิกส์สำหรับวิศวกร 2",1,0,3,0,"MS",A,"Y1S2","EXT","",{1:"I",2:"I"}),
+C("2-212-106","แคลคูลัสสำหรับวิศวกร 1",3,3,0,6,"MS",A,"Y1S1","EXT","",{1:"I"}),
+C("2-212-107","แคลคูลัสสำหรับวิศวกร 2",3,3,0,6,"MS",A,"Y1S2","EXT","",{1:"I"}),
+C("4-110-201","คณิตศาสตร์สำหรับวิศวกรรมเครื่องกล",3,3,0,6,"MS",A,"Y2S1","ME","math",{1:"R"}),
+C("NEW-STAT","ความน่าจะเป็นและสถิติสำหรับวิศวกร",3,3,0,6,"MS",A,"Y2S2","EXT","",{1:"R",2:"I"},[],{proposed:true}),
+C("4-116-310","ระเบียบวิธีเชิงตัวเลขในงานวิศวกรรม",3,3,0,6,"MS",A,"Y3S1","ME","math",{1:"R"},[],{proposed:true}),
+C("4-000-103","วัสดุวิศวกรรม",3,3,0,6,"EB",A,"Y2S1","ME","mech",{1:"R"},["materials"]),
+C("4-110-102","เขียนแบบวิศวกรรมเครื่องกล",3,2,3,4,"EB",A,"Y1S1","ME","mech",{1:"I",4:"I"},["drawing"]),
+C("4-110-104","การโปรแกรมคอมพิวเตอร์สำหรับงานวิศวกรรมเครื่องกล",3,2,3,4,"EB",A,"Y1S2","ME","math",{1:"I"},[],{computing:true}),
+C("4-111-102","สถิตยศาสตร์",3,3,0,6,"EB",A,"Y1S2","ME","mech",{1:"I"},["statics"]),
+C("4-111-204","กลศาสตร์วัสดุ",3,3,0,6,"EB",A,"Y2S2","ME","mech",{1:"R"},["mechmat"]),
+C("4-112-201","เทอร์โมไดนามิกส์",3,3,0,6,"EB",A,"Y2S1","ME","thermo",{1:"R"},["thermo"]),
+C("4-112-203","กลศาสตร์ของไหล",3,3,0,6,"EB",A,"Y2S2","ME","thermo",{1:"R"},["fluid"]),
+C("4-122-201","กระบวนการผลิต",3,3,0,6,"EB",A,"Y2S2","EXT","",{1:"I",3:"I"},["mfg"]),
+C("4-100-101","การฝึกทักษะพื้นฐานทางวิศวกรรม",3,1,6,2,"CORE",A,"Y1S1","ME","shop",{3:"I",5:"I"}),
+C("4-111-203","พลศาสตร์วิศวกรรม",3,3,0,6,"CORE",A,"Y2S1","ME","mech",{1:"R"},["dynamics"]),
+C("4-111-306","กลศาสตร์เครื่องจักรกล",3,3,0,6,"CORE",A,"Y2S2","ME","mech",{1:"R",2:"I"},["machdesign"]),
+C("4-111-307","คอมพิวเตอร์ช่วยงานวิเคราะห์ทางวิศวกรรมเครื่องกล",3,2,3,4,"CORE",A,"Y4S1","ME","mech",{1:"M",2:"R"},["machdesign"]),
+C("4-111-308","การออกแบบเครื่องจักรกล",3,3,0,6,"CORE",A,"Y3S1","ME","mech",{1:"M",2:"R"},["machdesign"]),
+C("4-112-306","การถ่ายเทความร้อน",3,3,0,6,"CORE",A,"Y3S1","ME","thermo",{1:"M"},["heat"]),
+C("4-112-307","การทำความเย็นและปรับอากาศ",3,3,0,6,"CORE",A,"Y3S2","ME","thermo",{1:"R",2:"R"},["thermalsys"]),
+C("4-112-408","วิศวกรรมโรงงานผลิตกำลัง",3,3,0,6,"CORE",A,"Y3S2","ME","energy",{1:"R",2:"R",5:"I"},["energyconv"]),
+C("4-114-302","การสั่นสะเทือนเชิงกล",3,3,0,6,"CORE",A,"Y3S1","ME","mech",{1:"M"},["dynsys"]),
+C("4-114-401","การควบคุมอัตโนมัติ",3,3,0,6,"CORE",A,"Y3S2","ME","ctrl",{1:"M"},["control"]),
+C("4-211-216","หลักมูลของวิศวกรรมไฟฟ้า",3,2,3,4,"CORE",A,"Y2S2","EXT","",{1:"R"},["elec"]),
+C("4-116-101","การปฏิบัติงานวิชาชีพในโรงฝึกงานสำหรับวิศวกรเครื่องกล",2,0,6,0,"CORE",A,"Y2S1","ME","shop",{3:"R",5:"R"}),
+C("4-116-202","การประลองทางวิศวกรรมเครื่องกล 1",1,0,3,0,"CORE",A,"Y3S1","ME","thermo",{2:"R",4:"R"}),
+C("4-116-303","การประลองทางวิศวกรรมเครื่องกล 2",1,0,3,0,"CORE",A,"Y3S2","ME","mech",{2:"R",4:"R"}),
+C("4-116-307","การเตรียมโครงงานวิศวกรรมเครื่องกล",2,1,3,2,"CORE",A,"Y3S2","ME","mech",{2:"R",4:"R",5:"R",6:"R"}),
+C("4-116-408","โครงงานวิศวกรรมเครื่องกล",2,0,6,0,"CORE",A,"Y4S1","ME","mech",{2:"M",4:"M",5:"M",6:"M"},[],{capstone:true}),
+C("4-116-102","การปฏิบัติงานยานยนต์",2,0,6,0,"TR",["ME"],"Y2SS","ME","auto",{3:"R",5:"R"}),
+C("4-111-411","ระบบวิศวกรรมเครื่องกลในอาคารสูง",3,3,0,6,"TR",["ME"],"Y3S2","ME","thermo",{2:"R"}),
+C("4-112-407","การออกแบบระบบทางความร้อน",3,3,0,6,"TR",["ME"],"Y4S1","ME","thermo",{1:"M",2:"M"},["energyconv"]),
+C("4-116-304","การประลองทางวิศวกรรมเครื่องกล 3",2,0,6,0,"TR",["ME"],"Y4S1","ME","thermo",{2:"M"}),
+C("4-113-207","การปฏิบัติงานยานยนต์ไฟฟ้า",2,0,6,0,"TR",["EV"],"Y2SS","ME","auto",{3:"R",5:"R"},[],{proposed:true}),
+C("4-113-307","ระบบแบตเตอรี่และการจัดการความร้อนในยานยนต์",3,3,0,6,"TR",["EV"],"Y3S2","ME","auto",{2:"R"},[],{proposed:true}),
+C("4-113-401","วิศวกรรมยานยนต์ไฟฟ้า",3,3,0,6,"TR",["EV"],"Y4S1","ME","auto",{1:"M",2:"M"}),
+C("4-113-402","การประลองวิศวกรรมยานยนต์พลังงานใหม่",2,0,6,0,"TR",["EV"],"Y4S1","ME","auto",{2:"M"},[],{proposed:true}),
+C("4-112-208","การปฏิบัติงานระบบพลังงานสะอาด",2,0,6,0,"TR",["CE"],"Y2SS","ME","energy",{3:"R",5:"R"},[],{proposed:true}),
+C("4-112-310","เทคโนโลยีพลังงานทดแทน",3,3,0,6,"TR",["CE"],"Y3S2","ME","energy",{2:"R"}),
+C("4-112-314","การออกแบบระบบผลิตไฟฟ้าพลังงานแสงอาทิตย์",3,2,3,4,"TR",["CE"],"Y4S1","ME","energy",{1:"M",2:"M"},[],{proposed:true}),
+C("4-112-412","การประลองวิศวกรรมพลังงานสะอาด",2,0,6,0,"TR",["CE"],"Y4S1","ME","energy",{2:"M"},[],{proposed:true}),
+C("4-112-305","เครื่องจักรกลของไหล",3,3,0,6,"TE",["ME"],"Y3S1","ME","thermo",{2:"R",6:"R"}),
+C("4-114-405","โปรแกรมเมเบิลลอจิกคอนโทรลเลอร์",3,3,0,6,"TE",["ME"],"Y3S2","ME","ctrl",{2:"R",6:"R"}),
+C("4-113-308","มอเตอร์และอิเล็กทรอนิกส์กำลังสำหรับยานยนต์ไฟฟ้า",3,2,3,4,"TE",["EV"],"Y3S1","ME","auto",{2:"R",6:"R"},[],{proposed:true}),
+C("4-113-309","ระบบควบคุมและซอฟต์แวร์ยานยนต์",3,2,3,4,"TE",["EV"],"Y3S2","ME","auto",{2:"R",6:"R"},[],{proposed:true}),
+C("4-112-317","เทคโนโลยีไฮโดรเจนและการกักเก็บพลังงาน",3,3,0,6,"TE",["CE"],"Y3S1","ME","energy",{2:"R",6:"R"},[],{proposed:true}),
+C("4-112-318","การจัดการพลังงานและคาร์บอนฟุตพริ้นท์",3,3,0,6,"TE",["CE"],"Y3S2","ME","energy",{2:"R",5:"R",6:"R"},[],{proposed:true}),
+C("4-001-301","การเตรียมสหกิจศึกษา",1,1,0,2,"EXP",A,"Y4S1","ME","shop",{4:"R",5:"R"}),
+C("4-116-302","สหกิจศึกษาทางวิศวกรรมเครื่องกล",6,0,40,0,"EXP",A,"Y4S2","ME","",{3:"M",4:"M",5:"M"},[],{coop:true}),
+C("FREE-1","วิชาเลือกเสรี 1",3,3,0,6,"FREE",A,"Y2SS","EXT","",{}),
+C("FREE-2","วิชาเลือกเสรี 2",3,3,0,6,"FREE",A,"Y4S1","EXT","",{})
+];
+const PLOS=[
+{n:1,d:"K",b:"Apply",coe:[1,2],ga:"เด่น",t:"ประยุกต์ความรู้คณิตศาสตร์ วิทยาศาสตร์ และทฤษฎีพื้นฐานทางวิศวกรรมด้านกลศาสตร์ ความร้อนและของไหล และไฟฟ้าและการควบคุม ในการวิเคราะห์และคำนวณแก้ปัญหาทางวิศวกรรมเครื่องกลและระบบที่เกี่ยวข้อง"},
+{n:2,d:"S",b:"Evaluate",coe:[3,4,5],ga:"เด่น, นักปฏิบัติ",t:"ใช้เครื่องมือและซอฟต์แวร์วิศวกรรมสมัยใหม่ในการออกแบบและวิเคราะห์ระบบหรือกระบวนการ และดำเนินการทดลองเพื่อแก้ปัญหาวิศวกรรมที่ซับซ้อนในสาขาเฉพาะทางที่ศึกษา"},
+{n:3,d:"S, C",b:"Apply",coe:[5,10],ga:"นักปฏิบัติ",t:"ปฏิบัติงานวิศวกรรมในสถานประกอบการ ทั้งการติดตั้งและบำรุงรักษาตามมาตรฐานอาชีวอนามัยและความปลอดภัย และบริหารโครงการโดยใช้หลักการตัดสินใจเชิงเศรษฐศาสตร์"},
+{n:4,d:"S, C",b:"Apply",coe:[6,7],ga:"เน้น",t:"สื่อสารงานวิศวกรรมด้วยการพูด การเขียน และแบบวิศวกรรม ทั้งภาษาไทยและอังกฤษ และทำงานร่วมกับผู้อื่นในฐานะสมาชิกหรือผู้นำทีม"},
+{n:5,d:"E, C",b:"Value",coe:[8,9],ga:"ดี, สร้าง",t:"ตัดสินใจในสถานการณ์งานวิศวกรรมโดยยึดจรรยาบรรณวิชาชีพวิศวกรและกฎหมายที่เกี่ยวข้อง แสดงความซื่อสัตย์ทางวิชาการ และประเมินผลกระทบของงานต่อความปลอดภัยสาธารณะ สังคม และสิ่งแวดล้อม"},
+{n:6,d:"C",b:"Create",coe:[11],ga:"เด่น",t:"แสวงหาความรู้และเทคโนโลยีใหม่ด้วยตนเอง และนำมาสร้างนวัตกรรมหรือแนวคิดผู้ประกอบการด้านเทคโนโลยี"}];
+const SUBS=[
+["K1-1",1,"K","Analyze","วิเคราะห์แรง ความเค้น และการเคลื่อนที่ของชิ้นส่วนเครื่องจักรกล"],
+["K1-2",1,"K","Apply","คำนวณสมดุลพลังงาน การถ่ายเทความร้อน และการไหล"],
+["K1-3",1,"K","Analyze","วิเคราะห์การสั่นสะเทือน วงจรไฟฟ้า และระบบควบคุม"],
+["S2-1",2,"S","Apply","ใช้ซอฟต์แวร์ CAD/CAE หรือโปรแกรมคำนวณสร้างแบบจำลองและวิเคราะห์ระบบ"],
+["S2-2",2,"S","Analyze","กำหนดโจทย์ ข้อกำหนด และเกณฑ์การออกแบบ"],
+["S2-3",2,"S","Evaluate","เลือกมาตรฐาน วัสดุ และอุปกรณ์ที่เหมาะกับงานออกแบบ"],
+["S2-4",2,"S","Create","ออกแบบและเปรียบเทียบทางเลือกของชิ้นส่วน ระบบ หรือกระบวนการตามข้อกำหนดทางเทคนิค"],
+["S2-5",2,"S","Apply","วางแผนและดำเนินการทดลองด้วยเครื่องมือวัดที่เหมาะสมตามขั้นตอนความปลอดภัย"],
+["S2-6",2,"S","Evaluate","วิเคราะห์ข้อมูลการทดลองและสรุปผลเทียบกับทฤษฎีหรือค่ามาตรฐาน"],
+["S3-1",3,"S","Apply","ปฏิบัติงานเครื่องมือกล การติดตั้ง และบำรุงรักษา"],
+["S3-2",3,"S","Apply","ปฏิบัติตามข้อกำหนดอาชีวอนามัยและความปลอดภัย"],
+["S3-3",3,"S","Evaluate","วางแผนโครงการ ประมาณต้นทุน และตัดสินใจเชิงเศรษฐศาสตร์"],
+["C3-1",3,"C","Respond","แสดงความรับผิดชอบ ตรงต่อเวลา และปฏิบัติตามกฎของสถานประกอบการ"],
+["S4-1",4,"S","Apply","เขียนรายงานและนำเสนองานวิศวกรรม"],
+["S4-2",4,"S","Apply","อ่านและใช้เอกสารเทคนิคภาษาอังกฤษ"],
+["C4-1",4,"C","Value","ทำงานร่วมกับผู้อื่นและแสดงภาวะผู้นำในงานทีม"],
+["E5-1",5,"E","Value","อ้างอิงแหล่งที่มาและรายงานข้อมูลตามผลจริงในงานทุกชิ้น"],
+["E5-2",5,"E","Evaluate","วิเคราะห์กรณีศึกษาด้านจริยธรรมและเลือกแนวทางตามจรรยาบรรณวิศวกรและ พ.ร.บ.วิศวกร"],
+["E5-3",5,"E","Evaluate","ประเมินผลกระทบของงานออกแบบและโครงงานต่อความปลอดภัยสาธารณะ สังคม และสิ่งแวดล้อม"],
+["C5-1",5,"C","Respond","ร่วมกิจกรรมจิตอาสาและบริการวิชาการแก่ชุมชน"],
+["C6-1",6,"C","Apply","ค้นคว้าเทคโนโลยีใหม่ด้วยตนเอง"],
+["C6-2",6,"C","Create","เสนอแนวคิดใหม่หรือปรับปรุงงานเดิมให้เกิดนวัตกรรม"],
+["C6-3",6,"C","Create","เสนอแนวคิดธุรกิจจากงานวิศวกรรม"]].map(([code,plo,dom,bloom,t])=>({code,plo,dom,bloom,t}));
+const YLOS=[
+{y:1,t:"คำนวณปัญหาพื้นฐานทางคณิตศาสตร์ ฟิสิกส์ และสถิตยศาสตร์ · เขียนแบบและใช้เครื่องมือช่างอย่างปลอดภัย · ส่งงานด้วยความซื่อสัตย์",subs:["K1-1","S3-1","S3-2","S4-1","E5-1"],job:"ช่างเทคนิคช่วยงานกลึง เขียนแบบเบื้องต้น",cri:"ร้อยละ 70 ได้ ≥ 60% ตาม rubric"},
+{y:2,t:"วิเคราะห์ปัญหาด้านกลศาสตร์วัสดุ พลศาสตร์ เทอร์โมไดนามิกส์ และของไหล · ปฏิบัติงานพื้นฐานของแขนงตามขั้นตอนความปลอดภัย",subs:["K1-1","K1-2","S2-1","S3-1","S3-2"],job:"ช่างเทคนิคงานซ่อมบำรุงตามแขนง",cri:"ร้อยละ 70 ได้ ≥ 60% · ผ่านการสอบความปลอดภัยทุกคน"},
+{y:3,t:"วิเคราะห์ระบบพลศาสตร์และการควบคุม · ออกแบบชิ้นส่วนและกำหนดโจทย์ได้ในแขนง · ทดลองและเขียนรายงาน · ค้นคว้าเทคโนโลยีใหม่",subs:["K1-3","S2-3","S2-2","S2-5","S2-6","S4-2","C4-1","C6-1"],job:"ผู้ช่วยวิศวกรออกแบบ ผู้ช่วยวิศวกรทดสอบ",cri:"ร้อยละ 75 ได้ระดับ ≥ 3 จาก 5"},
+{y:4,t:"ออกแบบระบบในแขนงที่คำนึงต้นทุนและสิ่งแวดล้อม · ทำโครงงานและสหกิจศึกษาสำเร็จ · ปฏิบัติตามจรรยาบรรณและกฎสถานประกอบการ",subs:["S2-4","S2-5","S3-3","C3-1","S4-1","E5-2","E5-3","C5-1","C6-2","C6-3"],job:"วิศวกรเครื่องกล/ระบบอาคาร · วิศวกรยานยนต์ไฟฟ้า · วิศวกรพลังงาน",cri:"ร้อยละ 80 ได้ระดับ ≥ 3 จาก 5 ทุก PLO"}];
+const PEOS=[
+{k:"PEO1",t:"ประกอบวิชาชีพวิศวกรเครื่องกลในสาขาที่ศึกษา ได้แก่ วิศวกรรมเครื่องกล วิศวกรรมยานยนต์พลังงานใหม่ หรือวิศวกรรมพลังงาน และได้รับใบอนุญาต กว.",plos:[1,2,3]},
+{k:"PEO2",t:"ก้าวหน้าในอาชีพด้วยการรับผิดชอบงานออกแบบ บำรุงรักษา หรือบริหารโครงการ หรือศึกษาต่อ หรือเป็นผู้ประกอบการด้านเทคโนโลยี",plos:[2,3,4,6]},
+{k:"PEO3",t:"ทำงานอย่างมีจรรยาบรรณ คำนึงถึงสังคมและสิ่งแวดล้อม และพัฒนาตนเองตามเทคโนโลยีใหม่อย่างต่อเนื่อง",plos:[5,6]}];
+const NEED_GROUPS={MEET:"มติมหาวิทยาลัยและคณะ",POL:"นโยบายมหาวิทยาลัย",NAT:"แผนระดับชาติและทิศทางโลก",COE:"ข้อกำหนดสภาวิศวกร",TAB:"TABEE (WA1–WA11)",SUR:"ผลสำรวจผู้มีส่วนได้ส่วนเสีย"};
+const NEED_KIND={MEET:"meet",POL:"pol",NAT:"pol",COE:"acc",TAB:"acc",SUR:"sur"};
+const MAP_POS={MEET:"a",COE:"b",POL:"c",TAB:"d",NAT:"e",SUR:"f"};
+const N=(id,g,src,t,how,plos,st="have",sh)=>({id,g,src,t,how,plos,st,sh});
+const NEEDS0=[
+N("MEET-1","MEET","มติที่ประชุมระดับมหาวิทยาลัยและคณะ","PLO1 เน้นการประยุกต์ใช้ความรู้พื้นฐานและทฤษฎี (Knowledge & Application)","รายงานการประชุม (ระบุครั้งที่และวันที่)",[1],"have","Knowledge & Application"),
+N("MEET-2","MEET","มติที่ประชุมระดับมหาวิทยาลัยและคณะ","PLO2 เน้นทักษะเฉพาะทาง: เครื่องมือและซอฟต์แวร์สมัยใหม่ การออกแบบและวิเคราะห์ระบบ และการทดลองแก้ปัญหา (Engineering Skills / Investigation)","รายงานการประชุม (ระบุครั้งที่และวันที่)",[2],"have","Engineering Skills / Investigation"),
+N("POL-1","POL","วิสัยทัศน์มหาวิทยาลัย","มหาวิทยาลัยชั้นนำทางเทคโนโลยี แหล่งวิทยาการเฉพาะทางชั้นสูง มุ่งสู่การพัฒนานวัตกรรม","แผนยุทธศาสตร์ 5 ปี พ.ศ. 2566–2570",[2,6],"have","วิสัยทัศน์"),
+N("POL-2","POL","ปรัชญาการศึกษา","สร้างนักปฏิบัติ แหล่งวิชาชีพเฉพาะทาง เน้นการใช้เทคโนโลยีและนวัตกรรม","แผนยุทธศาสตร์ 5 ปี พ.ศ. 2566–2570",[2,3,6],"have","ปรัชญา"),
+N("POL-3","POL","คุณลักษณะบัณฑิต: ดี","พร้อมคุณธรรมและจริยธรรม","ประกาศมหาวิทยาลัยเรื่องคุณลักษณะบัณฑิตที่พึงประสงค์",[5],"have","ดี"),
+N("POL-4","POL","คุณลักษณะบัณฑิต: เด่น","ด้านเทคโนโลยีและนวัตกรรม","ประกาศมหาวิทยาลัยเรื่องคุณลักษณะบัณฑิตที่พึงประสงค์",[1,2,6],"have","เด่น"),
+N("POL-5","POL","คุณลักษณะบัณฑิต: เน้น","การสื่อสารและทำงานร่วมกัน","ประกาศมหาวิทยาลัยเรื่องคุณลักษณะบัณฑิตที่พึงประสงค์",[4],"have","เน้น"),
+N("POL-6","POL","คุณลักษณะบัณฑิต: สร้าง","สุขภาวะและจิตอาสา","ประกาศมหาวิทยาลัยเรื่องคุณลักษณะบัณฑิตที่พึงประสงค์",[5],"have","สร้าง"),
+N("POL-7","POL","อัตลักษณ์นักศึกษา","บัณฑิตนักปฏิบัติ ที่รู้ทฤษฎี เก่งปฏิบัติ และมีความคิดสร้างสรรค์","เว็บไซต์มหาวิทยาลัย",[1,2,3,6],"have","อัตลักษณ์"),
+N("COE-1","COE","สภาวิศวกร ข้อ 1","ความรู้ทางด้านวิศวกรรม พื้นฐานทางคณิตศาสตร์และวิทยาศาสตร์","ข้อกำหนดการรับรองปริญญา",[1],"have","ข้อ 1"),
+N("COE-2","COE","สภาวิศวกร ข้อ 2","การวิเคราะห์ปัญหาทางวิศวกรรม","ข้อกำหนดการรับรองปริญญา",[1],"have","ข้อ 2"),
+N("COE-3","COE","สภาวิศวกร ข้อ 3","การออกแบบและพัฒนาเพื่อหาคำตอบของปัญหา","ข้อกำหนดการรับรองปริญญา",[2],"have","ข้อ 3"),
+N("COE-4","COE","สภาวิศวกร ข้อ 4","การพิจารณาตรวจสอบ","ข้อกำหนดการรับรองปริญญา",[2],"have","ข้อ 4"),
+N("COE-5","COE","สภาวิศวกร ข้อ 5","การใช้อุปกรณ์และเครื่องมือ","ข้อกำหนดการรับรองปริญญา",[2,3],"have","ข้อ 5"),
+N("COE-6","COE","สภาวิศวกร ข้อ 6","การทำงานร่วมกันเป็นทีม","ข้อกำหนดการรับรองปริญญา",[4],"have","ข้อ 6"),
+N("COE-7","COE","สภาวิศวกร ข้อ 7","การติดต่อสื่อสาร","ข้อกำหนดการรับรองปริญญา",[4],"have","ข้อ 7"),
+N("COE-8","COE","สภาวิศวกร ข้อ 8","การพัฒนาที่ยั่งยืน","ข้อกำหนดการรับรองปริญญา",[5],"have","ข้อ 8"),
+N("COE-9","COE","สภาวิศวกร ข้อ 9","จรรยาบรรณวิชาชีพ","ข้อกำหนดการรับรองปริญญา",[5],"have","ข้อ 9"),
+N("COE-10","COE","สภาวิศวกร ข้อ 10","การบริหารงานวิศวกรรม","ข้อกำหนดการรับรองปริญญา",[3],"have","ข้อ 10"),
+N("COE-11","COE","สภาวิศวกร ข้อ 11","การเรียนรู้ตลอดชีพ","ข้อกำหนดการรับรองปริญญา",[6],"have","ข้อ 11"),
+N("NAT-1","NAT","แผนพัฒนาเศรษฐกิจและสังคมแห่งชาติ ฉบับที่ 13","ไทยเป็นฐานการผลิตยานยนต์ไฟฟ้าที่สำคัญของโลก","หมุดหมายที่ 3",[2,3],"have","หมุดหมาย 3 EV"),
+N("NAT-2","NAT","แผนพัฒนาเศรษฐกิจและสังคมแห่งชาติ ฉบับที่ 13","ไทยมีเศรษฐกิจหมุนเวียนและสังคมคาร์บอนต่ำ","หมุดหมายที่ 10",[2,5],"have","หมุดหมาย 10"),
+N("NAT-3","NAT","ทักษะการเรียนรู้ในศตวรรษที่ 21","การคิดสร้างสรรค์ การสื่อสาร การทำงานร่วมกัน และทักษะดิจิทัล","เอกสารนโยบาย",[4,6],"have","ศตวรรษ 21"),
+N("SUR-1","SUR","ผู้ใช้บัณฑิตและสถานประกอบการ","","แบบสอบถามและสัมภาษณ์",[],"wait"),
+N("SUR-2","SUR","ศิษย์เก่า","","แบบสอบถามออนไลน์",[],"wait"),
+N("SUR-3","SUR","นักศึกษาปัจจุบันทุกชั้นปี","","แบบสอบถามและสนทนากลุ่ม",[],"wait"),
+N("SUR-4","SUR","พี่เลี้ยงสหกิจศึกษา","","แบบประเมินสหกิจและผลนิเทศ",[],"wait"),
+N("SUR-5","SUR","อาจารย์และผู้ทรงคุณวุฒิ","","ประชุมวิพากษ์หลักสูตร",[],"wait"),
+N("SUR-6","SUR","อุตสาหกรรมยานยนต์ไฟฟ้าและพลังงาน","","สัมภาษณ์ผู้ประกอบการ",[],"wait")];
+const NEED_ST={have:"มีข้อมูล",wait:"รอผล"};
+const WA0=[["WA1","ประยุกต์ความรู้แก้ปัญหาซับซ้อน",[1]],["WA2","วิเคราะห์ปัญหาซับซ้อน",[1]],["WA3","ออกแบบแนวทางแก้ปัญหา",[2]],["WA4","สืบค้นและทดลอง",[2]],["WA5","เครื่องมือสมัยใหม่",[2]],["WA6","วิศวกรกับสังคมและความยั่งยืน",[5]],["WA7","จรรยาบรรณและความหลากหลาย",[5]],["WA8","ทำงานเดี่ยวและเป็นทีม",[4]],["WA9","การสื่อสาร",[4]],["WA10","บริหารโครงการและเศรษฐศาสตร์",[3]],["WA11","เรียนรู้ตลอดชีพ",[6]]];
+WA0.forEach(([k,t,p])=>NEEDS0.push(N("TAB-"+k.slice(2),"TAB","TABEE "+k,t,"Washington Accord Graduate Attributes",p,"have",k)));
+const WA=[["WA1","ประยุกต์ความรู้แก้ปัญหาซับซ้อน",[1]],["WA2","วิเคราะห์ปัญหาซับซ้อน",[1]],["WA3","ออกแบบแนวทางแก้ปัญหา",[2]],["WA4","สืบค้นและทดลอง",[2]],["WA5","เครื่องมือสมัยใหม่",[2]],["WA6","วิศวกรกับสังคมและความยั่งยืน",[5]],["WA7","จรรยาบรรณและความหลากหลาย",[5]],["WA8","ทำงานเดี่ยวและเป็นทีม",[4]],["WA9","การสื่อสาร",[4]],["WA10","บริหารโครงการและเศรษฐศาสตร์",[3],"S3-3"],["WA11","เรียนรู้ตลอดชีพ",[6]]];
+const COE_GROUPS=[["การออกแบบเชิงกล",["drawing","statics","dynamics","materials","mechmat","mfg","machdesign"]],["อุณหศาสตร์และของไหล",["fluid","thermo","heat","thermalsys","energyconv"]],["ระบบพลศาสตร์และการควบคุม",["elec","dynsys","control"]]];
+const COE_TH={drawing:"เขียนแบบวิศวกรรม",statics:"ภาระแบบสถิต",dynamics:"ภาระแบบพลศาสตร์",materials:"วัสดุวิศวกรรม",mechmat:"กลศาสตร์วัสดุ",mfg:"กระบวนการผลิต",machdesign:"วิเคราะห์และออกแบบชิ้นส่วน",fluid:"กลศาสตร์ของไหล",thermo:"อุณหพลศาสตร์",heat:"การถ่ายเทความร้อน",thermalsys:"ระบบและอุปกรณ์เชิงความร้อน",energyconv:"การเปลี่ยนรูปพลังงาน",elec:"ไฟฟ้าและอิเล็กทรอนิกส์",dynsys:"ระบบพลศาสตร์",control:"การควบคุมระบบ"};
+const BLOOM=["Remember","Understand","Apply","Analyze","Evaluate","Create","Receive","Respond","Value","Organize","Characterize"];
+const BLOOM_RANK={Remember:1,Understand:2,Apply:3,Analyze:4,Evaluate:5,Create:6,Receive:1,Respond:3,Value:4,Organize:5,Characterize:6};
+const BANNED=["มีความรู้","ความเข้าใจ","เข้าใจ","บูรณาการ","ตระหนัก","รู้จัก"];
+const LV_RANK={I:1,R:2,M:3};
+// draft CLOs: [text, subs, bloom, level, assessment]
+const CLO0={
+"4-100-101":[["ใช้เครื่องมือช่างพื้นฐานและเครื่องมือวัดขึ้นรูปชิ้นงานตามแบบ",["S3-1"],"Apply","I","ชิ้นงานและสอบปฏิบัติ"],["ปฏิบัติตามกฎความปลอดภัยในโรงฝึกงานทุกขั้นตอน",["S3-2"],"Apply","I","checklist ความปลอดภัยรายครั้ง"],["บันทึกขั้นตอนการทำงานและผลการวัดตามจริงในใบงาน",["E5-1"],"Respond","I","ใบงาน"]],
+"4-111-203":[["วิเคราะห์จลนศาสตร์ของอนุภาคและวัตถุแข็งเกร็ง",["K1-1"],"Analyze","R","สอบกลางภาคและปลายภาค"],["คำนวณแรงและการเคลื่อนที่ด้วยกฎของนิวตัน หลักงาน-พลังงาน และโมเมนตัม",["K1-1"],"Apply","R","การบ้านและสอบ"],["ใช้โปรแกรมคำนวณจำลองการเคลื่อนที่ของกลไกอย่างง่าย",["S2-1"],"Apply","R","งานมอบหมาย"]],
+"4-111-306":[["วิเคราะห์ความเร็วและความเร่งของกลไกข้อต่อ ลูกเบี้ยว และเฟือง",["K1-1"],"Analyze","R","สอบ"],["วิเคราะห์แรงสถิตและแรงพลวัตในกลไก",["K1-1"],"Analyze","R","สอบ"],["เลือกชนิดกลไกให้ได้การเคลื่อนที่ตามข้อกำหนด",["S2-3"],"Evaluate","I","งานมอบหมาย"]],
+"4-111-307":[["สร้างแบบจำลองไฟไนต์เอลิเมนต์ของชิ้นส่วนเครื่องกลด้วยโปรแกรม CAE",["S2-1"],"Apply","M","โครงงานย่อยประเมินด้วย rubric"],["วิเคราะห์ความเค้น การเสียรูป และการถ่ายเทความร้อนจากผลจำลอง",["K1-1","K1-2"],"Analyze","M","รายงานผลการวิเคราะห์"],["ปรับแบบชิ้นส่วนจากผลวิเคราะห์ให้ผ่านเกณฑ์ความแข็งแรง",["S2-4"],"Evaluate","R","รายงานและการนำเสนอ"]],
+"4-111-308":[["วิเคราะห์ความเค้นและความล้าของชิ้นส่วนเครื่องจักรกล",["K1-1"],"Analyze","M","สอบ"],["กำหนดข้อกำหนดและเกณฑ์การออกแบบชิ้นส่วนจากโจทย์",["S2-2"],"Analyze","R","งานออกแบบ"],["ออกแบบเพลา สปริง เฟือง และตลับลูกปืนตามมาตรฐาน",["S2-3","S2-4"],"Create","R","งานออกแบบประเมินด้วย rubric"],["ประมาณต้นทุนและเปรียบเทียบความคุ้มค่าของทางเลือกการออกแบบ",["S3-3"],"Evaluate","I","ตารางเปรียบเทียบต้นทุนในงานออกแบบ"]],
+"4-112-306":[["วิเคราะห์การนำความร้อน การพาความร้อน และการแผ่รังสี",["K1-2"],"Analyze","M","สอบ"],["คำนวณสมรรถนะของเครื่องแลกเปลี่ยนความร้อน",["K1-2"],"Apply","M","สอบ"],["แก้ปัญหาการถ่ายเทความร้อนด้วยวิธีเชิงตัวเลขและโปรแกรมคำนวณ",["S2-1"],"Apply","R","งานมอบหมาย"]],
+"4-112-307":[["วิเคราะห์วัฏจักรทำความเย็นและกระบวนการไซโครเมตริก",["K1-2"],"Analyze","R","สอบ"],["คำนวณภาระการทำความเย็นของอาคาร",["K1-2"],"Apply","R","การบ้าน"],["เลือกอุปกรณ์และออกแบบระบบปรับอากาศขนาดเล็ก",["S2-3","S2-4"],"Create","R","งานออกแบบ"]],
+"4-112-408":[["วิเคราะห์วัฏจักรกำลังไอน้ำ กังหันก๊าซ และวัฏจักรร่วม",["K1-2"],"Analyze","R","สอบ"],["เปรียบเทียบทางเลือกโรงผลิตกำลังด้านประสิทธิภาพ ต้นทุน และสิ่งแวดล้อม",["S2-4"],"Evaluate","R","รายงานกลุ่ม"],["ระบุผลกระทบต่อสิ่งแวดล้อมและกฎหมายที่เกี่ยวข้องกับโรงไฟฟ้า",["E5-3"],"Understand","I","กรณีศึกษา"]],
+"4-114-302":[["เขียนสมการการเคลื่อนที่ของระบบสั่นสะเทือนหนึ่งและหลายองศาอิสระ",["K1-3"],"Apply","R","สอบ"],["วิเคราะห์ความถี่ธรรมชาติ การตอบสนอง และวิธีลดการสั่นสะเทือน",["K1-3"],"Analyze","M","สอบ"],["ใช้โปรแกรมคำนวณจำลองการตอบสนองของระบบสั่นสะเทือน",["S2-1"],"Apply","R","งานมอบหมาย"]],
+"4-114-401":[["สร้างแบบจำลองทางคณิตศาสตร์ของระบบเชิงกล ไฟฟ้า และความร้อน",["K1-3"],"Apply","R","สอบ"],["วิเคราะห์เสถียรภาพและการตอบสนองของระบบควบคุมป้อนกลับ",["K1-3"],"Analyze","M","สอบ"],["ออกแบบตัวควบคุม PID ด้วยโปรแกรมจำลอง",["S2-1"],"Create","M","งานมอบหมายประเมินด้วย rubric"]],
+"4-211-216":[["วิเคราะห์วงจรไฟฟ้ากระแสตรงและกระแสสลับ",["K1-3"],"Analyze","R","สอบ"],["คำนวณสมรรถนะของหม้อแปลงและมอเตอร์ไฟฟ้า",["K1-3"],"Apply","R","สอบ"],["ต่อวงจรและวัดค่าทางไฟฟ้าในห้องปฏิบัติการ",["K1-3"],"Apply","R","รายงานปฏิบัติการ"]],
+"4-116-101":[["ปฏิบัติงานกลึง กัด และเชื่อมให้ได้ชิ้นงานตามแบบ",["S3-1"],"Apply","R","ชิ้นงาน"],["ปฏิบัติตามข้อกำหนดความปลอดภัยของเครื่องจักรแต่ละชนิด",["S3-2"],"Apply","R","checklist ความปลอดภัย"],["แสดงความรับผิดชอบและตรงต่อเวลาในการทำงาน",["C3-1"],"Respond","R","แบบประเมินพฤติกรรม"]],
+"4-116-202":[["ดำเนินการทดลองด้านความร้อนและของไหลตามขั้นตอนความปลอดภัย",["S2-5"],"Apply","R","สังเกตการปฏิบัติ"],["ใช้เครื่องมือวัดอุณหภูมิ ความดัน และอัตราการไหล",["S2-5"],"Apply","R","สอบปฏิบัติ"],["วิเคราะห์ผลการทดลองเทียบกับทฤษฎี",["S2-6"],"Analyze","R","รายงานการทดลอง"],["เขียนรายงานการทดลองพร้อมข้อมูลดิบ",["S4-1"],"Apply","R","rubric รายงาน"]],
+"4-116-303":[["ดำเนินการทดลองด้านกลศาสตร์และการสั่นสะเทือนตามขั้นตอนความปลอดภัย",["S2-5"],"Apply","R","สังเกตการปฏิบัติ"],["ใช้เครื่องมือวัดความเครียดและการสั่นสะเทือน",["S2-5"],"Apply","R","สอบปฏิบัติ"],["วิเคราะห์ผลการทดลองเทียบกับทฤษฎีหรือค่ามาตรฐาน",["S2-6"],"Evaluate","R","รายงานการทดลอง"],["นำเสนอผลการทดลองเป็นทีม",["S4-1","C4-1"],"Apply","R","rubric การนำเสนอ"]],
+"4-116-307":[["กำหนดปัญหา วัตถุประสงค์ และขอบเขตของโครงงาน",["S2-2"],"Analyze","R","ข้อเสนอโครงงาน"],["วิเคราะห์งานวิจัยและเทคโนโลยีที่เกี่ยวข้องเพื่อกำหนดแนวทางโครงงาน",["C6-1","S4-2"],"Analyze","R","บททบทวนวรรณกรรม"],["เขียนและนำเสนอข้อเสนอโครงงานต่อกรรมการ",["S4-1"],"Apply","R","rubric การนำเสนอ"],["อ้างอิงแหล่งที่มาอย่างถูกต้องและผ่านการตรวจความคล้าย",["E5-1"],"Value","R","ผลตรวจความคล้าย"],["จัดทำแผนงาน ตารางเวลา และงบประมาณของโครงงาน",["S3-3"],"Apply","R","แผนงานและงบประมาณในข้อเสนอโครงงาน"]],
+"4-116-408":[["ออกแบบและสร้างชิ้นงานหรือระบบเพื่อแก้ปัญหาวิศวกรรมที่ซับซ้อนภายใต้ข้อจำกัดด้านเทคนิค ต้นทุน และสิ่งแวดล้อม",["S2-4"],"Create","M","rubric โครงงาน"],["สร้างผลงานเชิงนวัตกรรมจากเทคโนโลยีใหม่",["C6-2"],"Create","M","rubric โครงงาน"],["เขียนเล่มและนำเสนอโครงงานต่อคณะกรรมการ",["S4-1"],"Apply","M","rubric การนำเสนอและเล่ม"],["แสดงภาวะผู้นำและความรับผิดชอบต่อทีมตลอดการทำโครงงาน",["C4-1"],"Value","M","แบบประเมินเพื่อนร่วมทีมและอาจารย์ที่ปรึกษา"],["ประเมินผลกระทบต่อความปลอดภัย สังคม และสิ่งแวดล้อมของงาน",["E5-3","E5-1"],"Evaluate","M","บทผลกระทบในเล่มโครงงาน"],["วิเคราะห์ต้นทุนตลอดอายุการใช้งานและความคุ้มค่าทางเศรษฐศาสตร์ของผลงาน",["S3-3"],"Evaluate","M","หัวข้อความคุ้มค่าใน rubric โครงงาน"]],
+"4-001-301":[["เขียนประวัติย่อและสัมภาษณ์งานกับสถานประกอบการ",["S4-1"],"Apply","R","การสัมภาษณ์จำลอง"],["วิเคราะห์กรณีศึกษาจรรยาบรรณวิศวกรและ พ.ร.บ.วิศวกร",["E5-2"],"Evaluate","R","rubric กรณีศึกษา"],["ปฏิบัติตามระเบียบการเตรียมตัวก่อนออกสหกิจ",["C3-1"],"Respond","R","การเข้าร่วมกิจกรรม"]],
+"4-116-302":[["ปฏิบัติงานติดตั้งและบำรุงรักษาระบบในสถานประกอบการตามมาตรฐานความปลอดภัย",["S3-1","S3-2"],"Apply","M","แบบประเมินพี่เลี้ยง"],["วางแผนงานและประมาณต้นทุนของงานที่รับผิดชอบ",["S3-3"],"Evaluate","M","รายงานสหกิจ"],["แสดงความรับผิดชอบและปฏิบัติตามกฎของสถานประกอบการ",["C3-1"],"Value","M","แบบประเมินพี่เลี้ยง"],["เขียนรายงานและนำเสนอผลการปฏิบัติงาน โดยใช้เอกสารเทคนิคภาษาอังกฤษ",["S4-1","S4-2"],"Apply","M","rubric รายงานและการนำเสนอ"],["ตัดสินใจในสถานการณ์งานจริงตามจรรยาบรรณวิศวกร",["E5-2"],"Evaluate","M","แบบประเมินพี่เลี้ยงด้านจริยธรรม"]]
+};
+
+const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10},
+  faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},needEdit:null,courseEdit:null,pending:false};
+try{const s=JSON.parse(localStorage.getItem("mecp")||"{}");if(s.intake)state.intake=s.intake;if(s.track)state.track=s.track}catch(e){}
+try{state.me=localStorage.getItem("mecp_me")||""}catch(e){}
+function savePrefs(){try{localStorage.setItem("mecp",JSON.stringify({intake:state.intake,track:state.track}))}catch(e){}}
+
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const key=c=>String(c).replace(/[^A-Za-z0-9_\-.]/g,ch=>"~"+ch.codePointAt(0).toString(36));
+const pill=(s,txt)=>`<span class="pill ${s}">${txt||({pass:"ผ่าน",warn:"ต้องตรวจ",fail:"ไม่ผ่าน"}[s])}</span>`;
+const lvSpan=(l,dft)=>l?`<span class="lv ${l}${dft?" dft":""}">${l}</span>`:"";
+const subOf=code=>SUBS.find(s=>s.code===code);
+
+// ---- merged data ----
+let COURSES=[];
+function rebuild(){
+  const out=[];
+  BASE.forEach(b=>{const o=state.courseOv[b.code];if(o&&o.deleted)return;out.push(o?{...b,...o,plo:b.plo,coe:b.coe,fl:{...b.fl,edited:true}}:b)});
+  Object.values(state.courseOv).forEach(o=>{if(o.deleted||BASE.some(b=>b.code===o.code))return;out.push({plo:{},coe:[],dom:"",dept:"ME",tr:A,...o,fl:{added:true}})});
+  COURSES=out.sort((a,b)=>TERMS.indexOf(a.term)-TERMS.indexOf(b.term));
+}
+const needs=()=>{const m={};NEEDS0.forEach(n=>m[n.id]=n);Object.values(state.needsOv).forEach(o=>{if(o.deleted)delete m[o.id];else m[o.id]={...(m[o.id]||{}),...o}});return Object.values(m)};
+const clos=code=>{const o=state.cloOv[code];if(o)return o.items||[];return (CLO0[code]||[]).map(([t,subs,bloom,lv,as])=>({t,subs,bloom,lv,as}))};
+const hasClo=code=>clos(code).length>0;
+function ploOf(c){
+  const L=clos(c.code);if(!L.length)return {map:c.plo,src:"default"};
+  const m={};L.forEach(x=>(x.subs||[]).forEach(s=>{const sb=subOf(s);if(!sb)return;const p=sb.plo;if(!m[p]||LV_RANK[x.lv]>LV_RANK[m[p]])m[p]=x.lv}));
+  return {map:m,src:"clo"};
+}
+const inTrack=(c,t)=>c.tr===A||(Array.isArray(c.tr)&&c.tr.includes(t));
+const trackCourses=t=>COURSES.filter(c=>inTrack(c,t));
+const sumCr=(list,f=()=>true)=>list.filter(f).reduce((a,c)=>a+(+c.cr||0),0);
+
+// ---- OBE analyses ----
+function needsAnalysis(){
+  const L=needs();const per={};PLOS.forEach(p=>per[p.n]=L.filter(n=>(n.plos||[]).includes(p.n)));
+  const surveyHave=L.filter(n=>n.g==="SUR"&&n.st==="have");
+  const orphan=L.filter(n=>n.st==="have"&&!(n.plos||[]).length);
+  const noSrc=PLOS.filter(p=>!per[p.n].length);
+  const noSurvey=PLOS.filter(p=>!per[p.n].some(n=>n.g==="SUR"&&n.st==="have"));
+  return {L,per,surveyHave,orphan,noSrc,noSurvey,wait:L.filter(n=>n.st==="wait")};
+}
+function ploTextChecks(){
+  return PLOS.map(p=>{const bad=BANNED.filter(w=>p.t.includes(w));const subs=SUBS.filter(s=>s.plo===p.n);
+    const maxSub=Math.max(0,...subs.map(s=>BLOOM_RANK[s.bloom]));
+    return {p,bad,subs,maxSub,ok:!bad.length&&subs.length>0}});
+}
+function yloAnalysis(){
+  const used=new Set(YLOS.flatMap(y=>y.subs));
+  const unused=SUBS.filter(s=>!used.has(s.code));
+  const peak=YLOS.map(y=>Math.max(...y.subs.map(c=>BLOOM_RANK[(subOf(c)||{}).bloom]||0)));
+  const prog=peak.every((v,i)=>i===0||v>=peak[i-1]);
+  return {unused,peak,prog};
+}
+function cloAnalysis(t){
+  const L=trackCourses(t),rows=[];
+  const subCov={};SUBS.forEach(s=>subCov[s.code]=[]);
+  L.forEach(c=>clos(c.code).forEach(x=>(x.subs||[]).forEach(s=>{if(subCov[s])subCov[s].push({c,lv:x.lv})})));
+  const seq=PLOS.map(p=>{const at={I:[],R:[],M:[]};L.forEach(c=>{const l=ploOf(c).map[p.n];if(l)at[l].push(TERMS.indexOf(c.term))});
+    const first=k=>at[k].length?Math.min(...at[k]):null;const fI=first("I"),fR=first("R"),fM=first("M");
+    const pre=[fI,fR].filter(v=>v!==null);const ok=fM!==null&&pre.length&&Math.min(...pre)<=fM;
+    const n=L.filter(c=>ploOf(c).map[p.n]).length;
+    return {p,fI,fR,fM,ok,n,hasI:fI!==null}});
+  const withClo=L.filter(c=>hasClo(c.code)),me=L.filter(c=>c.dept==="ME"&&c.g!=="FREE");
+  const cnt=withClo.filter(c=>{const k=clos(c.code).length;return k<3||k>6});
+  const mNoAssess=[];const lowBloomM=[];const banned=[];
+  withClo.forEach(c=>clos(c.code).forEach((x,i)=>{if(x.lv==="M"&&!(x.as||"").trim())mNoAssess.push(c.code+" CLO"+(i+1));if(x.lv==="M"&&BLOOM_RANK[x.bloom]<3)lowBloomM.push(c.code+" CLO"+(i+1));if(BANNED.some(w=>(x.t||"").includes(w)))banned.push(c.code+" CLO"+(i+1))}));
+  const wide=L.filter(c=>Object.keys(ploOf(c).map).length>4);
+  return {L,subCov,seq,withClo,me,cnt,mNoAssess,lowBloomM,banned,wide,uncovered:SUBS.filter(s=>!subCov[s.code].length)};
+}
+
+// ---- criteria (ก5) ----
+function evaluate(t){
+  const L=trackCourses(t), out=[];
+  const total=sumCr(L), ge=sumCr(L,c=>c.g==="GE"), free=sumCr(L,c=>c.g==="FREE");
+  const ms=sumCr(L,c=>c.g==="MS")+(state.countComputing?sumCr(L,c=>c.fl.computing):0);
+  const eng=sumCr(L,c=>["EB","CORE","TR","TE"].includes(c.g)&&!c.fl.computing);
+  const T=[];
+  T.push({s:total>=120?"pass":"fail",t:`หน่วยกิตรวม ${total} (ขั้นต่ำ 120)`,d:"เกณฑ์มาตรฐานหลักสูตรปริญญาตรี พ.ศ. 2565"});
+  T.push({s:ge>=24?"pass":"fail",t:`ศึกษาทั่วไป ${ge} หน่วยกิต (ขั้นต่ำ 24)`,d:"แม่แบบ มทร.กรุงเทพ 2570: บังคับ 18 + เลือก 6"});
+  T.push({s:free>=6?"pass":"fail",t:`เลือกเสรี ${free} หน่วยกิต (ขั้นต่ำ 6)`,d:""});
+  const bad=TERMS.map(k=>[k,sumCr(L,c=>c.term===k)]).filter(([k,v])=>k==="Y4S2"?false:k.endsWith("SS")?v>9:(v<9||v>22));
+  T.push({s:bad.length?"fail":"pass",t:"หน่วยกิตต่อภาค 9–22 · ฤดูร้อนไม่เกิน 9",d:bad.length?bad.map(([k,v])=>`${TERM_TH[k]} ${v} นก.`).join(" · "):"ทุกภาคอยู่ในช่วง (ภาคสหกิจยกเว้น)"});
+  const doms=new Set(PLOS.flatMap(p=>p.d.split(", ")));
+  T.push({s:["K","S","E","C"].every(x=>doms.has(x))?"pass":"fail",t:"PLO ครบ 4 ด้าน K S E C",d:"ไม่ครบ 4 ด้าน สป.อว. จะไม่รับทราบหลักสูตร"});
+  const pt=ploTextChecks().filter(x=>x.bad.length);
+  T.push({s:pt.length?"fail":"pass",t:"PLO เขียนด้วยคำกริยาที่วัดได้",d:pt.length?pt.map(x=>`PLO${x.p.n}: ${x.bad.join(", ")}`).join(" · "):"ไม่มีคำที่แม่แบบห้ามใช้"});
+  {const ta=teamAnalysis();const tl=ta.per[t]||[];T.push({s:tl.length>=3&&!tl.some(f=>qualOf(f.id).deg==="B")?"pass":"fail",t:`อาจารย์ผู้รับผิดชอบหลักสูตรแขนงนี้ ${tl.length} คน (ขั้นต่ำ 3)`,d:tl.length?tl.map(f=>f.name).join(", "):"ยังไม่ได้เลือก ไปที่ บริหารหลักสูตร → ข1"})}
+  out.push(["เกณฑ์มาตรฐาน 2565 และแม่แบบเล่ม 2570",T]);
+  const K=[]; const topics=new Set(L.filter(c=>c.g!=="TE").flatMap(c=>c.coe||[]));
+  COE_GROUPS.forEach(([g,ts])=>{const miss=ts.filter(x=>!topics.has(x));K.push({s:miss.length?"fail":"pass",t:`กลุ่ม${g}`,d:miss.length?"ขาด: "+miss.map(x=>COE_TH[x]).join(", "):ts.map(x=>COE_TH[x]).join(" · ")})});
+  const coeNeeds=needs().filter(n=>n.g==="COE"),coeMiss=coeNeeds.filter(n=>!(n.plos||[]).length);
+  K.push({s:coeMiss.length?"fail":"pass",t:"PLO ครอบคลุมข้อกำหนด 11 ข้อ",d:coeMiss.length?"ยังไม่มี PLO: "+coeMiss.map(n=>n.src).join(", "):"ทุกข้อมี PLO รองรับ (ดู ก1)"});
+  K.push({s:"warn",t:"Health, Safety and Environment",d:"ยังไม่มีวิชาบังคับด้านความปลอดภัยโดยตรง ต้องแสดงสัดส่วนเนื้อหาใน 4-100-101 และ 4-001-301 หรือย้าย 4-116-409 เป็นวิชาบังคับ"});
+  out.push(["สภาวิศวกร (รับรองปริญญา)",K]);
+  const B=[];
+  B.push({s:ms>=30?(state.countComputing?"warn":"pass"):"fail",t:`คณิตศาสตร์และวิทยาศาสตร์ ${ms} หน่วยกิต (ขั้นต่ำ 30)`,d:state.countComputing?"นับวิชาการโปรแกรมเป็น computing ตาม WK2 แล้ว ต้องยืนยันกับ TABEE":"ไม่นับวิชาการโปรแกรม"});
+  B.push({s:eng>=45?"pass":"fail",t:`หัวข้อวิศวกรรม ${eng} หน่วยกิต (ขั้นต่ำ 45)`,d:""});
+  B.push({s:L.some(c=>c.fl.capstone)?"warn":"fail",t:"โครงงานปีสุดท้ายเป็นปัญหาซับซ้อน",d:"มี 4-116-307/408 แล้ว ต้องเขียนเกณฑ์ WP1–WP7 ใน rubric"});
+  WA.forEach(([k,n,p,sub])=>{let s=p.length?"pass":"fail",extra="";
+    if(sub){const ms=[...new Set(L.filter(c=>c.g!=="TE"&&clos(c.code).some(x=>x.lv==="M"&&(x.subs||[]).includes(sub))).map(c=>c.code))];
+      if(ms.length<2){s="warn";extra=` · ${sub} มีวิชาบังคับระดับ M ${ms.length} วิชา ควรมีอย่างน้อย 2`}else extra=` · ${sub} ประเมินระดับ M ใน ${ms.join(", ")} (ยังไม่มีวิชาเศรษฐศาสตร์บังคับ)`}
+    B.push({s,t:`${k} ${n}`,d:p.length?`ตอบด้วย ${p.map(x=>"PLO"+x).join(", ")}${extra}`:"ไม่มี PLO รองรับ"})});
+  const peoGap=PLOS.filter(p=>!PEOS.some(e=>e.plos.includes(p.n)));
+  B.push({s:peoGap.length?"warn":"pass",t:"PEO 3 ข้อ โยงกับ PLO",d:peoGap.length?"PLO ที่ไม่โยงกับ PEO: "+peoGap.map(p=>"PLO"+p.n).join(", "):"ทุก PLO รองรับ PEO อย่างน้อยหนึ่งข้อ"});
+  out.push(["TABEE",B]);
+  const Q=[],na=needsAnalysis(),ca=cloAnalysis(t);
+  Q.push({s:na.noSrc.length?"fail":(na.noSurvey.length?"warn":"pass"),t:"PLO มีที่มาจากผู้มีส่วนได้ส่วนเสีย",d:na.noSrc.length?"ไม่มีที่มา: "+na.noSrc.map(p=>"PLO"+p.n).join(", "):na.noSurvey.length?`มีที่มาจากนโยบายและข้อกำหนดครบ แต่ยังไม่มีผลสำรวจยืนยัน ${na.noSurvey.length} PLO (รอผล ${na.wait.length} กลุ่ม)`:"ทุก PLO มีผลสำรวจยืนยัน"});
+  ca.seq.forEach(x=>Q.push({s:x.fM===null?"fail":x.ok?"pass":"warn",t:`PLO${x.p.n} พัฒนาตามลำดับ I → R → M`,d:x.fM===null?"ไม่มีวิชาระดับ M":`เริ่ม ${x.fI!==null?TERM_TH[TERMS[x.fI]]:"(ไม่มี I)"} · M ครั้งแรก ${TERM_TH[TERMS[x.fM]]} · ${x.n} วิชา`}));
+  Q.push({s:ca.uncovered.length?"warn":"pass",t:"ทุก Sub-PLO มี CLO รองรับ",d:ca.uncovered.length?"ยังไม่มี CLO: "+ca.uncovered.map(s=>s.code).join(", "):"ครบ"});
+  const meNo=ca.me.filter(c=>!hasClo(c.code));
+  Q.push({s:meNo.length?"warn":"pass",t:`วิชาที่สาขาสอนมี CLO ${ca.me.length-meNo.length}/${ca.me.length} วิชา`,d:meNo.length?"วิชาที่เหลือใช้ระดับ I/R/M ตั้งต้น ต้องร่าง CLO ใน ก3":"ครบ"});
+  Q.push({s:"pass",t:"มีการประเมินทั้ง direct และ indirect",d:"rubric ในรายวิชา + exit survey + แบบสำรวจผู้ใช้บัณฑิต"});
+  out.push(["AUN-QA v4.0 (OBE)",Q]);
+  return {out,total,ms,eng,ge};
+}
+
+// ---- views: design ----
+function trackSeg(){return `<div class="seg" role="group" aria-label="เลือกแขนง">${Object.entries(TRACKS).map(([k,v])=>`<button data-track="${k}" aria-pressed="${state.track===k}">${v}</button>`).join("")}</div>`}
+const FLOW=[["needs","ความต้องการ"],["plo","PLO → Sub-PLO → YLO"],["clo","CLO รายวิชา"],["map","Curriculum Mapping"],["plan","แผนการเรียน"],["check","ตรวจเกณฑ์"]];
+const flowBar=v=>`<div class="flow" aria-hidden="true">${FLOW.map(([k,t],i)=>`${i?"→":""}<span class="${k===v?"on":""}">${t}</span>`).join(" ")}</div>`;
+const dis=()=>state.canWrite?"":"disabled";
+
+function compressLabs(labs){
+  const out=[];const groups={};
+  labs.forEach(l=>{const m=l.match(/^(ข้อ |WA)(\d+)$/);if(m){(groups[m[1]]=groups[m[1]]||[]).push(m[2])}else if(!out.includes(l))out.push(l)});
+  Object.entries(groups).forEach(([pre,nums])=>out.push(pre+[...new Set(nums)].join(", ")));
+  return out.join(", ");
+}
+function mindMap(na){
+  const card=g=>{const rows=na.L.filter(n=>n.g===g),have=rows.filter(n=>n.st==="have");
+    let body;
+    if(!have.length)body=`<div class="mm-l">${rows.length} กลุ่ม · รอผล</div>`+rows.slice(0,4).map(n=>`<div class="mm-l muted">${esc(n.src)}</div>`).join("");
+    else body=PLOS.map(p=>{const labs=have.filter(n=>(n.plos||[]).includes(p.n)).map(n=>n.sh||n.src);return labs.length?`<div class="mm-l"><b>PLO${p.n}</b> ← ${esc(compressLabs(labs))}</div>`:""}).join("")+(rows.length>have.length?`<div class="mm-l muted">รอผล ${rows.length-have.length} รายการ</div>`:"");
+    return `<a class="mm-card k-${NEED_KIND[g]}" style="grid-area:${MAP_POS[g]}" href="#design/needs" data-jump="ng-${g}"><b class="mm-t">${NEED_GROUPS[g]}</b>${body}</a>`};
+  const per=PLOS.map(p=>na.per[p.n].filter(n=>n.st==="have").length);
+  return `<section class="panel"><h2>Mind map ที่มาของ PLOs</h2><div class="mm">
+   <div class="mm-c" style="grid-area:z"><b>PLOs ${PLOS.length} ข้อ</b><span class="small muted">ที่มา ${Object.keys(NEED_GROUPS).length} แหล่ง</span><div class="chips" style="justify-content:center;margin-top:6px">${PLOS.map((p,i)=>`<span class="code" title="${per[i]} แหล่งที่มีข้อมูล">PLO${p.n} · ${per[i]}</span>`).join("")}</div></div>
+   ${Object.keys(NEED_GROUPS).map(card).join("")}</div>
+   <div class="row small muted" style="margin-top:8px"><span><i class="lg k-meet"></i>มติที่ประชุม</span><span><i class="lg k-pol"></i>นโยบายและแผน</span><span><i class="lg k-acc"></i>ข้อกำหนดรับรอง</span><span><i class="lg k-sur"></i>ยังรอผล</span><span>ตัวเลขหลัง PLO = จำนวนแหล่งที่มีข้อมูล · คลิกกล่องเพื่อไปที่แถวในตาราง</span></div></section>`;
+}
+function viewNeeds(){
+  const na=needsAnalysis();
+  const head=`<tr><th>แหล่งที่มา</th><th>ความต้องการ</th>${PLOS.map(p=>`<th class="c">PLO${p.n}</th>`).join("")}<th>สถานะ</th><th></th></tr>`;
+  const row=n=>state.needEdit===n.id?`<tr><td colspan="${PLOS.length+4}">${needForm(n)}</td></tr>`:
+    `<tr><td>${esc(n.src)}<div class="small muted">${esc(n.how)}</div></td><td>${n.t?esc(n.t):'<span class="muted small">รอสรุปผล</span>'}</td>${PLOS.map(p=>`<td class="c">${(n.plos||[]).includes(p.n)?'<span class="dot" title="โยงกับ PLO'+p.n+'"></span>':""}</td>`).join("")}<td>${pill(n.st==="have"?"pass":"warn",NEED_ST[n.st])}</td><td><button class="sm" data-neededit="${n.id}" ${dis()}>แก้ไข</button></td></tr>`;
+  return flowBar("needs")+`<p class="lead">AUN-QA ข้อ 1 ให้ PLO มาจากความต้องการของผู้มีส่วนได้ส่วนเสีย ตารางนี้คือภาคผนวก ก ข้อ 1 ของแม่แบบ 2570 ติ๊ก PLO ที่ตอบความต้องการแต่ละข้อ เมื่อได้ผลสำรวจแล้วให้กรอกสรุปและเปลี่ยนสถานะเป็น "มีข้อมูล"</p>
+  <div class="sum">
+   <div class="panel"><span class="muted small">ความต้องการที่มีข้อมูล</span><span class="big num">${na.L.filter(n=>n.st==="have").length}</span><span class="small muted">จาก ${na.L.length} รายการ</span></div>
+   <div class="panel"><span class="muted small">กลุ่มสำรวจที่ได้ผลแล้ว</span><span class="big num">${na.surveyHave.length}/${na.L.filter(n=>n.g==="SUR").length}</span>${na.surveyHave.length?"":pill("warn","ยังไม่มีผลสำรวจ")}</div>
+   <div class="panel"><span class="muted small">PLO ที่ไม่มีที่มา</span><span class="big num">${na.noSrc.length}</span>${na.noSrc.length?pill("fail","ต้องแก้"):pill("pass","ครบทุก PLO")}</div>
+  </div>
+  ${mindMap(na)}
+  <section class="panel"><h2>ความต้องการของผู้มีส่วนได้ส่วนเสีย × PLO</h2><div class="scroll"><table>${Object.entries(NEED_GROUPS).map(([g,gt])=>{const rows=na.L.filter(n=>n.g===g);return `<tr id="ng-${g}"><th colspan="${PLOS.length+4}" style="background:var(--soft);color:var(--ink)">${gt}</th></tr>${head}${rows.map(row).join("")}`}).join("")}</table></div>
+  ${state.needEdit==="new"?needForm({id:"new",g:"SUR",src:"",t:"",how:"",plos:[],st:"have"}):`<button data-neededit="new" style="margin-top:8px" ${dis()}>+ เพิ่มความต้องการ</button>`}</section>
+  <section class="panel"><h2>จำนวนแหล่งที่มาต่อ PLO</h2><div class="scroll"><table><tr><th>PLO</th>${Object.values(NEED_GROUPS).map(t=>`<th class="r">${t}</th>`).join("")}<th>สถานะ</th></tr>
+  ${PLOS.map(p=>{const s=na.per[p.n],c=g=>s.filter(n=>n.g===g&&n.st==="have").length;return `<tr><td><b>PLO${p.n}</b> <span class="small muted">${esc(p.t.slice(0,60))}…</span></td>${Object.keys(NEED_GROUPS).map(g=>`<td class="r num">${c(g)}</td>`).join("")}<td>${!s.length?pill("fail","ไม่มีที่มา"):c("SUR")?pill("pass","ยืนยันแล้ว"):pill("warn","รอผลสำรวจ")}</td></tr>`}).join("")}</table></div></section>
+  <section class="panel"><h2>PEO × PLO</h2><p class="lead">PEO คือสิ่งที่บัณฑิตทำได้ 3–5 ปีหลังจบ ใช้เป็นวัตถุประสงค์ของหลักสูตรในหมวด 2</p><div class="scroll"><table><tr><th>PEO</th>${PLOS.map(p=>`<th class="c">PLO${p.n}</th>`).join("")}</tr>${PEOS.map(e=>`<tr><td><b>${e.k}</b> ${esc(e.t)}</td>${PLOS.map(p=>`<td class="c">${e.plos.includes(p.n)?'<span class="dot"></span>':""}</td>`).join("")}</tr>`).join("")}</table></div></section>`;
+}
+function needForm(n){
+  return `<form class="form" id="needForm" data-id="${n.id}"><div class="fl"><label>กลุ่ม <select id="nG">${Object.entries(NEED_GROUPS).map(([k,v])=>`<option value="${k}" ${n.g===k?"selected":""}>${v}</option>`).join("")}</select></label>
+  <label>สถานะ <select id="nSt">${Object.entries(NEED_ST).map(([k,v])=>`<option value="${k}" ${n.st===k?"selected":""}>${v}</option>`).join("")}</select></label></div>
+  <label>แหล่งที่มา <input type="text" id="nSrc" value="${esc(n.src)}" style="width:100%"></label>
+  <label>ความต้องการ (สรุปผล) <textarea id="nT">${esc(n.t)}</textarea></label>
+  <label>วิธีการได้ข้อมูล <input type="text" id="nHow" value="${esc(n.how)}" style="width:100%"></label>
+  <div class="fl"><span class="small muted">ตอบด้วย</span>${PLOS.map(p=>`<label class="chk"><input type="checkbox" name="nP" value="${p.n}" ${(n.plos||[]).includes(p.n)?"checked":""}>PLO${p.n}</label>`).join("")}</div>
+  <div class="fl"><button class="primary" type="submit">บันทึก</button><button type="button" data-cancel="need">ยกเลิก</button>${n.id!=="new"?`<button type="button" data-needdel="${n.id}">ลบ</button>`:""}<span class="err" id="nErr"></span></div></form>`;
+}
+
+function viewPlo(){
+  const pc=ploTextChecks(),ya=yloAnalysis();
+  return flowBar("plo")+`<p class="lead">PLO ชุดเดียวใช้กับทั้ง 3 แขนง แต่ละ PLO แตกเป็น Sub-PLO ที่วัดได้ แล้วกำหนดว่าปีไหนต้องทำ Sub-PLO ใดได้ (YLO) ระบบตรวจคำกริยาตามแม่แบบ 2570 และตรวจว่าระดับ Bloom สูงขึ้นตามชั้นปี</p>
+  <div class="sum">
+   <div class="panel"><span class="muted small">PLO / Sub-PLO</span><span class="big num">${PLOS.length} / ${SUBS.length}</span><span class="small muted">ครบ K S E C</span></div>
+   <div class="panel"><span class="muted small">คำกริยาที่แม่แบบห้ามใช้</span><span class="big num">${pc.filter(x=>x.bad.length).length}</span>${pc.some(x=>x.bad.length)?pill("fail","ต้องแก้"):pill("pass","ไม่พบ")}</div>
+   <div class="panel"><span class="muted small">Sub-PLO ที่ไม่อยู่ใน YLO</span><span class="big num">${ya.unused.length}</span>${ya.unused.length?pill("warn",ya.unused.map(s=>s.code).join(" ")):pill("pass","ครบ")}</div>
+   <div class="panel"><span class="muted small">Bloom ตามชั้นปี</span><span class="big num">${ya.peak.join(" → ")}</span>${ya.prog?pill("pass","สูงขึ้นตามปี"):pill("warn","มีปีที่ลดลง")}</div>
+  </div>
+  ${PLOS.map(p=>{const subs=SUBS.filter(s=>s.plo===p.n),x=pc.find(q=>q.p.n===p.n);return `<section class="panel"><div class="row" style="justify-content:space-between"><h2>PLO${p.n} <span class="tag">${p.d}</span> <span class="tag">${p.b}</span></h2><span class="small muted">สภาวิศวกรข้อ ${p.coe.join(", ")} · ${p.ga}</span></div>
+   <p style="margin:0 0 8px">${esc(p.t)}</p>${x.bad.length?`<div class="err">พบคำ: ${x.bad.join(", ")}</div>`:""}
+   <div class="scroll"><table><tr><th>Sub-PLO</th><th>ด้าน</th><th>Bloom</th><th>ผลลัพธ์</th><th>อยู่ใน YLO ปี</th></tr>${subs.map(s=>`<tr><td><span class="code">${s.code}</span></td><td>${s.dom}</td><td class="small">${s.bloom}</td><td>${esc(s.t)}</td><td class="num">${YLOS.filter(y=>y.subs.includes(s.code)).map(y=>y.y).join(", ")||'<span class="pill warn">ไม่มี</span>'}</td></tr>`).join("")}</table></div></section>`}).join("")}
+  <section class="panel"><h2>ผลลัพธ์การเรียนรู้รายชั้นปี (YLO)</h2><div class="scroll"><table><tr><th>ปี</th><th>ผลลัพธ์การเรียนรู้</th><th>Sub-PLO</th><th>Bloom สูงสุด</th><th>สมรรถนะ / อาชีพ</th><th>เกณฑ์ (เสนอ)</th></tr>
+  ${YLOS.map((y,i)=>`<tr><td class="num">${y.y}</td><td>${esc(y.t)}</td><td><div class="chips">${y.subs.map(s=>`<span class="code">${s}</span>`).join("")}</div></td><td class="num">${ya.peak[i]}</td><td class="small">${esc(y.job)}</td><td class="small">${esc(y.cri)}</td></tr>`).join("")}</table></div>
+  <p class="small muted">ระดับ Bloom แปลงเป็นตัวเลข 1–6 ด้านความรู้และทักษะใช้ Remember–Create ด้านจริยธรรมและลักษณะบุคคลใช้ Receive–Characterize ของ Krathwohl</p></section>`;
+}
+
+// ---- CLO by instructor: expected mapping, alignment checks ----
+let EXPECTED={};
+function buildExpected(){
+  EXPECTED={};
+  COURSES.forEach(c=>{
+    if(CLO0[c.code]){const m={};CLO0[c.code].forEach(([t,subs,bl,lv])=>subs.forEach(s=>{const sb=subOf(s);if(!sb)return;if(!m[sb.plo]||LV_RANK[lv]>LV_RANK[m[sb.plo]])m[sb.plo]=lv}));EXPECTED[c.code]=m}
+    else EXPECTED[c.code]={...(c.plo||{})};
+  });
+}
+const VERBS=[
+ [1,["ระบุ","บอก","จำ","ทบทวน","แสดงรายการ","นิยาม"]],
+ [2,["อธิบาย","สรุป","ยกตัวอย่าง","แปลความ","บรรยาย","จำแนกประเภท"]],
+ [3,["ใช้","คำนวณ","ประยุกต์","ปฏิบัติ","ดำเนินการ","ต่อวงจร","ติดตั้ง","เขียน","แก้ปัญหา","ทดลอง","วัด","ขึ้นรูป","บันทึก","จัดทำ","สร้างแบบจำลอง"]],
+ [4,["วิเคราะห์","เปรียบเทียบ","จำแนก","หาสาเหตุ","กำหนดปัญหา","กำหนดข้อกำหนด","ตรวจหา"]],
+ [5,["ประเมิน","ตัดสินใจ","เลือก","วิพากษ์","ตรวจสอบความถูกต้อง","ปรับแบบ","ตัดสิน"]],
+ [6,["ออกแบบ","สร้าง","พัฒนา","วางแผน","ประดิษฐ์","เสนอแนวคิด","คิดค้น"]]];
+const AFFECTIVE=["Receive","Respond","Value","Organize","Characterize"];
+function verbLevel(t){
+  t=(t||"").trim();let best=null;
+  VERBS.forEach(([lv,ws])=>ws.forEach(w=>{if(t.startsWith(w)&&(!best||w.length>best.w.length))best={lv,w}}));
+  return best;
+}
+const LVN={I:"I แนะนำ",R:"R ฝึกซ้ำ",M:"M ประเมินการบรรลุ"};
+function alignIssues(code,items){
+  const out=[],add=(lv,i,msg)=>out.push({lv,i,msg});
+  const c=COURSES.find(x=>x.code===code);if(!c)return out;
+  if(!items.length){add("err",null,"ยังไม่มี CLO");return out}
+  if(items.length<3)add("warn",null,`มี CLO ${items.length} ข้อ แม่แบบแนะนำ 3–5 ข้อต่อวิชา`);
+  if(items.length>6)add("warn",null,`มี CLO ${items.length} ข้อ มากเกินไปสำหรับการประเมินในหนึ่งภาค`);
+  items.forEach((x,i)=>{
+    const t=(x.t||"").trim(),subs=(x.subs||[]).map(subOf).filter(Boolean);
+    if(t.length<12)add("err",i,"ข้อความ CLO สั้นเกินไปหรือยังไม่ได้กรอก");
+    const bad=BANNED.filter(w=>t.includes(w));if(bad.length)add("err",i,`ใช้คำที่แม่แบบห้าม: ${bad.join(", ")} ให้ขึ้นต้นด้วยคำกริยาที่วัดได้`);
+    if(!subs.length)add("err",i,"ไม่ได้โยงกับ Sub-PLO ใดเลย จึงไม่ตอบ PLO ของหลักสูตร");
+    if(x.lv==="M"&&!(x.as||"").trim())add("err",i,"ระดับ M ต้องระบุวิธีประเมินที่ใช้วัดการบรรลุ");
+    const vb=verbLevel(t);
+    if(t&&!vb)add("info",i,"ไม่พบคำกริยาที่วัดได้ต้นประโยค ตรวจว่าขึ้นต้นด้วย action verb");
+    if(vb&&!AFFECTIVE.includes(x.bloom)&&Math.abs(vb.lv-(BLOOM_RANK[x.bloom]||0))>=2)add("warn",i,`คำกริยา "${vb.w}" มักอยู่ระดับ ${BLOOM[vb.lv-1]} แต่เลือก Bloom เป็น ${x.bloom}`);
+    subs.forEach(s=>{
+      if(x.lv==="M"&&BLOOM_RANK[x.bloom]<BLOOM_RANK[s.bloom])add("warn",i,`ระดับ M แต่ Bloom (${x.bloom}) ต่ำกว่าที่ ${s.code} กำหนด (${s.bloom})`);
+      if((s.dom==="K"||s.dom==="S")&&AFFECTIVE.includes(x.bloom))add("warn",i,`${s.code} เป็นด้าน${s.dom==="K"?"ความรู้":"ทักษะ"} ควรใช้ Bloom ด้านพุทธิพิสัย ไม่ใช่ ${x.bloom}`);
+    });
+  });
+  const got={};items.forEach(x=>(x.subs||[]).forEach(s=>{const sb=subOf(s);if(!sb)return;if(!got[sb.plo]||LV_RANK[x.lv]>LV_RANK[got[sb.plo]])got[sb.plo]=x.lv}));
+  const exp=EXPECTED[code]||{};
+  PLOS.forEach(p=>{const e=exp[p.n],g=got[p.n];
+    if(e&&!g)add(e==="M"?"err":"warn",null,`หลักสูตรกำหนดให้วิชานี้รับผิดชอบ PLO${p.n} ระดับ ${LVN[e]} แต่ไม่มี CLO ที่โยงกับ PLO${p.n}`);
+    else if(e&&g&&LV_RANK[g]<LV_RANK[e])add(e==="M"?"err":"warn",null,`PLO${p.n} หลักสูตรกำหนดระดับ ${e} แต่ CLO ให้สูงสุดแค่ระดับ ${g}`);
+    else if(!e&&g)add("info",null,`CLO โยงกับ PLO${p.n} ซึ่งไม่อยู่ใน Curriculum Mapping ของวิชานี้ ต้องแจ้งกรรมการหลักสูตรเพื่อปรับ mapping`);
+  });
+  return out;
+}
+function courseStatus(code){
+  const items=clos(code);if(!items.length)return {k:"none",t:"ยังไม่มี CLO",e:0,w:0};
+  const is=alignIssues(code,items),e=is.filter(x=>x.lv==="err").length,w=is.filter(x=>x.lv==="warn").length;
+  return e?{k:"fail",t:`ไม่สอดรับ ${e}`,e,w}:w?{k:"warn",t:`เตือน ${w}`,e,w}:{k:"pass",t:"สอดรับ",e,w};
+}
+const ownerOf=code=>state.owners[code]||"";
+const facName=id=>(state.faculty.find(f=>f.id===id)||{}).name||"";
+function cloCourseGroups(){
+  const base=COURSES.filter(c=>c.g!=="FREE"&&c.g!=="GE");
+  const gs=[{k:"core",t:"รายวิชาแกน (เรียนร่วมทุกแขนง)",L:base.filter(c=>c.tr===A)}];
+  Object.entries(TRACKS).forEach(([k,v])=>gs.push({k,t:`แขนง${v}`,L:base.filter(c=>c.tr!==A&&inTrack(c,k))}));
+  return gs.map(g=>({...g,L:state.cloMine&&state.me?g.L.filter(c=>ownerOf(c.code)===state.me):g.L})).filter(g=>g.L.length);
+}
+function alertCount(){return COURSES.filter(c=>c.g!=="FREE"&&c.g!=="GE"&&hasClo(c.code)&&courseStatus(c.code).e>0).length}
+function viewClo(){
+  const F=state.faculty,gs=cloCourseGroups();
+  const all=COURSES.filter(c=>c.g!=="FREE"&&c.g!=="GE");
+  const st=all.map(c=>courseStatus(c.code));
+  const cnt=k=>st.filter(s=>s.k===k).length;
+  if(!all.some(c=>c.code===state.cloCourse))state.cloCourse=all[0].code;
+  const c=COURSES.find(x=>x.code===state.cloCourse);
+  const items=state.cloDraft&&state.cloDraft.code===state.cloCourse?state.cloDraft.items:clos(state.cloCourse);
+  const issues=alignIssues(state.cloCourse,items);
+  const pillOf=s=>s.k==="none"?`<span class="pill" style="background:var(--soft);color:var(--muted)">${s.t}</span>`:pill(s.k,s.t);
+  const ownerSel=code=>`<select data-owner="${esc(code)}" aria-label="ผู้รับผิดชอบ ${esc(code)}" ${dis()}><option value="">— ยังไม่กำหนด —</option>${F.map(f=>`<option value="${f.id}" ${ownerOf(code)===f.id?"selected":""}>${esc(f.name)}</option>`).join("")}</select>`;
+  const expTxt=code=>{const e=EXPECTED[code]||{};return PLOS.filter(p=>e[p.n]).map(p=>`<span class="tag">PLO${p.n} ${e[p.n]}</span>`).join("")||'<span class="muted small">—</span>'};
+  const list=`<section class="panel"><div class="row" style="justify-content:space-between"><h2>รายวิชาของหลักสูตรและผู้รับผิดชอบ</h2>
+    <span class="row" style="gap:8px"><label class="ctl">ท่านคือ <select id="meSel" aria-label="เลือกชื่อผู้สอน" ${state.user&&!state.isAdmin?"disabled":""}><option value="">— เลือกชื่อ —</option>${F.map(f=>`<option value="${f.id}" ${state.me===f.id?"selected":""}>${esc(f.name)}</option>`).join("")}</select></label>
+    <label class="ctl"><input type="checkbox" id="mineOnly" ${state.cloMine?"checked":""} ${state.me?"":"disabled"}> เฉพาะวิชาของฉัน</label>
+    <button id="ownFromLoad" ${dis()}>ดึงผู้รับผิดชอบจากภาระสอน</button></span></div>
+    <p class="lead">กรรมการกำหนดผู้รับผิดชอบรายวิชา แล้วผู้สอนเลือกชื่อตัวเองเพื่อดูเฉพาะวิชาของตน คอลัมน์ "หลักสูตรกำหนด" คือ PLO และระดับที่วิชานี้ต้องรับผิดชอบตาม Curriculum Mapping ระบบเทียบ CLO ที่กรอกกับค่านี้</p>
+    <div class="scroll"><table>${gs.map(g=>`<tr><th colspan="6" style="background:var(--soft);color:var(--ink)">${g.t} · ${g.L.length} วิชา</th></tr><tr><th>รหัส</th><th>รายวิชา</th><th>หลักสูตรกำหนด</th><th>ผู้รับผิดชอบ</th><th>สถานะ CLO</th><th></th></tr>${g.L.map(x=>{const s=courseStatus(x.code);return `<tr${x.code===state.cloCourse?' style="background:var(--accent-soft)"':""}><td class="mono">${esc(x.code)}</td><td>${esc(x.th)}<div class="small muted">${TERM_TH[x.term]||""} · ${x.cr} นก.${x.dept==="EXT"?" · สอนโดยหน่วยงานอื่น":""}</div></td><td><div class="chips">${expTxt(x.code)}</div></td><td>${ownerSel(x.code)}</td><td>${pillOf(s)}</td><td><button class="sm${x.code===state.cloCourse?" primary":""}" data-opencourse="${esc(x.code)}">กรอก CLO</button></td></tr>`}).join("")}`).join("")}</table></div></section>`;
+  const subChips=(sel,i)=>`<div class="chips">${PLOS.map(p=>`<span class="small muted" style="margin-left:4px">PLO${p.n}</span>${SUBS.filter(s=>s.plo===p.n).map(s=>`<label class="chk" title="${esc(s.t)}"><input type="checkbox" name="cs${i}" value="${s.code}" ${sel.includes(s.code)?"checked":""} ${cdis}>${s.code}</label>`).join("")}`).join("")}</div>`;
+  const ico={err:"fail",warn:"warn",info:""};
+  const issueList=arr=>arr.map(x=>`<div class="small" style="margin:2px 0">${x.lv==="info"?'<span class="pill" style="background:var(--soft);color:var(--muted)">ข้อสังเกต</span>':pill(ico[x.lv],x.lv==="err"?"ไม่สอดรับ":"เตือน")} ${esc(x.msg)}</div>`).join("");
+  const courseIssues=issues.filter(x=>x.i===null);
+  const owner=ownerOf(c.code);
+  const canEd=state.isAdmin||(state.me&&owner===state.me);const cdis=canEd?"":"disabled";
+  const editor=`<section class="panel" id="cloEditor"><div class="row" style="justify-content:space-between"><h2><span class="mono">${esc(c.code)}</span> ${esc(c.th)}</h2><span class="small muted">${TERM_TH[c.term]||""} · ${c.cr}(${c.t}-${c.p}-${c.s}) · ${GROUPS[c.g]} · ผู้รับผิดชอบ: ${esc(facName(owner))||"ยังไม่กำหนด"}</span></div>
+   <div class="row small" style="margin-bottom:8px"><span class="muted">หลักสูตรกำหนดให้วิชานี้รับผิดชอบ</span><span class="chips">${expTxt(c.code)}</span></div>
+   ${!canEd?`<div class="note">วิชานี้มอบหมายให้ ${esc(facName(owner))||"ผู้สอนที่ยังไม่กำหนด"} ท่านดูได้อย่างเดียว ผู้รับผิดชอบรายวิชาหรือกรรมการหลักสูตรเป็นผู้แก้ไข</div>`:state.me&&owner&&state.me!==owner?`<div class="note">วิชานี้มอบหมายให้ ${esc(facName(owner))} ท่านแก้ไขได้ในฐานะกรรมการหลักสูตร</div>`:""}
+   ${!state.cloOv[c.code]&&CLO0[c.code]?'<div class="note">CLO ชุดนี้เป็นร่างตั้งต้น ผู้สอนแก้ไขแล้วกดบันทึกเพื่อยืนยัน</div>':""}
+   ${courseIssues.length?`<div style="margin-bottom:8px">${issueList(courseIssues)}</div>`:items.length?`<div style="margin-bottom:8px">${pill("pass","CLO ทั้งวิชาสอดรับกับ PLO ที่หลักสูตรกำหนด")}</div>`:""}
+   <form id="cloForm">${items.map((x,i)=>{const own=issues.filter(y=>y.i===i);return `<div class="clo-row" data-i="${i}" style="${own.some(y=>y.lv==="err")?"border-left:3px solid var(--fail);padding-left:8px":own.some(y=>y.lv==="warn")?"border-left:3px solid var(--warn);padding-left:8px":""}"><div class="fl row" style="gap:8px"><b class="mono">CLO${i+1}</b>
+     <label class="ctl">Bloom <select name="bl" ${cdis}>${BLOOM.map(b=>`<option ${x.bloom===b?"selected":""}>${b}</option>`).join("")}</select></label>
+     <label class="ctl">ระดับ <select name="lv" ${cdis}>${["I","R","M"].map(l=>`<option ${x.lv===l?"selected":""}>${l}</option>`).join("")}</select></label>
+     <label class="ctl">วิธีประเมิน <input type="text" name="as" value="${esc(x.as)}" ${cdis}></label>
+     <button type="button" class="sm" data-clodel="${i}" ${cdis}>ลบ</button></div>
+     <textarea name="t" aria-label="ข้อความ CLO${i+1}" placeholder="ขึ้นต้นด้วยคำกริยาที่วัดได้ เช่น วิเคราะห์ คำนวณ ออกแบบ" ${cdis}>${esc(x.t)}</textarea>${subChips(x.subs||[],i)}${own.length?`<div>${issueList(own)}</div>`:""}</div>`}).join("")}
+   <div class="row" style="margin-top:8px"><button type="button" id="cloAdd" ${cdis}>+ เพิ่ม CLO</button><button type="button" id="cloCheck">ตรวจความสอดรับ</button><button class="primary" type="submit" ${cdis}>บันทึก CLO</button>${state.cloOv[c.code]&&CLO0[c.code]?`<button type="button" id="cloReset" ${cdis}>กลับไปใช้ร่างตั้งต้น</button>`:""}<span class="err" id="cloErr"></span></div></form>
+   <p class="small muted">ระบบตรวจทันทีเมื่อเปลี่ยนตัวเลือก และเมื่อพิมพ์ข้อความเสร็จแล้วคลิกออกจากช่อง บันทึกได้แม้ยังมีคำเตือน แต่สถานะจะแจ้งกรรมการหลักสูตร</p></section>`;
+  const alerts=all.map(x=>({x,s:courseStatus(x.code)})).filter(o=>o.s.e>0);
+  return flowBar("clo")+`<p class="lead">ผู้สอนกรอก CLO ของวิชาที่รับผิดชอบ ระบบเทียบกับ PLO และระดับที่หลักสูตรกำหนด แล้วแจ้งเตือนทันทีถ้าไม่สอดรับ</p>
+  <div class="sum">
+   <div class="panel"><span class="muted small">สอดรับกับ PLO</span><span class="big num">${cnt("pass")}</span><span class="small muted">จาก ${all.length} วิชา</span></div>
+   <div class="panel"><span class="muted small">ไม่สอดรับ</span><span class="big num">${cnt("fail")}</span>${cnt("fail")?pill("fail","ต้องแก้"):pill("pass","ไม่มี")}</div>
+   <div class="panel"><span class="muted small">มีคำเตือน</span><span class="big num">${cnt("warn")}</span></div>
+   <div class="panel"><span class="muted small">ยังไม่มี CLO</span><span class="big num">${cnt("none")}</span><span class="small muted">ยังไม่กำหนดผู้รับผิดชอบ ${all.filter(x=>!ownerOf(x.code)).length} วิชา</span></div>
+  </div>
+  ${alerts.length?`<section class="panel" style="border-color:var(--fail)"><h2>แจ้งเตือนถึงกรรมการหลักสูตร · ${alerts.length} วิชาไม่สอดรับ</h2>${alerts.map(o=>`<div class="row small" style="gap:8px;margin:4px 0"><span class="mono">${esc(o.x.code)}</span><span>${esc(o.x.th)}</span><span class="muted">${esc(facName(ownerOf(o.x.code)))||"ยังไม่กำหนดผู้รับผิดชอบ"}</span>${pill("fail",o.s.t)}<button class="sm" data-opencourse="${esc(o.x.code)}">เปิดดู</button></div>`).join("")}</section>`:""}
+  ${editor}${list}`;
+}
+function viewMap(){
+  const ca=cloAnalysis(state.track);
+  const seqRow=x=>`<tr><td><b>PLO${x.p.n}</b></td><td class="small">${x.fI!==null?TERM_TH[TERMS[x.fI]]:"—"}</td><td class="small">${x.fR!==null?TERM_TH[TERMS[x.fR]]:"—"}</td><td class="small">${x.fM!==null?TERM_TH[TERMS[x.fM]]:"—"}</td><td class="r num">${x.n}</td><td>${x.fM===null?pill("fail","ไม่มี M"):x.ok?pill("pass"):pill("warn","M มาก่อน I/R")}</td></tr>`;
+  return flowBar("map")+`<p class="lead">ตาราง Curriculum Mapping สร้างจาก CLO ใน ก3 โดยอัตโนมัติ วิชาที่ยังไม่มี CLO แสดงระดับตั้งต้นแบบกรอบเส้นประ</p>
+  <div class="row" style="margin-bottom:12px">${trackSeg()}</div>
+  <div class="sum">
+   <div class="panel"><span class="muted small">วิชาที่สาขาสอนมี CLO</span><span class="big num">${ca.me.filter(c=>hasClo(c.code)).length}/${ca.me.length}</span><span class="small muted">ในแขนง${TRACKS[state.track]}</span></div>
+   <div class="panel"><span class="muted small">Sub-PLO ที่ยังไม่มี CLO</span><span class="big num">${ca.uncovered.length}</span><span class="chips">${ca.uncovered.map(s=>`<span class="code">${s.code}</span>`).join("")||pill("pass","ครบ")}</span></div>
+  </div>
+  <section class="panel"><h2>ลำดับการพัฒนา PLO · แขนง${TRACKS[state.track]}</h2><div class="scroll"><table><tr><th>PLO</th><th>I ครั้งแรก</th><th>R ครั้งแรก</th><th>M ครั้งแรก</th><th class="r">จำนวนวิชา</th><th>สถานะ</th></tr>${ca.seq.map(seqRow).join("")}</table></div>
+  ${ca.wide.length?`<p class="small" style="color:var(--warn)">วิชาที่โยงมากกว่า 4 PLO อาจประเมินได้ไม่ลึก: ${ca.wide.map(c=>c.code).join(", ")}</p>`:""}</section>
+  ${mappingGrouped()}
+  <section class="panel"><h2>Sub-PLO × รายวิชาที่รองรับ</h2><div class="scroll"><table><tr><th>Sub-PLO</th><th>ผลลัพธ์</th><th>รายวิชา (ระดับ)</th></tr>${SUBS.map(s=>`<tr><td><span class="code">${s.code}</span></td><td class="small">${esc(s.t)}</td><td>${ca.subCov[s.code].length?ca.subCov[s.code].map(x=>`<span class="tag">${esc(x.c.code)} ${x.lv}</span>`).join(""):pill("warn","ยังไม่มี CLO")}</td></tr>`).join("")}</table></div></section>`;
+}
+// ---- ข1 โครงสร้างหลักสูตรและอาจารย์ ----
+const DEG={D:"ปริญญาเอก",M:"ปริญญาโท",B:"ปริญญาตรี"};
+const POS={L:"อาจารย์",AP:"ผู้ช่วยศาสตราจารย์",AsP:"รองศาสตราจารย์",P:"ศาสตราจารย์"};
+const QUAL0={f01:{deg:"D",pos:"AsP"},f02:{deg:"M",pos:"AP"},f03:{deg:"M",pos:"AP"},f04:{deg:"D",pos:"L"},f05:{deg:"M",pos:"L"},f06:{deg:"M",pos:"AP"},f07:{deg:"B",pos:"L"},f08:{deg:"M",pos:"L"},f09:{deg:"M",pos:"L"},f10:{deg:"M",pos:"L"},f11:{deg:"M",pos:"L"},f12:{deg:"D",pos:"L"}};
+const qualOf=id=>({...(QUAL0[id]||{deg:"",pos:""}),...((state.team.qual||{})[id]||{})});
+const roleOf=id=>(state.team.role||{})[id]||"";
+function teamAnalysis(){
+  const F=state.faculty;const per={};Object.keys(TRACKS).forEach(t=>per[t]=F.filter(f=>roleOf(f.id)===t));
+  const lowDeg=F.filter(f=>roleOf(f.id)&&qualOf(f.id).deg==="B");
+  const noQual=F.filter(f=>roleOf(f.id)&&!qualOf(f.id).deg);
+  const regular=F.filter(f=>!roleOf(f.id));
+  return {per,lowDeg,noQual,regular,short:Object.keys(TRACKS).filter(t=>per[t].length<3)};
+}
+async function saveTeam(t){state.team=t;render();await dbWrite(db=>db.doc("program/team").set({...t,updatedAt:new Date().toISOString()}),"อาจารย์ผู้รับผิดชอบหลักสูตร")}
+function viewStruct(){
+  const F=state.faculty,ta=teamAnalysis();
+  const roleSel=f=>`<select data-role="${f.id}" aria-label="บทบาท ${esc(f.name)}" ${dis()}><option value="">อาจารย์ประจำหลักสูตร</option>${Object.entries(TRACKS).map(([k,v])=>`<option value="${k}" ${roleOf(f.id)===k?"selected":""}>ผู้รับผิดชอบหลักสูตร · แขนง${v}</option>`).join("")}</select>`;
+  const degSel=f=>{const q=qualOf(f.id);return `<select data-qdeg="${f.id}" aria-label="คุณวุฒิ ${esc(f.name)}" ${dis()}><option value="">—</option>${Object.entries(DEG).map(([k,v])=>`<option value="${k}" ${q.deg===k?"selected":""}>${v}</option>`).join("")}</select>`};
+  const posSel=f=>{const q=qualOf(f.id);return `<select data-qpos="${f.id}" aria-label="ตำแหน่ง ${esc(f.name)}" ${dis()}><option value="">—</option>${Object.entries(POS).map(([k,v])=>`<option value="${k}" ${q.pos===k?"selected":""}>${v}</option>`).join("")}</select>`};
+  const card=t=>{const L=ta.per[t],ok=L.length>=3;return `<div class="panel" style="margin:0"><span class="muted small">แขนง${TRACKS[t]}</span><span class="big num">${L.length} คน</span>${ok?pill("pass","ครบ 3 คน"):pill("fail",`ขาดอีก ${3-L.length} คน`)}<div style="margin-top:6px">${L.map(f=>`<div class="small">${esc(f.name)} <span class="muted">· ${DEG[qualOf(f.id).deg]||"ยังไม่ระบุคุณวุฒิ"}</span></div>`).join("")||'<span class="small muted">ยังไม่ได้เลือก</span>'}</div></div>`};
+  const sp=["MS","EB","CORE","EXP"];
+  const rows=[["GE","หมวดวิชาศึกษาทั่วไป",c=>c.g==="GE"],["SP","หมวดวิชาเฉพาะ",c=>sp.includes(c.g)||c.g==="TR"||c.g==="TE"],["MS","  พื้นฐานวิชาชีพ: คณิตศาสตร์และวิทยาศาสตร์",c=>c.g==="MS"],["EB","  พื้นฐานวิชาชีพ: พื้นฐานทางวิศวกรรม",c=>c.g==="EB"],["CORE","  วิชาชีพบังคับ (แกนร่วม)",c=>c.g==="CORE"],["TR","  วิชาบังคับแขนง",c=>c.g==="TR"],["TE","  วิชาเลือกแขนง",c=>c.g==="TE"],["EXP","  กลุ่มวิชาเสริมสร้างประสบการณ์",c=>c.g==="EXP"],["FREE","หมวดวิชาเลือกเสรี",c=>c.g==="FREE"]];
+  const struct=`<div class="scroll"><table><tr><th>หมวด / กลุ่มวิชา</th>${Object.values(TRACKS).map(v=>`<th class="r">แขนง${v}</th>`).join("")}</tr>${rows.map(([k,t,f])=>`<tr${k==="GE"||k==="SP"||k==="FREE"?' style="font-weight:600"':""}><td>${t.startsWith("  ")?'<span style="padding-left:16px">'+esc(t.trim())+"</span>":esc(t)}</td>${Object.keys(TRACKS).map(tr=>`<td class="r num">${sumCr(trackCourses(tr),f)}</td>`).join("")}</tr>`).join("")}<tr style="font-weight:700"><td>รวมตลอดหลักสูตร</td>${Object.keys(TRACKS).map(tr=>`<td class="r num">${sumCr(trackCourses(tr))}</td>`).join("")}</tr></table></div>`;
+  return `<p class="lead">เลือกอาจารย์ผู้รับผิดชอบหลักสูตรของแต่ละแขนง แขนงละอย่างน้อย 3 คน อาจารย์ที่ไม่ได้เลือกเป็นอาจารย์ประจำหลักสูตรโดยอัตโนมัติ หนึ่งคนรับผิดชอบได้แขนงเดียว</p>
+  <div class="sum">${Object.keys(TRACKS).map(card).join("")}</div>
+  ${ta.lowDeg.length?`<div class="note" style="color:var(--fail)">ผู้รับผิดชอบหลักสูตรต้องมีคุณวุฒิขั้นต่ำปริญญาโท: ${ta.lowDeg.map(f=>esc(f.name)).join(", ")}</div>`:""}
+  ${ta.noQual.length?`<div class="note">ยังไม่ระบุคุณวุฒิ: ${ta.noQual.map(f=>esc(f.name)).join(", ")}</div>`:""}
+  <section class="panel"><h2>อาจารย์ของหลักสูตร · ${F.length} คน</h2>
+  ${F.length?`<div class="scroll"><table><tr><th>อาจารย์</th><th>บทบาทในหลักสูตร</th><th>คุณวุฒิสูงสุด</th><th>ตำแหน่งทางวิชาการ</th></tr>${F.map(f=>`<tr${roleOf(f.id)?' style="background:var(--accent-soft)"':""}><td>${esc(f.name)}${f.email?`<div class="small muted">${esc(f.email)}</div>`:""}</td><td>${roleSel(f)}</td><td>${degSel(f)}</td><td>${posSel(f)}</td></tr>`).join("")}</table></div>`:`<div class="empty">ยังไม่มีรายชื่ออาจารย์ เพิ่มได้ในแท็บ ข2 ภาระสอน</div>`}
+  <p class="small muted">คุณวุฒิตั้งต้นมาจากเล่มหลักสูตร 2566 ตรวจและแก้ให้เป็นปัจจุบัน ตามเกณฑ์มาตรฐาน 2565 ผู้รับผิดชอบหลักสูตรต้องมีผลงานทางวิชาการตามเกณฑ์ด้วย ซึ่งระบบยังไม่ได้ตรวจ</p></section>
+  <section class="panel"><h2>อาจารย์ประจำหลักสูตร · ${ta.regular.length} คน</h2><div class="chips">${ta.regular.map(f=>`<span class="tag" style="font-size:13px;padding:2px 8px">${esc(f.name)}</span>`).join("")||'<span class="muted small">ไม่มี</span>'}</div></section>
+  <section class="panel"><h2>โครงสร้างหลักสูตร (หน่วยกิต)</h2>${struct}<p class="small muted">รายละเอียดรายวิชาและแผนการเรียนอยู่ใน ออกแบบหลักสูตร → ก5</p></section>`;
+}
+
+function mapGroups(){
+  const sp=["MS","EB","CORE","EXP"];
+  const core=COURSES.filter(c=>c.tr===A&&sp.includes(c.g));
+  const gs=[{k:"core",t:"รายวิชาแกน (เรียนร่วมทุกแขนง)",L:core}];
+  Object.entries(TRACKS).forEach(([k,v])=>{
+    gs.push({k:k+"-TR",t:`แขนง${v} · บังคับแขนง`,L:COURSES.filter(c=>c.g==="TR"&&inTrack(c,k)&&c.tr!==A)});
+    gs.push({k:k+"-TE",t:`แขนง${v} · เลือกแขนง`,L:COURSES.filter(c=>c.g==="TE"&&inTrack(c,k)&&c.tr!==A)});
+  });
+  return gs.filter(g=>g.L.length);
+}
+function mappingGrouped(){
+  const head=`<tr><th>ภาค</th><th>รหัส</th><th>รายวิชา</th><th>นก.</th>${PLOS.map(p=>`<th class="c">PLO${p.n}</th>`).join("")}<th>ที่มา</th></tr>`;
+  const row=c=>{const r=ploOf(c);return `<tr><td class="small muted">${TERM_TH[c.term]||""}</td><td class="mono">${esc(c.code)}</td><td>${esc(c.th)}</td><td class="num">${c.cr}</td>${PLOS.map(p=>`<td class="c">${lvSpan(r.map[p.n],r.src==="default")}</td>`).join("")}<td class="small">${r.src==="clo"?`CLO ${clos(c.code).length} ข้อ`:'<span class="muted">ตั้งต้น</span>'}</td></tr>`};
+  const foot=L=>`<tr><td colspan="4" class="small muted r">วิชาที่ประเมินระดับ M</td>${PLOS.map(p=>{const n=L.filter(c=>ploOf(c).map[p.n]==="M").length;return `<td class="c num small">${n||"–"}</td>`}).join("")}<td></td></tr>`;
+  return `<section class="panel"><h2>Curriculum Mapping · PLO × รายวิชา แยกแกนร่วมและแขนง</h2><p class="lead">หมวดวิชาเฉพาะทั้งหมด (พื้นฐานวิชาชีพ วิชาชีพบังคับ เสริมประสบการณ์ และวิชาของแต่ละแขนง) ไม่รวมศึกษาทั่วไปและเลือกเสรี วิชาเลือกแขนงแสดงเฉพาะวิชาที่เสนอไว้</p><div class="scroll"><table>${mapGroups().map(g=>`<tr><th colspan="${PLOS.length+5}" style="background:var(--soft);color:var(--ink)">${g.t} · ${g.L.length} วิชา ${sumCr(g.L)} นก.</th></tr>${head}${g.L.map(row).join("")}${foot(g.L)}`).join("")}</table></div></section>`;
+}
+function readCloForm(){
+  const f=document.getElementById("cloForm");if(!f)return null;
+  return [...f.querySelectorAll(".clo-row")].map(r=>{const i=r.dataset.i;return {t:r.querySelector("[name=t]").value.trim(),bloom:r.querySelector("[name=bl]").value,lv:r.querySelector("[name=lv]").value,as:r.querySelector("[name=as]").value.trim(),subs:[...r.querySelectorAll(`input[name=cs${i}]:checked`)].map(x=>x.value)}});
+}
+
+function viewPlan(){
+  const L=trackCourses(state.track);
+  const byG=Object.keys(GROUPS).map(g=>[g,sumCr(L,c=>c.g===g)]);
+  const lv=c=>{const r=ploOf(c);return PLOS.map(p=>`<td class="c">${lvSpan(r.map[p.n],r.src==="default")}</td>`).join("")};
+  const ed=state.courseEdit;
+  return flowBar("plan")+`<p class="lead">โครงสร้างหน่วยกิตและแผนการเรียนรายภาค แก้ไขรายวิชาได้ที่ปุ่มแก้ไขของแต่ละแถว ระดับ PLO มาจาก CLO ใน ก3</p>
+  <div class="row" style="margin-bottom:12px">${trackSeg()}<span class="muted small">รวม ${sumCr(L)} หน่วยกิต</span><button id="courseAdd" ${dis()}>+ เพิ่มรายวิชา</button></div>
+  ${ed==="new"?`<section class="panel">${courseForm({code:"",th:"",cr:3,t:3,p:0,s:6,g:"TE",tr:[state.track],term:"Y3S1",dept:"ME",dom:""},true)}</section>`:""}
+  <section class="panel"><h2>โครงสร้างหน่วยกิต</h2><div class="scroll"><table><tr>${byG.map(([g])=>`<th>${GROUPS[g]}</th>`).join("")}<th>รวม</th></tr><tr>${byG.map(([,v])=>`<td class="num">${v}</td>`).join("")}<td class="num"><b>${sumCr(L)}</b></td></tr></table></div></section>
+  ${TERMS.map(k=>{const rows=L.filter(c=>c.term===k);if(!rows.length)return"";return `<section class="panel"><h2>${TERM_TH[k]} <span class="muted small num">· ${sumCr(rows)} หน่วยกิต</span></h2>
+  <div class="scroll"><table><tr><th>รหัส</th><th>รายวิชา</th><th>นก. (ท-ป-ศ)</th><th>กลุ่ม</th>${PLOS.map(p=>`<th class="c">PLO${p.n}</th>`).join("")}<th></th></tr>
+  ${rows.map(c=>ed===c.code?`<tr><td colspan="${PLOS.length+5}">${courseForm(c,false)}</td></tr>`:`<tr><td class="mono">${esc(c.code)}</td><td>${esc(c.th)}${c.fl.proposed?' <span class="tag">ร่างใหม่</span>':""}${c.fl.added?' <span class="tag">เพิ่มบนเว็บ</span>':""}${c.fl.edited?' <span class="tag">แก้ไขแล้ว</span>':""}${c.dept==="EXT"?' <span class="tag">สอนโดยหน่วยงานอื่น</span>':""}</td><td class="mono">${c.cr}(${c.t}-${c.p}-${c.s})</td><td class="small muted">${GROUPS[c.g]}</td>${lv(c)}<td><button class="sm" data-courseedit="${esc(c.code)}" ${dis()}>แก้ไข</button></td></tr>`).join("")}</table></div></section>`}).join("")}
+  <div class="note">กรอบเส้นประ = ระดับตั้งต้นของวิชาที่ยังไม่มี CLO · วิชาเลือกแขนงแสดงเฉพาะวิชาที่สมมติว่าเปิดในแต่ละปี</div>`;
+}
+function courseForm(c,isNew){
+  const tr=c.tr===A?["ALL"]:c.tr;
+  return `<form class="form" id="courseForm" data-code="${esc(c.code)}" data-new="${isNew?1:0}">
+  <div class="fl"><label>รหัส <input type="text" id="cfCode" value="${esc(c.code)}" ${isNew?"":"readonly"} style="width:120px"></label><label style="flex:1">ชื่อวิชา <input type="text" id="cfTh" value="${esc(c.th)}" style="width:100%"></label></div>
+  <div class="fl"><label>หน่วยกิต <input type="number" id="cfCr" min="0" max="12" value="${c.cr}"></label><label>ท <input type="number" id="cfT" min="0" max="40" value="${c.t}"></label><label>ป <input type="number" id="cfP" min="0" max="40" value="${c.p}"></label><label>ศ <input type="number" id="cfS" min="0" max="40" value="${c.s}"></label>
+  <label>ภาค <select id="cfTerm">${TERMS.map(k=>`<option value="${k}" ${c.term===k?"selected":""}>${TERM_TH[k]}</option>`).join("")}</select></label>
+  <label>กลุ่ม <select id="cfG">${Object.entries(GROUPS).map(([k,v])=>`<option value="${k}" ${c.g===k?"selected":""}>${v}</option>`).join("")}</select></label>
+  <label>ผู้สอน <select id="cfDept"><option value="ME" ${c.dept==="ME"?"selected":""}>สาขาเครื่องกล</option><option value="EXT" ${c.dept==="EXT"?"selected":""}>หน่วยงานอื่น</option></select></label>
+  <label>ด้าน <select id="cfDom"><option value="">—</option>${Object.entries(EXPERTISE).map(([k,v])=>`<option value="${k}" ${c.dom===k?"selected":""}>${v}</option>`).join("")}</select></label></div>
+  <div class="fl"><span class="small muted">แขนง</span><label class="chk"><input type="checkbox" name="cfTr" value="ALL" ${tr.includes("ALL")?"checked":""}>ทุกแขนง</label>${Object.entries(TRACKS).map(([k,v])=>`<label class="chk"><input type="checkbox" name="cfTr" value="${k}" ${tr.includes(k)?"checked":""}>${v}</label>`).join("")}</div>
+  <div class="fl"><button class="primary" type="submit">บันทึก</button><button type="button" data-cancel="course">ยกเลิก</button>${isNew?"":`<button type="button" id="courseDel">ลบออกจากหลักสูตร</button>`}${state.courseOv[c.code]&&BASE.some(b=>b.code===c.code)?`<button type="button" id="courseRevert">กลับไปใช้ค่าเดิม</button>`:""}<span class="err" id="cfErr"></span></div></form>`;
+}
+
+function viewCheck(){
+  const ev=evaluate(state.track);
+  const all=["ME","EV","CE"].map(t=>{const e=evaluate(t);const f=e.out.flatMap(x=>x[1]);return [t,f.filter(x=>x.s==="fail").length,f.filter(x=>x.s==="warn").length,f.length]});
+  return flowBar("check")+`<p class="lead">ตรวจรวมจากข้อมูลใน ก1–ก5 ข้อที่ต้องใช้วิจารณญาณ เช่น คุณภาพ rubric แสดงเป็น "ต้องตรวจ" ให้กรรมการหลักสูตรยืนยัน</p>
+  <div class="sum">${all.map(([t,f,w,n])=>`<div class="panel"><span class="muted small">แขนง${TRACKS[t]}</span><span class="big num">${n-f-w}/${n}</span><span>${f?pill("fail",f+" ไม่ผ่าน"):""} ${w?pill("warn",w+" ต้องตรวจ"):""} ${!f&&!w?pill("pass","ผ่านทุกข้อ"):""}</span></div>`).join("")}</div>
+  <div class="row" style="margin-bottom:12px">${trackSeg()}<label class="ctl"><input type="checkbox" id="cmp" ${state.countComputing?"checked":""}> นับวิชาการโปรแกรมเป็นคณิตศาสตร์ (WK2)</label></div>
+  <div class="checks">${ev.out.map(([name,rows])=>`<section class="panel"><h2>${name}</h2>${rows.map(r=>`<div class="check">${pill(r.s)}<span class="t">${esc(r.t)}</span>${r.d?`<span class="d">${esc(r.d)}</span>`:""}</div>`).join("")}</section>`).join("")}</div>`;
+}
+
+// ---- views: manage ----
+function units(sem){
+  const res=[];
+  COURSES.filter(c=>SEM[sem].includes(c.term)&&c.dept==="ME"&&!c.fl.coop).forEach(c=>{
+    const n=c.tr===A?state.intake.ME+state.intake.EV+state.intake.CE:c.tr.reduce((a,t)=>a+(state.intake[t]||0),0);
+    if(n<=0)return;const year=+c.term[1];
+    if(c.t>0){const ls=Math.max(1,Math.ceil(n/60));for(let i=1;i<=ls;i++)res.push({key:`${c.code}|L${i}`,c,part:"L",sec:i,secs:ls,hrs:+c.t,n:Math.ceil(n/ls),year});}
+    if(c.p>0){const ps=Math.max(1,Math.ceil(n/20));for(let i=1;i<=ps;i++)res.push({key:`${c.code}|P${i}`,c,part:"P",sec:i,secs:ps,hrs:+c.p,n:Math.ceil(n/ps),year});}
+  });
+  return res;
+}
+function loads(sem){
+  const U=units(sem),m={};state.faculty.forEach(f=>m[f.id]={h:0,n:0,codes:new Set()});
+  let un=0;U.forEach(u=>{const f=state.assign[sem][u.key];if(f&&m[f]){m[f].h+=u.hrs;m[f].codes.add(u.c.code)}else un+=u.hrs});
+  Object.values(m).forEach(x=>x.n=x.codes.size);
+  return {U,m,un,total:U.reduce((a,u)=>a+u.hrs,0)};
+}
+function autoAssign(sem,all){
+  const U=units(sem).sort((a,b)=>b.hrs-a.hrs), A2=all?{}:{...state.assign[sem]};
+  const ids=new Set(state.faculty.map(f=>f.id));Object.keys(A2).forEach(k=>{if(!ids.has(A2[k]))delete A2[k]});
+  const load={};state.faculty.forEach(f=>load[f.id]=0);
+  U.forEach(u=>{if(A2[u.key])load[A2[u.key]]+=u.hrs});
+  const owner={};U.forEach(u=>{if(A2[u.key])owner[u.c.code]=A2[u.key]});
+  U.forEach(u=>{if(A2[u.key])return;let best=null,score=Infinity;
+    state.faculty.forEach(f=>{let s=load[f.id];if(u.c.dom&&(f.tags||[]).includes(u.c.dom))s-=1.5;if(owner[u.c.code]===f.id)s-=3;if(s<score){score=s;best=f.id}});
+    if(best){A2[u.key]=best;load[best]+=u.hrs;owner[u.c.code]=owner[u.c.code]||best}});
+  return A2;
+}
+async function dbWrite(fn,label){
+  if(!state.db){state.msg="บันทึกไว้ในหน้านี้เท่านั้น ฐานข้อมูลไม่พร้อม";render();return true}
+  try{await fn(state.db);return true}catch(e){state.msg=e&&e.code==="invalid_argument"?`บัญชีนี้ไม่มีสิทธิ์แก้ไข${label}`:`บันทึก${label}ไม่สำเร็จ ลองอีกครั้ง`;if(e&&e.code==="invalid_argument")state.canWrite=false;render();return false}
+}
+async function saveAssign(sem,obj){state.assign[sem]=obj;render();await dbWrite(db=>db.doc("assign/"+sem).set({map:obj,updatedAt:new Date().toISOString()}),"ภาระสอน")}
+function semSeg(){return `<div class="seg" role="group" aria-label="เลือกภาคการศึกษา">${Object.entries(SEM_TH).map(([k,v])=>`<button data-sem="${k}" aria-pressed="${state.sem===k}">${v}</button>`).join("")}</div>`}
+function intakeCtl(){return `<span class="row" style="gap:8px">${Object.keys(TRACKS).map(t=>`<label class="ctl">${t} <input type="number" min="0" max="200" data-intake="${t}" value="${state.intake[t]}"></label>`).join("")}<span class="muted small">นักศึกษาต่อปีแยกแขนง</span></span>`}
+function viewLoad(){
+  const sem=state.sem,{U,m,un,total}=loads(sem);
+  const F=state.faculty, avg=F.length?total/F.length:0, max=Math.max(avg*1.6,...Object.values(m).map(x=>x.h),1);
+  const opts=k=>`<option value="">— ยังไม่จัด —</option>`+F.map(f=>`<option value="${f.id}" ${state.assign[sem][k]===f.id?"selected":""}>${esc(f.name)}</option>`).join("");
+  const facRows=F.map(f=>{const x=m[f.id]||{h:0,n:0};const over=avg&&x.h>avg*1.25;return `<tr><td>${esc(f.name)}${f.email?`<div class="small muted">${esc(f.email)}</div>`:""}<div>${(f.tags||[]).map(t=>`<span class="tag">${EXPERTISE[t]}</span>`).join("")}</div></td><td class="r num">${x.h}</td><td class="r num">${x.n}</td><td style="width:40%"><div class="bar" title="เส้นแนวตั้ง = ค่าเฉลี่ย"><i class="${over?"over":""}" style="width:${x.h/max*100}%"></i><b style="left:${avg/max*100}%"></b></div></td><td><button class="sm" data-edit="${f.id}" ${dis()}>แก้ไข</button></td></tr>`}).join("");
+  const byCourse={};U.forEach(u=>(byCourse[u.c.code]=byCourse[u.c.code]||[]).push(u));
+  return `<div class="row" style="margin-bottom:12px">${semSeg()} ${intakeCtl()}</div>
+  <div class="sum">
+   <div class="panel"><span class="muted small">ชั่วโมงสอนของสาขา / สัปดาห์</span><span class="big num">${total}</span><span class="small muted">${U.length} กลุ่มเรียน</span></div>
+   <div class="panel"><span class="muted small">เฉลี่ยต่ออาจารย์</span><span class="big num">${F.length?avg.toFixed(1):"–"}</span><span class="small muted">${F.length} คน</span></div>
+   <div class="panel"><span class="muted small">ยังไม่ได้จัดผู้สอน</span><span class="big num">${un}</span><span>${un?pill("warn","ชั่วโมง"):pill("pass","ครบ")}</span></div>
+  </div>
+  <section class="panel"><div class="row" style="justify-content:space-between"><h2>ภาระสอนรายคน · ${SEM_TH[sem]}</h2>
+    <span class="row" style="gap:8px"><button class="primary" id="auto" ${F.length&&state.canWrite?"":"disabled"}>จัดอัตโนมัติเฉพาะที่ว่าง</button><button id="reauto" ${F.length&&state.canWrite?"":"disabled"}>จัดใหม่ทั้งหมด</button></span></div>
+   ${F.length?`<div class="scroll"><table><tr><th>อาจารย์</th><th class="r">ชม./สัปดาห์</th><th class="r">วิชา</th><th>เทียบค่าเฉลี่ย</th><th></th></tr>${facRows}</table></div>`:`<div class="empty">ยังไม่มีรายชื่ออาจารย์ เพิ่มชื่อและความเชี่ยวชาญด้านล่าง ระบบจะจัดภาระสอนให้ใกล้เคียงกัน</div>`}
+   <h3>${state.editing?"แก้ไขอาจารย์":"เพิ่มอาจารย์"}</h3>${facForm()}</section>
+  <section class="panel"><h2>กลุ่มเรียนที่สาขาสอน</h2><div class="scroll"><table><tr><th>รหัส</th><th>รายวิชา</th><th>ชั้นปี</th><th>ส่วน</th><th class="r">นศ.</th><th class="r">ชม.</th><th>ผู้สอน</th></tr>
+  ${Object.values(byCourse).map(us=>us.map((u,i)=>`<tr>${i===0?`<td class="mono" rowspan="${us.length}">${esc(u.c.code)}</td><td rowspan="${us.length}">${esc(u.c.th)}<div class="small muted">${u.c.tr===A?"ทุกแขนง":u.c.tr.map(t=>TRACKS[t]).join(", ")}</div></td><td rowspan="${us.length}" class="num">${u.year}</td>`:""}<td class="small">${u.part==="L"?"บรรยาย":"ปฏิบัติ"}${u.secs>1?" กลุ่ม "+u.sec:""}</td><td class="r num">${u.n}</td><td class="r num">${u.hrs}</td><td><select data-unit="${u.key}" aria-label="ผู้สอน ${esc(u.c.code)}" ${dis()}>${opts(u.key)}</select></td></tr>`).join("")).join("")}</table></div>
+  <p class="small muted">กลุ่มเรียนบรรยายสูงสุด 60 คน ปฏิบัติสูงสุด 20 คน ไม่รวมวิชาที่หน่วยงานอื่นสอนและการนิเทศสหกิจศึกษา</p></section>`;
+}
+function facForm(){
+  const f=state.faculty.find(x=>x.id===state.editing)||{name:"",tags:[]};
+  return `<form class="fl row" id="facForm" style="gap:8px"><input type="text" id="facName" placeholder="ชื่อ-นามสกุล" value="${esc(f.name)}" ${dis()}><input type="text" id="facEmail" placeholder="อีเมลมหาวิทยาลัย" value="${esc(f.email||"")}" ${dis()} style="min-width:200px">
+  <span>${Object.entries(EXPERTISE).map(([k,v])=>`<label class="chk"><input type="checkbox" name="tag" value="${k}" ${(f.tags||[]).includes(k)?"checked":""} ${dis()}>${v}</label>`).join("")}</span>
+  <button class="primary" type="submit" ${dis()}>${state.editing?"บันทึก":"เพิ่ม"}</button>${state.editing?`<button type="button" id="facDel">ลบ</button><button type="button" id="facCancel">ยกเลิก</button>`:""}<span id="facErr" class="err"></span></form>`;
+}
+const DAYS=["จันทร์","อังคาร","พุธ","พฤหัสบดี","ศุกร์"];
+const HOURS=[8,9,10,11,13,14,15,16];
+function events(sem){
+  const ev=[];
+  units(sem).filter(u=>!u.c.fl.capstone).forEach(u=>{const h=u.hrs;const parts=h>4?[Math.ceil(h/2),Math.floor(h/2)]:[h];
+    parts.forEach((len,j)=>ev.push({id:u.key+"#"+j,u,len,fac:state.assign[sem][u.key]||null,year:u.year,grp:u.c.tr===A?(u.part==="P"&&u.secs>1?"S"+u.sec:"ALL"):u.c.tr[0]}))});
+  return ev.sort((a,b)=>b.len-a.len||a.year-b.year);
+}
+function clash(a,b){if(a.fac&&a.fac===b.fac)return true;if(a.year!==b.year)return false;
+  if(a.grp==="ALL"||b.grp==="ALL")return true;
+  if(a.grp[0]==="S"&&b.grp[0]==="S")return a.grp===b.grp||a.u.c.code!==b.u.c.code;
+  if(a.grp[0]==="S"||b.grp[0]==="S")return true;
+  return a.grp===b.grp}
+function schedule(sem){
+  const ev=events(sem),placed=[],fail=[];
+  const slotsFor=(len,wed)=>{const r=[];for(let d=0;d<5;d++)[[0,4],[4,8]].forEach(([s,e])=>{if(d===2&&s===4&&!wed)return;for(let i=s;i+len<=e;i++)r.push([d,i])});return r};
+  const tryPlace=(e,wed)=>{let best=null,bs=Infinity;
+    slotsFor(e.len,wed).forEach(([d,i])=>{const ok=placed.every(p=>p.d!==d||p.i+p.len<=i||i+e.len<=p.i||!clash(p,e));if(!ok)return;
+      const dayLoad=placed.filter(p=>p.d===d&&p.year===e.year).reduce((a,p)=>a+p.len,0)+(e.fac?placed.filter(p=>p.d===d&&p.fac===e.fac).reduce((a,p)=>a+p.len,0):0);
+      const s=dayLoad*10+i;if(s<bs){bs=s;best=[d,i]}});
+    if(best)placed.push({...e,d:best[0],i:best[1]});return !!best};
+  let wedUsed=0;
+  ev.forEach(e=>{if(e.len>4){fail.push(e);return}if(!tryPlace(e,false)){if(tryPlace(e,true))wedUsed++;else fail.push(e)}});
+  return {placed,fail,wedUsed};
+}
+function viewTimetable(){
+  const sem=state.sem,{placed,fail,wedUsed}=schedule(sem),F=state.faculty;
+  const years=[...new Set(SEM[sem].map(k=>+k[1]))];
+  const keys=state.ttMode==="fac"?F.map(f=>[f.id,f.name]):years.flatMap(y=>[[`${y}:ALL`,`ชั้นปี ${y} ทุกแขนง`],...Object.keys(TRACKS).map(t=>[`${y}:${t}`,`ชั้นปี ${y} แขนง${TRACKS[t]}`])]);
+  if(!keys.some(k=>k[0]===state.ttKey))state.ttKey=keys[0]?keys[0][0]:"";
+  const mine=placed.filter(p=>{if(state.ttMode==="fac")return p.fac===state.ttKey;const [y,t]=state.ttKey.split(":");if(p.year!==+y)return false;return t==="ALL"?p.grp==="ALL"||p.grp[0]==="S":p.grp===t||p.grp==="ALL"||p.grp[0]==="S"});
+  const hrs=mine.reduce((a,p)=>a+p.len,0);
+  let grid=`<div class="tt"><div class="h"></div>${DAYS.map(d=>`<div class="h">${d}</div>`).join("")}`;
+  HOURS.forEach((h,i)=>{grid+=`<div class="tm">${String(h).padStart(2,"0")}:00</div>`;for(let d=0;d<5;d++){const e=mine.filter(p=>p.d===d&&p.i===i);const lunch=d===2&&i>=4;
+    grid+=`<div class="cell ${lunch?"lunch":""}">${e.map(p=>`<div class="ev ${p.u.part==="P"?"p":""}" style="height:calc(${p.len*100}% + ${(p.len-1)}px - 4px)"><span class="c">${esc(p.u.c.code)}</span> ${p.u.part==="L"?"บรรยาย":"ปฏิบัติ"}${p.u.secs>1?" ก."+p.u.sec:""}<br>${esc(p.u.c.th)}${state.ttMode==="coh"?`<br><span class="muted">${esc((F.find(f=>f.id===p.fac)||{}).name||"ยังไม่จัดผู้สอน")}</span>`:`<br><span class="muted">ปี ${p.year}</span>`}</div>`).join("")}</div>`}});
+  grid+=`</div>`;
+  return `<div class="row" style="margin-bottom:12px">${semSeg()}
+   <div class="seg" role="group" aria-label="มุมมอง"><button data-tt="fac" aria-pressed="${state.ttMode==="fac"}">รายอาจารย์</button><button data-tt="coh" aria-pressed="${state.ttMode==="coh"}">รายชั้นปี</button></div>
+   ${keys.length?`<select id="ttKey" aria-label="เลือก">${keys.map(([k,v])=>`<option value="${k}" ${k===state.ttKey?"selected":""}>${esc(v)}</option>`).join("")}</select>`:""}
+   <span class="muted small num">${hrs} ชม./สัปดาห์</span></div>
+  ${!keys.length?`<div class="panel empty">เพิ่มรายชื่ออาจารย์ในแท็บภาระสอนก่อน แล้วตารางสอนรายคนจะแสดงที่นี่</div>`:`<div class="panel scroll">${grid}</div>`}
+  <div class="row small muted" style="margin-bottom:12px"><span><span class="pill" style="background:var(--accent-soft);color:var(--accent)">บรรยาย</span> <span class="pill warn">ปฏิบัติ</span></span><span>บ่ายวันพุธเว้นไว้สำหรับกิจกรรม · 12:00–13:00 พักกลางวัน</span></div>
+  ${wedUsed?`<div class="note" style="color:var(--warn)">มี ${wedUsed} คาบที่ต้องใช้บ่ายวันพุธเพราะช่วงเวลาอื่นเต็ม ควรกระจายผู้สอนหรือตรวจจำนวนกลุ่มเรียน</div>`:""}
+  ${fail.length?`<div class="panel"><h2>จัดลงตารางไม่ได้ ${pill("fail",fail.length+" รายการ")}</h2>${fail.map(e=>`<div class="small"><span class="mono">${esc(e.u.c.code)}</span> ${esc(e.u.c.th)} · ${e.len} ชม.</div>`).join("")}<p class="small muted">ลองกระจายผู้สอนในแท็บภาระสอน หรือตรวจชั่วโมงของรายวิชา</p></div>`:`<div class="note">ระบบวางทุกกลุ่มเรียนลงตารางได้โดยไม่ชนกันทั้งฝั่งอาจารย์และนักศึกษาแต่ละชั้นปี ตารางคำนวณใหม่ทุกครั้งที่เปลี่ยนผู้สอน ยังไม่รวมห้องเรียนและวิชาที่หน่วยงานอื่นสอน โครงงานวิศวกรรมนับเป็นภาระสอนแต่ไม่ลงตาราง</div>`}`;
+}
+
+// ---- shell ----
+const NAV={design:{t:"ออกแบบหลักสูตร",s:"ช่วงร่างและเสนอ",tabs:[["needs","ก1","ที่มาของ PLO"],["plo","ก2","PLO · Sub-PLO · YLO"],["clo","ก3","CLO รายวิชา (ผู้สอน)"],["map","ก4","Curriculum Mapping"],["plan","ก5","โครงสร้างและแผนการเรียน"],["check","ก6","ตรวจเกณฑ์"]]},
+  manage:{t:"บริหารหลักสูตร",s:"ทุกภาคเรียน",tabs:[["struct","ข1","โครงสร้างหลักสูตรและอาจารย์"],["load","ข2","ภาระสอน"],["timetable","ข3","ตารางสอน"]]}};
+const VIEWS={struct:viewStruct,needs:viewNeeds,plo:viewPlo,clo:viewClo,map:viewMap,plan:viewPlan,check:viewCheck,load:viewLoad,timetable:viewTimetable};
+function render(){
+  document.getElementById("phase").innerHTML=Object.entries(NAV).map(([k,v])=>`<a href="#${k}/${v.tabs[0][0]}" aria-current="${state.phase===k?"page":"false"}">${v.t}<span>${v.s}</span></a>`).join("");
+  const ac=alertCount();document.getElementById("tabs").innerHTML=NAV[state.phase].tabs.map(([k,n,t])=>`<a href="#${state.phase}/${k}" aria-current="${state.view===k?"page":"false"}"><b>${n}</b>${t}${k==="clo"&&ac?` <span class="pill fail" title="วิชาที่ CLO ไม่สอดรับกับ PLO">${ac}</span>`:""}</a>`).join("");
+  document.getElementById("view").innerHTML=(state.msg?`<div class="note" role="status">${esc(state.msg)}</div>`:"")+VIEWS[state.view]();
+}
+const busy=()=>state.needEdit||state.courseEdit||state.editing||(state.cloDraft&&state.cloDraft.dirty);
+function softRender(){if(busy())state.pending=true;else render()}
+function route(){
+  const [p,v]=(location.hash||"#design/needs").slice(1).split("/");
+  if(NAV[p]&&NAV[p].tabs.some(t=>t[0]===v)){state.phase=p;state.view=v}else{state.phase="design";state.view="needs"}
+  state.msg="";state.needEdit=null;state.courseEdit=null;state.cloDraft=null;render();window.scrollTo(0,0);
+}
+window.addEventListener("hashchange",route);
+function markCloDirty(){const it=readCloForm();if(it)state.cloDraft={code:state.cloCourse,items:it,dirty:true}}
+
+document.addEventListener("click",async e=>{
+  const j=e.target.closest("[data-jump]");if(j){e.preventDefault();const t=document.getElementById(j.dataset.jump);if(t)t.scrollIntoView({behavior:"smooth",block:"start"});return}
+  const b=e.target.closest("button");if(!b)return;const d=b.dataset;
+  if(d.track){if(state.cloDraft&&state.cloDraft.dirty)markCloDirty();state.track=d.track;savePrefs();render()}
+  else if(d.sem){state.sem=d.sem;render()}
+  else if(d.tt){state.ttMode=d.tt;state.ttKey="";render()}
+  else if(b.id==="auto")await saveAssign(state.sem,autoAssign(state.sem,false));
+  else if(b.id==="reauto")await saveAssign(state.sem,autoAssign(state.sem,true));
+  else if(d.edit){state.editing=d.edit;render()}
+  else if(b.id==="facCancel"){state.editing=null;render()}
+  else if(b.id==="facDel"){const id=state.editing;state.editing=null;state.faculty=state.faculty.filter(f=>f.id!==id);render();await dbWrite(db=>db.doc("faculty/"+id).delete(),"รายชื่ออาจารย์")}
+  else if(d.neededit){state.needEdit=d.neededit;render()}
+  else if(d.cancel){if(d.cancel==="need")state.needEdit=null;else state.courseEdit=null;render();if(state.pending){state.pending=false;render()}}
+  else if(d.needdel){const id=d.needdel;state.needsOv[id]={id,deleted:true};state.needEdit=null;render();await dbWrite(db=>db.doc("needs/"+key(id)).set({id,deleted:true}),"ความต้องการ")}
+  else if(d.opencourse){state.cloCourse=d.opencourse;state.cloDraft=null;render();const ed=document.getElementById("cloEditor");if(ed)ed.scrollIntoView({behavior:"smooth",block:"start"})}
+  else if(b.id==="cloCheck"){state.cloDraft={code:state.cloCourse,items:readCloForm(),dirty:true};render()}
+  else if(b.id==="ownFromLoad"){const o={...state.owners};let n=0;COURSES.forEach(c=>{if(o[c.code])return;for(const s of ["S1","S2","SS"]){const f=state.assign[s][c.code+"|L1"]||state.assign[s][c.code+"|P1"];if(f){o[c.code]=f;n++;break}}});state.owners=o;state.msg=n?`กำหนดผู้รับผิดชอบจากภาระสอน ${n} วิชา`:"ไม่พบข้อมูลภาระสอนที่ยังไม่ได้ใช้ จัดผู้สอนใน ข2 ก่อน";render();if(n)await dbWrite(db=>db.doc("owners/map").set({map:o,updatedAt:new Date().toISOString()}),"ผู้รับผิดชอบรายวิชา")}
+  else if(b.id==="cloAdd"){const it=readCloForm()||[];it.push({t:"",subs:[],bloom:"Apply",lv:"R",as:""});state.cloDraft={code:state.cloCourse,items:it,dirty:true};render()}
+  else if(d.clodel!==undefined){const it=readCloForm()||[];it.splice(+d.clodel,1);state.cloDraft={code:state.cloCourse,items:it,dirty:true};render()}
+  else if(b.id==="cloReset"){const code=state.cloCourse;delete state.cloOv[code];state.cloDraft=null;render();await dbWrite(db=>db.doc("clo/"+key(code)).delete(),"CLO")}
+  else if(b.id==="courseAdd"){state.courseEdit="new";render()}
+  else if(d.courseedit){state.courseEdit=d.courseedit;render()}
+  else if(b.id==="courseDel"){const code=state.courseEdit;const base=BASE.find(x=>x.code===code)||COURSES.find(x=>x.code===code);state.courseOv[code]={...(state.courseOv[code]||{}),code,deleted:true};state.courseEdit=null;rebuild();render();await dbWrite(db=>db.doc("courses/"+key(code)).set({...state.courseOv[code]}),"รายวิชา")}
+  else if(b.id==="courseRevert"){const code=state.courseEdit;delete state.courseOv[code];state.courseEdit=null;rebuild();render();await dbWrite(db=>db.doc("courses/"+key(code)).delete(),"รายวิชา")}
+});
+document.addEventListener("input",e=>{if(e.target.closest("#cloForm"))state.cloDraft={code:state.cloCourse,items:state.cloDraft&&state.cloDraft.code===state.cloCourse?state.cloDraft.items:clos(state.cloCourse),dirty:true}});
+document.addEventListener("change",async e=>{
+  const t=e.target;
+  if(t.closest("#cloForm")){state.cloDraft={code:state.cloCourse,items:readCloForm(),dirty:true};const y=window.scrollY;render();window.scrollTo(0,y);return}
+  if(t.dataset.owner!==undefined){const o={...state.owners};if(t.value)o[t.dataset.owner]=t.value;else delete o[t.dataset.owner];state.owners=o;render();await dbWrite(db=>db.doc("owners/map").set({map:o,updatedAt:new Date().toISOString()}),"ผู้รับผิดชอบรายวิชา");return}
+  if(t.dataset.role!==undefined){const r={...(state.team.role||{})};if(t.value)r[t.dataset.role]=t.value;else delete r[t.dataset.role];await saveTeam({...state.team,role:r});return}
+  if(t.dataset.qdeg!==undefined||t.dataset.qpos!==undefined){const id=t.dataset.qdeg||t.dataset.qpos;const q={...(state.team.qual||{})};q[id]={...qualOf(id),[t.dataset.qdeg?"deg":"pos"]:t.value};await saveTeam({...state.team,qual:q});return}
+  if(t.id==="meSel"){state.me=t.value;if(!state.me)state.cloMine=false;try{localStorage.setItem("mecp_me",state.me)}catch(e){};render();return}
+  if(t.id==="mineOnly"){state.cloMine=t.checked;render();return}
+  if(t.id==="cmp"){state.countComputing=t.checked;render()}
+  else if(t.dataset.intake){state.intake[t.dataset.intake]=Math.max(0,Math.min(200,+t.value||0));savePrefs();render()}
+  else if(t.dataset.unit){const o={...state.assign[state.sem]};if(t.value)o[t.dataset.unit]=t.value;else delete o[t.dataset.unit];await saveAssign(state.sem,o)}
+  else if(t.id==="ttKey"){state.ttKey=t.value;render()}
+  else if(t.id==="cloSel"){state.cloCourse=t.value;state.cloDraft=null;render()}
+});
+document.addEventListener("submit",async e=>{
+  const f=e.target;e.preventDefault();
+  if(f.id==="facForm"){
+    const name=document.getElementById("facName").value.trim();
+    if(!name){document.getElementById("facErr").textContent="ใส่ชื่ออาจารย์ก่อน";return}
+    const tags=[...f.querySelectorAll("input[name=tag]:checked")].map(x=>x.value);
+    const id=state.editing||("f"+Date.now().toString(36));
+    const email=(document.getElementById("facEmail")||{value:""}).value.trim().toLowerCase();
+    const rec={name,email,tags,order:(state.faculty.find(x=>x.id===id)||{}).order??state.faculty.length+1};
+    const i=state.faculty.findIndex(x=>x.id===id);if(i>=0)state.faculty[i]={id,...rec};else state.faculty.push({id,...rec});
+    state.editing=null;render();await dbWrite(db=>db.doc("faculty/"+id).set(rec),"รายชื่ออาจารย์");
+  }else if(f.id==="needForm"){
+    const src=document.getElementById("nSrc").value.trim(),st=document.getElementById("nSt").value,t=document.getElementById("nT").value.trim();
+    const plos=[...f.querySelectorAll("input[name=nP]:checked")].map(x=>+x.value);
+    if(!src){document.getElementById("nErr").textContent="ใส่แหล่งที่มาก่อน";return}
+    if(st==="have"&&!t){document.getElementById("nErr").textContent="สถานะมีข้อมูลต้องกรอกสรุปความต้องการ";return}
+    const id=f.dataset.id==="new"?"X-"+Date.now().toString(36):f.dataset.id;
+    const rec={id,g:document.getElementById("nG").value,src,t,how:document.getElementById("nHow").value.trim(),plos,st};
+    state.needsOv[id]=rec;state.needEdit=null;render();state.pending=false;
+    await dbWrite(db=>db.doc("needs/"+key(id)).set(rec),"ความต้องการ");
+  }else if(f.id==="cloForm"){
+    const items=readCloForm();const err=document.getElementById("cloErr");
+    const bad=items.findIndex(x=>!x.t);
+    if(bad>=0){err.textContent=`CLO${bad+1} ยังไม่มีข้อความ กรอกหรือลบข้อนี้ก่อนบันทึก`;return}
+    const code=state.cloCourse;state.cloOv[code]={code,items};state.cloDraft=null;state.msg="";render();
+    if(await dbWrite(db=>db.doc("clo/"+key(code)).set({code,items,updatedAt:new Date().toISOString()}),"CLO")){const s=courseStatus(code);if(window.__afterCloSave)try{window.__afterCloSave(code,s,alignIssues(code,items))}catch(x){};state.msg=s.e?`บันทึก CLO ของ ${code} แล้ว แต่ยังไม่สอดรับกับ PLO ${s.e} ข้อ ระบบแจ้งกรรมการหลักสูตรไว้แล้ว`:`บันทึก CLO ของ ${code} แล้ว`;render()}
+  }else if(f.id==="courseForm"){
+    const v=id=>document.getElementById(id).value,err=document.getElementById("cfErr");
+    const code=v("cfCode").trim(),th=v("cfTh").trim();
+    if(!code||!th){err.textContent="ใส่รหัสและชื่อวิชาก่อน";return}
+    if(f.dataset.new==="1"&&COURSES.some(c=>c.code===code)){err.textContent="มีรหัสนี้อยู่แล้ว";return}
+    const trs=[...f.querySelectorAll("input[name=cfTr]:checked")].map(x=>x.value);
+    if(!trs.length){err.textContent="เลือกแขนงอย่างน้อยหนึ่งแขนง";return}
+    const rec={code,th,cr:+v("cfCr")||0,t:+v("cfT")||0,p:+v("cfP")||0,s:+v("cfS")||0,term:v("cfTerm"),g:v("cfG"),dept:v("cfDept"),dom:v("cfDom"),tr:trs.includes("ALL")?A:trs};
+    state.courseOv[code]=rec;state.courseEdit=null;rebuild();render();state.pending=false;
+    await dbWrite(db=>db.doc("courses/"+key(code)).set(rec),"รายวิชา");
+  }
+});
+
+rebuild();buildExpected();route();
+// ---- Supabase backend ----
+const SB=(window.APP_CONFIG||{});
+let sb=null;
+function sbErr(e){const m=(e&&(e.message||e.msg))||String(e);return {code:/row-level security|permission|42501/i.test(m+(e&&e.code||""))?"invalid_argument":"error",message:m}}
+function makeSbDb(){
+  const listeners=[];let cache={};let loaded=false;
+  async function refresh(){
+    const {data,error}=await sb.from("kv").select("collection,id,data");
+    if(error){state.msg="โหลดข้อมูลไม่สำเร็จ: "+error.message;render();return}
+    const c={};data.forEach(r=>{(c[r.collection]=c[r.collection]||{})[r.id]=r.data});cache=c;loaded=true;listeners.forEach(l=>l());
+  }
+  const snapDoc=path=>{const [c,id]=path.split("/");const d=(cache[c]||{})[id];return {exists:!!d,data:()=>d}};
+  const snapCol=c=>({docs:Object.entries(cache[c]||{}).map(([id,d])=>({id,data:()=>d}))});
+  const sub=f=>{listeners.push(f);if(loaded)f()};
+  sb.channel("kv-live").on("postgres_changes",{event:"*",schema:"public",table:"kv"},p=>{
+    const r=p.new&&p.new.collection?p.new:p.old;if(!r||!r.collection)return;
+    if(p.eventType==="DELETE"){if(cache[r.collection])delete cache[r.collection][r.id]}else (cache[r.collection]=cache[r.collection]||{})[r.id]=p.new.data;
+    listeners.forEach(l=>l());
+  }).subscribe();
+  return {
+    refresh,
+    doc:path=>{const [c,id]=path.split("/");return {
+      set:async d=>{const {error}=await sb.from("kv").upsert({collection:c,id,data:d});if(error)throw sbErr(error);(cache[c]=cache[c]||{})[id]=d;listeners.forEach(l=>l())},
+      delete:async()=>{const {error}=await sb.from("kv").delete().match({collection:c,id});if(error)throw sbErr(error);if(cache[c])delete cache[c][id];listeners.forEach(l=>l())},
+      onSnapshot:cb=>sub(()=>cb(snapDoc(path)))}},
+    collection:c=>({onSnapshot:cb=>sub(()=>cb(snapCol(c)))})
+  };
+}
+function loginScreen(msg){
+  document.getElementById("phase").innerHTML="";document.getElementById("tabs").innerHTML="";
+  document.getElementById("view").innerHTML=`<section class="panel" style="max-width:460px;margin:40px auto;text-align:center;padding:28px">
+   <img src="icons/icon-192.png" alt="" style="width:88px;height:88px;border-radius:50%;background:#fff">
+   <h2 style="margin:12px 0 4px;font-size:18px">เข้าสู่ระบบแพลตฟอร์มหลักสูตร</h2>
+   <p class="muted small" style="margin:0 0 16px">ใช้บัญชี @mail.rmutk.ac.th เท่านั้น</p>
+   ${msg?`<div class="note" style="color:var(--fail)">${esc(msg)}</div>`:""}
+   <button class="primary" id="googleLogin" style="padding:10px 18px">เข้าสู่ระบบด้วย Google</button></section>`;
+  document.getElementById("googleLogin").onclick=async()=>{
+    const {error}=await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:location.origin+location.pathname,queryParams:{hd:"mail.rmutk.ac.th",prompt:"select_account"}}});
+    if(error)loginScreen(error.message);
+  };
+}
+(async()=>{
+  if(!window.supabase||!SB.url||!SB.anonKey){state.msg="ยังไม่ได้ตั้งค่า Supabase ในไฟล์ config.js";render();return}
+  sb=window.supabase.createClient(SB.url,SB.anonKey);
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session){loginScreen();return}
+  const email=(session.user.email||"").toLowerCase();
+  if(!email.endsWith("@mail.rmutk.ac.th")){await sb.auth.signOut();loginScreen("บัญชี "+email+" ไม่ใช่บัญชีมหาวิทยาลัย กรุณาใช้ @mail.rmutk.ac.th");return}
+  const {data:adm}=await sb.rpc("is_admin");
+  state.user={email};state.isAdmin=!!adm;state.canWrite=!!adm;
+  const db=makeSbDb();state.db=db;const err=()=>{};
+  db.collection("faculty").onSnapshot(s=>{state.faculty=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.order||0)-(b.order||0));
+    const me=state.faculty.find(f=>(f.email||"").toLowerCase()===email);if(me&&!state.isAdmin){state.me=me.id;state.cloMine=true}else if(me&&!state.me)state.me=me.id;softRender()},err);
+  ["S1","S2","SS"].forEach(k=>db.doc("assign/"+k).onSnapshot(s=>{state.assign[k]=(s.exists&&s.data().map)||{};softRender()},err));
+  db.collection("needs").onSnapshot(s=>{const m={};s.docs.forEach(d=>{const x=d.data();if(x&&x.id)m[x.id]=x});state.needsOv=m;softRender()},err);
+  db.collection("clo").onSnapshot(s=>{const m={};s.docs.forEach(d=>{const x=d.data();if(x&&x.code)m[x.code]=x});state.cloOv=m;softRender()},err);
+  db.doc("owners/map").onSnapshot(s=>{state.owners=(s.exists&&s.data().map)||{};softRender()},err);
+  db.doc("program/team").onSnapshot(s=>{const d=s.exists&&s.data();state.team={role:(d&&d.role)||{},qual:(d&&d.qual)||{}};softRender()},err);
+  db.collection("courses").onSnapshot(s=>{const m={};s.docs.forEach(d=>{const x=d.data();if(x&&x.code)m[x.code]=x});state.courseOv=m;rebuild();buildExpected();softRender()},err);
+  await db.refresh();
+  const isFac=state.faculty.some(f=>(f.email||"").toLowerCase()===email);
+  if(!state.isAdmin&&!isFac)state.msg="ท่านเปิดดูได้อย่างเดียว ถ้าเป็นผู้สอน ให้กรรมการหลักสูตรเพิ่มอีเมลของท่านในรายชื่ออาจารย์";
+  render();
+  const bar=document.createElement("div");bar.className="row small muted";bar.style.cssText="margin-left:auto;gap:8px;flex:none";
+  bar.innerHTML=`<span>${esc(email)} · ${state.isAdmin?"กรรมการหลักสูตร":isFac?"ผู้สอน":"ผู้เยี่ยมชม"}</span><button class="sm" id="logout">ออกจากระบบ</button>`;
+  document.querySelector("header.top").appendChild(bar);
+  document.getElementById("logout").onclick=async()=>{await sb.auth.signOut();location.reload()};
+  sb.auth.onAuthStateChange((ev)=>{if(ev==="SIGNED_OUT")location.reload()});
+})();
+if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+
+</body>
+</html>
