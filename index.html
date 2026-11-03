@@ -134,6 +134,7 @@ td.r,th.r{text-align:right} td.c,th.c{text-align:center}
 .pass{color:var(--pass);background:var(--pass-bg)} .warn{color:var(--warn);background:var(--warn-bg)} .fail{color:var(--fail);background:var(--fail-bg)}
 .tag{display:inline-block;padding:0 6px;border-radius:4px;background:var(--soft);color:var(--muted);font-size:11.5px;margin:1px 2px 1px 0}
 .code{font-family:var(--mono);font-size:11.5px;font-weight:600;padding:0 5px;border-radius:3px;background:var(--accent-soft);color:var(--accent);margin:1px 2px 1px 0;display:inline-block}
+.cv-wrap{display:grid;grid-template-columns:280px minmax(0,1fr);gap:14px;align-items:start}.cv-side{position:sticky;top:8px;max-height:calc(100vh - 24px);overflow:auto}.cv-pick{display:flex;justify-content:space-between;align-items:center;gap:6px;width:100%;text-align:left;margin:0 0 4px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:none;font:inherit;cursor:pointer}.cv-pick.on{border-color:var(--accent,#0f6b63);background:rgba(15,107,99,.08);font-weight:600}.cv-wrap.solo{grid-template-columns:1fr}.cv-main{display:grid;gap:12px;min-width:0}.cv-main>.panel{margin:0}.cv-g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px}.cv-g2 .ctl{display:grid;gap:3px}.cv-g2 input{width:100%}.cv-tb{width:100%;border-collapse:collapse}.cv-tb td,.cv-tb th{padding:4px;vertical-align:top;text-align:left}.cv-tb input,.cv-tb select{width:100%;box-sizing:border-box}.cv-pub{border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin:8px 0}.cv-pub textarea{box-sizing:border-box;font:inherit}.cv-old{opacity:.6}.cv-fetch{border:2px solid var(--accent,#0f6b63)}.cv-fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin:8px 0}.cv-wl{max-height:420px;overflow:auto;border:1px solid var(--line);border-radius:8px}.cv-w{display:flex;gap:8px;padding:8px;border-bottom:1px solid var(--line);cursor:pointer}.cv-w input{margin-top:3px}@media (max-width:800px){.cv-wrap{grid-template-columns:1fr}.cv-side{position:static;max-height:220px}}
 .mon-list{display:grid;gap:8px}.mon-t{border:1px solid var(--line);border-radius:10px;padding:8px 12px}.mon-t>summary{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1.2fr) 160px;gap:12px;align-items:center;cursor:pointer;list-style:none}.mon-t>summary::-webkit-details-marker{display:none}.mon-name{display:grid}.mon-prog{display:grid;gap:4px}.mon-tb{width:100%;margin-top:8px}.mon-tb td,.mon-tb th{padding:5px 6px;border-top:1px solid var(--line);text-align:left;vertical-align:top}@media (max-width:820px){.mon-t>summary{grid-template-columns:1fr}}
 .sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:12px}
 .sum .panel{display:flex;flex-direction:column;gap:4px;margin:0}
@@ -820,6 +821,7 @@ function bookReadiness(){
   L.push(["หมวด 5 ข้อ 4","รายชื่อ ตำแหน่ง และคุณวุฒิอาจารย์",st(!noQual(state.faculty),true),noQual(state.faculty)?`ยังไม่ระบุคุณวุฒิ ${noQual(state.faculty)} คน`:`${state.faculty.length} คน`]);
   L.push(["ภาคผนวก ก ข้อ 1, 3","ตารางความต้องการและความสอดคล้องกับ PLO","pass","ดึงจาก ก1"]);
   L.push(["ภาคผนวก ก ข้อ 2","รายงานผลสำรวจผู้มีส่วนได้ส่วนเสีย",st(na.surveyHave.length>=3,true),"รอผลแบบสำรวจ"]);
+  {const n=state.faculty.filter(f=>{const d=cvDone(f.id);return d.deg&&d.pubs}).length,N=state.faculty.length;L.push(["ภาคผนวก ค ข้อ 1","ประวัติอาจารย์ประจำหลักสูตร",st(N&&n===N,n>0),`กรอกครบ ${n}/${N} ท่าน (แถบ ข4)`])}
   L.push(["ส่วนอื่น ๆ","ระบบการศึกษา งบประมาณ การประกันคุณภาพ ภาคผนวก ข–ค","warn","ใช้ข้อความมาตรฐานของแบบฟอร์ม ช่องเฉพาะหลักสูตรเว้นไว้ให้กรอก"]);
   return L;
 }
@@ -1002,7 +1004,7 @@ function bookSecHtml(id){
   if(id==="h5"){
     const l1=loads("S1").m,l2=loads("S2").m,ls=loads("SS").m;
     const wk=f=>{const a=(l1[f.id]||{}).h||0,b=(l2[f.id]||{}).h||0,c=(ls[f.id]||{}).h||0;const v=(a+b+c)/2;return v?String(Math.round(v*10)/10):""};
-    const fr=(L,star)=>L.map((f,i)=>{const w=wk(f);return [String(i+1),formalName(f)+(star&&roleOf(f.id)?" *":""),DEG[qualOf(f.id).deg]||"",{h:bkTodo("สาขา")},POS[qualOf(f.id).pos]||"",...[0,1,2,3].map(()=>({t:w,cls:"c"}))]});
+    const fr=(L,star)=>L.map((f,i)=>{const w=wk(f);return [String(i+1),formalName(f)+(star&&roleOf(f.id)?" *":""),DEG[qualOf(f.id).deg]||"",(cvDegField(f.id)||{h:bkTodo("สาขา")}),POS[qualOf(f.id).pos]||"",...[0,1,2,3].map(()=>({t:w,cls:"c"}))]});
     const ext=[...new Set(Object.values(state.extOwners||{}).map(x=>String(x).trim()).filter(Boolean))];
     const extCodes=n=>Object.entries(state.extOwners||{}).filter(([c,v])=>String(v).trim()===n).map(([c])=>c).join(", ");
     return `${H("หมวดที่ 5 ความพร้อมและศักยภาพในการบริหารจัดการหลักสูตร")}${h3("1. การเตรียมการสำหรับอาจารย์ใหม่")}${ind("ตามระบบของมหาวิทยาลัยและคณะ (ข้อความมาตรฐานตามแบบฟอร์ม)")}${h3("4. ชื่อ-นามสกุล ตำแหน่ง และคุณวุฒิของอาจารย์")}${li("<b>4.1 อาจารย์ประจำหลักสูตร (* อาจารย์ผู้รับผิดชอบหลักสูตร)</b>")}${bkT(fr([...resp,...reg],true),["ลำดับ","ชื่อ – นามสกุล","คุณวุฒิ","สาขาวิชาเอก","ตำแหน่งวิชาการ",String(YEAR),String(YEAR+1),String(YEAR+2),String(YEAR+3)],{w:"100%"})}<p class="small-note">ภาระการสอน ชม./สัปดาห์ เฉลี่ยต่อภาคการศึกษา คำนวณจากการจัดผู้สอนในแถบบริหารหลักสูตร (ข2) ของปีการศึกษาแรก และใช้เป็นค่าประมาณของปีถัดไป</p>${li("<b>4.2 อาจารย์ผู้สอนจากหน่วยงานอื่น</b>")}${ext.length?bkT(ext.map((n,i)=>[String(i+1),n,extCodes(n)]),["ลำดับ","ชื่อ – นามสกุล","รายวิชาที่สอน"],{w:"90%"}):ind(bkTodo("(ยังไม่ได้กรอกชื่อผู้สอนจากหน่วยงานอื่นใน ก3)"))}`;
@@ -1013,7 +1015,7 @@ function bookSecHtml(id){
   if(id==="apx"){
     let k=0;const rows=[];Object.entries(NEED_GROUPS).forEach(([g,t])=>{const L=na.filter(n=>n.g===g);if(!L.length)return;rows.push([{t,span:4,cls:"grp"}]);L.forEach(n=>rows.push([String(++k),n.src,n.t||"(รอผลสำรวจ)",n.how||""]))});
     const r3=na.filter(n=>n.st==="have"&&(n.plos||[]).length).map((n,i)=>[String(i+1),n.src+": "+n.t,n.plos.map(p=>"PLO "+p).join(", ")]);
-    return `<h2 class="bk-h big">ภาคผนวก ก</h2>${h3("1. ตารางแสดงความต้องการจำเป็นของผู้มีส่วนได้ส่วนเสีย")}${bkT(rows,["ลำดับ","Stakeholders/Input","ความต้องการจำเป็น","วิธีการได้ข้อมูล"],{w:"100%"})}${h3("2. รายงานการสำรวจความต้องการของผู้มีส่วนได้ส่วนเสีย")}${ind(bkTodo("(แนบผลสำรวจเมื่อได้ผลแล้ว)"))}${h3("3. ตารางวิเคราะห์ความสอดคล้องระหว่าง Stakeholders’ Needs กับ PLOs")}${bkT(r3,["ลำดับ","คุณลักษณะ / Stakeholders’ Needs","PLOs"],{w:"100%"})}${h3("4. ตารางเปรียบเทียบหลักสูตรเดิมกับหลักสูตรปรับปรุง")}${BF("cmp")?BFlines("cmp").map(x=>ind(esc(x))).join(""):ind(bkTodo("(กรอกในไฟล์ Word)"))}<div class="bk-break"></div><h2 class="bk-h big">ภาคผนวก ข</h2>${["ข้อบังคับมหาวิทยาลัยว่าด้วยการศึกษาระดับปริญญาตรี","ข้อบังคับ/ประกาศเรื่องการเทียบโอนผลการเรียน","ประกาศมหาวิทยาลัยที่เกี่ยวข้อง","คำสั่งแต่งตั้งคณะกรรมการพัฒนาหลักสูตร"].map((t,i)=>li(`${i+1}. ${t} ${bkTodo("(แนบเอกสาร)")}`)).join("")}<h2 class="bk-h big">ภาคผนวก ค</h2>${["ประวัติอาจารย์ประจำหลักสูตร","ผลสอบภาษาอังกฤษของอาจารย์ผู้รับผิดชอบหลักสูตร","เอกสารแสดงประสบการณ์ด้านปฏิบัติการ","เอกสารลงนามความร่วมมือ (MOU/MOA) ถ้ามี"].map((t,i)=>li(`${i+1}. ${t} ${bkTodo("(แนบเอกสาร)")}`)).join("")}`;
+    return `<h2 class="bk-h big">ภาคผนวก ก</h2>${h3("1. ตารางแสดงความต้องการจำเป็นของผู้มีส่วนได้ส่วนเสีย")}${bkT(rows,["ลำดับ","Stakeholders/Input","ความต้องการจำเป็น","วิธีการได้ข้อมูล"],{w:"100%"})}${h3("2. รายงานการสำรวจความต้องการของผู้มีส่วนได้ส่วนเสีย")}${ind(bkTodo("(แนบผลสำรวจเมื่อได้ผลแล้ว)"))}${h3("3. ตารางวิเคราะห์ความสอดคล้องระหว่าง Stakeholders’ Needs กับ PLOs")}${bkT(r3,["ลำดับ","คุณลักษณะ / Stakeholders’ Needs","PLOs"],{w:"100%"})}${h3("4. ตารางเปรียบเทียบหลักสูตรเดิมกับหลักสูตรปรับปรุง")}${BF("cmp")?BFlines("cmp").map(x=>ind(esc(x))).join(""):ind(bkTodo("(กรอกในไฟล์ Word)"))}<div class="bk-break"></div><h2 class="bk-h big">ภาคผนวก ข</h2>${["ข้อบังคับมหาวิทยาลัยว่าด้วยการศึกษาระดับปริญญาตรี","ข้อบังคับ/ประกาศเรื่องการเทียบโอนผลการเรียน","ประกาศมหาวิทยาลัยที่เกี่ยวข้อง","คำสั่งแต่งตั้งคณะกรรมการพัฒนาหลักสูตร"].map((t,i)=>li(`${i+1}. ${t} ${bkTodo("(แนบเอกสาร)")}`)).join("")}<h2 class="bk-h big">ภาคผนวก ค</h2>${h3("1. ประวัติอาจารย์ประจำหลักสูตร")}${cvBookHtml()}<div class="bk-break"></div>${h3("2. ผลสอบภาษาอังกฤษของอาจารย์ผู้รับผิดชอบหลักสูตร")}${(()=>{const R=state.faculty.filter(f=>roleOf(f.id));return R.length?bkT(R.map((f,i)=>{const e=cvOf(f.id).eng||{};return [String(i+1),formalName(f),e.test||{h:bkTodo("รอกรอก")},e.score||"",e.date?new Date(e.date).toLocaleDateString("th-TH",{dateStyle:"medium"}):""]}),["ลำดับ","ชื่อ-สกุล","การทดสอบ","คะแนน/ระดับ","วันที่สอบ"],{w:"100%"}):ind(bkTodo("(ยังไม่กำหนดอาจารย์ผู้รับผิดชอบหลักสูตร)"))})()}${["เอกสารแสดงประสบการณ์ด้านปฏิบัติการ","เอกสารลงนามความร่วมมือ (MOU/MOA) ถ้ามี"].map((t,i)=>h3(`${i+3}. ${t}`)+ind(bkTodo("(แนบเอกสาร)"))).join("")}`;
   }
   return "";
 }
@@ -1261,11 +1263,15 @@ function viewMonitor(){
    <button class="sm" id="monRefresh">${A.loading?"กำลังโหลด…":"โหลดข้อมูลล่าสุด"}</button><button class="sm" id="monCopy">คัดลอกรายชื่อที่ยังกรอกไม่ครบ</button><button class="sm" id="monCsv">ดาวน์โหลด .csv</button></div></div>
    <p class="small muted" style="margin:6px 0 10px">ข้อมูลการเข้าระบบ ${A.at?"ณ "+esc(dt(A.at)):"ยังไม่ได้โหลด"} · เริ่มบันทึกตั้งแต่ติดตั้งระบบนี้ การแก้ไข CLO ดูจากประวัติการบันทึกในฐานข้อมูล</p>
    <div class="mon-list">${rows.map(x=>`<details class="mon-t"><summary>
-     <span class="mon-name"><b>${esc(x.f.name)}</b><span class="small muted">${x.em?esc(x.em):'<span class="pill fail">ยังไม่มีอีเมล เข้าระบบไม่ได้</span>'}</span></span>
+     <span class="mon-name"><b>${esc(x.f.name)}</b><span class="small muted">${x.em?esc(x.em):'<span class="pill fail">ยังไม่ได้ใส่อีเมลในรายชื่อ จึงจับคู่การเข้าระบบไม่ได้</span>'}</span></span>
      <span class="mon-act small">${x.act.last?`ใช้งานล่าสุด ${esc(dt(x.act.last))} <span class="muted">(${ago(x.act.last)})</span><br><span class="muted">เข้าระบบ ${x.act.logins||0} ครั้ง · บันทึก CLO ${x.act.edits||0} ครั้ง</span>`:'<span class="pill warn">ยังไม่เคยเข้าระบบ</span>'}</span>
      <span class="mon-prog">${x.L.length?`<span class="small">${x.done}/${x.L.length} วิชา</span><div class="bar"><i style="width:${x.pct}%"></i></div>`:'<span class="small muted">ไม่มีวิชาที่รับผิดชอบ</span>'}</span></summary>
      ${x.L.length?`<table class="mon-tb"><tr><th>รายวิชา</th><th>สถานะ CLO</th><th>บันทึกล่าสุด</th><th></th></tr>${x.L.map(({c,s,e})=>`<tr><td><b>${esc(c.code)}</b> ${esc(c.th)} <span class="small muted">${esc(TERM_TH[c.term]||c.term)}</span></td><td>${pill2(s)}</td><td class="small">${e?`${esc(dt(e.at))}<br><span class="muted">${esc(e.email||"")}${e.email&&x.em&&e.email.toLowerCase()!==x.em?" (ไม่ใช่ผู้รับผิดชอบ)":""}</span>`:'<span class="muted">–</span>'}</td><td><a class="sm btnlink" href="#design/clo" data-cc="${esc(c.code)}">เปิด</a></td></tr>`).join("")}</table>`:""}</details>`).join("")||'<p class="muted">ไม่มีรายการตามตัวกรองนี้</p>'}</div></section>
   ${noOwner.length?`<section class="panel"><h2>รายวิชาที่ยังไม่กำหนดผู้รับผิดชอบ (${noOwner.length})</h2><p class="small muted">กำหนดได้ที่แถบ ข1 โครงสร้างหลักสูตรและอาจารย์</p><div class="small">${noOwner.map(c=>`<span class="tag">${esc(c.code)} ${esc(c.th)}</span>`).join(" ")}</div></section>`:""}
+  ${(()=>{const known=new Set(state.faculty.map(f=>(f.email||"").toLowerCase()).filter(Boolean));const un=[...new Set(logins.map(r=>(r.email||"").toLowerCase()).filter(e=>e&&!known.has(e)))];if(!un.length)return "";
+   const opts=state.faculty.slice().sort((a,b)=>(!!a.email-!!b.email)||a.name.localeCompare(b.name,"th")).map(f=>`<option value="${esc(f.id)}">${esc(f.name)}${f.email?" (มีอีเมลแล้ว)":""}</option>`).join("");
+   return `<section class="panel" style="border:2px solid var(--warn,#d9a400)"><h2>อีเมลที่เข้าระบบแล้ว แต่ยังไม่ได้ผูกกับชื่ออาจารย์ (${un.length})</h2><p class="small muted">เลือกชื่ออาจารย์ให้ตรงกับอีเมล แล้วกด "ผูก" ระบบจะนับการเข้าระบบให้ท่านนั้นทันที</p>
+   <table>${un.map(e=>`<tr><td class="small"><b>${esc(e)}</b></td><td><select data-bindsel="${esc(e)}"><option value="">— เลือกชื่ออาจารย์ —</option>${opts}</select></td><td><button class="sm primary" data-bindem="${esc(e)}">ผูก</button></td></tr>`).join("")}</table></section>`})()}
   <section class="panel"><h2>การเข้าระบบล่าสุด</h2><div class="scroll"><table><tr><th>เวลา</th><th>อีเมล</th><th>ชื่อ</th></tr>${logins.slice(0,30).map(r=>{const f=state.faculty.find(f=>(f.email||"").toLowerCase()===(r.email||"").toLowerCase());return `<tr><td class="small">${esc(dt(r.at))}</td><td class="small">${esc(r.email)}</td><td>${f?esc(f.name):'<span class="muted small">ไม่อยู่ในรายชื่ออาจารย์</span>'}</td></tr>`}).join("")||'<tr><td colspan="3" class="muted">ยังไม่มีข้อมูล</td></tr>'}</table></div></section>`;
 }
 function monitorCsv(){
@@ -1707,18 +1713,213 @@ function viewTimetable(){
 }
 
 // ---- shell ----
+// ---- ข4 ประวัติอาจารย์และผลงานทางวิชาการ (ภาคผนวก ค1) ----
+const CV_LV={D:"ปริญญาเอก",M:"ปริญญาโท",B:"ปริญญาตรี",C:"ประกาศนียบัตร/อื่น ๆ"};
+const CV_TYPE={research:"บทความวิจัย",academic:"บทความทางวิชาการ",text:"ตำรา",book:"หนังสือ",social:"ผลงานวิชาการรับใช้สังคม",other:"ผลงานทางวิชาการในลักษณะอื่น"};
+const CV_DB=[["วารสารวิชาการระดับชาติ",[["TCI1","TCI 1",0.8],["TCI2","TCI 2",0.6],["NPR","มีหลักฐานผ่านการประเมินโดย peer reviewer จากหลากหลายสถาบัน",0.4]]],
+ ["วารสารวิชาการระดับนานาชาติ",[["SCOPUS","Scopus",1],["WOS","Web of Science (SCIE / SSCI / AHCI)",1],["ERIC","ERIC",1],["MSN","MathSciNet",1],["PUBMED","Pubmed",1],["JSTOR","JSTOR",1],["MUSE","Project Muse",1]]],
+ ["การประชุมวิชาการ (Proceeding ฉบับเต็ม)",[["PN","การประชุมวิชาการระดับชาติ",0.2],["PI","การประชุมวิชาการระดับนานาชาติ",0.4]]],
+ ["อื่น ๆ",[["OTH","อื่น ๆ (ระบุในรายการ)",""]]]];
+const CV_DBM=Object.fromEntries(CV_DB.flatMap(([g,L])=>L.map(([k,t,w])=>[k,{g,t,w}])));
+const TH_MON=["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
+const EN_MON=["January","February","March","April","May","June","July","August","September","October","November","December"];
+const CV_YEAR_MIN=()=>new Date().getFullYear()-5; // ผลงานย้อนหลังไม่เกิน 5 ปี (ค.ศ.)
+const cvEmpty=()=>({nameEn:"",posField:"",orcid:"",scopus:"",scholar:"",deg:[],pubs:[],exp:[],eng:{test:"",score:"",date:""}});
+const cvOf=id=>({...cvEmpty(),...((state.cv||{})[id]||{})});
+const cvCanEdit=id=>{if(state.isAdmin)return true;const em=String((state.user&&state.user.email)||"").toLowerCase();const f=state.faculty.find(x=>x.id===id);return !!(em&&f&&(f.email||"").toLowerCase()===em)};
+const cvYearBE=y=>y?(+y<2400?+y+543:+y):"";
+const cvSortDeg=L=>L.slice().sort((a,b)=>"DMBC".indexOf(a.lv||"C")-"DMBC".indexOf(b.lv||"C")||(+b.yr||0)-(+a.yr||0));
+const cvSortPub=L=>L.slice().sort((a,b)=>(+b.y||0)-(+a.y||0)||(+b.m||0)-(+a.m||0));
+const cvTeach=id=>{const own=state.owners||{};return COURSES.filter(c=>own[c.code]===id).filter((c,i,s)=>s.findIndex(x=>x.code===c.code)===i)};
+const cvDone=id=>{const c=cvOf(id);return {deg:c.deg.length>0,pubs:c.pubs.filter(p=>+p.y>=CV_YEAR_MIN()).length}};
+
+// --- citation formatting (แบบฟอร์ม มทร.กรุงเทพ: ผู้แต่ง. (ปี). ชื่อผลงาน. ชื่อวารสาร. ปีที่ (ฉบับที่). เดือนปี. หน้า xx-xx.) ---
+const isThai=s=>/[฀-๿]/.test(s||"");
+function cvJoinAuthors(L,th){L=L.filter(Boolean);if(L.length<2)return L.join("");return L.slice(0,-1).join(", ")+(th?" และ ":" and ")+L[L.length-1]}
+function cvCite(o){
+  const th=isThai(o.title)||isThai(o.venue);const yr=o.y?(th?cvYearBE(o.y):o.y):"";
+  const mon=o.m?(th?TH_MON[o.m-1]:EN_MON[o.m-1])+" "+yr:"";
+  const parts=[`${cvJoinAuthors(o.authors||[],th)}. (${yr||"ไม่ระบุปี"}).`,`${(o.title||"").replace(/\.$/,"")}.`];
+  if(o.venue)parts.push(`${o.venue}.`);
+  const vi=[o.vol?(th?"ปีที่ "+o.vol:"Vol. "+o.vol):"",o.iss?(th?"ฉบับที่ "+o.iss:"(No. "+o.iss+")"):""].filter(Boolean).join(" ");if(vi)parts.push(vi+".");
+  if(mon)parts.push((th?"เดือน":"")+mon+".");
+  if(o.pg)parts.push((th?"หน้า ":"pp. ")+o.pg+".");
+  if(o.doi)parts.push("https://doi.org/"+o.doi);
+  return parts.join(" ");
+}
+function cvFromOpenAlex(w){
+  const src=(w.primary_location&&w.primary_location.source)||{};const b=w.biblio||{};const d=(w.publication_date||"").split("-");
+  const o={authors:(w.authorships||[]).map(a=>a.author&&a.author.display_name),title:w.display_name||w.title||"",venue:src.display_name||"",vol:b.volume||"",iss:b.issue||"",
+    pg:b.first_page?(b.last_page&&b.last_page!==b.first_page?b.first_page+"-"+b.last_page:b.first_page):"",y:w.publication_year||+d[0]||"",m:+d[1]||"",doi:(w.doi||"").replace(/^https?:\/\/doi\.org\//i,"")};
+  const conf=src.type==="conference"||w.type==="proceedings-article"||/proceeding|conference|symposium/i.test(o.venue);
+  const type=w.type==="book"?"book":w.type==="review"?"academic":(w.type==="book-chapter"||w.type==="dataset"||w.type==="other")?"other":"research";
+  return {type,cite:cvCite(o),y:o.y,m:o.m,doi:o.doi,db:conf?(isThai(o.venue)?"PN":"PI"):"",w:"",rel:"",title:o.title,venue:o.venue,src:"OpenAlex"};
+}
+function cvFromCrossref(m){
+  const dp=((m.published||m["published-print"]||m["published-online"]||m.issued||{})["date-parts"]||[[]])[0];
+  const o={authors:(m.author||[]).map(a=>[a.given,a.family].filter(Boolean).join(" ")||a.name),title:(m.title||[""])[0],venue:(m["container-title"]||[""])[0],vol:m.volume||"",iss:m.issue||"",pg:m.page||"",y:dp[0]||"",m:dp[1]||"",doi:m.DOI||""};
+  const conf=m.type==="proceedings-article";
+  return {type:m.type==="book"||m.type==="monograph"?"book":"research",cite:cvCite(o),y:o.y,m:o.m,doi:o.doi,db:conf?(isThai(o.venue)?"PN":"PI"):"",w:"",rel:"",title:o.title,venue:o.venue,src:"Crossref"};
+}
+async function cvJson(url){const r=await fetch(url);if(!r.ok)throw new Error("HTTP "+r.status);return r.json()}
+async function cvFetchRun(kind){
+  const F=state.cvFetch;F.err="";F.loading=true;render();
+  try{
+    const from=CV_YEAR_MIN()+"-01-01";
+    if(kind==="orcid"){const id=(F.orcid||"").trim().replace(/^https?:\/\/orcid\.org\//i,"");if(!/^\d{4}-\d{4}-\d{4}-\d{3}[\dX]$/i.test(id))throw new Error("รูปแบบ ORCID ไม่ถูกต้อง ตัวอย่าง 0000-0002-1825-0097");
+      const j=await cvJson(`https://api.openalex.org/works?filter=author.orcid:${id},from_publication_date:${from}&per-page=100&sort=publication_date:desc`);F.works=(j.results||[]).map(cvFromOpenAlex);F.authors=null;F.note=`พบ ${F.works.length} รายการจาก ORCID ${id} (ปี ${CV_YEAR_MIN()} ขึ้นไป)`}
+    else if(kind==="name"){const q=(F.name||"").trim();if(!q)throw new Error("พิมพ์ชื่อภาษาอังกฤษก่อน");
+      const j=await cvJson(`https://api.openalex.org/authors?search=${encodeURIComponent(q)}&per-page=15`);F.authors=(j.results||[]).map(a=>({id:(a.id||"").split("/").pop(),name:a.display_name,inst:((a.last_known_institutions||[])[0]||{}).display_name||"",n:a.works_count,orcid:(a.orcid||"").split("/").pop()}));F.works=null;F.note=F.authors.length?`พบ ${F.authors.length} ชื่อที่ใกล้เคียง เลือกชื่อที่เป็นท่าน (ดูจากสังกัด)`:"ไม่พบชื่อนี้ ลองสะกดแบบอื่น หรือใช้ ORCID / DOI"}
+    else if(kind==="author"){const j=await cvJson(`https://api.openalex.org/works?filter=author.id:${F.pick},from_publication_date:${from}&per-page=100&sort=publication_date:desc`);F.works=(j.results||[]).map(cvFromOpenAlex);F.note=`พบ ${F.works.length} รายการ (ปี ${CV_YEAR_MIN()} ขึ้นไป)`}
+    else if(kind==="doi"){const L=(F.doi||"").split(/[\s,;]+/).map(x=>x.trim().replace(/^https?:\/\/(dx\.)?doi\.org\//i,"")).filter(x=>/^10\./.test(x));if(!L.length)throw new Error("ใส่ DOI ที่ขึ้นต้นด้วย 10. อย่างน้อย 1 รายการ");
+      const out=[];for(const d of L){try{const j=await cvJson("https://api.crossref.org/works/"+encodeURIComponent(d));out.push(cvFromCrossref(j.message))}catch(x){out.push({err:d})}}
+      F.works=out.filter(x=>!x.err);F.note=`ดึงได้ ${F.works.length} จาก ${L.length} DOI`+(out.some(x=>x.err)?" · ไม่พบ: "+out.filter(x=>x.err).map(x=>x.err).join(", "):"")}
+    const have=new Set(state.cvDraft.pubs.map(p=>(p.doi||"").toLowerCase()).filter(Boolean));
+    if(F.works){F.works.forEach(w=>w.dup=!!(w.doi&&have.has(w.doi.toLowerCase())));F.sel=Object.fromEntries(F.works.map((w,i)=>[i,!w.dup]))}
+  }catch(x){F.err=(x&&x.message)||String(x);if(/Failed to fetch|NetworkError/i.test(F.err))F.err="เชื่อมต่อแหล่งข้อมูลไม่ได้ ลองใหม่อีกครั้ง"}
+  F.loading=false;render();
+}
+function cvStartDraft(id){const c=cvOf(id);state.cvDraft={id,dirty:false,...JSON.parse(JSON.stringify(c))};delete state.cvDraft.at;delete state.cvDraft.by}
+function cvSetPath(obj,path,val){const k=path.split(".");let o=obj;for(let i=0;i<k.length-1;i++)o=o[k[i]];o[k[k.length-1]]=val}
+
+const cvMine=()=>{const em=String((state.user&&state.user.email)||"").toLowerCase();return em?state.faculty.find(f=>(f.email||"").toLowerCase()===em):null};
+function viewCv(){
+  if(!state.faculty.length)return `<section class="panel"><p class="muted">ยังไม่มีรายชื่ออาจารย์ เพิ่มได้ที่แถบ ข1</p></section>`;
+  let F=state.faculty;
+  if(!state.isAdmin){const m=cvMine();if(!m)return `<section class="panel" style="max-width:640px"><h2 style="margin-top:0">ประวัติอาจารย์และผลงาน</h2><p>บัญชี <b>${esc((state.user&&state.user.email)||"")}</b> ยังไม่ได้ผูกกับรายชื่ออาจารย์</p><p class="muted">แจ้งกรรมการหลักสูตรให้ผูกอีเมลของท่านกับชื่อในรายชื่ออาจารย์ แล้วเปิดหน้านี้ใหม่ ท่านจะเห็นและแก้ไขได้เฉพาะประวัติของท่านเอง</p></section>`;F=[m];state.cvId=m.id}
+  if(!state.cvId||!F.some(f=>f.id===state.cvId))state.cvId=(state.me&&F.some(f=>f.id===state.me))?state.me:F[0].id;
+  const id=state.cvId,f=F.find(x=>x.id===id),can=cvCanEdit(id);
+  if(!state.cvDraft||state.cvDraft.id!==id)cvStartDraft(id);
+  const D=state.cvDraft,q=qualOf(id),dis=can?"":"disabled";const min=CV_YEAR_MIN();
+  const inp=(path,val,ph="",w="",type="text")=>`<input type="${type}" data-cvf="${path}" value="${esc(val??"")}" placeholder="${esc(ph)}" ${w?`style="width:${w}"`:""} ${dis}>`;
+  const sel=(path,val,opts,w="")=>`<select data-cvf="${path}" ${w?`style="width:${w}"`:""} ${dis}>${opts.map(([k,t])=>`<option value="${esc(k)}" ${String(val)===String(k)?"selected":""}>${esc(t)}</option>`).join("")}</select>`;
+  const rowBtns=(list,i)=>can?`<span class="row" style="gap:4px;flex-wrap:nowrap"><button type="button" class="sm" data-cvmv="${list}:${i}:-1" title="เลื่อนขึ้น">↑</button><button type="button" class="sm" data-cvmv="${list}:${i}:1" title="เลื่อนลง">↓</button><button type="button" class="sm" data-cvdel="${list}:${i}" title="ลบ">ลบ</button></span>`:"";
+  const st=fid=>{const d=cvDone(fid);return d.deg&&d.pubs?'<span class="pill pass">ครบ</span>':d.deg||d.pubs?'<span class="pill warn">บางส่วน</span>':'<span class="pill fail">ยังไม่กรอก</span>'};
+  const role=roleOf(id);
+  const dbOpts=[["","— เลือกฐาน/ระดับการเผยแพร่ —"],...CV_DB.flatMap(([g,L])=>L.map(([k,t])=>[k,g+" · "+t]))];
+  const pubs=D.pubs.map((p,i)=>{const old=p.y&&+p.y<min;const sug=CV_DBM[p.db]&&CV_DBM[p.db].w;return `<div class="cv-pub${old?" cv-old":""}">
+    <div class="row" style="gap:6px;flex-wrap:wrap;align-items:center"><b>${i+1}.</b>${sel(`pubs.${i}.type`,p.type||"research",Object.entries(CV_TYPE))}
+     <label class="ctl">ปี ค.ศ. ${inp(`pubs.${i}.y`,p.y,"2024","70px","number")}</label><label class="ctl">เดือน ${sel(`pubs.${i}.m`,p.m||"",[["","—"],...TH_MON.map((t,k)=>[String(k+1),t])],"110px")}</label>
+     ${old?`<span class="pill warn">เกิน 5 ปี (ก่อน ${min}) ไม่นับในเล่ม</span>`:""}<span style="flex:1"></span>${rowBtns("pubs",i)}</div>
+    <textarea data-cvf="pubs.${i}.cite" rows="3" style="width:100%;margin-top:6px" placeholder="ผู้แต่ง. (ปี). ชื่อผลงาน. ชื่อวารสาร. ปีที่ (ฉบับที่). เดือนปี. หน้า xx-xx." ${dis}>${esc(p.cite||"")}</textarea>
+    <div class="row" style="gap:6px;flex-wrap:wrap;margin-top:4px">${sel(`pubs.${i}.db`,p.db||"",dbOpts,"min(100%,420px)")}
+     <label class="ctl">ค่าน้ำหนัก ${inp(`pubs.${i}.w`,p.w,sug!==undefined&&sug!==""?String(sug):"","60px")}</label>
+     ${sel(`pubs.${i}.rel`,p.rel||"",[["","ความเกี่ยวข้องกับหลักสูตร"],["direct","ตรงสาขาวิชา"],["related","สัมพันธ์กับสาขาวิชา"]])}
+     <label class="ctl">DOI ${inp(`pubs.${i}.doi`,p.doi,"10.xxxx/…","170px")}</label>
+     ${p.db==="OTH"?`<label class="ctl">ระบุ ${inp(`pubs.${i}.dbOther`,p.dbOther,"เช่น สิทธิบัตร","160px")}</label>`:""}</div>
+    ${!p.db||!p.rel?`<div class="small" style="color:var(--warn,#a67c00);margin-top:2px">ยังไม่ได้เลือก${[!p.db&&"ฐาน/ระดับการเผยแพร่",!p.rel&&"ความเกี่ยวข้องกับหลักสูตร"].filter(Boolean).join(" และ ")}</div>`:""}</div>`}).join("");
+  const Fe=state.cvFetch;
+  const fetchPanel=!Fe?"":`<section class="panel cv-fetch"><div class="row" style="justify-content:space-between"><h2 style="margin:0">ดึงประวัติงานวิจัย</h2><button type="button" class="sm" id="cvFetchClose">ปิด</button></div>
+   <p class="small muted">ดึงจากฐานข้อมูลเปิด OpenAlex (ครอบคลุมวารสาร Scopus/WoS ส่วนใหญ่) และ Crossref (ค้นด้วย DOI ใช้ได้กับวารสารไทยที่มี DOI) เฉพาะผลงานตั้งแต่ปี ${min} · ผลงานใน ThaiJO ที่ไม่มี DOI ให้เพิ่มเอง</p>
+   <div class="cv-fgrid">
+    <div><b>1) ด้วย ORCID</b> <span class="small muted">แม่นยำที่สุด</span><div class="row" style="gap:6px;margin-top:4px"><input type="text" id="cvOrcid" value="${esc(Fe.orcid||"")}" placeholder="0000-0000-0000-0000" style="flex:1"><button type="button" class="sm primary" data-cvrun="orcid">ค้น</button></div></div>
+    <div><b>2) ด้วยชื่อภาษาอังกฤษ</b><div class="row" style="gap:6px;margin-top:4px"><input type="text" id="cvName" value="${esc(Fe.name||"")}" placeholder="Firstname Lastname" style="flex:1"><button type="button" class="sm primary" data-cvrun="name">ค้น</button></div></div>
+    <div><b>3) ด้วย DOI</b> <span class="small muted">หลายรายการคั่นด้วยเว้นวรรค</span><div class="row" style="gap:6px;margin-top:4px"><input type="text" id="cvDoi" value="${esc(Fe.doi||"")}" placeholder="10.xxxx/xxxx" style="flex:1"><button type="button" class="sm primary" data-cvrun="doi">ดึง</button></div></div>
+   </div>
+   ${Fe.loading?'<p class="muted">กำลังค้น…</p>':""}${Fe.err?`<div class="note" style="color:var(--fail)">${esc(Fe.err)}</div>`:""}${Fe.note&&!Fe.loading?`<p class="small">${esc(Fe.note)}</p>`:""}
+   ${Fe.authors&&Fe.authors.length?`<table class="cv-tb"><tr><th>ชื่อ</th><th>สังกัดล่าสุด</th><th>ผลงาน</th><th></th></tr>${Fe.authors.map(a=>`<tr><td>${esc(a.name)}${a.orcid?`<div class="small muted">ORCID ${esc(a.orcid)}</div>`:""}</td><td class="small">${esc(a.inst)}</td><td class="num">${a.n}</td><td><button type="button" class="sm${Fe.pick===a.id?" primary":""}" data-cvpick="${esc(a.id)}">เลือก</button></td></tr>`).join("")}</table>`:""}
+   ${Fe.works&&Fe.works.length?`<div class="row" style="gap:6px;margin:8px 0"><button type="button" class="sm" data-cvselall="1">เลือกทั้งหมด</button><button type="button" class="sm" data-cvselall="0">ไม่เลือก</button><span style="flex:1"></span><button type="button" class="primary" id="cvImport" ${can?"":"disabled"}>นำผลงานที่เลือกเข้าประวัติ (${Object.values(Fe.sel||{}).filter(Boolean).length})</button></div>
+    <div class="cv-wl">${Fe.works.map((w,i)=>`<label class="cv-w"><input type="checkbox" data-cvsel="${i}" ${(Fe.sel||{})[i]?"checked":""}><span><span class="small"><b>${esc(CV_TYPE[w.type])}</b> · ${w.y||""}${w.db?" · "+esc(CV_DBM[w.db].t):""}${w.dup?' · <span class="pill warn">มีในประวัติแล้ว</span>':""}</span><br>${esc(w.cite)}</span></label>`).join("")}</div>`:""}
+  </section>`;
+  return `<p class="lead">ข้อมูลแต่ละท่านใช้ในเล่มหลักสูตร ภาคผนวก ค ข้อ 1 (ประวัติอาจารย์ประจำหลักสูตร) และหมวด 5 ข้อ 4 ${state.isAdmin?"อาจารย์แต่ละท่านเห็นและแก้ไขได้เฉพาะประวัติของตนเอง กรรมการหลักสูตรเห็นและแก้ไขได้ทุกท่าน":"ท่านเห็นและแก้ไขได้เฉพาะประวัติของท่านเอง"}</p>
+  <div class="cv-wrap${state.isAdmin?"":" solo"}">${state.isAdmin?`<aside class="panel cv-side"><h2 style="margin-top:0">อาจารย์ (${F.length})</h2>${F.map(x=>`<button type="button" class="cv-pick${x.id===id?" on":""}" data-cvid="${x.id}"><span>${esc(formalName(x))}${roleOf(x.id)?` <span class="small muted">· ผู้รับผิดชอบ</span>`:""}</span>${st(x.id)}</button>`).join("")}</aside>`:""}
+  <div class="cv-main">
+   <section class="panel"><div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:8px"><div><h2 style="margin:0">${esc(formalName(f))}</h2><div class="small muted">${esc([POS[q.pos],DEG[q.deg]].filter(Boolean).join(" · ")||"ยังไม่ระบุตำแหน่ง/คุณวุฒิ (กำหนดที่แถบ ข1)")} · ภาระหน้าที่: ${role?"อาจารย์ผู้รับผิดชอบหลักสูตร (แขนง"+esc(TRACKS[role]||role)+")":"อาจารย์ประจำหลักสูตร"}</div></div>
+    <div class="row" style="gap:6px">${can?`<button type="button" id="cvFetchOpen">ดึงประวัติงานวิจัย</button><button type="button" class="primary" id="cvSave" ${D.dirty?"":"disabled"}>${D.dirty?"บันทึก":"บันทึกแล้ว"}</button>`:'<span class="pill">ดูอย่างเดียว</span>'}</div></div>
+    ${can?"":state.me&&state.me!==id?`<div class="note">ท่านแก้ไขได้เฉพาะประวัติของตนเอง เลือกชื่อท่านทางซ้าย</div>`:`<div class="note">บัญชีของท่านยังไม่ได้ผูกกับรายชื่ออาจารย์ แจ้งกรรมการหลักสูตรให้ใส่อีเมลของท่านในรายชื่อ</div>`}
+    ${cvOf(id).at?`<p class="small muted" style="margin:6px 0 0">บันทึกล่าสุด ${esc(new Date(cvOf(id).at).toLocaleString("th-TH",{dateStyle:"medium",timeStyle:"short"}))}${cvOf(id).by?" โดย "+esc(cvOf(id).by):""}</p>`:""}
+    <div class="cv-g2" style="margin-top:10px"><label class="ctl">ชื่อ-สกุลภาษาอังกฤษ ${inp("nameEn",D.nameEn,"Firstname Lastname")}</label>
+     <label class="ctl">ด้านของตำแหน่งทางวิชาการ ${inp("posField",D.posField,"เช่น ผู้ช่วยศาสตราจารย์ด้านวิศวกรรมเครื่องกล")}</label>
+     <label class="ctl">ORCID ${inp("orcid",D.orcid,"0000-0000-0000-0000")}</label><label class="ctl">Scopus Author ID ${inp("scopus",D.scopus,"")}</label>
+     <label class="ctl">Google Scholar (ลิงก์) ${inp("scholar",D.scholar,"https://scholar.google.com/…")}</label></div></section>
+   ${fetchPanel}
+   <section class="panel"><div class="row" style="justify-content:space-between"><h2 style="margin:0">1. คุณวุฒิการศึกษา</h2>${can?'<button type="button" class="sm" data-cvadd="deg">+ เพิ่มคุณวุฒิ</button>':""}</div>
+    <p class="small muted">ใส่ระดับปริญญาตรีขึ้นไป ชื่อปริญญาให้ใส่ตัวย่อและสาขาในวงเล็บ เช่น วศ.ม. (วิศวกรรมเครื่องกล) หรือ D.Eng. (Mechanical Engineering) ในเล่มจะเรียงเอก โท ตรี ให้อัตโนมัติ</p>
+    <table class="cv-tb"><tr><th>ระดับ</th><th>คุณวุฒิ (สาขาวิชา)</th><th>สถาบัน ประเทศ</th><th>ปี พ.ศ.</th><th></th></tr>
+    ${D.deg.map((d,i)=>`<tr><td>${sel(`deg.${i}.lv`,d.lv||"",[["","—"],...Object.entries(CV_LV)])}</td><td>${inp(`deg.${i}.name`,d.name,"วศ.ม. (วิศวกรรมเครื่องกล)","100%")}</td><td>${inp(`deg.${i}.inst`,d.inst,"มหาวิทยาลัย…","100%")}</td><td>${inp(`deg.${i}.yr`,d.yr,"2560","80px","number")}</td><td>${rowBtns("deg",i)}</td></tr>`).join("")||'<tr><td colspan="5" class="muted">ยังไม่มีข้อมูล</td></tr>'}</table></section>
+   <section class="panel"><div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:6px"><h2 style="margin:0">2. ผลงานทางวิชาการ (ย้อนหลังไม่เกิน 5 ปี)</h2>${can?'<span class="row" style="gap:6px"><button type="button" class="sm" id="cvFetchOpen2">ดึงประวัติงานวิจัย</button><button type="button" class="sm" data-cvadd="pubs">+ เพิ่มเอง</button></span>':""}</div>
+    <p class="small muted">แยกประเภทตามประกาศ ก.พ.อ. เรียงปีล่าสุดก่อน (เรียงให้อัตโนมัติในเล่ม) · ค่าน้ำหนักที่ขึ้นเป็นสีจางคือค่าแนะนำตามฐานที่เลือก ตรวจสอบกับเกณฑ์อีกครั้ง · ส่งไฟล์ผลงานฉบับเต็มให้ สวท. ประกอบการตรวจ</p>
+    ${pubs||'<p class="muted">ยังไม่มีผลงาน กด "ดึงประวัติงานวิจัย" หรือ "+ เพิ่มเอง"</p>'}</section>
+   <section class="panel"><h2 style="margin-top:0">3. งานสอนในหลักสูตร (ปรับปรุง พ.ศ. 2571)</h2><p class="small muted">ดึงจากรายวิชาที่รับผิดชอบในแถบ ข1 อัตโนมัติ</p>
+    ${cvTeach(id).map(c=>`<div>${esc(c.code)}&nbsp;&nbsp;${esc(c.th)}</div>`).join("")||'<p class="muted">ยังไม่มีรายวิชาที่รับผิดชอบ</p>'}</section>
+   <section class="panel"><div class="row" style="justify-content:space-between"><h2 style="margin:0">4. ประสบการณ์ในด้านปฏิบัติการ</h2>${can?'<button type="button" class="sm" data-cvadd="exp">+ เพิ่ม</button>':""}</div>
+    <p class="small muted">หลักสูตรปริญญาตรีทางวิชาชีพ: อาจารย์อย่างน้อย 2 ใน 5 คนต้องมีประสบการณ์ปฏิบัติการในหน่วยราชการระดับกรมหรือเทียบเท่า รัฐวิสาหกิจ องค์การมหาชน หรือบริษัทเอกชนที่จดทะเบียนในตลาดหลักทรัพย์ฯ</p>
+    <table class="cv-tb"><tr><th>หน่วยงาน/บริษัท</th><th>ตำแหน่งและลักษณะงาน</th><th>ช่วงเวลา</th><th></th></tr>
+    ${D.exp.map((x,i)=>`<tr><td>${inp(`exp.${i}.org`,x.org,"","100%")}</td><td>${inp(`exp.${i}.role`,x.role,"","100%")}</td><td>${inp(`exp.${i}.period`,x.period,"พ.ศ. 2555–2558","130px")}</td><td>${rowBtns("exp",i)}</td></tr>`).join("")||'<tr><td colspan="4" class="muted">ยังไม่มีข้อมูล</td></tr>'}</table></section>
+   ${role?`<section class="panel"><h2 style="margin-top:0">5. ผลสอบภาษาอังกฤษ (ภาคผนวก ค ข้อ 2 · อาจารย์ผู้รับผิดชอบหลักสูตร)</h2><div class="cv-g2"><label class="ctl">ชื่อการทดสอบ ${inp("eng.test",D.eng.test,"เช่น RMUTK-TEP, TOEIC, CEFR")}</label><label class="ctl">คะแนน/ระดับ ${inp("eng.score",D.eng.score,"")}</label><label class="ctl">วันที่สอบ ${inp("eng.date",D.eng.date,"","","date")}</label></div></section>`:""}
+  </div></div>`;
+}
+async function cvSave(){
+  const D=state.cvDraft;if(!D)return;const id=D.id;const {id:_,dirty,...rec}=D;
+  rec.deg=rec.deg.filter(d=>d.name||d.inst||d.yr);rec.pubs=rec.pubs.filter(p=>p.cite).map(p=>({...p,y:p.y?+p.y:"",m:p.m?+p.m:""}));rec.exp=rec.exp.filter(x=>x.org||x.role);
+  rec.at=new Date().toISOString();rec.by=(state.user&&state.user.email)||"";
+  state.cv={...(state.cv||{}),[id]:rec};state.cvDraft=null;state.msg="บันทึกประวัติแล้ว";render();
+  const ok=await dbWrite(db=>db.doc("cv/"+id).set(rec),"ประวัติอาจารย์");if(!ok)return;
+}
+function cvClick(e){
+  const t=e.target.closest("[data-cvid],[data-cvadd],[data-cvdel],[data-cvmv],[data-cvrun],[data-cvpick],[data-cvselall],#cvSave,#cvFetchOpen,#cvFetchOpen2,#cvFetchClose,#cvImport");if(!t||state.view!=="cv")return false;
+  const d=t.dataset,D=state.cvDraft;
+  if(d.cvid){if(!state.isAdmin)return true;if(D&&D.dirty&&!confirm("ยังไม่ได้บันทึกการแก้ไข ต้องการเปลี่ยนท่านโดยไม่บันทึกหรือไม่?"))return true;state.cvId=d.cvid;state.cvDraft=null;state.cvFetch=null;render();return true}
+  if(t.id==="cvSave"){cvSave();return true}
+  if(t.id==="cvFetchOpen"||t.id==="cvFetchOpen2"){state.cvFetch={orcid:D.orcid||"",name:D.nameEn||"",doi:"",sel:{}};render();const p=document.querySelector(".cv-fetch");if(p)p.scrollIntoView({behavior:"smooth",block:"start"});return true}
+  if(t.id==="cvFetchClose"){state.cvFetch=null;render();return true}
+  if(d.cvadd){D[d.cvadd].push(d.cvadd==="pubs"?{type:"research",cite:"",y:"",m:"",db:"",w:"",rel:"",doi:""}:{});D.dirty=true;render();return true}
+  if(d.cvdel){const [l,i]=d.cvdel.split(":");if(l==="pubs"&&!confirm("ลบผลงานรายการนี้?"))return true;D[l].splice(+i,1);D.dirty=true;render();return true}
+  if(d.cvmv){const [l,i,s]=d.cvmv.split(":");const a=+i,b=a+ +s;if(b<0||b>=D[l].length)return true;[D[l][a],D[l][b]]=[D[l][b],D[l][a]];D.dirty=true;render();return true}
+  if(d.cvrun){const F=state.cvFetch;F.orcid=(document.getElementById("cvOrcid")||{}).value||"";F.name=(document.getElementById("cvName")||{}).value||"";F.doi=(document.getElementById("cvDoi")||{}).value||"";cvFetchRun(d.cvrun);return true}
+  if(d.cvpick){state.cvFetch.pick=d.cvpick;cvFetchRun("author");return true}
+  if(d.cvselall){const F=state.cvFetch;F.sel=Object.fromEntries((F.works||[]).map((w,i)=>[i,d.cvselall==="1"]));render();return true}
+  if(t.id==="cvImport"){const F=state.cvFetch;const L=(F.works||[]).filter((w,i)=>F.sel[i]);
+    L.forEach(w=>{const {dup,title,venue,src,...p}=w;const k=(p.doi||"").toLowerCase();const j=k?D.pubs.findIndex(x=>(x.doi||"").toLowerCase()===k):-1;if(j>=0)D.pubs[j]={...D.pubs[j],cite:p.cite};else D.pubs.push(p)});
+    D.pubs=cvSortPub(D.pubs);D.dirty=true;
+    if(F.orcid&&!D.orcid&&/^\d{4}-/.test(F.orcid))D.orcid=F.orcid.trim();if(F.name&&!D.nameEn)D.nameEn=F.name.trim();
+    state.cvFetch=null;state.msg=`เพิ่ม ${L.length} ผลงานแล้ว เลือกฐาน/ระดับการเผยแพร่และความเกี่ยวข้องให้ครบ แล้วกด "บันทึก"`;render();return true}
+  return true;
+}
+function cvInput(e){
+  const t=e.target;if(state.view!=="cv")return false;
+  if(t.dataset&&t.dataset.cvsel!==undefined){state.cvFetch.sel[t.dataset.cvsel]=t.checked;const b=document.getElementById("cvImport");if(b)b.textContent=`นำผลงานที่เลือกเข้าประวัติ (${Object.values(state.cvFetch.sel).filter(Boolean).length})`;return true}
+  if(!t.dataset||t.dataset.cvf===undefined||!state.cvDraft)return false;
+  cvSetPath(state.cvDraft,t.dataset.cvf,t.value);
+  const first=!state.cvDraft.dirty;state.cvDraft.dirty=true;
+  if(first){const b=document.getElementById("cvSave");if(b){b.disabled=false;b.textContent="บันทึก"}}
+  if(t.tagName==="SELECT"&&/^pubs\.\d+\.(db|rel)$/.test(t.dataset.cvf))render();
+  return true;
+}
+
+// --- เล่มหลักสูตร: ภาคผนวก ค ข้อ 1 ---
+function cvBookHtml(esc2){
+  const min=CV_YEAR_MIN();const F=state.faculty.slice().sort((a,b)=>(roleOf(a.id)?0:1)-(roleOf(b.id)?0:1));
+  return F.map((f,n)=>{const c=cvOf(f.id),q=qualOf(f.id),role=roleOf(f.id);
+    const degs=cvSortDeg(c.deg);const posTxt=(POS[q.pos]||"")+(c.posField&&q.pos&&q.pos!=="L"?` (${c.posField.replace(/^.*?ด้าน/,"ด้าน")})`:"");
+    const nm=`${esc(shortName(f.name))}${posTxt?"<br>"+esc(posTxt):""}`;
+    const rows=degs.length?degs.map((d,i)=>`<tr>${i===0?`<td rowspan="${degs.length}" class="c">${n+1}.</td><td rowspan="${degs.length}">${nm}</td>`:""}<td>${esc(d.name||"")}</td><td>${esc(d.inst||"")}</td><td class="c">${esc(String(d.yr||""))}</td></tr>`).join("")
+      :`<tr><td class="c">${n+1}.</td><td>${nm}</td><td colspan="3"><span class="bk-todo">(รอกรอกคุณวุฒิในแถบ ข4)</span></td></tr>`;
+    const pubs=cvSortPub(c.pubs.filter(p=>p.cite&&(!p.y||+p.y>=min)));
+    const byType=Object.keys(CV_TYPE).map(k=>[k,pubs.filter(p=>(p.type||"research")===k)]).filter(([k,L])=>L.length);
+    const pubHtml=byType.length?byType.map(([k,L])=>`<p><b>${esc(CV_TYPE[k])}</b></p>${L.map((p,i)=>{const db=CV_DBM[p.db];const w=p.w!==""&&p.w!=null?p.w:(db&&db.w!==""?db.w:"");const mon=p.m?TH_MON[p.m-1]+" "+cvYearBE(p.y):"";
+      return `<p class="li">${i+1}) ${esc(p.cite)}</p><p class="ind" style="margin:0">ค่าน้ำหนัก: ${esc(String(w||"–"))}&emsp;เดือนที่เผยแพร่: ${esc(mon||"–")}&emsp;ความเกี่ยวข้องกับหลักสูตร: ${p.rel==="direct"?"ตรงสาขาวิชา":p.rel==="related"?"สัมพันธ์กับสาขาวิชา":"–"}</p><p class="ind" style="margin:0 0 6px">${db?`${esc(db.g)}: ${esc(p.db==="OTH"?(p.dbOther||"อื่น ๆ"):db.t)}`:'<span class="bk-todo">(ระบุฐาน/ระดับการเผยแพร่)</span>'}</p>`}).join("")}`).join("")
+      :`<p class="ind"><span class="bk-todo">(ยังไม่มีผลงานในรอบ 5 ปี)</span></p>`;
+    const teach=cvTeach(f.id).map(x=>`<p class="li">${esc(x.code)}&emsp;${esc(x.th)}</p>`).join("")||`<p class="ind"><span class="bk-todo">(ยังไม่กำหนดรายวิชา)</span></p>`;
+    const exp=c.exp.length?c.exp.map(x=>`<p class="li">- ${esc([x.role,x.org].filter(Boolean).join(" "))}${x.period?" ("+esc(x.period)+")":""}</p>`).join(""):"";
+    return `<table class="bk-t" style="width:100%"><thead><tr><th rowspan="2">ลำดับ</th><th rowspan="2">ชื่อ-สกุล<br>ตำแหน่งทางวิชาการ</th><th rowspan="2">คุณวุฒิ (สาขาวิชา)</th><th colspan="2">สำเร็จการศึกษา</th></tr><tr><th>สถาบัน</th><th>ปี พ.ศ.</th></tr></thead><tbody>${rows}</tbody></table>
+    <p><b>ภาระหน้าที่ในหลักสูตร :</b> ${role?"อาจารย์ผู้รับผิดชอบหลักสูตร":"อาจารย์ประจำหลักสูตร"}</p><p><b>ผลงานทางวิชาการ</b></p>${pubHtml}
+    <p><b>งานสอนในหลักสูตร (ปรับปรุง พ.ศ. 2571)</b></p>${teach}${exp?`<p><b>ประสบการณ์ในด้านปฏิบัติการ</b></p>${exp}`:""}${n<F.length-1?'<div class="bk-break"></div>':""}`}).join("");
+}
+const cvDegField=id=>{const d=cvSortDeg(cvOf(id).deg)[0];return d&&d.name?d.name:""};
+
 const NAV={design:{t:"ออกแบบหลักสูตร",s:"ช่วงร่างและเสนอ",tabs:[["needs","ก1","ที่มาของ PLO"],["plo","ก2","PLO · Sub-PLO · YLO"],["clo","ก3","CLO รายวิชา (ผู้สอน)"],["map","ก4","Curriculum Mapping"],["plan","ก5","โครงสร้างและแผนการเรียน"],["check","ก6","ตรวจเกณฑ์"]]},
-  manage:{t:"บริหารหลักสูตร",s:"ทุกภาคเรียน",tabs:[["struct","ข1","โครงสร้างหลักสูตรและอาจารย์"],["load","ข2","ภาระสอน"],["timetable","ข3","ตารางสอน"]]},
+  manage:{t:"บริหารหลักสูตร",s:"ทุกภาคเรียน",tabs:[["struct","ข1","โครงสร้างหลักสูตรและอาจารย์"],["load","ข2","ภาระสอน"],["timetable","ข3","ตารางสอน"],["cv","ข4","ประวัติอาจารย์และผลงาน"]]},
   book:{t:"จัดทำเล่มหลักสูตร",s:"แบบฟอร์ม มทร.กรุงเทพ",tabs:[["book","ค1","ความพร้อมและข้อมูลเล่ม"]]},
   admin:{t:"ผู้ดูแลระบบ",s:"เฉพาะกรรมการหลักสูตร",adminOnly:true,tabs:[["monitor","ง1","ติดตามการเข้าระบบและการกรอก CLO"]]}};
-const VIEWS={monitor:viewMonitor,survey:viewSurvey,struct:viewStruct,needs:viewNeeds,plo:viewPlo,clo:viewClo,map:viewMap,plan:viewPlan,check:viewCheck,load:viewLoad,timetable:viewTimetable,book:viewBook};
+const VIEWS={cv:viewCv,monitor:viewMonitor,survey:viewSurvey,struct:viewStruct,needs:viewNeeds,plo:viewPlo,clo:viewClo,map:viewMap,plan:viewPlan,check:viewCheck,load:viewLoad,timetable:viewTimetable,book:viewBook};
 function render(){
   document.getElementById("phase").innerHTML=Object.entries(NAV).filter(([k,v])=>!v.adminOnly||state.isAdmin).map(([k,v])=>`<a href="#${k}/${v.tabs[0][0]}" aria-current="${state.phase===k?"page":"false"}">${v.t}<span>${v.s}</span></a>`).join("");
   const ac=alertCount();document.getElementById("tabs").innerHTML=NAV[state.phase].tabs.map(([k,n,t])=>`<a href="#${state.phase}/${k}" aria-current="${(state.view==="survey"?"needs":state.view)===k?"page":"false"}"><b>${n}</b>${t}${k==="clo"&&ac?` <span class="pill fail" title="วิชาที่ CLO ไม่สอดรับกับ PLO">${ac}</span>`:""}</a>`).join("");
   document.getElementById("view").innerHTML=(state.msg?`<div class="note" role="status">${esc(state.msg)}</div>`:"")+VIEWS[state.view]();
   requestAnimationFrame(drawMM);
 }
-const busy=()=>state.bookDirect||state.bookEditing||state.ploEdit||state.sEdit||state.needEdit||state.courseEdit||state.editing||(state.cloDraft&&state.cloDraft.dirty);
+const busy=()=>(state.cvDraft&&state.cvDraft.dirty)||state.bookDirect||state.bookEditing||state.ploEdit||state.sEdit||state.needEdit||state.courseEdit||state.editing||(state.cloDraft&&state.cloDraft.dirty);
 function softRender(){if(busy())state.pending=true;else render()}
 function route(){
   const [p,v]=(location.hash||"#design/needs").slice(1).split("/");
@@ -1756,12 +1957,15 @@ document.addEventListener("mousedown",e=>{const b=e.target.closest&&e.target.clo
 document.addEventListener("keydown",e=>{if(e.key==="Tab"&&e.target&&e.target.id==="bkSheet"&&!e.ctrlKey&&!e.altKey){e.preventDefault();document.execCommand("insertHTML",false,'<span class="bk-tab">\t</span>')}});
 document.addEventListener("change",e=>{const t=e.target;if(t.id==="dfxLH"){dfxDo("lh",t.value);t.value=""}else if(t.id==="dfxTab"){state.bookTabDraft=+t.value;const v=t.closest(".bk-main")&&t.closest(".bk-main").querySelector("#bkSheet");if(v)v.parentElement.style.setProperty("--bk-tabw",t.value+"cm");const m=document.getElementById("dfxMsg");if(m)m.textContent="ระยะแท็บ "+t.value+" ซม. (ยังไม่บันทึก)"}},true);
 document.addEventListener("click",async e=>{
+  if(state.view==="cv"&&cvClick(e))return;
   const sv=e.target.closest("[data-svg],[data-svtab],[data-svprov],[data-svdel]");
   if(sv&&state.view==="survey"){const d=sv.dataset;if(d.svg){state.svGroup=d.svg;state.svTab="all"}else if(d.svtab)state.svTab=d.svtab;else if(d.svprov){state.svProv=d.svprov}else if(d.svdel){if(!confirm("ลบผลแบบสำรวจกลุ่ม "+d.svdel+"?"))return;const s={...(state.survey||{})};delete s[d.svdel];state.survey=s;render();await dbWrite(db=>db.doc("survey/"+d.svdel).delete(),"ผลแบบสำรวจ");return}render();return}
   const cc=e.target.closest("[data-cc]");if(cc){state.cloCourse=cc.dataset.cc;state.cloDraft=null;return}
   const j=e.target.closest("[data-jump]");if(j){e.preventDefault();const t=document.getElementById(j.dataset.jump);if(t)t.scrollIntoView({behavior:"smooth",block:"start"});return}
   const b=e.target.closest("button");if(!b)return;const d=b.dataset;
   if(d.monf){state.monFilter=d.monf;render();return}
+  if(d.bindem){const em=d.bindem;const sel=[...document.querySelectorAll("[data-bindsel]")].find(x=>x.dataset.bindsel===em);const id=sel&&sel.value;if(!id){state.msg="เลือกชื่ออาจารย์ก่อนกดผูก";render();return}
+    const f=state.faculty.find(x=>x.id===id);if(!f)return;const {id:_,...rest}=f;const rec={...rest,email:em};Object.assign(f,{email:em});state.msg=`ผูกอีเมล ${em} กับ ${f.name} แล้ว`;render();await dbWrite(db=>db.doc("faculty/"+id).set(rec),"รายชื่ออาจารย์");return}
   if(b.id==="monRefresh"){adminLoad(true);render();return}
   if(b.id==="monCopy"){const own=state.owners||{};const L=state.faculty.map(f=>{const cs=COURSES.filter(c=>own[c.code]===f.id&&cloState(c.code).rank<2);return cs.length?`${f.name}${f.email?" <"+f.email+">":""}: ${cs.map(c=>c.code+" "+c.th).join(", ")}`:""}).filter(Boolean);
     const txt="รายวิชาที่ยังต้องกรอก/ยืนยัน CLO ในแพลตฟอร์มหลักสูตร (แถบ ก3)\n"+L.join("\n");try{await navigator.clipboard.writeText(txt);state.msg=`คัดลอกรายชื่อ ${L.length} ท่านแล้ว นำไปวางในอีเมลหรือไลน์ได้เลย`}catch(x){state.msg="คัดลอกไม่สำเร็จ"}render();return}
@@ -1839,7 +2043,7 @@ document.addEventListener("click",async e=>{
   else if(b.id==="courseDel"){const code=state.courseEdit;const base=BASE.find(x=>x.code===code)||COURSES.find(x=>x.code===code);state.courseOv[code]={...(state.courseOv[code]||{}),code,deleted:true};state.courseEdit=null;rebuild();render();await dbWrite(db=>db.doc("courses/"+key(code)).set({...state.courseOv[code],cv:5,__new:undefined}),"รายวิชา")}
   else if(b.id==="courseRevert"){const code=state.courseEdit;delete state.courseOv[code];state.courseEdit=null;rebuild();render();await dbWrite(db=>db.doc("courses/"+key(code)).delete(),"รายวิชา")}
 });
-document.addEventListener("input",e=>{if(e.target.dataset&&e.target.dataset.desc){const code=state.cloCourse;state.descDraft[code]={...descOf(code),[e.target.dataset.desc]:e.target.value};return}if(e.target.id==="aiPaste"||e.target.id==="aiPrompt")return;if(e.target.closest("#cloForm"))state.cloDraft={code:state.cloCourse,items:state.cloDraft&&state.cloDraft.code===state.cloCourse?state.cloDraft.items:clos(state.cloCourse),dirty:true}});
+document.addEventListener("input",e=>{if(cvInput(e))return;if(e.target.dataset&&e.target.dataset.desc){const code=state.cloCourse;state.descDraft[code]={...descOf(code),[e.target.dataset.desc]:e.target.value};return}if(e.target.id==="aiPaste"||e.target.id==="aiPrompt")return;if(e.target.closest("#cloForm"))state.cloDraft={code:state.cloCourse,items:state.cloDraft&&state.cloDraft.code===state.cloCourse?state.cloDraft.items:clos(state.cloCourse),dirty:true}});
 document.addEventListener("change",async e=>{
   if(e.target.dataset&&e.target.dataset.photo){try{await setPhoto(e.target.dataset.photo,e.target.files[0])}catch(x){state.msg="อ่านรูปไม่ได้";render()}return}
   const t=e.target;
@@ -1979,6 +2183,7 @@ function loginScreen(msg){
   db.collection("clo").onSnapshot(s=>{const m={};s.docs.forEach(d=>{const r=d.data(),x=upgradeClo(r);if(x&&x.code&&!(m[x.code]&&m[x.code].__new))m[x.code]={...x,__new:r&&r.sv===5}});state.cloOv=m;softRender()},err);
   db.doc("owners/map").onSnapshot(s=>{const d=s.exists?s.data():{};state.owners=aliasKeys(d.map,d.cv===5);softRender()},err);
   db.doc("owners/ext").onSnapshot(s=>{state.extOwners=aliasKeys((s.exists&&s.data().map)||{},true);softRender()},err);
+  db.collection("cv").onSnapshot(s=>{const m={};s.docs.forEach(d=>{const x=d.data();if(x)m[d.id]=x});state.cv=m;softRender()},err);
   db.collection("survey").onSnapshot(s=>{const m={};s.docs.forEach(d=>{const x=d.data();if(x&&x.rows)m[d.id]=x});state.survey=m;softRender()},err);
   db.doc("program/intake").onSnapshot(s=>{const d=s.exists&&s.data();if(d&&d.ME!=null)state.intake={ME:+d.ME||0,EV:+d.EV||0,CE:+d.CE||0};softRender()},err);
   db.doc("program/bookedit").onSnapshot(s=>{const d=s.exists&&s.data();state.bookEdit=d?{logo:d.logo||"",logoH:d.logoH,f:d.f||{},html:d.html||{}}:null;softRender()},err);
