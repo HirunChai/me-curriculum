@@ -1935,7 +1935,7 @@ function makeSbDb(){
     collection:c=>({onSnapshot:cb=>sub(()=>cb(snapCol(c)))})
   };
 }
-window.__aiSuggest=async prompt=>{if(!sb)throw new Error("ยังไม่ได้เชื่อมต่อ");const {data,error}=await sb.functions.invoke("clo-suggest",{body:{prompt}});if(error){let m=error.message;try{const c=error.context;if(c&&c.json){const j=await c.clone().json();m=(c.status?"HTTP "+c.status+": ":"")+(j.error||j.message||j.msg||JSON.stringify(j))}}catch(x){try{m+=" "+(await error.context.text())}catch(y){}}throw new Error(m)}if(!data||!data.text)throw new Error((data&&data.error)||"ไม่มีคำตอบ");return data.text};
+window.__aiSuggest=async prompt=>{if(!sb)throw new Error("ยังไม่ได้เชื่อมต่อ");const {data,error}=await sb.functions.invoke("clo-suggest",{body:{prompt}});if(error){let m=error.message;try{const c=error.context;if(c&&c.json){const j=await c.clone().json();m=(c.status?"HTTP "+c.status+": ":"")+(j.error||j.message||j.msg||JSON.stringify(j))}}catch(x){try{m+=" "+(await error.context.text())}catch(y){}}if(/high demand|503|overloaded|UNAVAILABLE|ไม่ว่าง/i.test(m))m="ระบบ AI ของ Google มีผู้ใช้มากชั่วคราว ลองกดใหม่ในอีก 1–2 นาที ("+m.slice(0,120)+")";throw new Error(m)}if(!data||!data.text)throw new Error((data&&data.error)||"ไม่มีคำตอบ");return data.text};
 function loginScreen(msg){
   document.getElementById("phase").innerHTML="";document.getElementById("tabs").innerHTML="";
   document.getElementById("view").innerHTML=`<section class="panel" style="max-width:460px;margin:40px auto;text-align:center;padding:28px">
