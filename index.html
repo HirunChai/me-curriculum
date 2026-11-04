@@ -606,9 +606,12 @@ function cloAnalysis(t){
   L.forEach(c=>clos(c.code).forEach(x=>(x.subs||[]).forEach(s=>{if(subCov[s])subCov[s].push({c,lv:x.lv})})));
   const seq=PLOS.map(p=>{const at={I:[],R:[],M:[]};L.forEach(c=>{const l=ploOf(c).map[p.n];if(l)at[l].push(TERMS.indexOf(c.term))});
     const first=k=>at[k].length?Math.min(...at[k]):null;const fI=first("I"),fR=first("R"),fM=first("M");
-    const pre=[fI,fR].filter(v=>v!==null);const ok=fM!==null&&pre.length&&Math.min(...pre)<=fM;
+    const pre=[fI,fR].filter(v=>v!==null);
+    // PLO2 กำหนดโดยคณะ (วช.041): วิชาพื้นฐาน 4 วิชาในปี 1 สอนและประเมินจนบรรลุ (I→R→M) ภายในรายวิชาเดียว จึงเริ่มที่ M ได้
+    const self=p.n===2&&fM!==null&&L.filter(c=>ploOf(c).map[p.n]==="M").every(c=>c.g==="EB"&&/^Y1/.test(c.term));
+    const ok=fM!==null&&(self||(pre.length&&Math.min(...pre)<=fM));
     const n=L.filter(c=>ploOf(c).map[p.n]).length;
-    return {p,fI,fR,fM,ok,n,hasI:fI!==null}});
+    return {p,fI,fR,fM,ok,n,self,hasI:fI!==null}});
   const withClo=L.filter(c=>hasClo(c.code)),me=L.filter(c=>c.dept==="ME"&&c.g!=="FREE");
   const cnt=withClo.filter(c=>{const k=clos(c.code).length;return k<3||k>6});
   const mNoAssess=[];const lowBloomM=[];const banned=[];
@@ -654,7 +657,7 @@ function evaluate(t){
   out.push(["TABEE",B]);
   const Q=[],na=needsAnalysis(),ca=cloAnalysis(t);
   Q.push({s:na.noSrc.length?"fail":(na.noSurvey.length?"warn":"pass"),t:"PLO มีที่มาจากผู้มีส่วนได้ส่วนเสีย",d:na.noSrc.length?"ไม่มีที่มา: "+na.noSrc.map(p=>"PLO"+p.n).join(", "):na.noSurvey.length?`มีที่มาจากนโยบายและข้อกำหนดครบ แต่ยังไม่มีผลสำรวจยืนยัน ${na.noSurvey.length} PLO (รอผล ${na.wait.length} กลุ่ม)`:"ทุก PLO มีผลสำรวจยืนยัน"});
-  ca.seq.forEach(x=>Q.push({s:x.fM===null?"fail":x.ok?"pass":"warn",t:`PLO${x.p.n} พัฒนาตามลำดับ I → R → M`,d:x.fM===null?"ไม่มีวิชาระดับ M":`เริ่ม ${x.fI!==null?TERM_TH[TERMS[x.fI]]:"(ไม่มี I)"} · M ครั้งแรก ${TERM_TH[TERMS[x.fM]]} · ${x.n} วิชา`}));
+  ca.seq.forEach(x=>Q.push({s:x.fM===null?"fail":x.ok?"pass":"warn",t:`PLO${x.p.n} พัฒนาตามลำดับ I → R → M`,d:x.fM===null?"ไม่มีวิชาระดับ M":(x.self?"วิชาพื้นฐานของคณะ (วช.041) พัฒนาและประเมินจนบรรลุภายในรายวิชาปี 1 · ":"")+`เริ่ม ${x.fI!==null?TERM_TH[TERMS[x.fI]]:"(ไม่มี I)"} · M ครั้งแรก ${TERM_TH[TERMS[x.fM]]} · ${x.n} วิชา`}));
   Q.push({s:ca.uncovered.length?"warn":"pass",t:"ทุก Sub-PLO มี CLO รองรับ",d:ca.uncovered.length?"ยังไม่มี CLO: "+ca.uncovered.map(s=>s.code).join(", "):"ครบ"});
   const meNo=ca.me.filter(c=>!hasClo(c.code));
   Q.push({s:meNo.length?"warn":"pass",t:`วิชาที่สาขาสอนมี CLO ${ca.me.length-meNo.length}/${ca.me.length} วิชา`,d:meNo.length?"วิชาที่เหลือใช้ระดับ I/R/M ตั้งต้น ต้องร่าง CLO ใน ก3":"ครบ"});
@@ -1515,7 +1518,7 @@ function viewClo(){
 }
 function viewMap(){
   const ca=cloAnalysis(state.track);
-  const seqRow=x=>`<tr><td><b>PLO${x.p.n}</b></td><td class="small">${x.fI!==null?TERM_TH[TERMS[x.fI]]:"—"}</td><td class="small">${x.fR!==null?TERM_TH[TERMS[x.fR]]:"—"}</td><td class="small">${x.fM!==null?TERM_TH[TERMS[x.fM]]:"—"}</td><td class="r num">${x.n}</td><td>${x.fM===null?pill("fail","ไม่มี M"):x.ok?pill("pass"):pill("warn","M มาก่อน I/R")}</td></tr>`;
+  const seqRow=x=>`<tr><td><b>PLO${x.p.n}</b></td><td class="small">${x.fI!==null?TERM_TH[TERMS[x.fI]]:"—"}</td><td class="small">${x.fR!==null?TERM_TH[TERMS[x.fR]]:"—"}</td><td class="small">${x.fM!==null?TERM_TH[TERMS[x.fM]]:"—"}</td><td class="r num">${x.n}</td><td>${x.fM===null?pill("fail","ไม่มี M"):x.ok?(x.self?pill("pass","ผ่าน · วิชาพื้นฐานของคณะ พัฒนาและประเมินในรายวิชา"):pill("pass")):pill("warn","M มาก่อน I/R")}</td></tr>`;
   return flowBar("map")+`<p class="lead">ตาราง Curriculum Mapping สร้างจาก CLO ใน ก3 โดยอัตโนมัติ วิชาที่ยังไม่มี CLO แสดงระดับตั้งต้นแบบกรอบเส้นประ</p>
   <div class="row" style="margin-bottom:12px">${trackSeg()}</div>
   <div class="sum">
