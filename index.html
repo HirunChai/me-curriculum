@@ -1425,6 +1425,18 @@ function cloCourseGroups(){
   return gs.map(g=>({...g,L:state.cloMine&&state.me?g.L.filter(c=>ownerOf(c.code)===state.me):g.L})).filter(g=>g.L.length);
 }
 function alertCount(){return COURSES.filter(c=>c.g!=="FREE"&&c.g!=="GE"&&hasClo(c.code)&&courseStatus(c.code).e>0).length}
+function cloTodoPanel(all,gs){
+  const mine=state.cloMine&&state.me?all.filter(c=>ownerOf(c.code)===state.me):all;
+  const noDesc=mine.filter(c=>!(descSaved(c.code).th||"").trim()),noClo=mine.filter(c=>cloState(c.code).rank<2),bad=mine.filter(c=>{const k=courseStatus(c.code).k;return k==="fail"||k==="warn"});
+  const tab=state.cloTodo||"desc",L={desc:noDesc,clo:noClo,bad}[tab]||noDesc;
+  const why=c=>[!(descSaved(c.code).th||"").trim()&&"ไม่มีคำอธิบายรายวิชา",cloState(c.code).rank<2&&cloState(c.code).t,["fail","warn"].includes(courseStatus(c.code).k)&&courseStatus(c.code).t].filter(Boolean);
+  const T=(k,t,n)=>`<button class="sm${tab===k?" primary":""}" data-clotodo="${k}">${t} (${n})</button>`;
+  return `<section class="panel"><div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:8px"><h2 style="margin:0">เลือกรายวิชาที่ต้องการดู</h2>
+   <label class="ctl" style="flex:1;min-width:260px;max-width:620px">รายวิชา <select id="cloPick" style="flex:1;min-width:0">${gs.map(g=>`<optgroup label="${esc(g.t)}">${g.L.map(x=>{const w=why(x);return `<option value="${esc(x.code)}" ${x.code===state.cloCourse?"selected":""}>${esc(x.code)} ${esc(x.th)}${w.length?" ⚠":""}</option>`}).join("")}</optgroup>`).join("")}</select></label></div>
+   <p class="small muted" style="margin:6px 0">⚠ = ยังไม่ครบ${state.cloMine&&state.me?" · แสดงเฉพาะวิชาของท่าน (ติ๊ก \"เฉพาะวิชาของฉัน\" ในตารางด้านล่าง)":""}</p>
+   <div class="row" style="gap:6px;flex-wrap:wrap;margin:8px 0">${T("desc","ยังไม่มีคำอธิบายรายวิชา",noDesc.length)}${T("clo","ยังไม่มี CLO / ยังเป็นร่างตั้งต้น",noClo.length)}${T("bad","CLO ยังไม่สอดรับหรือมีคำเตือน",bad.length)}</div>
+   ${L.length?`<div class="scroll" style="max-height:320px;overflow:auto"><table><tr><th>รหัส</th><th>รายวิชา</th><th>ผู้รับผิดชอบ</th><th>ที่ยังขาด</th><th></th></tr>${L.map(x=>`<tr${x.code===state.cloCourse?' style="background:var(--accent-soft)"':""}><td class="mono">${esc(x.code)}</td><td>${esc(x.th)}<div class="small muted">${esc(TERM_TH[x.term]||"")}</div></td><td class="small">${esc(ownerLabel(x))}</td><td class="small">${why(x).map(esc).join("<br>")}</td><td><button class="sm" data-opencourse="${esc(x.code)}">เปิด</button></td></tr>`).join("")}</table></div>`:'<p class="small">'+pill("pass","ครบทุกวิชาแล้ว")+'</p>'}
+  </section>`}
 function viewClo(){
   const F=state.faculty,gs=cloCourseGroups();
   const all=COURSES.filter(c=>c.g!=="FREE"&&c.g!=="GE");
@@ -1480,7 +1492,7 @@ function viewClo(){
    <div class="panel"><span class="muted small">ยังไม่มี CLO</span><span class="big num">${cnt("none")}</span><span class="small muted">ยังไม่กำหนดผู้รับผิดชอบ ${all.filter(x=>!ownerOf(x.code)).length} วิชา</span></div>
   </div>
   ${alerts.length?`<section class="panel" style="border-color:var(--fail)"><h2>แจ้งเตือนถึงกรรมการหลักสูตร · ${alerts.length} วิชาไม่สอดรับ</h2>${alerts.map(o=>`<div class="row small" style="gap:8px;margin:4px 0"><span class="mono">${esc(o.x.code)}</span><span>${esc(o.x.th)}</span><span class="muted">${esc(facName(ownerOf(o.x.code)))||"ยังไม่กำหนดผู้รับผิดชอบ"}</span>${pill("fail",o.s.t)}<button class="sm" data-opencourse="${esc(o.x.code)}">เปิดดู</button></div>`).join("")}</section>`:""}
-  ${editor}${list}`;
+  ${cloTodoPanel(all,gs)}${editor}${list}`;
 }
 function viewMap(){
   const ca=cloAnalysis(state.track);
@@ -2036,6 +2048,7 @@ document.addEventListener("click",async e=>{
   else if(d.neededit){state.needEdit=d.neededit;render()}
   else if(d.cancel){if(d.cancel==="need")state.needEdit=null;else state.courseEdit=null;render();if(state.pending){state.pending=false;render()}}
   else if(d.needdel){const id=d.needdel;state.needsOv[id]={id,deleted:true};state.needEdit=null;render();await dbWrite(db=>db.doc("needs/"+key(id)).set({id,deleted:true}),"ความต้องการ")}
+  else if(d.clotodo){state.cloTodo=d.clotodo;render()}
   else if(d.opencourse){state.cloCourse=d.opencourse;state.cloDraft=null;render();const ed=document.getElementById("cloEditor");if(ed)ed.scrollIntoView({behavior:"smooth",block:"start"})}
   else if(b.id==="cloCheck"){state.cloDraft={code:state.cloCourse,items:readCloForm(),dirty:true};render()}
   else if(b.id==="ownFromLoad"){const o={...state.owners};let n=0;COURSES.forEach(c=>{if(o[c.code])return;for(const s of ["S1","S2","SS"]){const f=state.assign[s][c.code+"|L1"]||state.assign[s][c.code+"|P1"];if(f){o[c.code]=f;n++;break}}});state.owners=o;state.msg=n?`กำหนดผู้รับผิดชอบจากภาระสอน ${n} วิชา`:"ไม่พบข้อมูลภาระสอนที่ยังไม่ได้ใช้ จัดผู้สอนใน ข2 ก่อน";render();if(n)await dbWrite(db=>db.doc("owners/map").set({map:o,cv:5,updatedAt:new Date().toISOString()}),"ผู้รับผิดชอบรายวิชา")}
@@ -2082,6 +2095,7 @@ document.addEventListener("click",async e=>{
 });
 document.addEventListener("input",e=>{if(cvInput(e))return;if(e.target.dataset&&e.target.dataset.desc){const code=state.cloCourse;state.descDraft[code]={...descOf(code),[e.target.dataset.desc]:e.target.value};return}if(e.target.id==="aiPaste"||e.target.id==="aiPrompt")return;if(e.target.closest("#cloForm"))state.cloDraft={code:state.cloCourse,items:state.cloDraft&&state.cloDraft.code===state.cloCourse?state.cloDraft.items:clos(state.cloCourse),dirty:true}});
 document.addEventListener("change",async e=>{
+  if(e.target.id==="cloPick"){if(state.cloDraft&&state.cloDraft.dirty&&!confirm("ยังไม่ได้บันทึก CLO ของวิชานี้ ต้องการเปลี่ยนวิชาหรือไม่?")){e.target.value=state.cloCourse;return}state.cloCourse=e.target.value;state.cloDraft=null;render();const ed=document.getElementById("cloEditor");if(ed)ed.scrollIntoView({behavior:"smooth",block:"start"});return}
   if(e.target.dataset&&e.target.dataset.photo){try{await setPhoto(e.target.dataset.photo,e.target.files[0])}catch(x){state.msg="อ่านรูปไม่ได้";render()}return}
   const t=e.target;
   if(t.dataset&&t.dataset.desc||t.id==="aiPaste")return;
