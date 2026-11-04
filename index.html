@@ -2005,7 +2005,17 @@ document.addEventListener("click",async e=>{
   else if(d.sdelok){const id=d.sdelok;state.sDel=null;state.faculty=state.faculty.filter(f=>f.id!==id);
     const t={role:{...(state.team.role||{})},qual:{...(state.team.qual||{})}};delete t.role[id];delete t.qual[id];const hadPhoto=!!state.photos[id];delete state.photos[id];
     render();await dbWrite(db=>db.doc("faculty/"+id).delete(),"รายชื่ออาจารย์");await saveTeam(t);if(hadPhoto)await dbWrite(db=>db.doc("photo/"+id).delete(),"รูปอาจารย์")}
-  else if(b.id==="orgPrint"){window.print()}
+  else if(b.id==="orgPrint"){const sec=b.closest("section");if(!sec)return;const w=window.open("","_blank");
+    if(!w){state.msg="เบราว์เซอร์บล็อกหน้าต่างใหม่ กดอนุญาตป๊อปอัป (ไอคอนที่แถบที่อยู่) แล้วกดปุ่มอีกครั้ง";render();return}
+    const css=[...document.querySelectorAll("style")].map(s=>s.textContent).join("\n"),links=[...document.querySelectorAll('link[rel="stylesheet"]')].map(l=>l.outerHTML).join("");
+    const c=sec.cloneNode(true);c.querySelectorAll(".no-print,button").forEach(x=>x.remove());
+    w.document.open();w.document.write(`<!doctype html><html lang="th"><head><meta charset="utf-8"><title>โครงสร้างหลักสูตรและผู้รับผิดชอบ</title>${links}<style>${css}
+     body{background:#fff;margin:0;padding:12px}.panel{box-shadow:none;border:none;margin:0}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+     @page{size:A4 landscape;margin:8mm}.pbar{font:14px sans-serif;background:#fff8d6;border:1px solid #e0c96b;padding:8px 12px;margin:0 0 10px;border-radius:8px}
+     .pbar button{margin-left:8px;padding:6px 12px;font:inherit;cursor:pointer}@media print{.pbar{display:none}body{padding:0}}</style></head>
+     <body><div class="pbar">หน้าต่างพิมพ์จะเปิดเอง ถ้าไม่เปิด กดปุ่มนี้ → <button onclick="print()">พิมพ์ / บันทึกเป็น PDF</button> · ในหน้าต่างพิมพ์ เลือกปลายทาง "บันทึกเป็น PDF" (Save as PDF)</div><div id="fit" style="width:1060px;margin:0 auto">${c.outerHTML}</div></body></html>`);w.document.close();
+    const fit=()=>{const f=w.document.getElementById("fit");if(!f)return;f.style.zoom=1;f.style.zoom=Math.min(1,725/f.scrollHeight)};w.addEventListener("beforeprint",fit);
+    const go=()=>{fit();setTimeout(()=>{try{w.focus();w.print()}catch(x){}},300)};(w.document.fonts&&w.document.fonts.ready?w.document.fonts.ready:Promise.resolve()).then(()=>setTimeout(go,500));}
   else if(b.id==="bookExport"){const blob=new Blob([JSON.stringify(bookData(),null,1)],{type:"application/json"});const u=URL.createObjectURL(blob);const x=document.createElement("a");x.href=u;x.download="me-curriculum-book-data-"+new Date().toISOString().slice(0,10)+".json";document.body.appendChild(x);x.click();x.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);const m=document.getElementById("bookMsg");if(m)m.textContent="บันทึกไฟล์แล้ว ดูในโฟลเดอร์ Downloads"}
   else if(d.ploedit){const n=+d.ploedit,p=PLOS.find(x=>x.n===n);state.ploEdit=n;state.ploDraft={p:{...p,coe:[...(p.coe||[])],sh:p.sh||PLO_SHORT[n]||""},subs:SUBS.filter(s=>s.plo===n).map(s=>({...s}))};render();const f=document.getElementById("ploForm");if(f)f.scrollIntoView({block:"start"})}
   else if(b.id==="ploCancel"){state.ploEdit=null;state.ploDraft=null;render()}
