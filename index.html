@@ -1447,6 +1447,13 @@ function cloCourseGroups(){
   return gs.map(g=>({...g,L:state.cloMine&&state.me?g.L.filter(c=>ownerOf(c.code)===state.me):g.L})).filter(g=>g.L.length);
 }
 function alertCount(){return COURSES.filter(c=>c.g!=="FREE"&&c.g!=="GE"&&hasClo(c.code)&&courseStatus(c.code).e>0).length}
+function claimPanel(){
+  if(state.isAdmin||!state.user||cvMine())return "";
+  const free=state.faculty.filter(f=>!(f.email||"").trim());
+  return `<section class="panel" style="border:2px solid var(--accent)"><h2 style="margin-top:0">ยืนยันชื่อของท่านก่อนกรอก CLO</h2>
+   <p>บัญชี <b>${esc(state.user.email||"")}</b> ยังไม่ได้ผูกกับรายชื่ออาจารย์ เลือกชื่อของท่านแล้วกดยืนยัน จากนั้นจะแก้ไข CLO และใช้ AI แนะนำได้ในวิชาที่ท่านรับผิดชอบ</p>
+   ${free.length?`<div class="row" style="gap:8px;flex-wrap:wrap"><select id="claimSel"><option value="">— เลือกชื่อของท่าน —</option>${free.map(f=>`<option value="${esc(f.id)}">${esc(f.name)}</option>`).join("")}</select><button class="primary" id="claimBtn">ยืนยันว่าเป็นชื่อนี้</button></div>
+   <p class="small muted" style="margin:6px 0 0">ยืนยันได้ครั้งเดียว ถ้าเลือกผิดให้แจ้งกรรมการหลักสูตรแก้ให้ ระบบบันทึกประวัติการยืนยันไว้</p>`:`<p class="small">ทุกชื่อในรายชื่อผูกอีเมลแล้ว ถ้าไม่พบชื่อของท่าน ให้แจ้งกรรมการหลักสูตร</p>`}</section>`}
 function cloTodoPanel(all,gs){
   const mine=state.cloMine&&state.me?all.filter(c=>ownerOf(c.code)===state.me):all;
   const noDesc=mine.filter(c=>!(descSaved(c.code).th||"").trim()),noClo=mine.filter(c=>cloState(c.code).rank<2),bad=mine.filter(c=>{const k=courseStatus(c.code).k;return k==="fail"||k==="warn"});
@@ -1514,7 +1521,7 @@ function viewClo(){
    <div class="panel"><span class="muted small">ยังไม่มี CLO</span><span class="big num">${cnt("none")}</span><span class="small muted">ยังไม่กำหนดผู้รับผิดชอบ ${all.filter(x=>!ownerOf(x.code)).length} วิชา</span></div>
   </div>
   ${alerts.length?`<section class="panel" style="border-color:var(--fail)"><h2>แจ้งเตือนถึงกรรมการหลักสูตร · ${alerts.length} วิชาไม่สอดรับ</h2>${alerts.map(o=>`<div class="row small" style="gap:8px;margin:4px 0"><span class="mono">${esc(o.x.code)}</span><span>${esc(o.x.th)}</span><span class="muted">${esc(facName(ownerOf(o.x.code)))||"ยังไม่กำหนดผู้รับผิดชอบ"}</span>${pill("fail",o.s.t)}<button class="sm" data-opencourse="${esc(o.x.code)}">เปิดดู</button></div>`).join("")}</section>`:""}
-  ${cloTodoPanel(all,gs)}${editor}${list}`;
+  ${claimPanel()}${cloTodoPanel(all,gs)}${editor}${list}`;
 }
 function viewMap(){
   const ca=cloAnalysis(state.track);
@@ -2071,6 +2078,11 @@ document.addEventListener("click",async e=>{
   else if(d.cancel){if(d.cancel==="need")state.needEdit=null;else state.courseEdit=null;render();if(state.pending){state.pending=false;render()}}
   else if(d.needdel){const id=d.needdel;state.needsOv[id]={id,deleted:true};state.needEdit=null;render();await dbWrite(db=>db.doc("needs/"+key(id)).set({id,deleted:true}),"ความต้องการ")}
   else if(d.useclo0){const code=d.useclo0;state.cloDraft={code,items:(CLO0[code]||[]).map(([t,subs,bloom,lv,as])=>({t,subs,bloom,lv,as})),dirty:true};state.msg="แสดงร่าง CLO ฉบับปรับปรุงแล้ว ตรวจและกดบันทึกเพื่อยืนยัน";render()}
+  else if(b.id==="claimBtn"){const id=(document.getElementById("claimSel")||{}).value;if(!id){state.msg="เลือกชื่อของท่านก่อน";render();return}
+    const f=state.faculty.find(x=>x.id===id);if(!confirm(`ยืนยันว่าท่านคือ ${f?f.name:""} ?`))return;
+    if(typeof window.__claimFaculty!=="function"){state.msg="ระบบยังไม่พร้อม ลองโหลดหน้าใหม่";render();return}
+    try{const ok=await window.__claimFaculty(id);state.msg=ok?`ผูกบัญชีกับ ${f.name} แล้ว แก้ไข CLO ของวิชาที่ท่านรับผิดชอบได้ทันที`:"ผูกไม่สำเร็จ ชื่อนี้อาจถูกผูกแล้ว หรือบัญชีนี้ผูกกับชื่ออื่นแล้ว แจ้งกรรมการหลักสูตร"}catch(x){state.msg="ผูกไม่สำเร็จ: "+((x&&x.message)||x)+(/claim_faculty/.test(String(x&&x.message))?" (กรรมการหลักสูตรต้องรันไฟล์ claim_faculty.sql ก่อน)":"")}
+    render();return}
   else if(d.clotodo){state.cloTodo=d.clotodo;render()}
   else if(d.opencourse){state.cloCourse=d.opencourse;state.cloDraft=null;render();const ed=document.getElementById("cloEditor");if(ed)ed.scrollIntoView({behavior:"smooth",block:"start"})}
   else if(b.id==="cloCheck"){state.cloDraft={code:state.cloCourse,items:readCloForm(),dirty:true};render()}
@@ -2250,6 +2262,7 @@ function loginScreen(msg){
       sb.from("audit_log").select("email,at,doc_id,code:data->>code").eq("collection","clo").order("at",{ascending:false}).limit(3000)]);
     if(l.error)throw new Error("access_log: "+l.error.message);if(a.error)throw new Error("audit_log: "+a.error.message);
     return {logins:l.data||[],edits:a.data||[]}};
+  window.__claimFaculty=async id=>{const {data,error}=await sb.rpc("claim_faculty",{p_id:id});if(error)throw new Error(error.message);await db.refresh();return !!data};
   db.collection("faculty").onSnapshot(s=>{state.faculty=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.order||0)-(b.order||0));
     const me=state.faculty.find(f=>(f.email||"").toLowerCase()===email);if(me&&!state.isAdmin){state.me=me.id;state.cloMine=true}else if(me&&!state.me)state.me=me.id;softRender()},err);
   ["S1","S2","SS"].forEach(k=>db.doc("assign/"+k).onSnapshot(s=>{const d=s.exists?s.data():{};state.assign[k]=aliasKeys(d.map,d.cv===5);softRender()},err));
