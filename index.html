@@ -964,14 +964,14 @@ function bookEditPanel(sec,adm){
   const ed=state.bookEdit||{},F=BOOK_FIELDS[sec]||[],ov=ed.html&&ed.html[sec];
   if(!adm)return "";
   if(state.bookDirect===sec){const tw=bookFmt(sec).tabW||1.27,B=(a,t,ti)=>`<button class="sm" data-dfx="${a}" title="${ti||""}">${t}</button>`,G=(l,x)=>`<span class="dfx-g"><span class="small muted">${l}</span>${x}</span>`;
-   return `<div class="bk-edit dfx-wrap"><b>แก้ข้อความบนหน้าโดยตรง · ${esc((BOOK_SECS.find(x=>x[0]===sec)||[])[1]||"")}</b><p class="small muted">คลิกหรือลากคลุมย่อหน้าในหน้ากระดาษ แล้วกดปุ่มจัดรูปแบบ · กดแป้น <b>Tab</b> เพื่อเว้นระยะแท็บให้ข้อความตรงกัน · การแก้ส่วนนี้ไม่กระทบส่วนอื่น</p>
+   return `<div class="bk-edit dfx-wrap"><b>แก้ข้อความบนหน้าโดยตรง · ${esc((BOOK_SECS.find(x=>x[0]===sec)||[])[1]||"")}</b><p class="small muted">คลิกหรือลากคลุมย่อหน้าในหน้ากระดาษ แล้วกดปุ่มจัดรูปแบบ · กดแป้น <b>Tab</b> เพื่อเว้นระยะแท็บ · <b>Enter</b> ขึ้นบรรทัดใหม่ · พิมพ์เพิ่มหรือลบข้อความได้ทันที · เส้นประสีแดงคือจุดแบ่งหน้า A4 จริง (คำนวณใหม่ทุกครั้งที่แก้) · การแก้ส่วนนี้ไม่กระทบส่วนอื่น</p>
    <div class="dfx-bar">${G("ระยะบรรทัด",`<select id="dfxLH"><option value="">–</option>${[0.9,1,1.1,1.15,1.2,1.3,1.5,2].map(v=>`<option>${v}</option>`).join("")}</select>`)}
     ${G("ก่อนย่อหน้า",B("sb-","−","ลดระยะก่อนย่อหน้า 2pt")+B("sb+","+","เพิ่มระยะก่อนย่อหน้า 2pt"))}${G("หลังย่อหน้า",B("sa-","−")+B("sa+","+"))}
     ${G("เยื้องทั้งย่อหน้า",B("ml-","◂","เลื่อนซ้าย 0.25 นิ้ว")+B("ml+","▸","เลื่อนขวา 0.25 นิ้ว"))}${G("เยื้องบรรทัดแรก",B("ti-","◂")+B("ti+","▸"))}
     ${G("จัดแนว",B("al:left","ชิดซ้าย")+B("al:center","กลาง")+B("al:right","ชิดขวา")+B("al:justify","เต็มแนว"))}
     ${G("ระยะแท็บ",`<select id="dfxTab">${[...new Set([0.5,0.75,1,1.27,1.5,2,2.5,3,4,5,tw])].sort((a,b)=>a-b).map(v=>`<option ${v==tw?"selected":""}>${v}</option>`).join("")}</select><span class="small">ซม.</span>`)}
-    ${B("tab","⇥ แท็บ","แทรกแท็บที่ตำแหน่งเคอร์เซอร์")}${B("clr","ล้างรูปแบบย่อหน้า")}${B("undo","↶ ย้อนกลับ")}</div>
-   <div class="row" style="gap:8px;margin-top:6px"><button class="sm primary" id="bkDirectSave">บันทึกส่วนนี้</button><button class="sm" id="bkDirectCancel">ยกเลิก</button><span class="small muted" id="dfxMsg"></span></div></div>`}
+    ${B("tab","⇥ แท็บ","แทรกแท็บที่ตำแหน่งเคอร์เซอร์")}${B("nl","＋ บรรทัดว่าง","เพิ่มบรรทัดว่างต่อจากย่อหน้าที่เลือก")}${B("pb","⤓ ขึ้นหน้าใหม่","บังคับให้ย่อหน้าที่เลือกขึ้นหน้าใหม่")}${B("clr","ล้างรูปแบบย่อหน้า")}${B("undo","↶ ย้อนกลับ")}</div>
+   <div class="row" style="gap:8px;margin-top:6px"><button class="sm primary" id="bkDirectSave">บันทึกส่วนนี้</button><button class="sm" id="bkDirectCancel">ยกเลิก</button><span class="pill" id="dfxPgN"></span><span class="small muted" id="dfxMsg"></span></div></div>`}
   if(state.bookEditing!==sec)return `<div class="row" style="gap:8px;margin-bottom:6px;flex-wrap:wrap"><button class="sm" id="bkEditOpen">✎ แก้ไขข้อมูลส่วนนี้${sec==="cover"?" / ใส่ตรามหาวิทยาลัย":""}</button><button class="sm" id="bkDirectOpen">แก้ข้อความบนหน้าโดยตรง</button>${sec==="cover"&&state.isAdmin?coverBar():""}${ov&&(()=>{const m=bookMergeInfo(sec);return m.upd||m.del||m.skip?`${m.upd||m.del?`<span class="pill warn">รวมข้อมูลใหม่ ${m.upd||m.del} ย่อหน้า</span><button class="sm primary" id="bkMergeSave">บันทึกฉบับรวม</button>`:""}${m.skip?`<span class="pill fail" title="${esc(m.skipT.join(" | "))}">ต้องตรวจ ${m.skip} ย่อหน้า (ดูตาราง "ตรวจเล่มให้ตรงกับข้อมูลล่าสุด" ด้านล่าง)</span>`:""}`:""})()||""}${ov?`<span class="pill warn">ใช้ฉบับแก้มือ (${esc(new Date(ov.at).toLocaleString("th-TH",{dateStyle:"short",timeStyle:"short"}))})</span><button class="sm" id="bkDirectClear">กลับไปใช้ข้อมูลอัตโนมัติ</button>`:""}</div>`;
   const logo=sec==="cover"||sec==="front"?`<div class="fl" style="align-items:center;gap:10px"><span class="small"><b>ตรามหาวิทยาลัย</b></span>${bookLogo()?`<img src="${bookLogo()}" alt="ตรามหาวิทยาลัย" style="height:60px">`:'<span class="small muted">ยังไม่มีรูป</span>'}<label class="sm btnlink" style="cursor:pointer">เลือกรูป (PNG/JPG)<input type="file" id="bkLogo" accept="image/*" style="display:none"></label>${bookLogo()?`<button class="sm" id="bkLogoDel">ลบรูป</button>`:""}<label class="ctl small">ความสูงบนปก <select id="bkLogoH">${[...new Set([1.5,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7,logoH()])].sort((a,b)=>a-b).map(v=>`<option ${logoH()==v?"selected":""}>${v}</option>`).join("")}</select> ซม.</label></div>`:"";
   return `<div class="bk-edit" id="bkEditForm"><div class="row" style="justify-content:space-between"><b>แก้ไขข้อมูล: ${esc((BOOK_SECS.find(x=>x[0]===sec)||[])[1]||"")}</b><button class="sm" id="bkEditClose">ปิด</button></div>${ov?`<div class="note small">ส่วนนี้มีฉบับแก้มือ (จัดรูปแบบ/แท็บไว้) เมื่อกดบันทึก ระบบจะอัปเดตเฉพาะย่อหน้าที่ข้อมูลเปลี่ยน และคงรูปแบบที่จัดไว้</div>`:""}${logo}
@@ -1085,7 +1085,7 @@ function viewBook(){
   const sec=state.bookSec||"cover",fmt=bookFmt(sec),plan=bookPlan(),chk=state.bookCheck||{},cd=bookCountdown(),fov=secFmtOv(sec);
   const done=BOOK_SECS.filter(([k])=>chk[k]).length,adm=state.isAdmin&&state.canWrite;
   const dt=v=>new Date(v).toLocaleString("th-TH",{dateStyle:"long",timeStyle:"short"});
-  setTimeout(startBookTimer,0);setTimeout(()=>{if(state.bookDirect!==sec)paginatePreview(sec)},0);
+  setTimeout(startBookTimer,0);setTimeout(()=>{if(state.bookDirect!==sec)paginatePreview(sec);else{try{document.fonts.ready.then(dfxPages)}catch(e){dfxPages()}if(sec==="toc")computeTocPages().then(map=>{const sh=document.getElementById("bkSheet");if(!sh)return;sh.querySelectorAll("[data-tocpg]").forEach(e=>{e.textContent=map[e.dataset.tocpg]||"–"});dfxPages()})}},0);
   const css=`--bk-font:'${fmt.font}','Angsana New','TH SarabunPSK','TH Sarabun New','Sarabun',serif;--bk-body:${fmt.body}pt;--bk-table:${fmt.table}pt;--bk-line:${fmt.line};--bk-mL:${fmt.mL}in;--bk-mR:${fmt.mR}in;--bk-mT:${fmt.mT}in;--bk-mB:${fmt.mB}in;--bk-zoom:${state.bookZoom||0.8};--bk-pafter:${fmt.pAfter}pt;--bk-hbefore:${fmt.hBefore}pt;--bk-cgap:${fmt.cGap}in;--bk-tabw:${fmt.tabW||1.27}cm`;
   return `<p class="lead">เล่มหลักสูตรตามแบบฟอร์มของ มทร.กรุงเทพ แบ่งเป็น 11 ส่วน ดูหน้าตาเล่มทีละส่วน ปรับรูปแบบตัวอักษรให้ตรงแบบฟอร์ม แล้วติ๊ก "ตรวจแล้ว" จนครบทุกส่วนก่อนส่งวิพากษ์</p>
   <section class="panel cd-box"><div class="cd-col"><span class="small muted">นับถอยหลังส่งเล่มฉบับสมบูรณ์ · ${esc(dt(plan.deadline))}</span><span class="cd-big${cd.late?" late":""}" id="cdDl">${cd.dl}</span></div>
@@ -1121,29 +1121,30 @@ async function saveBookDoc(path,key,val,label){state[key]=val;render();await dbW
 function confirmClear(){return window.confirm("ล้างข้อความที่แก้บนหน้าของส่วนนี้ แล้วกลับไปใช้ข้อมูลอัตโนมัติ?")}
 
 const pgCssVars=fmt=>`--bk-font:'${fmt.font}','Angsana New','TH SarabunPSK','TH Sarabun New','Sarabun',serif;--bk-body:${fmt.body}pt;--bk-table:${fmt.table}pt;--bk-line:${fmt.line};--bk-mL:${fmt.mL}in;--bk-mR:${fmt.mR}in;--bk-mT:${fmt.mT}in;--bk-mB:${fmt.mB}in;--bk-pafter:${fmt.pAfter}pt;--bk-hbefore:${fmt.hBefore}pt;--bk-cgap:${fmt.cGap}in;--bk-tabw:${fmt.tabW||1.27}cm`;
-async function paginateHtml(html,fmt){
+async function paginateHtml(html,fmt,trace){
   try{await document.fonts.ready}catch(e){}
   const host=document.createElement("div");host.className="bk-view";host.setAttribute("style",pgCssVars(fmt)+";position:fixed;left:-20000px;top:0;visibility:hidden");
   const pg=document.createElement("div");pg.className="bk-pgc";pg.style.width=`calc(8.27in - ${fmt.mL}in - ${fmt.mR}in)`;host.appendChild(pg);document.body.appendChild(host);
   const probe=document.createElement("div");probe.style.height=`calc(11.69in - ${fmt.mT}in - ${fmt.mB}in)`;host.appendChild(probe);const maxH=probe.offsetHeight;probe.remove();
   const src=document.createElement("div");src.innerHTML=html;
   const nodes=[...src.childNodes].filter(n=>n.nodeType===1||(n.nodeType===3&&n.textContent.trim()));
-  const pages=[];const flush=()=>{if(pg.innerHTML.trim())pages.push(pg.innerHTML);pg.innerHTML=""};
+  const pages=[];let want=false;const flush=()=>{if(pg.innerHTML.trim()){pages.push(pg.innerHTML);want=true}pg.innerHTML=""};
+  const rec=(i,r)=>{if(trace&&want){trace.push([i,r]);want=false}};
   const fits=()=>pg.scrollHeight<=maxH+1;
-  for(const n of nodes){
+  for(const [ni,n] of nodes.entries()){
     if(n.nodeType===1&&n.classList.contains("bk-break")){flush();continue}
-    const c=n.cloneNode(true);pg.appendChild(c);if(fits())continue;
+    const c=n.cloneNode(true);rec(ni,-1);pg.appendChild(c);if(fits())continue;
     pg.removeChild(c);
     if(n.nodeType===1&&n.tagName==="TABLE"&&n.tBodies[0]&&n.tBodies[0].rows.length>1){
       const head=n.tHead?n.tHead.cloneNode(true):null;const rows=[...n.tBodies[0].rows];
       const mk=()=>{const t=n.cloneNode(false);if(head)t.appendChild(head.cloneNode(true));const tb=document.createElement("tbody");t.appendChild(tb);pg.appendChild(t);return tb};
       let tb=mk();
-      for(const r of rows){tb.appendChild(r.cloneNode(true));if(!fits()){tb.removeChild(tb.lastChild);if(!tb.rows.length){pg.removeChild(tb.parentNode);flush();tb=mk();tb.appendChild(r.cloneNode(true))}else{flush();tb=mk();tb.appendChild(r.cloneNode(true))}}}
+      for(const [ri,r] of rows.entries()){tb.appendChild(r.cloneNode(true));if(!fits()){tb.removeChild(tb.lastChild);if(!tb.rows.length){pg.removeChild(tb.parentNode);flush();rec(ni,ri);tb=mk();tb.appendChild(r.cloneNode(true))}else{flush();rec(ni,ri);tb=mk();tb.appendChild(r.cloneNode(true))}}}
       continue;
     }
     // keep a heading with the next block: move trailing heading to the new page
     const last=pg.lastElementChild;let carry=null;if(last&&/^H[23]$/.test(last.tagName)){carry=last;pg.removeChild(last)}
-    flush();if(carry)pg.appendChild(carry);pg.appendChild(c);
+    flush();rec(carry?ni-1:ni,-1);if(carry)pg.appendChild(carry);pg.appendChild(c);
   }
   flush();host.remove();return pages;
 }
@@ -1182,7 +1183,7 @@ const BOOK_UI_CSS=`.cd-box{display:grid;grid-template-columns:repeat(auto-fit,mi
 .cd-box .bar{height:8px;background:var(--soft);border-radius:4px;overflow:hidden}.cd-box .bar i{display:block;height:100%;background:var(--accent)}.cd-edit{grid-column:1/-1}
 .bk-subs{display:grid;gap:1px;margin:0 0 4px 14px;border-left:2px solid var(--line);padding-left:6px}.bk-sub{display:flex;justify-content:space-between;gap:6px;text-align:left;background:none;border:0;padding:3px 4px;font:inherit;font-size:12.5px;cursor:pointer;border-radius:4px;color:inherit}.bk-sub:hover{background:var(--soft)}.bk-sub span:last-child{white-space:nowrap}.bk-wrap{display:grid;grid-template-columns:250px 1fr;gap:12px;margin-top:10px}.bk-nav{display:grid;gap:4px;align-content:start}.bk-sec{display:grid;grid-template-columns:22px 1fr;gap:2px 6px;text-align:left;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:none;cursor:pointer;font:inherit}.bk-sec.on{border-color:var(--accent);background:var(--accent-soft)}.bk-no{font-weight:700;color:var(--accent)}.bk-tt{font-size:12.5px}.bk-st{grid-column:2}
 .bk-main{min-width:0}.bk-view{background:#eceae6;border-radius:8px;padding:14px;overflow:auto;max-height:78vh}.bk-view .bk-sheet{zoom:var(--bk-zoom);width:210mm;min-height:297mm;box-sizing:border-box;margin:0 auto;background:#fff repeating-linear-gradient(to bottom,transparent 0,transparent calc(297mm - 1px),#d33 calc(297mm - 1px),#d33 297mm);padding:var(--bk-mT) var(--bk-mR) var(--bk-mB) var(--bk-mL);box-shadow:0 1px 4px rgba(0,0,0,.2)}
-.bk-view .bk-break{border-top:2px dashed #999;margin:.5in 0}.bk-paged{max-height:80vh}.bk-pages{zoom:var(--bk-zoom)}.bk-pdfsrc .bk-break{border:0;margin:0;height:0}.bk-pdfsrc,.bk-pdfsrc *{letter-spacing:.01px}.bk-pdfsrc p{text-align:left}.bk-pdfsrc .bk-todo{background:#fff3b0}.bk-edit{border:1px solid var(--accent);background:var(--accent-soft);border-radius:8px;padding:10px 12px;margin-bottom:8px;display:grid;gap:6px}.bk-edit textarea,.bk-edit input[type=text]{width:100%;font:inherit}.bk-sheet.editing{outline:3px dashed var(--accent);outline-offset:-6px;cursor:text}.bk-pdf{width:100%;height:80vh;border:1px solid var(--line);border-radius:8px;background:#eee}
+.bk-view .bk-break{border-top:2px dashed #999;margin:.5in 0}.bk-paged{max-height:80vh}.bk-pages{zoom:var(--bk-zoom)}.bk-pdfsrc .bk-break{border:0;margin:0;height:0}.bk-pdfsrc,.bk-pdfsrc *{letter-spacing:.01px}.bk-pdfsrc p{text-align:left}.bk-pdfsrc .bk-todo{background:#fff3b0}.bk-edit{border:1px solid var(--accent);background:var(--accent-soft);border-radius:8px;padding:10px 12px;margin-bottom:8px;display:grid;gap:6px}.bk-edit textarea,.bk-edit input[type=text]{width:100%;font:inherit}.bk-sheet.editing{outline:3px dashed var(--accent);outline-offset:-6px;cursor:text;background:#fff}.bk-sheet.editing .bk-break{height:0;border-top:2px dotted #888;margin:8px 0}.dfx-pgline{position:absolute;left:0;right:0;height:0;border-top:2px dashed #d33;pointer-events:none;z-index:2}.dfx-pgline span{position:absolute;right:8px;top:-11px;background:#d33;color:#fff;font:12px sans-serif;padding:1px 8px;border-radius:9px}.bk-pdf{width:100%;height:80vh;border:1px solid var(--line);border-radius:8px;background:#eee}
 @media (max-width:820px){.bk-wrap{grid-template-columns:1fr}.bk-nav{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}}`;
 try{document.head.appendChild(Object.assign(document.createElement("style"),{textContent:BOOK_CSS+PAGE_CSS+BOOK_UI_CSS}));const l=document.createElement("link");l.rel="stylesheet";l.href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap";document.head.appendChild(l)}catch(e){}
 // ---- Stakeholder survey: respondents map ----
@@ -2007,9 +2008,24 @@ function dfxBlocks(){const sh=document.getElementById("bkSheet");if(!sh||!dfxRan
   let L=[...sh.querySelectorAll(DFX_BLK)].filter(el=>dfxRange.intersectsNode(el));
   if(!L.length){let n=dfxRange.startContainer;n=n.nodeType===1?n:n.parentElement;const c=n&&n.closest(DFX_BLK);if(c&&sh.contains(c))L=[c];else if(n&&n!==sh&&sh.contains(n))L=[n]}
   return L.filter(el=>!L.some(o=>o!==el&&el.contains(o)))}
+// เส้นแบ่งหน้า A4 ขณะแก้บนหน้า: คำนวณจากความสูงจริงของเนื้อหาด้วยกติกาเดียวกับการจัดหน้า (ตารางแบ่งตามแถว หัวข้อไม่ค้างท้ายหน้า)
+let dfxPgT=null;const dfxPagesSoon=()=>{clearTimeout(dfxPgT);dfxPgT=setTimeout(dfxPages,350)};
+let dfxPgSeq=0;
+async function dfxPages(){const sh=document.getElementById("bkSheet");if(!sh)return;const my=++dfxPgSeq;const host=sh.parentElement;host.style.position="relative";
+  const trace=[];const pages=await paginateHtml(sh.innerHTML,bookFmt(state.bookSec),trace);if(my!==dfxPgSeq||!document.body.contains(sh))return;
+  host.querySelectorAll(".dfx-pgline").forEach(e=>e.remove());
+  const nodes=[...sh.childNodes].filter(n=>n.nodeType===1||(n.nodeType===3&&n.textContent.trim()));const hb=host.getBoundingClientRect();
+  trace.forEach(([ni,ri],k)=>{let el=nodes[ni];if(!el)return;if(el.nodeType===3){const rg=document.createRange();rg.selectNode(el);el={getBoundingClientRect:()=>rg.getBoundingClientRect()}}
+    else if(ri>=0&&el.tBodies&&el.tBodies[0]&&el.tBodies[0].rows[ri])el=el.tBodies[0].rows[ri];
+    const d=document.createElement("div");d.className="dfx-pgline";d.style.top=(el.getBoundingClientRect().top-hb.top-3+host.scrollTop)+"px";d.innerHTML=`<span>หน้า ${k+2}</span>`;host.appendChild(d)});
+  const m=document.getElementById("dfxPgN");if(m)m.textContent=`ส่วนนี้ ${pages.length} หน้า`}
 function dfxDo(act,val){const sh=document.getElementById("bkSheet");if(!sh)return;const msg=document.getElementById("dfxMsg");
   if(act==="undo"){if(dfxUndo.length){sh.innerHTML=dfxUndo.pop();msg&&(msg.textContent="ย้อนกลับแล้ว")}else document.execCommand("undo");return}
-  if(act==="tab"){sh.focus();if(dfxRange){const s=document.getSelection();s.removeAllRanges();s.addRange(dfxRange)}document.execCommand("insertHTML",false,'<span class="bk-tab">\t</span>');return}
+  if(act==="tab"){sh.focus();if(dfxRange){const s=document.getSelection();s.removeAllRanges();s.addRange(dfxRange)}document.execCommand("insertHTML",false,'<span class="bk-tab">\t</span>');dfxPagesSoon();return}
+  if(act==="nl"||act==="pb"){const L0=dfxBlocks();const at=L0[L0.length-1];if(!at){msg&&(msg.textContent="คลิกที่ย่อหน้าในหน้ากระดาษก่อน");return}dfxUndo.push(sh.innerHTML);
+    if(act==="nl"){const p=document.createElement("p");p.className="ind";p.innerHTML="<br>";at.after(p);const r=document.createRange();r.setStart(p,0);r.collapse(true);const s=document.getSelection();s.removeAllRanges();s.addRange(r);dfxRange=r.cloneRange();msg&&(msg.textContent="เพิ่มบรรทัดว่างแล้ว พิมพ์ต่อได้เลย (ยังไม่บันทึก)")}
+    else{const bk=document.createElement("div");bk.className="bk-break";L0[0].before(bk);msg&&(msg.textContent="ย่อหน้าที่เลือกจะขึ้นหน้าใหม่ (ลบได้ด้วยปุ่มย้อนกลับ)")}
+    dfxPagesSoon();return}
   const L=dfxBlocks();if(!L.length){msg&&(msg.textContent="คลิกที่ย่อหน้าในหน้ากระดาษก่อน");return}
   dfxUndo.push(sh.innerHTML);if(dfxUndo.length>40)dfxUndo.shift();
   const px=(el,p)=>parseFloat(getComputedStyle(el)[p])||0;
@@ -2022,8 +2038,9 @@ function dfxDo(act,val){const sh=document.getElementById("bkSheet");if(!sh)retur
     else if(act.startsWith("al:"))st.textAlign=act.slice(3);
     else if(act==="clr")["lineHeight","marginTop","marginBottom","marginLeft","textIndent","textAlign"].forEach(k=>st[k]="");
     if(!el.getAttribute("style"))el.removeAttribute("style")});
-  msg&&(msg.textContent=`ปรับ ${L.length} ย่อหน้า (ยังไม่บันทึก)`)}
+  msg&&(msg.textContent=`ปรับ ${L.length} ย่อหน้า (ยังไม่บันทึก)`);dfxPagesSoon()}
 document.addEventListener("mousedown",e=>{const b=e.target.closest&&e.target.closest("[data-dfx]");if(!b)return;e.preventDefault();dfxDo(b.dataset.dfx)});
+document.addEventListener("input",e=>{if(e.target&&e.target.id==="bkSheet")dfxPagesSoon()});
 document.addEventListener("keydown",e=>{if(e.key==="Tab"&&e.target&&e.target.id==="bkSheet"&&!e.ctrlKey&&!e.altKey){e.preventDefault();document.execCommand("insertHTML",false,'<span class="bk-tab">\t</span>')}});
 document.addEventListener("change",e=>{const t=e.target;if(t.id==="dfxLH"){dfxDo("lh",t.value);t.value=""}else if(t.id==="dfxTab"){state.bookTabDraft=+t.value;const v=t.closest(".bk-main")&&t.closest(".bk-main").querySelector("#bkSheet");if(v)v.parentElement.style.setProperty("--bk-tabw",t.value+"cm");const m=document.getElementById("dfxMsg");if(m)m.textContent="ระยะแท็บ "+t.value+" ซม. (ยังไม่บันทึก)"}},true);
 document.addEventListener("click",async e=>{
