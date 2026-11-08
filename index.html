@@ -1667,18 +1667,19 @@ function viewStruct(){
 function mapGroups(){
   const sp=["MS","EB","CORE","EXP"];
   const core=COURSES.filter(c=>c.tr===A&&sp.includes(c.g));
-  const gs=[{k:"core",t:"รายวิชาแกน (เรียนร่วมทุกแขนง)",L:core}];
+  const gs=[{k:"ge",t:"หมวดวิชาศึกษาทั่วไป (รองรับ PLO1 · เรียนร่วมทุกแขนง)",L:COURSES.filter(c=>c.g==="GE")},{k:"core",t:"รายวิชาแกน (เรียนร่วมทุกแขนง)",L:core}];
   Object.entries(TRACKS).forEach(([k,v])=>{
     gs.push({k:k+"-TR",t:`แขนง${v} · บังคับแขนง`,L:COURSES.filter(c=>c.g==="TR"&&inTrack(c,k)&&c.tr!==A)});
     gs.push({k:k+"-TE",t:`แขนง${v} · เลือกแขนง`,L:COURSES.filter(c=>c.g==="TE"&&inTrack(c,k)&&c.tr!==A)});
   });
+  gs.push({k:"TE",t:"วิชาชีพเลือก (เลือกร่วมทุกแขนง · เลือก 1 วิชา 3 นก.)",L:COURSES.filter(c=>c.g==="TE"&&c.tr===A&&!(c.fl&&c.fl.slot))});
   return gs.filter(g=>g.L.length);
 }
 function mappingGrouped(){
   const head=`<tr><th>ภาค</th><th>รหัส</th><th>รายวิชา</th><th>นก.</th>${PLOS.map(p=>`<th class="c">PLO${p.n}</th>`).join("")}<th>ที่มา</th></tr>`;
   const row=c=>{const r=ploOf(c);return `<tr><td class="small muted">${TERM_TH[c.term]||""}</td><td class="mono">${esc(c.code)}</td><td>${esc(c.th)}</td><td class="num">${c.cr}</td>${PLOS.map(p=>`<td class="c">${lvSpan(r.map[p.n],r.src==="default")}</td>`).join("")}<td class="small">${r.src==="clo"?`CLO ${clos(c.code).length} ข้อ`:'<span class="muted">ตั้งต้น</span>'}</td></tr>`};
   const foot=L=>`<tr><td colspan="4" class="small muted r">วิชาที่ประเมินระดับ M</td>${PLOS.map(p=>{const n=L.filter(c=>ploOf(c).map[p.n]==="M").length;return `<td class="c num small">${n||"–"}</td>`}).join("")}<td></td></tr>`;
-  return `<section class="panel"><h2>Curriculum Mapping · PLO × รายวิชา แยกแกนร่วมและแขนง</h2><p class="lead">หมวดวิชาเฉพาะทั้งหมด (พื้นฐานวิชาชีพ วิชาชีพบังคับ เสริมประสบการณ์ และวิชาของแต่ละแขนง) ไม่รวมศึกษาทั่วไปและเลือกเสรี วิชาเลือกแขนงแสดงเฉพาะวิชาที่เสนอไว้</p><div class="scroll"><table>${mapGroups().map(g=>`<tr><th colspan="${PLOS.length+5}" style="background:var(--soft);color:var(--ink)">${g.t} · ${g.L.length} วิชา ${sumCr(g.L)} นก.</th></tr>${head}${g.L.map(row).join("")}${foot(g.L)}`).join("")}</table></div></section>`;
+  return `<section class="panel"><h2>Curriculum Mapping · PLO × รายวิชา แยกหมวด แกนร่วม และแขนง</h2><p class="lead">หมวดวิชาศึกษาทั่วไป (รองรับ PLO1) และหมวดวิชาเฉพาะทั้งหมด (พื้นฐานวิชาชีพ วิชาชีพบังคับ เสริมประสบการณ์ วิชาของแต่ละแขนง และวิชาชีพเลือกที่ทุกแขนงเลือกร่วมกัน) ไม่รวมวิชาเลือกเสรี</p><div class="scroll"><table>${mapGroups().map(g=>`<tr><th colspan="${PLOS.length+5}" style="background:var(--soft);color:var(--ink)">${g.t} · ${g.L.length} วิชา ${sumCr(g.L)} นก.</th></tr>${head}${g.L.map(row).join("")}${foot(g.L)}`).join("")}</table></div></section>`;
 }
 function readCloForm(){
   const f=document.getElementById("cloForm");if(!f)return null;
