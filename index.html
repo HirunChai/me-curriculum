@@ -1127,7 +1127,7 @@ function viewBook(){
     <label class="ctl">ระยะก่อนหัวข้อ <select id="bfHB" ${adm?"":"disabled"}>${[0,4,6,8,10,12,18].map(v=>`<option ${fmt.hBefore==v?"selected":""}>${v}</option>`).join("")}</select> pt</label>
     
     <label class="ctl">ซูม <select id="bfZoom">${[0.5,0.65,0.8,1].map(v=>`<option ${(state.bookZoom||0.8)==v?"selected":""} value="${v}">${v*100}%</option>`).join("")}</select></label>
-    ${adm?`<button class="sm" id="bfReset" title="คืนค่ารูปแบบทุกส่วนตามแบบฟอร์ม">ตามแบบฟอร์ม</button>`:""}<button class="sm primary" id="bkPdf">สร้าง PDF ส่วนนี้</button><button class="sm" id="bkPdfAll">สร้าง PDF ทั้งเล่ม</button></div></div>
+    ${adm?`<button class="sm" id="bfReset" title="คืนค่ารูปแบบทุกส่วนตามแบบฟอร์ม">ตามแบบฟอร์ม</button>`:""}<button class="sm primary" id="bkPdf">สร้าง PDF ส่วนนี้</button><button class="sm" id="bkPdfAll">สร้าง PDF ทั้งเล่ม</button><button class="sm" id="bkDocx" title="ไฟล์ Word แก้ไขต่อได้">ดาวน์โหลด .docx ส่วนนี้</button><button class="sm" id="bkDocxAll">ดาวน์โหลด .docx ทั้งเล่ม</button><label class="sm btnlike" style="cursor:pointer;border:1px solid var(--line);border-radius:8px;padding:4px 10px;background:var(--surface,#fff)" title="อัปโหลดไฟล์ Word ที่แก้แล้ว เพื่อสร้าง PDF">อัปโหลด .docx → PDF<input type="file" id="bkDocxUp" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden></label></div></div>
    <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:6px"><span class="small">การปรับรูปแบบด้านบนมีผลกับ <b>${esc((BOOK_SECS.find(x=>x[0]===sec)||[])[1]||"")}</b> เท่านั้น</span>${fov?`<span class="pill warn">ส่วนนี้ใช้รูปแบบเฉพาะ</span>${adm?`<button class="sm" id="bfSecAll">ใช้รูปแบบนี้กับทุกส่วน</button><button class="sm" id="bfSecClear">กลับไปใช้รูปแบบรวม</button>`:""}`:`<span class="pill" style="background:var(--soft);color:var(--muted)">ใช้รูปแบบรวมของเล่ม</span>`}</div>
    <div class="bk-wrap"><nav class="bk-nav">${BOOK_SECS.map(([k,t],i)=>{const s=bookSecStatus(k);return `<button class="bk-sec${k===sec?" on":""}" data-bksec="${k}"><span class="bk-no">${i+1}</span><span class="bk-tt">${esc(t)}</span><span class="bk-st">${chk[k]?'<span class="pill pass">ตรวจแล้ว</span>':s==="pass"?'<span class="pill" style="background:var(--soft);color:var(--muted)">รอตรวจ</span>':pill(s,s==="warn"?"ควรเติม":"ยังขาด")}</span></button>${k===sec&&secSubs(k).length?`<div class="bk-subs">${secSubs(k).map(([s,n,t])=>`<button class="bk-sub" data-bksub="${s}:${n}"><span>${n}. ${esc(t)}</span><span class="small muted" data-subpg="${s}:${n}"></span></button>`).join("")}</div>`:""}`}).join("")}</nav>
     <div class="bk-main">${bookEditPanel(sec,adm)}<div class="row" style="justify-content:space-between;margin-bottom:6px"><b>${esc((BOOK_SECS.find(x=>x[0]===sec)||[])[1]||"")}</b><label class="ctl"><input type="checkbox" id="bkChk" ${chk[sec]?"checked":""} ${adm?"":"disabled"}> ตรวจแล้ว ถูกต้องตามแบบฟอร์ม${chk[sec]&&chk[sec].by?` <span class="small muted">(${esc(chk[sec].by)})</span>`:""}</label></div>
@@ -1983,6 +1983,110 @@ function txEvents(){const [y,s]=state.ttTx.split("-");const yy=+y;const ev=[];
     const c=u.r.c||{code:u.r.code,th:u.r.th,tr:A,fl:{}};if(c.fl&&c.fl.capstone)return;
     parts.forEach((len,j)=>ev.push({id:u.key+"#"+j,u:{...u,c},len,fac:txFac(yy,s,u)||null,year:grp,grp:u.part==="P"&&u.secs>1?"S"+u.sec:"ALL",tx:yrs}))});
   return ev.sort((a,b)=>b.len-a.len)}
+
+// ---- ค1 ส่งออกเล่มเป็น .docx และสร้าง PDF จากไฟล์ .docx ที่อัปโหลด ----
+const DOCX_CDN={lib:"https://cdn.jsdelivr.net/npm/docx@9.5.1/dist/index.iife.js",zip:"https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js",pv:"https://cdn.jsdelivr.net/npm/docx-preview@0.3.5/dist/docx-preview.min.js"};
+const loadScript=src=>new Promise((ok,no)=>{const s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=()=>no(new Error("โหลดไลบรารีไม่สำเร็จ: "+src));document.head.appendChild(s)});
+async function docxLib(){if(window.DOCXLIB)return window.DOCXLIB;const keep=window.docx;await loadScript(DOCX_CDN.lib);window.DOCXLIB=window.docx;if(keep)window.docx=keep;return window.DOCXLIB}
+async function docxPreviewLib(){if(window.DOCXPV)return window.DOCXPV;if(!window.JSZip)await loadScript(DOCX_CDN.zip);const keep=window.docx;await loadScript(DOCX_CDN.pv);window.DOCXPV=window.docx;window.docx=keep;return window.DOCXPV}
+const IN=1440,PT=20; // twips
+const cssLen=v=>{if(!v)return 0;const m=String(v).trim().match(/^(-?[\d.]+)(px|pt|in|cm|mm|em)?$/);if(!m)return 0;const n=+m[1];return ({px:15,pt:20,in:1440,cm:567,mm:56.7,em:320})[m[2]||"px"]*n};
+async function imgData(src){try{const r=await fetch(src);const b=await r.arrayBuffer();return new Uint8Array(b)}catch(e){return null}}
+const imgType=src=>/^data:image\/(png|jpe?g|gif|bmp)/i.test(src)?RegExp.$1.toLowerCase().replace("jpeg","jpg"):/\.(png|jpe?g|gif|bmp)(\?|$)/i.test(src)?RegExp.$1.toLowerCase().replace("jpeg","jpg"):"png";
+
+async function bookDocxSection(D,k,html,fmt,pageNo){
+  const font=fmt.font||"Angsana New",body=fmt.body*2,tbl=fmt.table*2,line=Math.round(240*fmt.line),after=Math.round(fmt.pAfter*PT),hbef=Math.round(fmt.hBefore*PT);
+  const cw=(8.27-fmt.mL-fmt.mR)*IN;
+  // วาดในหน้าจอชั่วคราวเพื่อวัดความกว้างคอลัมน์และขนาดรูปให้ตรงกับเล่ม PDF
+  const host=document.createElement("div");host.className="bk-view";host.setAttribute("style",pgCssVars(fmt)+`;position:fixed;left:-30000px;top:0;width:${8.27-fmt.mL-fmt.mR}in`);host.innerHTML=html;document.body.appendChild(host);
+  try{await Promise.all([...host.querySelectorAll("img")].map(i=>i.complete?0:new Promise(r=>{i.onload=i.onerror=r})))}catch(e){}
+  const out=[];
+  const runs=async(node,ctx,acc)=>{for(const n of node.childNodes){
+      if(n.nodeType===3){let t=n.textContent;if(!ctx.pre)t=t.replace(/\s+/g," ");if(!t)continue;const parts=t.split("\t");parts.forEach((p,i)=>{const o={text:p,bold:ctx.b,italics:ctx.i,size:ctx.sz,font,color:ctx.color,highlight:ctx.hl,superScript:ctx.sup,subScript:ctx.sub,underline:ctx.u?{}:undefined};if(i>0)acc.push(new D.TextRun({...o,text:"",children:[new D.Tab()]}));if(p)acc.push(new D.TextRun(o))});continue}
+      if(n.nodeType!==1)continue;const tg=n.tagName,c={...ctx},st=n.style||{};
+      if(tg==="BR"){acc.push(new D.TextRun({text:"",break:1,size:ctx.sz,font}));continue}
+      if(tg==="IMG"){const im=await imgRun(n);if(im)acc.push(im);continue}
+      if(tg==="B"||tg==="STRONG"||+st.fontWeight>=600||st.fontWeight==="bold")c.b=true;if(tg==="I"||tg==="EM")c.i=true;if(tg==="U")c.u=true;if(tg==="SUP")c.sup=true;if(tg==="SUB")c.sub=true;
+      if(n.classList.contains("bk-todo"))c.hl="yellow";if(n.classList.contains("small-note")){c.sz=Math.round(ctx.sz*.85);c.color="555555"}if(n.classList.contains("bk-tab"))c.pre=true;
+      if(st.fontSize){const v=cssLen(st.fontSize);if(v)c.sz=Math.round(v/10)}
+      if(n.classList.contains("bk-cv")){const s=parseFloat(getComputedStyle(n).getPropertyValue("--s"))||parseFloat(n.style.getPropertyValue("--s"));if(s)c.sz=s*2}
+      await runs(n,c,acc)}};
+  const imgRun=async im=>{const src=im.getAttribute("src")||"";const data=await imgData(src);if(!data)return null;const r=im.getBoundingClientRect();let w=r.width||im.naturalWidth||100,h=r.height||im.naturalHeight||100;const mx=cw/15;if(w>mx){h=h*mx/w;w=mx}return new D.ImageRun({type:imgType(src)==="jpg"?"jpg":imgType(src),data,transformation:{width:Math.round(w),height:Math.round(h)}})};
+  const para=async(el,ctx,extra={})=>{const acc=[];await runs(el,ctx,acc);const st=el.style||{},cl=el.classList||{contains:()=>false};
+    let al=extra.al||(cl.contains("ind")?D.AlignmentType.THAI_DISTRIBUTE||D.AlignmentType.JUSTIFIED:undefined);const ta=st.textAlign||"";if(ta==="center")al=D.AlignmentType.CENTER;else if(ta==="right")al=D.AlignmentType.RIGHT;else if(ta==="justify")al=D.AlignmentType.JUSTIFIED;
+    const left=(cl.contains("li")?.5*IN:cl.contains("li2")?IN:0)+cssLen(st.marginLeft)+cssLen(st.paddingLeft)+(extra.left||0);
+    const first=cl.contains("ind")?.5*IN:cssLen(st.textIndent);
+    return new D.Paragraph({children:acc.length?acc:[new D.TextRun({text:"",size:ctx.sz,font})],alignment:al,indent:{left:Math.round(left),firstLine:first>0?Math.round(first):undefined,hanging:first<0?Math.round(-first):undefined},spacing:{before:extra.before||0,after:extra.after??after,line:extra.line||line},keepNext:extra.keepNext,pageBreakBefore:extra.pbb,tabStops:extra.tabs})};
+  const table=async t=>{const rows=[...t.rows];if(!rows.length)return null;
+    // ความกว้างคอลัมน์จากแถวที่มีช่องมากที่สุดและไม่มีการรวมช่อง
+    let ref=rows.filter(r=>[...r.cells].every(c=>c.colSpan===1)).sort((a,b)=>b.cells.length-a.cells.length)[0]||rows[0];
+    const tw=t.getBoundingClientRect().width||1,ncol=Math.max(...rows.map(r=>[...r.cells].reduce((a,c)=>a+c.colSpan,0)));
+    let widths=[...ref.cells].map(c=>c.getBoundingClientRect().width);if(widths.length!==ncol)widths=Array(ncol).fill(tw/ncol);
+    const totalTw=Math.min(cw,Math.round(tw*15)),cols=widths.map(w=>Math.round(w/widths.reduce((a,b)=>a+b,0)*totalTw));
+    const head=t.tHead?[...t.tHead.rows]:[];
+    const TR=[];for(const r of rows){let ci=0;const cells=[];for(const c of r.cells){const isTh=c.tagName==="TH",cl=c.classList;const ctx={sz:tbl,b:isTh||cl.contains("b")||cl.contains("grp")};
+        const al=isTh||cl.contains("c")?D.AlignmentType.CENTER:cl.contains("r")?D.AlignmentType.RIGHT:undefined;
+        const kids=[...c.children].some(x=>/^(P|DIV|TABLE|H\d)$/.test(x.tagName))?await blocks(c,ctx,{al,after:0,line:240}):[await para(c,ctx,{al,after:0,line:Math.round(240*1.0)})];
+        const w=cols.slice(ci,ci+c.colSpan).reduce((a,b)=>a+b,0);ci+=c.colSpan;
+        cells.push(new D.TableCell({children:kids.length?kids:[new D.Paragraph("")],columnSpan:c.colSpan>1?c.colSpan:undefined,rowSpan:c.rowSpan>1?c.rowSpan:undefined,width:{size:w,type:D.WidthType.DXA},shading:isTh?{type:D.ShadingType.CLEAR,fill:"E7E6E6",color:"auto"}:cl.contains("grp")?{type:D.ShadingType.CLEAR,fill:"F2F2F2",color:"auto"}:undefined,margins:{top:20,bottom:20,left:80,right:80}}))}
+      TR.push(new D.TableRow({children:cells,tableHeader:head.includes(r),cantSplit:true}))}
+    const bd={style:D.BorderStyle.SINGLE,size:4,color:"000000"};
+    return new D.Table({rows:TR,columnWidths:cols,width:{size:cols.reduce((a,b)=>a+b,0),type:D.WidthType.DXA},alignment:D.AlignmentType.CENTER,layout:D.TableLayoutType.FIXED,borders:{top:bd,bottom:bd,left:bd,right:bd,insideHorizontal:bd,insideVertical:bd}})};
+  const blocks=async(el,ctx,extra={})=>{const res=[];let inl=[];
+    const flush=async()=>{if(!inl.length)return;const tmp=document.createElement("p");inl.forEach(x=>tmp.appendChild(x.cloneNode(true)));if(tmp.textContent.trim()||tmp.querySelector("img"))res.push(await para(tmp,ctx,extra));inl=[]};
+    for(const n of [...el.childNodes]){
+      if(n.nodeType===3||(n.nodeType===1&&/^(B|STRONG|I|EM|U|SPAN|A|SUP|SUB|BR|IMG)$/.test(n.tagName)&&!n.classList.contains("bk-break"))){inl.push(n);continue}
+      if(n.nodeType!==1)continue;await flush();const tg=n.tagName,cl=n.classList;
+      if(cl.contains("bk-break")){res.push(new D.Paragraph({children:[new D.PageBreak()]}));continue}
+      if(cl.contains("bk-gap")){res.push(new D.Paragraph({children:[],spacing:{before:Math.round((fmt.cGap||2.2)*IN*0.6),after:0}}));continue}
+      if(tg==="P")res.push(await para(n,ctx,extra));
+      else if(tg==="H1"||tg==="H2"){const big=cl.contains("big");res.push(await para(n,{...ctx,b:true,sz:big?Math.round(body*1.25):body},{al:D.AlignmentType.CENTER,before:hbef,after:Math.round(.6*body*10),keepNext:true}))}
+      else if(/^H[3-6]$/.test(tg))res.push(await para(n,{...ctx,b:true},{before:hbef,after:Math.round(.2*body*10),keepNext:true}));
+      else if(tg==="TABLE"){const t=await table(n);if(t){res.push(t);res.push(new D.Paragraph({children:[],spacing:{after:after}}))}}
+      else if(tg==="UL"||tg==="OL"){let i=0;for(const li of n.children){i++;const p=document.createElement("p");p.textContent=(tg==="OL"?i+". ":"• ");[...li.childNodes].forEach(x=>p.appendChild(x.cloneNode(true)));res.push(await para(p,ctx,{...extra,left:.5*IN}))}}
+      else if(cl.contains("toc")){const sp=[...n.children];const txt=sp[0],pg=sp[sp.length-1];const acc=[];await runs(txt,{...ctx,b:ctx.b||/bold|700/.test(n.style.fontWeight||"")},acc);
+        acc.push(new D.TextRun({text:"",children:[new D.Tab(),pg.textContent.trim()],size:ctx.sz,font,bold:/bold|700/.test(n.style.fontWeight||"")}));
+        res.push(new D.Paragraph({children:acc,tabStops:[{type:D.TabStopType.RIGHT,position:Math.round(cw-20),leader:sp.length>2&&!/border:\s*0/.test(sp[1].getAttribute("style")||"")?D.LeaderType.DOT:D.LeaderType.NONE}],spacing:{after:0,line,before:cssLen(n.style.marginTop)}}))}
+      else{const c2={...ctx};const ex={...extra};
+        if(cl.contains("bk-cover")||cl.contains("bk-cvlogo")||n.style.textAlign==="center"){ex.al=D.AlignmentType.CENTER;if(cl.contains("bk-cover"))c2.b=true}
+        if(cl.contains("bk-sign")||n.style.textAlign==="right")ex.al=D.AlignmentType.RIGHT;
+        if(cl.contains("bk-cv")){const s=parseFloat(n.style.getPropertyValue("--s"));if(s)c2.sz=s*2;ex.line=300;ex.after=0}
+        const hasBlock=[...n.children].some(x=>/^(P|DIV|TABLE|H\d|UL|OL)$/.test(x.tagName));
+        if(hasBlock)res.push(...await blocks(n,c2,ex));else if(n.textContent.trim()||n.querySelector("img"))res.push(await para(n,c2,ex))}}
+    await flush();return res};
+  try{out.push(...await blocks(host,{sz:body},{}))}finally{host.remove()}
+  const nofoot=BK_NOFOOT.includes(k);
+  const footer=nofoot?undefined:{default:new D.Footer({children:[new D.Paragraph({border:{top:{style:D.BorderStyle.SINGLE,size:4,color:"555555",space:1}},tabStops:[{type:D.TabStopType.RIGHT,position:Math.round(cw)}],children:[new D.TextRun({text:"หลักสูตรวิศวกรรมศาสตรบัณฑิต สาขาวิชาวิศวกรรมเครื่องกล (หลักสูตรปรับปรุง พ.ศ. 2571)",size:22,font}),new D.TextRun({children:[new D.Tab(),D.PageNumber.CURRENT],size:22,font})]})]})};
+  return {properties:{page:{size:{width:11906,height:16838},margin:{top:Math.round(fmt.mT*IN),bottom:Math.round(fmt.mB*IN),left:Math.round(fmt.mL*IN),right:Math.round(fmt.mR*IN),footer:Math.round(.45*IN)},pageNumbers:pageNo?{start:pageNo}:undefined}},footers:footer,children:out.length?out:[new D.Paragraph("")]};
+}
+async function bookDocx(all){
+  const msg=t=>{state.msg=t;render()};
+  try{msg("กำลังสร้างไฟล์ .docx…");const D=await docxLib();
+    const secs=all?BOOK_SECS.map(([k])=>k):[state.bookSec||"cover"];
+    const tmap=secs.includes("toc")?await computeTocPages():null;const sections=[];let first=true;
+    for(const k of secs){const fmt=bookFmt(k);const html=k==="toc"?fillToc(bookSecFinal(k),tmap):bookSecFinal(k);
+      const pn=!BK_NOFOOT.includes(k)&&first?1:undefined;if(pn)first=false;sections.push(await bookDocxSection(D,k,html,fmt,pn))}
+    const f0=bookFmt(secs[0]);
+    const doc=new D.Document({creator:"ME curriculum platform",title:bookFileName(all),styles:{default:{document:{run:{font:f0.font,size:f0.body*2}}}},sections});
+    const blob=await D.Packer.toBlob(doc);const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=bookFileName(all)+".docx";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+    msg(`สร้างไฟล์ ${bookFileName(all)}.docx แล้ว แก้ไขใน Word ได้ แล้วอัปโหลดกลับเพื่อสร้าง PDF`)}
+  catch(e){console.error(e);msg("สร้าง .docx ไม่สำเร็จ: "+(e&&e.message||e))}
+}
+async function docxToPdf(file){
+  if(!file)return;if(!/\.docx$/i.test(file.name)){alert("เลือกไฟล์นามสกุล .docx");return}
+  const w=window.open("","_blank");if(!w){alert("เบราว์เซอร์บล็อกหน้าต่างใหม่ อนุญาต pop-up แล้วลองอีกครั้ง");return}
+  w.document.write('<p style="font:16px sans-serif;padding:20px">กำลังเปิดไฟล์ '+esc(file.name)+'…</p>');
+  try{const PV=await docxPreviewLib();const buf=await file.arrayBuffer();
+    w.document.open();w.document.write(`<!doctype html><html lang="th"><head><meta charset="utf-8"><title>${esc(file.name.replace(/\.docx$/i,""))}</title><style>@page{size:A4;margin:0}body{margin:0;background:#e8e6e2}.pbar{font:14px sans-serif;background:#fff8d6;border:1px solid #e0c96b;padding:8px 12px;margin:10px}.pbar button{margin-left:8px}.docx-wrapper{background:transparent!important;padding:10px 0!important}.docx-wrapper>section.docx{margin:0 auto 18px!important;box-shadow:0 1px 5px rgba(0,0,0,.25)}@media print{body{background:#fff}.pbar{display:none}.docx-wrapper{padding:0!important}.docx-wrapper>section.docx{margin:0!important;box-shadow:none!important;break-after:page}}</style></head><body><div class="pbar">ไฟล์ <b>${esc(file.name)}</b> · ในหน้าต่างพิมพ์ให้เลือก <b>“บันทึกเป็น PDF / Save as PDF”</b> ขนาด A4 ระยะขอบ “ไม่มี/None” <button onclick="print()">เปิดหน้าต่างบันทึก PDF อีกครั้ง</button><div style="font-size:12px;color:#555;margin-top:4px">ฟอนต์ที่ใช้ต้องติดตั้งในเครื่องนี้ (เช่น Angsana New, TH SarabunPSK) ถ้าไม่มี ระบบจะใช้ฟอนต์ใกล้เคียงแทน ควรตรวจหน้าก่อนบันทึก</div></div><div id="st"></div><div id="doc"></div></body></html>`);w.document.close();
+    await PV.renderAsync(buf,w.document.getElementById("doc"),w.document.getElementById("st"),{breakPages:true,ignoreLastRenderedPageBreak:false,ignoreWidth:false,ignoreHeight:false,renderHeaders:true,renderFooters:true,renderFootnotes:true,useBase64URL:true});
+    const S=[...w.document.querySelectorAll("section.docx")],n=S.length;const tall=S.some(x=>x.getBoundingClientRect().height>1.1*11.69*96);
+    if(tall&&S[0]){const cs=w.getComputedStyle(S[0]);const st=w.document.createElement("style");st.textContent=`@media print{@page{size:A4;margin:${cs.paddingTop} ${cs.paddingRight} ${cs.paddingBottom} ${cs.paddingLeft}}.docx-wrapper>section.docx{padding:0!important;min-height:0!important;height:auto!important;width:auto!important}}`;w.document.head.appendChild(st);
+      w.document.querySelector(".pbar").insertAdjacentHTML("beforeend",'<div style="font-size:12px;color:#a33;margin-top:4px">ไฟล์นี้ยังไม่มีตำแหน่งตัดหน้าจาก Microsoft Word ระบบจะตัดหน้าให้เอง เลขหน้าและท้ายกระดาษอาจไม่ตรงกับ Word ควรเปิดไฟล์ใน Word แล้วกดบันทึกหนึ่งครั้งก่อนอัปโหลด</div>')}const bar=w.document.querySelector(".pbar b");if(bar)bar.insertAdjacentText("afterend",` (${n} หน้า)`);
+    try{await w.document.fonts.ready}catch(e){}setTimeout(()=>w.print(),600)}
+  catch(e){console.error(e);w.document.body.innerHTML='<p style="font:16px sans-serif;padding:20px;color:#b00">เปิดไฟล์ไม่สำเร็จ: '+esc(e&&e.message||String(e))+'</p>'}
+}
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("#bkDocx,#bkDocxAll");if(!b)return;bookDocx(b.id==="bkDocxAll")});
+document.addEventListener("change",e=>{if(e.target&&e.target.id==="bkDocxUp"){const f=e.target.files&&e.target.files[0];e.target.value="";docxToPdf(f)}});
 
 // ---- shell ----
 // ---- ข4 ประวัติอาจารย์และผลงานทางวิชาการ (ภาคผนวก ค1) ----
