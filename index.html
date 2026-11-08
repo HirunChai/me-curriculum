@@ -881,7 +881,7 @@ async function saveFmtAll(f,label){const y=window.scrollY;await saveBookDoc("pro
 const bookPlan=()=>({...BOOK_PLAN0,...defd(state.bookPlan)});
 const TR_EN={ME:"Mechanical Engineering",EV:"New Energy Vehicle Engineering",CE:"Energy Engineering"};
 const crTxt=c=>c.fl&&c.fl.nc?`${c.t} (${c.t}-${c.p}-${c.s})*`:`${c.cr} (${c.t}-${c.p}-${c.s})`;
-const bkT=(rows,head,opt={})=>`<table class="bk-t"${opt.w?` style="width:${opt.w}"`:""}>${head?`<thead><tr>${head.map(h=>`<th>${h}</th>`).join("")}</tr></thead>`:""}<tbody>${rows.map(r=>`<tr>${r.map(c=>typeof c==="object"&&c?`<td colspan="${c.span||1}" class="${c.cls||""}">${c.h??esc(c.t)}</td>`:`<td>${esc(c??"")}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+const bkT=(rows,head,opt={})=>`<table class="bk-t"${opt.auto?` data-auto="${opt.auto}"`:""}${opt.w?` style="width:${opt.w}"`:""}>${head?`<thead><tr>${head.map(h=>`<th>${h}</th>`).join("")}</tr></thead>`:""}<tbody>${rows.map(r=>`<tr>${r.map(c=>typeof c==="object"&&c?`<td colspan="${c.span||1}" class="${c.cls||""}">${c.h??esc(c.t)}</td>`:`<td>${esc(c??"")}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
 const bkTodo=t=>`<span class="bk-todo">${esc(t)}</span>`;
 const bkP=(t,cls="")=>`<p class="${cls}">${t}</p>`;
 
@@ -939,7 +939,17 @@ function applySubs(sec,html){const subs=secSubs(sec);if(!subs.length)return html
   return d.innerHTML}
 function mergeOverride(oldHtml,newHtml,ovHtml){
   const mk=x=>{const d=document.createElement("div");d.innerHTML=x;return d};const nk=e=>e.textContent.replace(/\s+/g,"");
-  const dA=mk(oldHtml),dB=mk(newHtml),dO=mk(ovHtml);const A=[...dA.children],B=[...dB.children],O=[...dO.children];
+  const dA=mk(oldHtml),dB=mk(newHtml),dO=mk(ovHtml);let forced=0;
+  // ตารางที่ผูกกับข้อมูล (data-auto) ให้ตามข้อมูลล่าสุดเสมอ แม้ฉบับแก้มือจะแก้ตารางนั้นไว้
+  const hk=t=>{const h=t&&t.querySelector&&t.querySelector("thead");return h?h.textContent.replace(/\s+/g,""):""};
+  [...dB.children].filter(b=>b.dataset&&b.dataset.auto).forEach(b=>{const k=b.dataset.auto,h=hk(b);
+    const findIn=d=>{const kids=[...d.children];let i=kids.findIndex(x=>x.dataset&&x.dataset.auto===k);if(i<0)i=kids.findIndex(x=>x.tagName==="TABLE"&&!x.dataset.auto&&h&&hk(x)===h);if(i<0)return null;
+      // ตารางที่ถูกแยกเป็นหลายส่วน (หัวตารางซ้ำ) ก่อนถึงหัวข้อถัดไป รวมเป็นตารางเดียว
+      for(let j=i+1;j<kids.length&&!/^H[1-6]$/.test(kids[j].tagName)&&!(kids[j].classList&&kids[j].classList.contains("li"));j++){if(kids[j].tagName==="TABLE"&&hk(kids[j])===h)kids[j].remove()}return kids[i]};
+    const o=findIn(dO),a=findIn(dA);
+    if(o){if(o.textContent.replace(/\s+/g,"")!==b.textContent.replace(/\s+/g,""))forced++;const c=b.cloneNode(true);if(o.getAttribute("style"))c.setAttribute("style",o.getAttribute("style"));o.replaceWith(c)}
+    if(a)a.replaceWith(b.cloneNode(true))});
+  const A=[...dA.children],B=[...dB.children],O=[...dO.children];
   const ka=A.map(nk),kb=B.map(nk),n=A.length,m=B.length;
   const L=Array.from({length:n+1},()=>new Uint16Array(m+1));
   for(let i=n-1;i>=0;i--)for(let j=m-1;j>=0;j--)L[i][j]=ka[i]===kb[j]?L[i+1][j+1]+1:Math.max(L[i+1][j],L[i][j+1]);
@@ -950,12 +960,12 @@ function mergeOverride(oldHtml,newHtml,ovHtml){
     if(i<n&&j<m&&ka[i]===kb[j]){cur=mapO[i]||cur;lastDelStyle=[];i++;j++}
     else if(j<m&&(i>=n||L[i][j+1]>=L[i+1][j]))ins(B[j++]);
     else{const o=mapO[i];if(o){if(o.getAttribute("style"))lastDelStyle.push(o.getAttribute("style"));if(o===cur)cur=o.previousElementSibling;o.remove();del++}else{skip++;skipT.push(A[i].textContent.trim().slice(0,160))}i++}}
-  return {h:dO.innerHTML,upd,skip,skipT,del}}
+  return {h:dO.innerHTML,upd:upd+forced,skip,skipT,del}}
 // ฉบับแก้มือ: รวมข้อมูลใหม่จากแพลตฟอร์มเข้าทุกครั้งที่แสดง (คงรูปแบบที่จัดไว้) — ไม่ต้องรอกดบันทึก
 function bookMergeInfo(id){const o=state.bookEdit&&state.bookEdit.html&&state.bookEdit.html[id];if(!o)return null;
   const auto=applySubs(id,bookSecHtml(id));const M=state.bookMerge=state.bookMerge||{};const key=(o.at||"")+"|"+auto.length+"|"+auto.slice(0,200)+auto.slice(-400);
   if(M[id]&&M[id].key===key&&M[id].ovh===o.h)return M[id];
-  let r={h:o.h,upd:0,skip:0,skipT:[],del:0};if(o.base&&o.base!==auto){try{r=mergeOverride(o.base,auto,o.h)}catch(e){}}
+  let r={h:o.h,upd:0,skip:0,skipT:[],del:0};if(o.base){try{r=mergeOverride(o.base,auto,o.h)}catch(e){}}
   return M[id]={key,ovh:o.h,auto,...r};}
 function bookSecFinal(id){const o=state.bookEdit&&state.bookEdit.html&&state.bookEdit.html[id];if(!o)return applySubs(id,bookSecHtml(id));
   const h=bookMergeInfo(id).h;
@@ -1020,7 +1030,7 @@ function bookSecHtml(id){
     return `<h2 class="bk-h big">คำนำ</h2>${ind("ตามที่กระทรวงการอุดมศึกษา วิทยาศาสตร์ วิจัยและนวัตกรรมได้มีประกาศเรื่อง มาตรฐานคุณวุฒิระดับอุดมศึกษา พ.ศ.2565 และเกณฑ์มาตรฐานหลักสูตรระดับปริญญาตรี พ.ศ.2565 โดยมีวัตถุประสงค์เพื่อเป็นมาตรฐานให้สถาบันอุดมศึกษาใช้เป็นแนวทางในการพัฒนาหรือปรับปรุงหลักสูตร การจัดการเรียนการสอน และพัฒนาคุณภาพการจัดการศึกษา ให้สามารถผลิตบัณฑิตที่มีคุณภาพ และเพื่อประโยชน์ต่อการรับรองมาตรฐานคุณวุฒิในระดับอุดมศึกษา")}${ind(`คณะวิศวกรรมศาสตร์ จึงได้ปรับปรุงหลักสูตรวิศวกรรมศาสตรบัณฑิต สาขาวิชาวิศวกรรมเครื่องกล (หลักสูตรปรับปรุง พ.ศ. ${YEAR}) แบ่งเป็น 3 แขนงวิชา ได้แก่ ${trs.map(t=>"แขนงวิชา"+TRACKS[t]).join(" ")} โดยออกแบบตามแนวทางผลลัพธ์การเรียนรู้เป็นฐาน (OBE)`)}${ind("จึงหวังเป็นอย่างยิ่งว่า จะสามารถนำหลักสูตรนี้ไปใช้ในการจัดการเรียนการสอน และผลิตบัณฑิตออกสู่สังคมได้อย่างมีคุณภาพ")}<div class="bk-sign">คณะวิศวกรรมศาสตร์<br>มหาวิทยาลัยเทคโนโลยีราชมงคลกรุงเทพ</div><div class="bk-break"></div>${bookTocHtml()}`;
   }
   if(id==="h1"){
-    const rt=[];trs.forEach(t=>{rt.push([{t:"แขนงวิชา"+TRACKS[t],span:3,cls:"grp"}]);const L=resp.filter(f=>roleOf(f.id)===t);if(!L.length)rt.push([{h:bkTodo("ยังไม่ได้กำหนดผู้รับผิดชอบ"),span:3}]);L.forEach((f,i)=>rt.push([`${i+1}. ${formalName(f)}`,POS[qualOf(f.id).pos]||"",(DEG[qualOf(f.id).deg]||"")+" (สาขา สถาบัน ปีที่สำเร็จ)"]))});
+    const rt=[];trs.forEach(t=>{rt.push([{t:"แขนงวิชา"+TRACKS[t],span:3,cls:"grp"}]);const L=resp.filter(f=>roleOf(f.id)===t);if(!L.length)rt.push([{h:bkTodo("ยังไม่ได้กำหนดผู้รับผิดชอบ"),span:3}]);L.forEach((f,i)=>rt.push([`${i+1}. ${formalName(f)}`,POS[qualOf(f.id).pos]||"",{h:bookDegHtml(f)}]))});
     const grpNeeds=g=>na.filter(n=>n.g===g&&n.st==="have");
     return `<h2 class="bk-h big">รายละเอียดหลักสูตร</h2><h2 class="bk-h big">หลักสูตรวิศวกรรมศาสตรบัณฑิต สาขาวิชาวิศวกรรมเครื่องกล<br>หลักสูตรปรับปรุง พ.ศ. ${YEAR}</h2>
     <p><b>ชื่อสถาบันอุดมศึกษา</b> มหาวิทยาลัยเทคโนโลยีราชมงคลกรุงเทพ</p><p><b>คณะ / ภาควิชา</b> คณะวิศวกรรมศาสตร์ ภาควิชาวิศวกรรมเครื่องกล</p>${H("หมวดที่ 1 ข้อมูลทั่วไป")}
@@ -1033,7 +1043,7 @@ function bookSecHtml(id){
     ${h3("9. สถานภาพของหลักสูตรและการพิจารณาอนุมัติ/เห็นชอบหลักสูตร")}${ind(`หลักสูตรปรับปรุง พ.ศ. ${YEAR} ปรับปรุงมาจากหลักสูตรวิศวกรรมศาสตรบัณฑิต สาขาวิชาวิศวกรรมเครื่องกล หลักสูตรปรับปรุง พ.ศ. 2566`)}${li("คณะกรรมการวิพากษ์หลักสูตร ครั้งที่ "+(BF("rvno")?BFh("rvno"):bkTodo("…"))+" วันที่ "+bkTodo(new Date(bookPlan().review).toLocaleDateString("th-TH",{day:"numeric",month:"long",year:"numeric"})))}${li("สภาวิชาการ "+(BF("acad")?BFh("acad"):bkTodo("ครั้งที่ … วันที่ …")))}${li("สภามหาวิทยาลัย "+(BF("council")?BFh("council"):bkTodo("ครั้งที่ … วันที่ …")))}${li(`เปิดสอน ภาคการศึกษาที่ 1 ปีการศึกษา ${YEAR}`)}
     ${h3("10. ความพร้อมในการเผยแพร่หลักสูตรที่มีคุณภาพและมาตรฐาน")}${ind(`หลักสูตรพร้อมเผยแพร่ว่าเป็นไปตามมาตรฐานคุณวุฒิระดับอุดมศึกษา พ.ศ. 2565 ในปีการศึกษา ${YEAR+2}`)}
     ${h3("11. อาชีพที่สามารถประกอบได้หลังสำเร็จการศึกษา")}${BFlines("careers").map((x,i)=>li(`${i+1}) ${esc(x)}`)).join("")}
-    ${h3("12. ชื่อ-นามสกุล ตำแหน่ง และคุณวุฒิการศึกษาของอาจารย์ผู้รับผิดชอบหลักสูตร")}${bkT(rt,["ชื่อ-นามสกุล","ตำแหน่งทางวิชาการ","คุณวุฒิการศึกษา"])}
+    ${h3("12. ชื่อ-นามสกุล ตำแหน่ง และคุณวุฒิการศึกษาของอาจารย์ผู้รับผิดชอบหลักสูตร")}${bkT(rt,["ชื่อ-นามสกุล","ตำแหน่งทางวิชาการ","คุณวุฒิการศึกษา"],{auto:"resp"})}
     ${h3("13. สถานที่จัดการเรียนการสอน")}${ind(BFh("place"))}
     ${h3("14. แนวคิดการออกแบบหลักสูตร")}${li("<b>14.1 สถานการณ์ภายนอกหรือการพัฒนาที่จำเป็นของประเทศ</b>")}${grpNeeds("NAT").map(n=>ind(esc(n.src+": "+n.t))).join("")}${li("<b>14.2 วิสัยทัศน์ พันธกิจ และอัตลักษณ์ของมหาวิทยาลัย</b>")}${grpNeeds("POL").map(n=>ind(esc(n.src+": "+n.t))).join("")}${li("<b>14.3 การวิเคราะห์ความเสี่ยง</b>")}${BF("swot")?BFlines("swot").map(x=>ind(esc(x))).join(""):ind(bkTodo("(เขียน SWOT Analysis ของหลักสูตร)"))}${li("<b>14.4 การกำหนดผู้มีส่วนได้ส่วนเสีย</b>")}${na.filter(n=>n.g==="SUR").map((n,i)=>li(`${i+1}) ${esc(n.src)} — ${esc(n.how||"")}`)).join("")}${li("<b>14.5 ความต้องการของผู้มีส่วนได้ส่วนเสีย</b>")}${Object.entries(NEED_GROUPS).map(([g,t])=>{const L=grpNeeds(g);return L.length?li(esc(t+": "+L.map(n=>n.sh||n.t).join(" · "))):""}).join("")}`;
   }
@@ -1066,10 +1076,10 @@ function bookSecHtml(id){
   if(id==="h5"){
     const l1=loads("S1").m,l2=loads("S2").m,ls=loads("SS").m;
     const wk=f=>{const a=(l1[f.id]||{}).h||0,b=(l2[f.id]||{}).h||0,c=(ls[f.id]||{}).h||0;const v=(a+b+c)/2;return v?String(Math.round(v*10)/10):""};
-    const fr=(L,star)=>L.map((f,i)=>{const w=wk(f);return [String(i+1),formalName(f)+(star&&roleOf(f.id)?" *":""),DEG[qualOf(f.id).deg]||"",(cvDegField(f.id)||{h:bkTodo("สาขา")}),POS[qualOf(f.id).pos]||"",...[0,1,2,3].map(()=>({t:w,cls:"c"}))]});
+    const fr=(L,star)=>L.map((f,i)=>{const w=wk(f);return [String(i+1),formalName(f)+(star&&roleOf(f.id)?" *":""),DEG[bookDegLv(f)]||"",(cvDegField(f.id)||{h:bkTodo("สาขา")}),POS[qualOf(f.id).pos]||"",...[0,1,2,3].map(()=>({t:w,cls:"c"}))]});
     const ext=[...new Set(Object.values(state.extOwners||{}).map(x=>String(x).trim()).filter(Boolean))];
     const extCodes=n=>Object.entries(state.extOwners||{}).filter(([c,v])=>String(v).trim()===n).map(([c])=>c).join(", ");
-    return `${H("หมวดที่ 5 ความพร้อมและศักยภาพในการบริหารจัดการหลักสูตร")}${h3("1. การเตรียมการสำหรับอาจารย์ใหม่")}${ind("ตามระบบของมหาวิทยาลัยและคณะ (ข้อความมาตรฐานตามแบบฟอร์ม)")}${h3("4. ชื่อ-นามสกุล ตำแหน่ง และคุณวุฒิของอาจารย์")}${li("<b>4.1 อาจารย์ประจำหลักสูตร (* อาจารย์ผู้รับผิดชอบหลักสูตร)</b>")}${bkT(fr([...resp,...reg],true),["ลำดับ","ชื่อ – นามสกุล","คุณวุฒิ","สาขาวิชาเอก","ตำแหน่งวิชาการ",String(YEAR),String(YEAR+1),String(YEAR+2),String(YEAR+3)],{w:"100%"})}<p class="small-note">ภาระการสอน ชม./สัปดาห์ เฉลี่ยต่อภาคการศึกษา คำนวณจากการจัดผู้สอนในแถบบริหารหลักสูตร (ข2) ของปีการศึกษาแรก และใช้เป็นค่าประมาณของปีถัดไป</p>${li("<b>4.2 อาจารย์ผู้สอนจากหน่วยงานอื่น</b>")}${ext.length?bkT(ext.map((n,i)=>[String(i+1),n,extCodes(n)]),["ลำดับ","ชื่อ – นามสกุล","รายวิชาที่สอน"],{w:"90%"}):ind(bkTodo("(ยังไม่ได้กรอกชื่อผู้สอนจากหน่วยงานอื่นใน ก3)"))}`;
+    return `${H("หมวดที่ 5 ความพร้อมและศักยภาพในการบริหารจัดการหลักสูตร")}${h3("1. การเตรียมการสำหรับอาจารย์ใหม่")}${ind("ตามระบบของมหาวิทยาลัยและคณะ (ข้อความมาตรฐานตามแบบฟอร์ม)")}${h3("4. ชื่อ-นามสกุล ตำแหน่ง และคุณวุฒิของอาจารย์")}${li("<b>4.1 อาจารย์ประจำหลักสูตร (* อาจารย์ผู้รับผิดชอบหลักสูตร)</b>")}${bkT(fr([...resp,...reg],true),["ลำดับ","ชื่อ – นามสกุล","คุณวุฒิ","สาขาวิชาเอก","ตำแหน่งวิชาการ",String(YEAR),String(YEAR+1),String(YEAR+2),String(YEAR+3)],{w:"100%",auto:"staff"})}<p class="small-note">ภาระการสอน ชม./สัปดาห์ เฉลี่ยต่อภาคการศึกษา คำนวณจากการจัดผู้สอนในแถบบริหารหลักสูตร (ข2) ของปีการศึกษาแรก และใช้เป็นค่าประมาณของปีถัดไป</p>${li("<b>4.2 อาจารย์ผู้สอนจากหน่วยงานอื่น</b>")}${ext.length?bkT(ext.map((n,i)=>[String(i+1),n,extCodes(n)]),["ลำดับ","ชื่อ – นามสกุล","รายวิชาที่สอน"],{w:"90%"}):ind(bkTodo("(ยังไม่ได้กรอกชื่อผู้สอนจากหน่วยงานอื่นใน ก3)"))}`;
   }
   if(id==="h6")return `${H("หมวดที่ 6 การประเมินผลการเรียนรู้และเกณฑ์การสำเร็จการศึกษา")}${h3("1. กฎระเบียบหรือหลักเกณฑ์ในการให้ระดับคะแนน (เกรด)")}${ind("เป็นไปตามข้อบังคับมหาวิทยาลัยเทคโนโลยีราชมงคลกรุงเทพ ว่าด้วยการศึกษาระดับปริญญาตรี")}${h3("2. กระบวนการทวนสอบผลลัพธ์การเรียนรู้ของนักศึกษา")}${ind("ทวนสอบระดับรายวิชาทุกภาคการศึกษา และทวนสอบผลลัพธ์รายชั้นปี (YLO) ผ่านรายวิชาระดับ M ทุกปีการศึกษา")}${h3("3. เกณฑ์การสำเร็จการศึกษาตามหลักสูตร")}${li(`1) ศึกษารายวิชาครบตามโครงสร้างหลักสูตร ไม่น้อยกว่า ${sumCr(ME)} หน่วยกิต และได้ระดับคะแนนเฉลี่ยไม่ต่ำกว่า 2.00 และบรรลุผลลัพธ์การเรียนรู้ตามมาตรฐานคุณวุฒิระดับปริญญาตรี`)}${li("2) มีคุณสมบัติครบตามข้อบังคับมหาวิทยาลัยเทคโนโลยีราชมงคลกรุงเทพ ว่าด้วยการศึกษาระดับปริญญาตรี")}`;
   if(id==="h7")return `${H("หมวดที่ 7 การประกันคุณภาพของหลักสูตร")}${["1. ด้านปัจจัยนำเข้า (Input)","2. ด้านกระบวนการ (Process)","3. ด้านผลลัพธ์ (Output)"].map(t=>h3(t)+ind("ใช้ข้อความและตัวบ่งชี้มาตรฐานตามแบบฟอร์มของมหาวิทยาลัย (คงไว้ในไฟล์ Word)")).join("")}`;
@@ -1077,7 +1087,7 @@ function bookSecHtml(id){
   if(id==="apx"){
     let k=0;const rows=[];Object.entries(NEED_GROUPS).forEach(([g,t])=>{const L=na.filter(n=>n.g===g);if(!L.length)return;rows.push([{t,span:4,cls:"grp"}]);L.forEach(n=>rows.push([String(++k),n.src,n.t||"(รอผลสำรวจ)",n.how||""]))});
     const r3=na.filter(n=>n.st==="have"&&(n.plos||[]).length).map((n,i)=>[String(i+1),n.src+": "+n.t,n.plos.map(p=>"PLO "+p).join(", ")]);
-    return `<h2 class="bk-h big">ภาคผนวก ก</h2>${h3("1. ตารางแสดงความต้องการจำเป็นของผู้มีส่วนได้ส่วนเสีย")}${bkT(rows,["ลำดับ","Stakeholders/Input","ความต้องการจำเป็น","วิธีการได้ข้อมูล"],{w:"100%"})}${h3("2. รายงานการสำรวจความต้องการของผู้มีส่วนได้ส่วนเสีย")}${ind(bkTodo("(แนบผลสำรวจเมื่อได้ผลแล้ว)"))}${h3("3. ตารางวิเคราะห์ความสอดคล้องระหว่าง Stakeholders’ Needs กับ PLOs")}${bkT(r3,["ลำดับ","คุณลักษณะ / Stakeholders’ Needs","PLOs"],{w:"100%"})}${h3("4. ตารางเปรียบเทียบหลักสูตรเดิมกับหลักสูตรปรับปรุง")}${BF("cmp")?BFlines("cmp").map(x=>ind(esc(x))).join(""):ind(bkTodo("(กรอกในไฟล์ Word)"))}<div class="bk-break"></div><h2 class="bk-h big">ภาคผนวก ข</h2>${["ข้อบังคับมหาวิทยาลัยว่าด้วยการศึกษาระดับปริญญาตรี","ข้อบังคับ/ประกาศเรื่องการเทียบโอนผลการเรียน","ประกาศมหาวิทยาลัยที่เกี่ยวข้อง","คำสั่งแต่งตั้งคณะกรรมการพัฒนาหลักสูตร"].map((t,i)=>li(`${i+1}. ${t} ${bkTodo("(แนบเอกสาร)")}`)).join("")}<h2 class="bk-h big">ภาคผนวก ค</h2>${h3("1. ประวัติอาจารย์ประจำหลักสูตร")}${cvBookHtml()}<div class="bk-break"></div>${h3("2. ผลสอบภาษาอังกฤษของอาจารย์ผู้รับผิดชอบหลักสูตร")}${(()=>{const R=state.faculty.filter(f=>roleOf(f.id));return R.length?bkT(R.map((f,i)=>{const e=cvOf(f.id).eng||{};return [String(i+1),formalName(f),e.test||{h:bkTodo("รอกรอก")},e.score||"",e.date?new Date(e.date).toLocaleDateString("th-TH",{dateStyle:"medium"}):""]}),["ลำดับ","ชื่อ-สกุล","การทดสอบ","คะแนน/ระดับ","วันที่สอบ"],{w:"100%"}):ind(bkTodo("(ยังไม่กำหนดอาจารย์ผู้รับผิดชอบหลักสูตร)"))})()}${["เอกสารแสดงประสบการณ์ด้านปฏิบัติการ","เอกสารลงนามความร่วมมือ (MOU/MOA) ถ้ามี"].map((t,i)=>h3(`${i+3}. ${t}`)+ind(bkTodo("(แนบเอกสาร)"))).join("")}`;
+    return `<h2 class="bk-h big">ภาคผนวก ก</h2>${h3("1. ตารางแสดงความต้องการจำเป็นของผู้มีส่วนได้ส่วนเสีย")}${bkT(rows,["ลำดับ","Stakeholders/Input","ความต้องการจำเป็น","วิธีการได้ข้อมูล"],{w:"100%"})}${h3("2. รายงานการสำรวจความต้องการของผู้มีส่วนได้ส่วนเสีย")}${ind(bkTodo("(แนบผลสำรวจเมื่อได้ผลแล้ว)"))}${h3("3. ตารางวิเคราะห์ความสอดคล้องระหว่าง Stakeholders’ Needs กับ PLOs")}${bkT(r3,["ลำดับ","คุณลักษณะ / Stakeholders’ Needs","PLOs"],{w:"100%"})}${h3("4. ตารางเปรียบเทียบหลักสูตรเดิมกับหลักสูตรปรับปรุง")}${BF("cmp")?BFlines("cmp").map(x=>ind(esc(x))).join(""):ind(bkTodo("(กรอกในไฟล์ Word)"))}<div class="bk-break"></div><h2 class="bk-h big">ภาคผนวก ข</h2>${["ข้อบังคับมหาวิทยาลัยว่าด้วยการศึกษาระดับปริญญาตรี","ข้อบังคับ/ประกาศเรื่องการเทียบโอนผลการเรียน","ประกาศมหาวิทยาลัยที่เกี่ยวข้อง","คำสั่งแต่งตั้งคณะกรรมการพัฒนาหลักสูตร"].map((t,i)=>li(`${i+1}. ${t} ${bkTodo("(แนบเอกสาร)")}`)).join("")}<h2 class="bk-h big">ภาคผนวก ค</h2>${h3("1. ประวัติอาจารย์ประจำหลักสูตร")}${cvBookHtml()}<div class="bk-break"></div>${h3("2. ผลสอบภาษาอังกฤษของอาจารย์ผู้รับผิดชอบหลักสูตร")}${(()=>{const R=state.faculty.filter(f=>roleOf(f.id));return R.length?bkT(R.map((f,i)=>{const e=cvOf(f.id).eng||{};return [String(i+1),formalName(f),e.test||{h:bkTodo("รอกรอก")},e.score||"",e.date?new Date(e.date).toLocaleDateString("th-TH",{dateStyle:"medium"}):""]}),["ลำดับ","ชื่อ-สกุล","การทดสอบ","คะแนน/ระดับ","วันที่สอบ"],{w:"100%",auto:"eng"}):ind(bkTodo("(ยังไม่กำหนดอาจารย์ผู้รับผิดชอบหลักสูตร)"))})()}${["เอกสารแสดงประสบการณ์ด้านปฏิบัติการ","เอกสารลงนามความร่วมมือ (MOU/MOA) ถ้ามี"].map((t,i)=>h3(`${i+3}. ${t}`)+ind(bkTodo("(แนบเอกสาร)"))).join("")}`;
   }
   return "";
 }
@@ -2168,6 +2178,8 @@ function cvBookHtml(esc2){
     <p><b>ภาระหน้าที่ในหลักสูตร :</b> ${role?"อาจารย์ผู้รับผิดชอบหลักสูตร":"อาจารย์ประจำหลักสูตร"}</p><p><b>ผลงานทางวิชาการ</b></p>${pubHtml}
     <p><b>งานสอนในหลักสูตร (ปรับปรุง พ.ศ. 2571)</b></p>${teach}${exp?`<p><b>ประสบการณ์ในด้านปฏิบัติการ</b></p>${exp}`:""}${n<F.length-1?'<div class="bk-break"></div>':""}`}).join("");
 }
+const bookDegLv=f=>{const d=cvSortDeg(cvOf(f.id).deg)[0];return d&&DEG[d.lv]?d.lv:qualOf(f.id).deg};
+const bookDegHtml=f=>{const L=cvSortDeg(cvOf(f.id).deg).filter(d=>d.name||d.inst);return L.length?L.map(d=>esc([d.name||CV_LV[d.lv]||"",d.inst,cvYearBE(d.yr)].filter(Boolean).join(", "))).join("<br>"):esc(DEG[qualOf(f.id).deg]||"")+" "+bkTodo("(กรอกประวัติการศึกษาในหน้า ข4)")};
 const cvDegField=id=>{const d=cvSortDeg(cvOf(id).deg)[0];return d&&d.name?d.name:""};
 
 const NAV={design:{t:"ออกแบบหลักสูตร",s:"ช่วงร่างและเสนอ",tabs:[["needs","ก1","ที่มาของ PLO"],["plo","ก2","PLO · Sub-PLO · YLO"],["clo","ก3","CLO รายวิชา (ผู้สอน)"],["map","ก4","Curriculum Mapping"],["plan","ก5","โครงสร้างและแผนการเรียน"],["check","ก6","ตรวจเกณฑ์"]]},
