@@ -1726,11 +1726,27 @@ function courseForm(c,isNew){
   <div class="fl"><button class="primary" type="submit">บันทึก</button><button type="button" data-cancel="course">ยกเลิก</button>${isNew?"":`<button type="button" id="courseDel">ลบออกจากหลักสูตร</button>`}${state.courseOv[c.code]&&BASE.some(b=>b.code===c.code)?`<button type="button" id="courseRevert">กลับไปใช้ค่าเดิม</button>`:""}<span class="err" id="cfErr"></span></div></form>`;
 }
 
+// ข้อที่ยังไม่ผ่าน/ต้องตรวจ พร้อมปุ่มพาไปแก้
+function chkTodo(ev){const rows=ev.out.flatMap(([g,R])=>R.map(r=>({...r,g}))).filter(r=>r.s!=="pass");if(!rows.length)return `<div class="note">แขนง${TRACKS[state.track]} ผ่านทุกข้อแล้ว</div>`;
+  const cbtn=(code,lab)=>`<button class="sm" data-gocourse="${code}">${lab||"เปิด "+code+" ใน ก3"}</button>`;
+  const act=r=>{const t=r.t;
+    if(/โครงงานปีสุดท้าย/.test(t))return {how:"เปิดทั้งสองวิชาใน ก3 กด \"ดูร่าง CLO ฉบับปรับปรุง\" ตรวจ แล้วกด \"บันทึกคำอธิบายและ CLO\" (CLO ข้อ 1 ใช้ rubric WP1–WP7) ข้อนี้จะผ่านทันที",btn:cbtn("4-116-307")+cbtn("4-116-408")};
+    if(/คณิตศาสตร์และวิทยาศาสตร์/.test(t))return {how:"เปิดวิชา 4-000-103 กดดูร่างฉบับปรับปรุงแล้วบันทึก ให้คำอธิบายรายวิชามีขั้นตอนวิธีและโครงสร้างข้อมูล",btn:cbtn("4-000-103")};
+    if(/ผู้มีส่วนได้ส่วนเสีย/.test(t))return {how:"ไปหน้าแบบสำรวจ นำเข้าไฟล์ CSV ผลตอบของแต่ละกลุ่ม (ส่งออกจาก Google Sheets ของแบบฟอร์ม) PLO ที่ได้คะแนนเฉลี่ย ≥ 3.51 จะโยงกับผลสำรวจเอง",btn:`<button class="sm" data-gohash="#design/survey">ไปหน้าแบบสำรวจ</button>`};
+    if(/อาจารย์ผู้รับผิดชอบ/.test(t))return {how:"กำหนดผู้รับผิดชอบหลักสูตรแขนงละอย่างน้อย 3 คนในตารางอาจารย์",btn:`<button class="sm" data-gohash="#manage/struct">ไปหน้า ข1</button>`};
+    if(/คุณวุฒิ/.test(t))return {how:"กรอกคุณวุฒิและตำแหน่งในตารางอาจารย์ หรือให้อาจารย์กรอกประวัติใน ข4",btn:`<button class="sm" data-gohash="#manage/struct">ไปหน้า ข1</button>`};
+    if(/I → R → M/.test(t)){const m=t.match(/PLO(\d)/);return {how:"ดูลำดับระดับในหน้า ก4 แล้วปรับระดับ CLO ของวิชาที่ประเมิน M ก่อน I/R",btn:`<button class="sm" data-gohash="#design/map">ไปหน้า ก4</button>`}}
+    if(/PEO/.test(t))return {how:"โยง PLO ที่ขาดกับ PEO ในหน้า ก2",btn:`<button class="sm" data-gohash="#design/plo">ไปหน้า ก2</button>`};
+    if(/WA\d|ประเมินระดับ M/.test(t+(r.d||"")))return {how:"เพิ่ม CLO ระดับ M ที่ผูก Sub-PLO นี้ในวิชาบังคับอีกอย่างน้อยหนึ่งวิชา",btn:`<button class="sm" data-gohash="#design/clo">ไปหน้า ก3</button>`};
+    return {how:r.d||"ตรวจรายละเอียดในกล่องด้านล่าง",btn:""}};
+  return `<section class="panel" style="border-left:4px solid var(--warn)"><h2>ข้อที่ต้องแก้ · แขนง${TRACKS[state.track]} (${rows.length})</h2>${rows.map(r=>{const a=act(r);return `<div class="check">${pill(r.s)}<span class="t">${esc(r.t)} <span class="small muted">· ${esc(r.g)}</span></span><span class="d">${esc(a.how)}${a.btn?`<span class="row" style="gap:6px;margin-top:6px;display:flex">${a.btn}</span>`:""}</span></div>`}).join("")}</section>`}
+document.addEventListener("click",e=>{const h=e.target.closest&&e.target.closest("[data-gohash]");if(h){location.hash=h.dataset.gohash;return}const b=e.target.closest&&e.target.closest("[data-gocourse]");if(!b)return;state.cloCourse=b.dataset.gocourse;state.cloDraft=null;location.hash="#design/clo";setTimeout(()=>{render();window.scrollTo(0,0)},50)});
 function viewCheck(){
   const ev=evaluate(state.track);
   const all=["ME","EV","CE"].map(t=>{const e=evaluate(t);const f=e.out.flatMap(x=>x[1]);return [t,f.filter(x=>x.s==="fail").length,f.filter(x=>x.s==="warn").length,f.length]});
   return flowBar("check")+`<p class="lead">ตรวจรวมจากข้อมูลใน ก1–ก5 ข้อที่ต้องใช้วิจารณญาณ เช่น คุณภาพ rubric แสดงเป็น "ต้องตรวจ" ให้กรรมการหลักสูตรยืนยัน</p>
   <div class="sum">${all.map(([t,f,w,n])=>`<div class="panel"><span class="muted small">แขนง${TRACKS[t]}</span><span class="big num">${n-f-w}/${n}</span><span>${f?pill("fail",f+" ไม่ผ่าน"):""} ${w?pill("warn",w+" ต้องตรวจ"):""} ${!f&&!w?pill("pass","ผ่านทุกข้อ"):""}</span></div>`).join("")}</div>
+  ${chkTodo(ev)}
   <div class="row" style="margin-bottom:12px">${trackSeg()}<label class="ctl"><input type="checkbox" id="cmp" ${state.countComputing?"checked":""}> นับวิชาการโปรแกรมเป็นคณิตศาสตร์ (WK2)</label></div>
   <div class="checks">${ev.out.map(([name,rows])=>`<section class="panel"><h2>${name}</h2>${rows.map(r=>`<div class="check">${pill(r.s)}<span class="t">${esc(r.t)}</span>${r.d?`<span class="d">${esc(r.d)}</span>`:""}</div>`).join("")}</section>`).join("")}</div>
   <section class="panel"><h2>เกณฑ์ประเมินปัญหาวิศวกรรมที่ซับซ้อน (WP1–WP7) · โครงงานวิศวกรรมเครื่องกล</h2><p class="small">${esc(WP_RULE)}</p><div class="scroll"><table><tr>${WP_HEAD.map(h=>`<th>${h}</th>`).join("")}</tr>${WP_RUBRIC.map(r=>`<tr><td class="mono"><b>${r[0]}</b></td><td><b>${esc(r[1])}</b></td>${r.slice(2).map(x=>`<td class="small">${esc(x)}</td>`).join("")}</tr>`).join("")}</table></div><p class="small muted">อ้างอิงลักษณะปัญหาวิศวกรรมที่ซับซ้อนตาม IEA Graduate Attributes and Professional Competencies (Washington Accord) ที่ TABEE ใช้ · rubric นี้แสดงในหมวดที่ 6 ของเล่มหลักสูตรด้วย</p></section>`;
