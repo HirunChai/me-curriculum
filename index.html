@@ -2067,14 +2067,16 @@ const imgType=src=>/^data:image\/(png|jpe?g|gif|bmp)/i.test(src)?RegExp.$1.toLow
 async function bookDocxSection(D,k,html,fmt,pageNo){
   const font=fmt.font||"Angsana New",body=fmt.body*2,tbl=fmt.table*2,line=Math.round(240*fmt.line),after=Math.round(fmt.pAfter*PT),hbef=Math.round(fmt.hBefore*PT);
   const cw=(8.27-fmt.mL-fmt.mR)*IN;
+  const FO={ascii:font,hAnsi:font,cs:font,eastAsia:font,hint:"cs"},LG={value:"en-US",eastAsia:"en-US",bidirectional:"th-TH"};
+  const TRun=o=>new D.TextRun(typeof o==="string"?{text:o,font:FO,language:LG}:{...o,font:FO,language:LG});
   // วาดในหน้าจอชั่วคราวเพื่อวัดความกว้างคอลัมน์และขนาดรูปให้ตรงกับเล่ม PDF
   const host=document.createElement("div");host.className="bk-view";host.setAttribute("style",pgCssVars(fmt)+`;position:fixed;left:-30000px;top:0;width:${8.27-fmt.mL-fmt.mR}in`);host.innerHTML=html;document.body.appendChild(host);
   try{await Promise.all([...host.querySelectorAll("img")].map(i=>i.complete?0:new Promise(r=>{i.onload=i.onerror=r})))}catch(e){}
   const out=[];
   const runs=async(node,ctx,acc)=>{for(const n of node.childNodes){
-      if(n.nodeType===3){let t=n.textContent;if(!ctx.pre)t=t.replace(/\s+/g," ");if(!t)continue;const parts=t.split("\t");parts.forEach((p,i)=>{const o={text:p,bold:ctx.b,italics:ctx.i,size:ctx.sz,font,color:ctx.color,highlight:ctx.hl,superScript:ctx.sup,subScript:ctx.sub,underline:ctx.u?{}:undefined};if(i>0)acc.push(new D.TextRun({...o,text:"",children:[new D.Tab()]}));if(p)acc.push(new D.TextRun(o))});continue}
+      if(n.nodeType===3){let t=n.textContent;if(!ctx.pre)t=t.replace(/\s+/g," ");if(!t)continue;const parts=t.split("\t");parts.forEach((p,i)=>{const o={text:p,bold:ctx.b,italics:ctx.i,size:ctx.sz,font,color:ctx.color,highlight:ctx.hl,superScript:ctx.sup,subScript:ctx.sub,underline:ctx.u?{}:undefined};if(i>0)acc.push(TRun({...o,text:"",children:[new D.Tab()]}));if(p)acc.push(TRun(o))});continue}
       if(n.nodeType!==1)continue;const tg=n.tagName,c={...ctx},st=n.style||{};
-      if(tg==="BR"){acc.push(new D.TextRun({text:"",break:1,size:ctx.sz,font}));continue}
+      if(tg==="BR"){acc.push(TRun({text:"",break:1,size:ctx.sz,font}));continue}
       if(tg==="IMG"){const im=await imgRun(n);if(im)acc.push(im);continue}
       if(tg==="B"||tg==="STRONG"||+st.fontWeight>=600||st.fontWeight==="bold")c.b=true;if(tg==="I"||tg==="EM")c.i=true;if(tg==="U")c.u=true;if(tg==="SUP")c.sup=true;if(tg==="SUB")c.sub=true;
       if(n.classList.contains("bk-todo"))c.hl="yellow";if(n.classList.contains("small-note")){c.sz=Math.round(ctx.sz*.85);c.color="555555"}if(n.classList.contains("bk-tab"))c.pre=true;
@@ -2086,7 +2088,7 @@ async function bookDocxSection(D,k,html,fmt,pageNo){
     let al=extra.al||(cl.contains("ind")?D.AlignmentType.THAI_DISTRIBUTE||D.AlignmentType.JUSTIFIED:undefined);const ta=st.textAlign||"";if(ta==="center")al=D.AlignmentType.CENTER;else if(ta==="right")al=D.AlignmentType.RIGHT;else if(ta==="justify")al=D.AlignmentType.JUSTIFIED;
     const left=(cl.contains("li")?.5*IN:cl.contains("li2")?IN:0)+cssLen(st.marginLeft)+cssLen(st.paddingLeft)+(extra.left||0);
     const first=cl.contains("ind")?.5*IN:cssLen(st.textIndent);
-    return new D.Paragraph({children:acc.length?acc:[new D.TextRun({text:"",size:ctx.sz,font})],alignment:al,indent:{left:Math.round(left),firstLine:first>0?Math.round(first):undefined,hanging:first<0?Math.round(-first):undefined},spacing:{before:extra.before||0,after:extra.after??after,line:extra.line||line},keepNext:extra.keepNext,pageBreakBefore:extra.pbb,tabStops:extra.tabs})};
+    return new D.Paragraph({children:acc.length?acc:[TRun({text:"",size:ctx.sz,font})],alignment:al,indent:{left:Math.round(left),firstLine:first>0?Math.round(first):undefined,hanging:first<0?Math.round(-first):undefined},spacing:{before:extra.before||0,after:extra.after??after,line:extra.line||line},keepNext:extra.keepNext,pageBreakBefore:extra.pbb,tabStops:extra.tabs})};
   const table=async t=>{const rows=[...t.rows];if(!rows.length)return null;
     // ความกว้างคอลัมน์จากแถวที่มีช่องมากที่สุดและไม่มีการรวมช่อง
     let ref=rows.filter(r=>[...r.cells].every(c=>c.colSpan===1)).sort((a,b)=>b.cells.length-a.cells.length)[0]||rows[0];
@@ -2115,7 +2117,7 @@ async function bookDocxSection(D,k,html,fmt,pageNo){
       else if(tg==="TABLE"){const t=await table(n);if(t){res.push(t);res.push(new D.Paragraph({children:[],spacing:{after:after}}))}}
       else if(tg==="UL"||tg==="OL"){let i=0;for(const li of n.children){i++;const p=document.createElement("p");p.textContent=(tg==="OL"?i+". ":"• ");[...li.childNodes].forEach(x=>p.appendChild(x.cloneNode(true)));res.push(await para(p,ctx,{...extra,left:.5*IN}))}}
       else if(cl.contains("toc")){const sp=[...n.children];const txt=sp[0],pg=sp[sp.length-1];const acc=[];await runs(txt,{...ctx,b:ctx.b||/bold|700/.test(n.style.fontWeight||"")},acc);
-        acc.push(new D.TextRun({text:"",children:[new D.Tab(),pg.textContent.trim()],size:ctx.sz,font,bold:/bold|700/.test(n.style.fontWeight||"")}));
+        acc.push(TRun({text:"",children:[new D.Tab(),pg.textContent.trim()],size:ctx.sz,font,bold:/bold|700/.test(n.style.fontWeight||"")}));
         res.push(new D.Paragraph({children:acc,tabStops:[{type:D.TabStopType.RIGHT,position:Math.round(cw-20),leader:sp.length>2&&!/border:\s*0/.test(sp[1].getAttribute("style")||"")?D.LeaderType.DOT:D.LeaderType.NONE}],spacing:{after:0,line,before:cssLen(n.style.marginTop)}}))}
       else{const c2={...ctx};const ex={...extra};
         if(cl.contains("bk-cover")||cl.contains("bk-cvlogo")||n.style.textAlign==="center"){ex.al=D.AlignmentType.CENTER;if(cl.contains("bk-cover"))c2.b=true}
@@ -2126,7 +2128,7 @@ async function bookDocxSection(D,k,html,fmt,pageNo){
     await flush();return res};
   try{out.push(...await blocks(host,{sz:body},{}))}finally{host.remove()}
   const nofoot=BK_NOFOOT.includes(k);
-  const footer=nofoot?undefined:{default:new D.Footer({children:[new D.Paragraph({border:{top:{style:D.BorderStyle.SINGLE,size:4,color:"555555",space:1}},tabStops:[{type:D.TabStopType.RIGHT,position:Math.round(cw)}],children:[new D.TextRun({text:"หลักสูตรวิศวกรรมศาสตรบัณฑิต สาขาวิชาวิศวกรรมเครื่องกล (หลักสูตรปรับปรุง พ.ศ. 2571)",size:22,font}),new D.TextRun({children:[new D.Tab(),D.PageNumber.CURRENT],size:22,font})]})]})};
+  const footer=nofoot?undefined:{default:new D.Footer({children:[new D.Paragraph({border:{top:{style:D.BorderStyle.SINGLE,size:4,color:"555555",space:1}},tabStops:[{type:D.TabStopType.RIGHT,position:Math.round(cw)}],children:[TRun({text:"หลักสูตรวิศวกรรมศาสตรบัณฑิต สาขาวิชาวิศวกรรมเครื่องกล (หลักสูตรปรับปรุง พ.ศ. 2571)",size:22,font}),TRun({children:[new D.Tab(),D.PageNumber.CURRENT],size:22,font})]})]})};
   return {properties:{page:{size:{width:11906,height:16838},margin:{top:Math.round(fmt.mT*IN),bottom:Math.round(fmt.mB*IN),left:Math.round(fmt.mL*IN),right:Math.round(fmt.mR*IN),footer:Math.round(.45*IN)},pageNumbers:pageNo?{start:pageNo}:undefined}},footers:footer,children:out.length?out:[new D.Paragraph("")]};
 }
 async function bookDocx(all){
@@ -2137,7 +2139,7 @@ async function bookDocx(all){
     for(const k of secs){const fmt=bookFmt(k);const html=k==="toc"?fillToc(bookSecFinal(k),tmap):bookSecFinal(k);
       const pn=!BK_NOFOOT.includes(k)&&first?1:undefined;if(pn)first=false;sections.push(await bookDocxSection(D,k,html,fmt,pn))}
     const f0=bookFmt(secs[0]);
-    const doc=new D.Document({creator:"ME curriculum platform",title:bookFileName(all),styles:{default:{document:{run:{font:f0.font,size:f0.body*2}}}},sections});
+    const doc=new D.Document({creator:"ME curriculum platform",title:bookFileName(all),styles:{default:{document:{run:{font:{ascii:f0.font,hAnsi:f0.font,cs:f0.font,eastAsia:f0.font,hint:"cs"},size:f0.body*2,language:{value:"en-US",eastAsia:"en-US",bidirectional:"th-TH"}}}}},sections});
     const blob=await D.Packer.toBlob(doc);const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=bookFileName(all)+".docx";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
     msg(`สร้างไฟล์ ${bookFileName(all)}.docx แล้ว แก้ไขใน Word ได้ แล้วอัปโหลดกลับเพื่อสร้าง PDF`)}
   catch(e){console.error(e);msg("สร้าง .docx ไม่สำเร็จ: "+(e&&e.message||e))}
