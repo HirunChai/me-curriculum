@@ -981,8 +981,14 @@ function bookMergeInfo(id){const o=state.bookEdit&&state.bookEdit.html&&state.bo
   if(M[id]&&M[id].key===key&&M[id].ovh===o.h)return M[id];
   let r={h:o.h,upd:0,skip:0,skipT:[],del:0};if(o.base){try{r=mergeOverride(o.base,auto,o.h)}catch(e){}}
   return M[id]={key,ovh:o.h,auto,...r};}
+// ภาคผนวก ค1 ประวัติอาจารย์: ดึงจากข้อมูลที่อาจารย์กรอกใน ข4 ทุกครั้ง แม้ภาคผนวกจะใช้ฉบับแก้มือ
+function cvSyncApx(h){try{const d=document.createElement("div");d.innerHTML=h;const kids=[...d.children];
+  const st=kids.findIndex(e=>/^H[23]$/.test(e.tagName)&&/^1\.\s*ประวัติอาจารย์/.test(e.textContent.trim()));if(st<0)return h;
+  let en=kids.findIndex((e,i)=>i>st&&/^H[23]$/.test(e.tagName));if(en<0)en=kids.length;
+  kids.slice(st+1,en).forEach(e=>e.remove());const t=document.createElement("template");t.innerHTML=cvBookHtml()+'<div class="bk-break"></div>';
+  kids[st].after(t.content);return d.innerHTML}catch(e){return h}}
 function bookSecFinal(id){const o=state.bookEdit&&state.bookEdit.html&&state.bookEdit.html[id];if(!o)return applySubs(id,bookSecHtml(id));
-  const h=bookMergeInfo(id).h;
+  let h=bookMergeInfo(id).h;if(id==="apx")h=cvSyncApx(h);
   if(id==="front"){const i=h.indexOf("สารบัญ</h2>");if(i>0){const s=h.lastIndexOf("<h2",i);if(s>=0)return h.slice(0,s).replace(/<div class="bk-break"><\/div>\s*$/,"")}}return h}
 async function bookMergeSave(ids){const ed={...(state.bookEdit||{})},hh={...(ed.html||{})};let n=0;
   ids.forEach(id=>{const m=bookMergeInfo(id);if(m&&(m.upd||m.del)){hh[id]={...hh[id],h:m.h,base:m.auto,at:new Date().toISOString()};n++}});
@@ -2138,7 +2144,48 @@ const TH_MON=["มกราคม","กุมภาพันธ์","มีน�
 const EN_MON=["January","February","March","April","May","June","July","August","September","October","November","December"];
 const CV_YEAR_MIN=()=>new Date().getFullYear()-5; // ผลงานย้อนหลังไม่เกิน 5 ปี (ค.ศ.)
 const cvEmpty=()=>({nameEn:"",posField:"",orcid:"",scopus:"",scholar:"",deg:[],pubs:[],exp:[],eng:{test:"",score:"",date:""}});
-const cvOf=id=>({...cvEmpty(),...((state.cv||{})[id]||{})});
+// ข้อมูลตั้งต้นจากเล่มหลักสูตร 2566 (มคอ.2 ภาคผนวกประวัติอาจารย์ และหมวด 3 ข้อ 3.2) ใช้เมื่ออาจารย์ยังไม่กรอกช่องนั้นเอง
+const CV66_SRC="เล่มหลักสูตร วศ.บ. วิศวกรรมเครื่องกล ปรับปรุง พ.ศ. 2566";
+const CV66={
+ "วสันต์ เธียรสุวรรณ":{deg:[{lv:"D",name:"ปร.ด. (วิศวกรรมเครื่องกล)",inst:"มหาวิทยาลัยขอนแก่น",yr:"2551"},{lv:"M",name:"วศ.ม. (วิศวกรรมเครื่องกล)",inst:"มหาวิทยาลัยขอนแก่น",yr:"2542"},{lv:"B",name:"วศ.บ. (วิศวกรรมเครื่องกล)",inst:"สถาบันเทคโนโลยีพระจอมเกล้าธนบุรี",yr:"2534"}],
+  pubs:[{type:"research",cite:"Tanpradit, D. and Theansuwan, W. (2020). Experimental Study on the Performances, Energy Efficiency and Emissions of Porous Burner. FEAT Journal. Vol. 6(1): 29-39.",y:"2020",m:"",db:"",rel:"direct"},
+   {type:"other",cite:"วสันต์ เธียรสุวรรณ และ รักชัย ตรังค์ตระกูล. (2564). เครื่องส่งสัญญาณแบบอินฟราเรดแสดงสถานะการล็อคตู้คอนเทนเนอร์บนรถบรรทุก. อนุสิทธิบัตรไทยเลขที่ 17844.",y:"2021",m:"",db:"OTH",dbOther:"ทรัพย์สินทางปัญญา (อนุสิทธิบัตร)",rel:"related"}],
+  exp:[{role:"วิศวกรเครื่องกล",org:"บริษัท ชิโน-ไทย เอ็นจีเนียริ่ง แอนด์ คอนสตรัคชั่น จำกัด",period:"พ.ศ. 2534–2535"}]},
+ "มณฑล ชูโชนาค":{deg:[{lv:"M",name:"วศ.ม. (วิศวกรรมเครื่องกล)",inst:"สถาบันเทคโนโลยีพระจอมเกล้าพระนครเหนือ",yr:"2540"},{lv:"B",name:"วศ.บ. (วิศวกรรมเครื่องกล)",inst:"สถาบันเทคโนโลยีราชมงคล",yr:"2546"},{lv:"B",name:"อส.บ. (วิศวกรรมเครื่องกล)",inst:"มหาวิทยาลัยสยาม",yr:"2536"}],
+  pubs:[{type:"research",cite:"เจษฎา แพรกนันเธอ, มนตรี ทวาโรจน์, มณฑล ชูโชนาค, สุรชัย เหมหิรัญ และดิฐภัทร ตันประดิฐ. (2562). การออกแบบและพัฒนาเครื่องย่อยกิ่งไม้. การประชุมวิชาการระดับชาติเชิงสร้างสรรค์ ราชมงคลกรุงเทพวิชาการ 2562 ครั้งที่ 3. โรงแรมลอฟต์มาเนีย บูทิกโฮเต็ล จังหวัดชุมพร. 19-21 มิถุนายน 2562. หน้า 21-27.",y:"2019",m:6,db:"PN",rel:"direct"},
+   {type:"research",cite:"เจษฎา แพรกนันเธอ, มณฑล ชูโชนาค และมนตรี ทวาโรจน์. (2561). อิทธิพลของความดันไอน้ำที่มีต่อกำลังกลของกังหันไอน้ำ. การประชุมวิชาการระดับชาติเชิงสร้างสรรค์ ราชมงคลกรุงเทพวิชาการ 2561 ครั้งที่ 2. โรงแรมชลจันทร์ จังหวัดชลบุรี. 24-26 กรกฎาคม 2561. หน้า 25-30.",y:"2018",m:7,db:"PN",rel:"direct"},
+   {type:"research",cite:"กฤติมา ดีไพศาลสกุล, มณฑล ชูโชนาค และมุสตาฟา ยะภา. (2561). การศึกษาเปรียบเทียบรูปทรงของคาวิตี้สำหรับการทำความร้อนโดยใช้คลื่นไมโครเวฟ. การประชุมวิชาการเครือข่ายวิศวกรรมไฟฟ้า ครั้งที่ 10. โรงแรมราชศุภมิตร อาร์.เอส. โฮเต็ล จังหวัดกาญจนบุรี. 1-3 พฤษภาคม 2561. หน้า 429-432.",y:"2018",m:5,db:"PN",rel:"related"}]},
+ "สิริพงษ์ เอี่ยมชัยมงคล":{deg:[{lv:"M",name:"วศ.ม. (วิศวกรรมเครื่องกล)",inst:"จุฬาลงกรณ์มหาวิทยาลัย",yr:"2543"},{lv:"B",name:"วศ.บ. (วิศวกรรมเครื่องกล)",inst:"สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง",yr:"2537"}],
+  pubs:[{type:"research",cite:"สิริพงษ์ เอี่ยมชัยมงคล. (2562). การวัดการสั่นสะเทือนเชิงกลโดยใช้ตัวรับรู้แบบระบบไฟฟ้าเครื่องกลจุลภาค. การประชุมวิชาการระดับชาติเชิงสร้างสรรค์ ราชมงคลกรุงเทพวิชาการ 2562 ครั้งที่ 3. จังหวัดชุมพร. 19-21 มิถุนายน 2562. หน้า 43-48.",y:"2019",m:6,db:"PN",rel:"direct"}]},
+ "สุรชัย เหมหิรัญ":{deg:[{lv:"D",name:"ปร.ด. (วิศวกรรมเครื่องกล)",inst:"มหาวิทยาลัยศรีนครินทรวิโรฒ",yr:"2563"},{lv:"M",name:"วศ.ม. (วิศวกรรมเครื่องกล)",inst:"มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าธนบุรี",yr:"2554"},{lv:"B",name:"วศ.บ. (วิศวกรรมเครื่องกล)",inst:"มหาวิทยาลัยเทคโนโลยีราชมงคลกรุงเทพ",yr:"2551"}],
+  pubs:[{type:"research",cite:"สุรชัย เหมหิรัญ. (2561). ผลกระทบของการเปลี่ยนขนาดความยาวและการปรับมุมใบกังหันต่อความเร็วรอบการหมุนและโมเมนต์บิดของกังหันลมแกนตั้ง. วารสารวิศวกรรมศาสตร์ มหาวิทยาลัยศรีนครินทรวิโรฒ. ปีที่ 13 ฉบับที่ 1. มกราคม-เมษายน 2561. หน้า 98-106.",y:"2018",m:1,db:"",rel:"direct"},
+   {type:"research",cite:"สุรชัย เหมหิรัญ. (2561). การผลิตไฟฟ้าจากความร้อนสูญเสียของเตาแก๊สด้วยชุดกำเนิดไฟฟ้าเทอร์โมอิเล็กทริค. วารสารวิชาการและวิจัย มทร.พระนคร. ปีที่ 12 ฉบับที่ 1. มกราคม-มิถุนายน 2561. หน้า 92-101.",y:"2018",m:1,db:"",rel:"direct"},
+   {type:"research",cite:"เจษฎา แพรกนันเธอ, มนตรี ทวาโรจน์, มณฑล ชูโชนาค, สุรชัย เหมหิรัญ และดิฐภัทร ตันประดิฐ. (2562). การออกแบบและพัฒนาเครื่องย่อยกิ่งไม้. การประชุมวิชาการระดับชาติเชิงสร้างสรรค์ ราชมงคลกรุงเทพวิชาการ 2562 ครั้งที่ 3. โรงแรมลอฟต์มาเนีย บูทิกโฮเต็ล จังหวัดชุมพร. 19-21 มิถุนายน 2562. หน้า 21-27.",y:"2019",m:6,db:"PN",rel:"direct"}],
+  exp:[{role:"ผู้ตรวจสอบและรับรองการจัดการพลังงาน ระดับผู้ชำนาญการ (ใบอนุญาตเลขที่ น.0117/58)",org:"กรมพัฒนาพลังงานทดแทนและอนุรักษ์พลังงาน กระทรวงพลังงาน",period:"พ.ศ. 2560–ปัจจุบัน"},
+   {role:"วิศวกรตรวจทดสอบหม้อน้ำหรือหม้อต้มที่ใช้ของเหลวเป็นสื่อนำความร้อน (ทะเบียนเลขที่ 6-60-1444)",org:"กรมโรงงานอุตสาหกรรม กระทรวงอุตสาหกรรม",period:"พ.ศ. 2560–ปัจจุบัน"}]},
+ "พงศ์สถิตย์ ศรภักดี":{deg:[{lv:"M",name:"วศ.ม. (วิศวกรรมพลังงานทดแทน)",inst:"มหาวิทยาลัยแม่โจ้",yr:"2560"},{lv:"B",name:"วศ.บ. (วิศวกรรมเครื่องกล)",inst:"มหาวิทยาลัยเทคโนโลยีราชมงคลกรุงเทพ",yr:"2557"}],
+  pubs:[{type:"research",cite:"เอนก สุทธิฤทธิ์, พงศ์สถิตย์ ศรภักดี, มณฑล ชูโชนาค, เจษฎา แพรกนันเธอ และมุสตาฟา ยะภา. (2565). การอบแห้งเมล็ดข้าวโพดโดยใช้เครื่องอบแห้งแบบมัสท์โฟล. การประชุมวิชาการการถ่ายเทความร้อนและมวลในอุปกรณ์ 2565 ครั้งที่ 21. โรงแรมวินทรี ซิตี้ รีสอร์ท จังหวัดเชียงใหม่. 10-11 มีนาคม 2565. หน้า 114-120.",y:"2022",m:3,db:"PN",rel:"direct"}],
+  exp:[{role:"วิศวกรพลังงาน",org:"บริษัท แซน เทค เซ็นเตอร์ จำกัด",period:"พ.ศ. 2562–2564"}]},
+ "ดิฐภัทร ตันประดิฐ":{deg:[{lv:"M",name:"วศ.ม. (วิศวกรรมเครื่องกล)",inst:"",yr:""},{lv:"B",name:"วศ.บ. (วิศวกรรมเครื่องกล)",inst:"",yr:""}],
+  pubs:[{type:"research",cite:"Tanpradit, D. and Theansuwan, W. (2020). Experimental Study on the Performances, Energy Efficiency and Emissions of Porous Burner. FEAT Journal. Vol. 6(1): 29-39.",y:"2020",m:"",db:"",rel:"direct"},
+   {type:"research",cite:"เจษฎา แพรกนันเธอ, มนตรี ทวาโรจน์, มณฑล ชูโชนาค, สุรชัย เหมหิรัญ และดิฐภัทร ตันประดิฐ. (2562). การออกแบบและพัฒนาเครื่องย่อยกิ่งไม้. การประชุมวิชาการระดับชาติเชิงสร้างสรรค์ ราชมงคลกรุงเทพวิชาการ 2562 ครั้งที่ 3. โรงแรมลอฟต์มาเนีย บูทิกโฮเต็ล จังหวัดชุมพร. 19-21 มิถุนายน 2562. หน้า 21-27.",y:"2019",m:6,db:"PN",rel:"direct"}]},
+ "สานนท์ ว่องมงคลฤทธิ์":{deg:[{lv:"B",name:"วศ.บ. (วิศวกรรมเครื่องกล)",inst:"",yr:""}]},
+ "เจษฎา แพรกนันเธอ":{deg:[{lv:"M",name:"วศ.ม. (วิศวกรรมเครื่องกล)",inst:"",yr:""},{lv:"B",name:"วศ.บ. (วิศวกรรมเครื่องกล)",inst:"",yr:""}],
+  pubs:[{type:"research",cite:"เจษฎา แพรกนันเธอ, มนตรี ทวาโรจน์, มณฑล ชูโชนาค, สุรชัย เหมหิรัญ และดิฐภัทร ตันประดิฐ. (2562). การออกแบบและพัฒนาเครื่องย่อยกิ่งไม้. การประชุมวิชาการระดับชาติเชิงสร้างสรรค์ ราชมงคลกรุงเทพวิชาการ 2562 ครั้งที่ 3. โรงแรมลอฟต์มาเนีย บูทิกโฮเต็ล จังหวัดชุมพร. 19-21 มิถุนายน 2562. หน้า 21-27.",y:"2019",m:6,db:"PN",rel:"direct"},
+   {type:"research",cite:"เจษฎา แพรกนันเธอ, มณฑล ชูโชนาค และมนตรี ทวาโรจน์. (2561). อิทธิพลของความดันไอน้ำที่มีต่อกำลังกลของกังหันไอน้ำ. การประชุมวิชาการระดับชาติเชิงสร้างสรรค์ ราชมงคลกรุงเทพวิชาการ 2561 ครั้งที่ 2. โรงแรมชลจันทร์ จังหวัดชลบุรี. 24-26 กรกฎาคม 2561. หน้า 25-30.",y:"2018",m:7,db:"PN",rel:"direct"},
+   {type:"research",cite:"เอนก สุทธิฤทธิ์, พงศ์สถิตย์ ศรภักดี, มณฑล ชูโชนาค, เจษฎา แพรกนันเธอ และมุสตาฟา ยะภา. (2565). การอบแห้งเมล็ดข้าวโพดโดยใช้เครื่องอบแห้งแบบมัสท์โฟล. การประชุมวิชาการการถ่ายเทความร้อนและมวลในอุปกรณ์ 2565 ครั้งที่ 21. โรงแรมวินทรี ซิตี้ รีสอร์ท จังหวัดเชียงใหม่. 10-11 มีนาคม 2565. หน้า 114-120.",y:"2022",m:3,db:"PN",rel:"direct"}]},
+ "อเนก สุทธิฤทธิ์":{deg:[{lv:"M",name:"บธ.ม. (การจัดการอุตสาหกรรม)",inst:"",yr:""},{lv:"B",name:"คอ.บ. (วิศวกรรมเครื่องกล)",inst:"",yr:""}],
+  pubs:[{type:"research",cite:"เอนก สุทธิฤทธิ์, พงศ์สถิตย์ ศรภักดี, มณฑล ชูโชนาค, เจษฎา แพรกนันเธอ และมุสตาฟา ยะภา. (2565). การอบแห้งเมล็ดข้าวโพดโดยใช้เครื่องอบแห้งแบบมัสท์โฟล. การประชุมวิชาการการถ่ายเทความร้อนและมวลในอุปกรณ์ 2565 ครั้งที่ 21. โรงแรมวินทรี ซิตี้ รีสอร์ท จังหวัดเชียงใหม่. 10-11 มีนาคม 2565. หน้า 114-120.",y:"2022",m:3,db:"PN",rel:"direct"}]},
+ "ฐานทัพ นนท์ตุลา":{deg:[{lv:"M",name:"วศ.ม. (วิศวกรรมเครื่องกล)",inst:"",yr:""},{lv:"B",name:"วศ.บ. (วิศวกรรมเครื่องกล)",inst:"",yr:""}]},
+ "พงษ์นรินทร์ สว่างวงษ์":{deg:[{lv:"M",name:"วศ.ม. (วิศวกรรมเครื่องกล)",inst:"",yr:""},{lv:"B",name:"วศ.บ. (วิศวกรรมเครื่องกล)",inst:"",yr:""}]},
+ "รอยต่อ เจริญสินโอฬาร":{deg:[{lv:"D",name:"Ph.D. (Mechanical Engineering)",inst:"",yr:""},{lv:"M",name:"M.Sc. (Mechanical Engineering)",inst:"",yr:""},{lv:"B",name:"วศ.บ. (วิศวกรรมเครื่องกล)",inst:"",yr:""}]},
+ "ธีรวัส คำหน่อแก้ว":{deg:[{lv:"M",name:"วศ.ม. (วิศวกรรมเครื่องกล)",inst:"",yr:""},{lv:"B",name:"วศ.บ. (วิศวกรรมเครื่องกล)",inst:"",yr:""}]}};
+const cvNorm=n=>shortName(n).replace(/\s+/g,"");
+const cv66For=id=>{const f=(state.faculty||[]).find(x=>x.id===id);if(!f)return null;const k=cvNorm(f.name);const e=Object.entries(CV66).find(([n])=>cvNorm(n)===k);return e?e[1]:null};
+const cvFilled=v=>Array.isArray(v)?v.length>0:v&&typeof v==="object"?Object.values(v).some(x=>x):!!v;
+const cvOf=id=>{const base={...cvEmpty()},d=cv66For(id)||{},o=(state.cv||{})[id]||{};Object.keys({...base,...d,...o}).forEach(k=>{base[k]=cvFilled(o[k])?o[k]:cvFilled(d[k])?JSON.parse(JSON.stringify(d[k])):(o[k]??base[k])});return base};
+const cvFrom66=id=>{const d=cv66For(id)||{},o=(state.cv||{})[id]||{};return ["deg","pubs","exp"].filter(k=>cvFilled(d[k])&&!cvFilled(o[k]))};
+
 const cvCanEdit=id=>{if(state.isAdmin)return true;const em=String((state.user&&state.user.email)||"").toLowerCase();const f=state.faculty.find(x=>x.id===id);return !!(em&&f&&(f.email||"").toLowerCase()===em)};
 const cvYearBE=y=>y?(+y<2400?+y+543:+y):"";
 const cvSortDeg=L=>L.slice().sort((a,b)=>"DMBC".indexOf(a.lv||"C")-"DMBC".indexOf(b.lv||"C")||(+b.yr||0)-(+a.yr||0));
@@ -2237,6 +2284,7 @@ function viewCv(){
   return `<p class="lead">ข้อมูลแต่ละท่านใช้ในเล่มหลักสูตร ภาคผนวก ค ข้อ 1 (ประวัติอาจารย์ประจำหลักสูตร) และหมวด 5 ข้อ 4 ${state.isAdmin?"อาจารย์แต่ละท่านเห็นและแก้ไขได้เฉพาะประวัติของตนเอง กรรมการหลักสูตรเห็นและแก้ไขได้ทุกท่าน":"ท่านเห็นและแก้ไขได้เฉพาะประวัติของท่านเอง"}</p>
   <div class="cv-wrap${state.isAdmin?"":" solo"}">${state.isAdmin?`<aside class="panel cv-side"><h2 style="margin-top:0">อาจารย์ (${F.length})</h2>${F.map(x=>`<button type="button" class="cv-pick${x.id===id?" on":""}" data-cvid="${x.id}"><span>${esc(formalName(x))}${roleOf(x.id)?` <span class="small muted">· ผู้รับผิดชอบ</span>`:""}</span>${st(x.id)}</button>`).join("")}</aside>`:""}
   <div class="cv-main">
+   ${(()=>{const L=cvFrom66(id);return L.length?`<div class="note" style="border-color:var(--accent)">ข้อมูล${L.map(k=>({deg:"คุณวุฒิ",pubs:"ผลงานทางวิชาการ",exp:"ประสบการณ์"})[k]).join(" ")} ดึงจาก${CV66_SRC} ให้อัตโนมัติ ตรวจ เติมสถาบัน/ปีที่ยังว่าง และเพิ่มผลงานล่าสุด แล้วกดบันทึก (ผลงานที่เก่ากว่าปี ${min} ไม่นับในเล่ม)</div>`:""})()}
    <section class="panel"><div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:8px"><div><h2 style="margin:0">${esc(formalName(f))}</h2><div class="small muted">${esc([POS[q.pos],DEG[q.deg]].filter(Boolean).join(" · ")||"ยังไม่ระบุตำแหน่ง/คุณวุฒิ (กำหนดที่แถบ ข1)")} · ภาระหน้าที่: ${role?"อาจารย์ผู้รับผิดชอบหลักสูตร (แขนง"+esc(TRACKS[role]||role)+")":"อาจารย์ประจำหลักสูตร"}</div></div>
     <div class="row" style="gap:6px">${can?`<button type="button" id="cvFetchOpen">ดึงประวัติงานวิจัย</button><button type="button" class="primary" id="cvSave" ${D.dirty?"":"disabled"}>${D.dirty?"บันทึก":"บันทึกแล้ว"}</button>`:'<span class="pill">ดูอย่างเดียว</span>'}</div></div>
     ${can?"":state.me&&state.me!==id?`<div class="note">ท่านแก้ไขได้เฉพาะประวัติของตนเอง เลือกชื่อท่านทางซ้าย</div>`:`<div class="note">บัญชีของท่านยังไม่ได้ผูกกับรายชื่ออาจารย์ แจ้งกรรมการหลักสูตรให้ใส่อีเมลของท่านในรายชื่อ</div>`}
