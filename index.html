@@ -1559,19 +1559,19 @@ const BKALL_CSS=`#bkAll{position:fixed;inset:0;z-index:1000;background:#5b6470;d
 #bkAll .bka-scroll{flex:1;overflow:auto;padding:18px 8px}#bkAll .bka-pages{zoom:var(--bka-zoom,.7);margin:0 auto;width:max-content}
 #bkAll .bk-view.bka-view{max-height:none;overflow:visible;background:transparent;padding:0;border-radius:0}
 #bkAll .bk-pg{margin:0 auto 18px}`;
-async function bookAllOpen(){
-  state.msg="กำลังจัดหน้าทั้งเล่ม…";render();
-  try{const fmt=bookFmt();const {pages,slots}=await bookAssemble(true);
-    document.getElementById("bkAll")?.remove();const ov=document.createElement("div");ov.id="bkAll";ov.setAttribute("role","dialog");ov.setAttribute("aria-label","ตัวอย่างเล่มหลักสูตรทั้งเล่ม");
+async function bookAllOpen(src){
+  src=src||{};state.msg="กำลังจัดหน้า…";render();
+  try{const fmt=bookFmt();const {pages,slots}=src.assemble?await src.assemble():await bookAssemble(true);const ttl=src.title||"เล่มหลักสูตรทั้งเล่ม";
+    document.getElementById("bkAll")?.remove();const ov=document.createElement("div");ov.id="bkAll";ov.setAttribute("role","dialog");ov.setAttribute("aria-label","ตัวอย่าง"+ttl);ov.dataset.fname=src.fname||bookFileName(true);
     const z=state.bkAllZoom||0.7;
-    ov.innerHTML=`<style>${BKALL_CSS}${BOOK_CSS}${PAGE_CSS}${BKD_CSS}</style><div class="bka-bar"><b>ตัวอย่างเล่มหลักสูตรทั้งเล่ม</b><span class="bka-info" id="bkaInfo">กำลังเปิดไฟล์ Word ที่อัปโหลด…</span>
+    ov.innerHTML=`<style>${BKALL_CSS}${BOOK_CSS}${PAGE_CSS}${BKD_CSS}</style><div class="bka-bar"><b>${esc(ttl)}</b><span class="bka-info" id="bkaInfo">กำลังเปิดไฟล์ Word ที่อัปโหลด…</span>
       <label class="small">ซูม <select id="bkaZoom">${[0.5,0.7,0.85,1].map(v=>`<option value="${v}" ${v==z?"selected":""}>${v*100}%</option>`).join("")}</select></label>
-      <button class="sm primary" id="bkaPdf" disabled>ดาวน์โหลดไฟล์ PDF ทั้งเล่ม</button><button class="sm" id="bkaPrint">พิมพ์</button><button class="sm" id="bkaClose">ปิด</button><div class="bka-prog" id="bkaProg"><i></i></div></div>
+      <button class="sm primary" id="bkaPdf" disabled>ดาวน์โหลดไฟล์ PDF</button>${src.assemble?"":`<button class="sm" id="bkaPrint">พิมพ์</button>`}<button class="sm" id="bkaClose">ปิด</button><div class="bka-prog" id="bkaProg"><i></i></div></div>
       <div class="bka-scroll"><div class="bka-pages" style="--bka-zoom:${z}"><div class="bk-view bka-view" style="${pgCssVars(fmt)}">${pages.join("")}</div></div></div>`;
     document.body.appendChild(ov);document.body.style.overflow="hidden";state.msg="";render();
     for(const k of slots){const el=ov.querySelector(`.bkd-slot[data-sec="${k}"]`);if(el){try{await bkdRenderInto(k,el,document.head)}catch(e){el.innerHTML=`<div class="bk-pg"><p style="padding:1in">เปิดไฟล์ Word ของส่วนนี้ไม่สำเร็จ: ${esc(e.message||String(e))}</p></div>`}}}
     const n=ov.querySelectorAll(".bk-pg, section.docx").length;
-    document.getElementById("bkaInfo").textContent=`${n} หน้า · ตรวจทุกหน้าแล้วกด "ดาวน์โหลดไฟล์ PDF ทั้งเล่ม" ไฟล์จะบันทึกลงเครื่อง (โฟลเดอร์ดาวน์โหลด)`;
+    document.getElementById("bkaInfo").textContent=`${n} หน้า · ตรวจทุกหน้าแล้วกด "ดาวน์โหลดไฟล์ PDF" ไฟล์จะบันทึกลงเครื่อง (โฟลเดอร์ดาวน์โหลด)`;
     document.getElementById("bkaPdf").disabled=false}
   catch(e){console.error(e);state.msg="จัดหน้าทั้งเล่มไม่สำเร็จ: "+(e&&e.message||e);render()}}
 function bookAllClose(){document.getElementById("bkAll")?.remove();document.body.style.overflow=""}
@@ -1593,8 +1593,8 @@ async function bookPdfFile(){
       const cv=await html2canvas(node,{scale:1.4,backgroundColor:"#ffffff",logging:false,useCORS:true,windowWidth:1000});
       if(i)pdf.addPage("a4","portrait");pdf.addImage(cv.toDataURL("image/jpeg",0.78),"JPEG",0,0,210,297,undefined,"FAST");cv.width=cv.height=0;
       info.textContent=`กำลังสร้าง PDF หน้า ${i+1} / ${els.length}`;prog.firstChild.style.width=((i+1)/els.length*100)+"%"}
-    info.textContent="กำลังบันทึกไฟล์…";pdf.save(bookFileName(true)+".pdf");
-    info.textContent=`บันทึกไฟล์ ${bookFileName(true)}.pdf แล้ว (${els.length} หน้า) ดูได้ในโฟลเดอร์ดาวน์โหลดของเครื่อง`}
+    info.textContent="กำลังบันทึกไฟล์…";pdf.save(ov.dataset.fname+".pdf");
+    info.textContent=`บันทึกไฟล์ ${ov.dataset.fname}.pdf แล้ว (${els.length} หน้า) ดูได้ในโฟลเดอร์ดาวน์โหลดของเครื่อง`}
   catch(e){console.error(e);info.textContent="สร้าง PDF ไม่สำเร็จ: "+(e&&e.message||e)}
   finally{f&&f.remove();btn.disabled=false;setTimeout(()=>{prog.style.display="none"},1500)}}
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("#bkaClose,#bkaPdf,#bkaPrint");if(!b)return;
@@ -2258,6 +2258,121 @@ function viewTabee(){
    <div class="check">${tbPill("todo")}<span class="t">รอบการยื่น</span><span class="d">เปิดรับปีละครั้ง ปกติสัปดาห์แรกของเดือนพฤษภาคม ยื่นรายงานประเมินตนเอง (Self-Evaluation Report) ผ่านเว็บไซต์สภาวิศวกร</span></div></section>
   <div class="checks">${C.map(c=>`<section class="panel"><h2>${tbPill(cs(c))} เกณฑ์ที่ ${c.n} ${esc(c.t)}</h2>${c.it.map(x=>`<div class="check">${tbPill(x.s)}<span class="t">${esc(x.t)}</span><span class="d">${esc(x.d||"")}${x.ev&&x.ev.length?`<br><span class="small">หลักฐาน: ${tbEv(x.ev)}</span>`:""}</span></div>`).join("")}</section>`).join("")}</div>
   <p class="small muted">เกณฑ์ 8 ข้อและผลลัพธ์ 11 ข้อตามคู่มือ TABEE Accreditation Criteria, Policy and Procedure Manual รอบ 2019–2024 ตรวจกับคู่มือฉบับปัจจุบันของสภาวิศวกรก่อนจัดทำรายงานประเมินตนเอง</p>`}
+// ---- ค3 เอกสารคำรับรองตนเอง (Self-Declaration) ยื่นสภาวิศวกร ตามประกาศสภาวิศวกร ที่ 30/2568 ----
+const SD_FOOT="Self-Declaration หลักสูตร วศ.บ. วิศวกรรมเครื่องกล (ปรับปรุง พ.ศ. 2571) มทร.กรุงเทพ";
+const SD_GA=[["ความรู้ด้านวิศวกรรม (Engineering Knowledge)","WA1"],["การวิเคราะห์ปัญหา (Problem Analysis)","WA2"],["การออกแบบ/พัฒนาหาคำตอบของปัญหา (Design/Development of Solutions)","WA3"],["การสืบค้น (Investigation)","WA4"],["การใช้เครื่องมือทันสมัย (Modern Tool Usage)","WA5"],["วิศวกรและสังคม (The Engineer and Society)","WA6"],["สิ่งแวดล้อมและความยั่งยืน (Environment and Sustainability)","WA6"],["จรรยาบรรณวิชาชีพ (Ethics)","WA7"],["การทำงานเดี่ยวและทำงานเป็นทีม (Individual and Team Work)","WA8"],["การสื่อสาร (Communication)","WA9"],["การบริหารโครงการและการลงทุน (Project Management and Finance)","WA10"],["การเรียนรู้ตลอดชีพ (Lifelong Learning)","WA11"]];
+const SD_WK=[["WK1","วิทยาศาสตร์ธรรมชาติ (Natural sciences)",c=>/^2-1(10|31)-/.test(c.code)],
+ ["WK2","คณิตศาสตร์ คอมพิวเตอร์ และสารสนเทศ (Mathematics and computing)",c=>/^2-212-/.test(c.code)||["4-110-201","4-110-202","4-000-103","4-116-310"].includes(c.code)],
+ ["WK3","พื้นฐานทางวิศวกรรม (Engineering fundamentals)",c=>c.g==="EB"],
+ ["WK4","ความรู้เฉพาะทางวิศวกรรม (Engineering specialist knowledge)",c=>c.g==="CORE"||c.g==="TR"],
+ ["WK5","การออกแบบและการดำเนินงานทางวิศวกรรม (Engineering design and operations)",c=>/ออกแบบ/.test(c.th)||["4-116-307","4-116-408"].includes(c.code)],
+ ["WK6","การปฏิบัติงานวิศวกรรมและเทคโนโลยี (Engineering practice)",c=>c.p>0&&["EB","CORE","TR","EXP"].includes(c.g)],
+ ["WK7","บทบาทของวิศวกรรมต่อสังคมและความยั่งยืน (Engineering in society)",c=>["4-116-409","0-123-003","4-112-408"].includes(c.code)],
+ ["WK8","การสืบค้นงานวิจัยและเอกสารทางวิชาการ (Research literature)",c=>["4-116-307","4-116-408"].includes(c.code)],
+ ["WK9","จริยธรรมและการทำงานร่วมกับผู้อื่นอย่างเคารพความแตกต่าง (Ethics and inclusive behaviour)",c=>["4-116-409","0-122-002","4-001-301","4-116-302"].includes(c.code)]];
+const sdCourses=()=>COURSES.filter(c=>/^\d-\d{3}-\d{3}$/.test(c.code));
+function sdHtml(){
+  const trs=Object.keys(TRACKS),H=t=>`<h2 class="bk-h">${t}</h2>`,h3=t=>`<h3>${t}</h3>`,ind=t=>`<p class="ind">${t}</p>`,li=t=>`<p class="li">${t}</p>`,BR=`<div class="bk-break"></div>`;
+  const crT=c=>c.fl&&c.fl.nc?`ไม่นับหน่วยกิต (${c.t}-${c.p}-${c.s})`:`${c.cr}(${c.t}-${c.p}-${c.s})`;
+  const L=sdCourses(),tc=trackCourses(trs[0]),gc=gs=>sumCr(tc.filter(c=>gs.includes(c.g)));
+  const N={total:sumCr(tc),GE:gc(["GE"]),MS:gc(["MS"]),EB:gc(["EB"]),CORE:gc(["CORE"]),TR:gc(["TR"]),TE:gc(["TE"]),EXP:gc(["EXP"]),FREE:gc(["FREE"])};
+  const T=x=>BF(x)?esc(BF(x)):"";
+  // ปก
+  let h=`<div class="bk-page bk-cover" style="text-align:center"><p style="text-align:center;text-indent:0;margin-top:1.4in;font-size:1.6em"><b>เอกสารคำรับรองตนเอง<br>(Self-Declaration)</b></p>
+   <p style="text-align:center;text-indent:0;margin-top:.4in">สำหรับการยื่นคำขอรับรองปริญญา ประกาศนียบัตร หรือวุฒิบัตร<br>ในการประกอบวิชาชีพวิศวกรรมควบคุม สาขาวิศวกรรมเครื่องกล</p>
+   <p style="text-align:center;text-indent:0;margin-top:.5in;font-size:1.2em"><b>หลักสูตรวิศวกรรมศาสตรบัณฑิต สาขาวิชาวิศวกรรมเครื่องกล<br>หลักสูตรปรับปรุง พ.ศ. 2571</b></p>
+   <p style="text-align:center;text-indent:0">แขนงวิชา ${trs.map(t=>TRACKS[t]).join(" · ")}</p>
+   <p style="text-align:center;text-indent:0">สำหรับผู้เข้าศึกษาตั้งแต่ปีการศึกษา 2571 เป็นต้นไป</p>
+   <p style="text-align:center;text-indent:0;margin-top:1in;font-size:1.15em"><b>คณะวิศวกรรมศาสตร์<br>มหาวิทยาลัยเทคโนโลยีราชมงคลกรุงเทพ</b></p><p style="text-align:center;text-indent:0">2 ถนนนางลิ้นจี่ แขวงทุ่งมหาเมฆ เขตสาทร กรุงเทพมหานคร 10120</p>
+   <p style="text-align:center;text-indent:0;margin-top:.4in">ปรับปรุงข้อมูล ณ วันที่ ${new Date().toLocaleDateString("th-TH",{dateStyle:"long"})}</p></div>${BR}`;
+  // ส่วนที่ 1
+  const grpRows=(g,title)=>{const C=L.filter(c=>c.g===g&&(g!=="TE"||c.fl.pool));return C.length?[[{h:`<b>${title}</b>`,span:3}],...C.sort((a,b)=>a.code.localeCompare(b.code)).map(c=>[c.code,c.th+(c.tr!==A&&c.tr?` (${[].concat(c.tr).map(t=>TRACKS[t]).join(", ")})`:""),{t:crT(c),cls:"c"}])]:[]};
+  const plan=[];for(const term of TERMS){const C=COURSES.filter(c=>c.term===term&&!(c.fl&&c.fl.pool));if(!C.length)continue;plan.push([{h:`<b>ปีที่ ${term[1]} ${term.endsWith("SS")?"ภาคฤดูร้อน":"ภาคการศึกษาที่ "+term.slice(-1)}</b>`,span:3}]);
+    C.forEach(c=>plan.push([/^\d-/.test(c.code)?c.code:"",c.th+(c.tr!==A&&c.tr?` (แขนง${[].concat(c.tr).map(t=>TRACKS[t]).join(", ")})`:""),{t:crT(c),cls:"c"}]));
+    const tt=trs.map(t=>sumCr(COURSES.filter(c=>c.term===term&&inTrack(c,t))));plan.push([{h:`<b>รวม ${new Set(tt).size===1?tt[0]:trs.map((t,i)=>t+" "+tt[i]).join(" / ")} หน่วยกิต</b>`,span:3,cls:"r"}])}
+  const team=trs.flatMap(t=>(state.faculty||[]).filter(f=>roleOf(f.id)===t).map(f=>[f,t]));
+  h+=H("ส่วนที่ 1 ข้อมูลหลักสูตร")+bkT([["ชื่อสถาบันการศึกษา","มหาวิทยาลัยเทคโนโลยีราชมงคลกรุงเทพ"],["วิทยาเขต","-"],["คณะ / ภาควิชา / สาขาวิชา","คณะวิศวกรรมศาสตร์ ภาควิชาวิศวกรรมเครื่องกล สาขาวิชาวิศวกรรมเครื่องกล"],["สำหรับผู้เข้าศึกษาในปีการศึกษา","2571 เป็นต้นไป"]],null,{w:"100%"})+
+   h3("1. ชื่อหลักสูตร")+li("ภาษาไทย: หลักสูตรวิศวกรรมศาสตรบัณฑิต สาขาวิชาวิศวกรรมเครื่องกล")+li("ภาษาอังกฤษ: Bachelor of Engineering Program in Mechanical Engineering")+
+   h3("2. ชื่อปริญญาและสาขาวิชา")+li("ชื่อเต็ม (ไทย): วิศวกรรมศาสตรบัณฑิต (วิศวกรรมเครื่องกล) · ชื่อย่อ (ไทย): วศ.บ. (วิศวกรรมเครื่องกล)")+li("ชื่อเต็ม (อังกฤษ): Bachelor of Engineering (Mechanical Engineering) · ชื่อย่อ (อังกฤษ): B.Eng. (Mechanical Engineering)")+
+   h3("3. วิชาเอก / แขนงวิชา")+trs.map((t,i)=>li(`3.${i+1} แขนงวิชา${TRACKS[t]}`)).join("")+ind("ทุกแขนงขอรับรองในสาขาวิศวกรรมเครื่องกล ใช้แกนวิชาชีพร่วมกัน")+
+   h3("4. วัตถุประสงค์ของหลักสูตร")+(BFlines("obj").length?BFlines("obj"):OBJ0.map(o=>o[0])).map((o,i)=>li(`${i+1}. ${esc(o)}`)).join("")+
+   h3("5. ระบบการจัดการศึกษา")+ind(BF("sys")?BFh("sys"):"ระบบทวิภาค 1 ปีการศึกษาแบ่งเป็น 2 ภาคการศึกษาปกติ ภาคการศึกษาละไม่น้อยกว่า 15 สัปดาห์ และมีภาคฤดูร้อน")+
+   h3("6. โครงสร้างหลักสูตร")+li(`6.1 จำนวนหน่วยกิตรวมตลอดหลักสูตร ไม่น้อยกว่า ${N.total} หน่วยกิต`)+li("6.2 โครงสร้างหลักสูตร")+
+   bkT([["ก. หมวดวิชาศึกษาทั่วไป",{t:N.GE,cls:"c"}],["ข. หมวดวิชาเฉพาะ",{t:N.MS+N.EB+N.CORE+N.TR+N.TE+N.EXP,cls:"c"}],["   1) กลุ่มวิชาพื้นฐานทางวิทยาศาสตร์และคณิตศาสตร์",{t:N.MS,cls:"c"}],["   2) กลุ่มวิชาพื้นฐานทางวิศวกรรม",{t:N.EB,cls:"c"}],["   3) กลุ่มวิชาบังคับทางวิศวกรรม (แกนร่วม "+N.CORE+" + บังคับแขนง "+N.TR+")",{t:N.CORE+N.TR,cls:"c"}],["   4) กลุ่มวิชาเลือกทางวิศวกรรม",{t:N.TE,cls:"c"}],["   5) กลุ่มวิชาเสริมสร้างประสบการณ์ในวิชาชีพ",{t:N.EXP,cls:"c"}],["ค. หมวดวิชาเลือกเสรี",{t:N.FREE,cls:"c"}],[{h:"<b>รวม</b>"},{h:`<b>${N.total}</b>`,cls:"c"}]],["หมวด / กลุ่มวิชา","หน่วยกิต"],{w:"100%",cw:["80%","20%"]})+
+   li("6.3 รายวิชา")+bkT([...grpRows("GE","หมวดวิชาศึกษาทั่วไป"),...grpRows("MS","กลุ่มวิชาพื้นฐานทางวิทยาศาสตร์และคณิตศาสตร์"),...grpRows("EB","กลุ่มวิชาพื้นฐานทางวิศวกรรม"),...grpRows("CORE","กลุ่มวิชาบังคับทางวิศวกรรม (แกนร่วม)"),...grpRows("TR","กลุ่มวิชาบังคับทางวิศวกรรม (บังคับแขนง)"),...grpRows("TE","กลุ่มวิชาเลือกทางวิศวกรรม"),...grpRows("EXP","กลุ่มวิชาเสริมสร้างประสบการณ์ในวิชาชีพ")],["รหัสวิชา","ชื่อวิชา","หน่วยกิต"],{w:"100%",cw:["16%","62%","22%"]})+
+   h3("7. แผนการศึกษา")+li("7.1 แผนการศึกษาแผนปกติ 4 ปี (สหกิจศึกษา)")+bkT(plan,["รหัสวิชา","ชื่อวิชา","หน่วยกิต"],{w:"100%",cw:["16%","62%","22%"]})+
+   h3("8. สถานภาพของหลักสูตรและการพิจารณาอนุมัติ/เห็นชอบหลักสูตร")+li("หลักสูตรปรับปรุง พ.ศ. 2571 ปรับปรุงจากหลักสูตรปรับปรุง พ.ศ. 2566 เปิดสอนภาคการศึกษาที่ 1 ปีการศึกษา 2571")+li("สภาวิชาการ: "+(T("acad")||bkTodo("(ครั้งที่ / วันที่)")))+li("สภามหาวิทยาลัย: "+(T("council")||bkTodo("(ครั้งที่ / วันที่)")))+
+   h3("9. ชื่อผู้รับรอง / อนุมัติข้อมูล")+li(bkTodo("อธิการบดี / คณบดี (ชื่อ ตำแหน่ง ลายมือชื่อ)"))+
+   h3("10. ชื่อผู้รับผิดชอบหลักสูตรและผู้ประสานงาน")+bkT((team.length?team:[[null,""]]).map(([f,t],i)=>f?[String(i+1),formalName(f),"แขนงวิชา"+TRACKS[t],{h:bkTodo("โทรศัพท์")},esc(f.email||"")]:[{h:bkTodo("ยังไม่ได้กำหนดผู้รับผิดชอบหลักสูตร (ข1)"),span:5}]),["ลำดับ","ชื่อ","บทบาท","โทรศัพท์","E-mail"],{w:"100%"})+BR;
+  // ส่วนที่ 2
+  const facRow=(f,i)=>[String(i+1),POS[qualOf(f.id).pos]||"",formalName(f),{h:bookDegHtml(f)},{h:cvSortDeg(cvOf(f.id).deg).filter(d=>d.yr).map(d=>esc(cvYearBE(d.yr))).join("<br>")||bkTodo("ปี")},{h:bkTodo("ปี")}];
+  const fh=["ลำดับ","ตำแหน่งวิชาการ","ชื่อ-สกุล","คุณวุฒิ / สาขาวิชา / สถาบันการศึกษา (ป.ตรี ถึงสูงสุด)","ปีที่สำเร็จการศึกษา","ประสบการณ์การสอน (ปี)"],fcw=["7%","13%","18%","38%","12%","12%"];
+  const lvOf=c=>{const m={};clos(c.code).forEach(x=>(x.subs||[]).forEach(s=>{if(!m[s]||LV_RANK[x.lv]>LV_RANK[m[s]])m[s]=x.lv}));return m};
+  const gaCourses=wa=>{const ps=(WA.find(w=>w[0]===wa)||[0,0,[]])[2];const pick=lv=>L.filter(c=>c.g!=="GE"||true).filter(c=>Object.entries(lvOf(c)).some(([s,l])=>l===lv&&ps.includes((subOf(s)||{}).plo)));const M=pick("M");return (M.length?M:pick("R")).map(c=>c.code)};
+  h+=H("ส่วนที่ 2 ข้อมูลคณาจารย์และลักษณะบัณฑิตที่พึงประสงค์")+
+   h3("1. ชื่อและคุณวุฒิการศึกษาของประธานหลักสูตรและอาจารย์ผู้รับผิดชอบหลักสูตร")+bkT(team.length?team.map(([f],i)=>facRow(f,i)):[[{h:bkTodo("ยังไม่ได้กำหนดผู้รับผิดชอบหลักสูตร (ข1)"),span:6}]],fh,{w:"100%",cw:fcw})+
+   h3("2. ชื่อและคุณวุฒิการศึกษาของอาจารย์ประจำหลักสูตร / สาขาวิชา")+bkT((state.faculty||[]).length?(state.faculty||[]).map(facRow):[[{h:bkTodo("ยังไม่มีรายชื่ออาจารย์ (ข1)"),span:6}]],fh,{w:"100%",cw:fcw})+
+   h3("3. ลักษณะบัณฑิตที่พึงประสงค์สำหรับการประกอบวิชาชีพวิศวกรรมควบคุม (Graduate Attributes and Professional Competencies)")+
+   li("3.1 ตารางความเชื่อมโยงระหว่างรายวิชาในหลักสูตรกับลักษณะบัณฑิตที่พึงประสงค์ ตามข้อตกลง Washington Accord")+
+   bkT(SD_GA.map(([t,wa],i)=>{const cs=gaCourses(wa);return [String(i+1),t,cs.length?cs.join(", "):{h:bkTodo("ยังไม่มีรายวิชา")}]}),["ลำดับ","ลักษณะบัณฑิตที่พึงประสงค์ (Graduate Attributes)","รายวิชาในหลักสูตร"],{w:"100%",cw:["8%","42%","50%"]})+
+   ind("รายวิชาในตารางคือรายวิชาที่ประเมิน CLO ระดับ M (ประเมินการบรรลุ) ของ PLO ที่ตอบลักษณะบัณฑิตข้อนั้น หากไม่มีระดับ M จะแสดงรายวิชาระดับ R")+
+   li("3.2 แบบความรู้และทัศนคติ (Knowledge and Attitude Profile)")+
+   bkT(SD_WK.map(([k,t,f])=>[k,t,L.filter(f).map(c=>c.code).join(", ")||{h:bkTodo("ยังไม่มีรายวิชา")}]),["รหัส","ความรู้และทัศนคติ","รายวิชาในหลักสูตร"],{w:"100%",cw:["9%","41%","50%"]})+ind(bkTodo("ร่างจากกลุ่มวิชาและชื่อรายวิชา กรรมการหลักสูตรตรวจก่อนยื่น"))+BR;
+  // ส่วนที่ 3
+  const cmap=Object.fromEntries(L.map(c=>[c.code,c]));const fac=id=>(state.faculty||[]).find(f=>f.id===id);
+  const r31=[],r32=[];
+  COE67.forEach(g=>{r31.push([{h:`<b>${esc(g.t)}</b>`,span:4}]);r32.push([{h:`<b>${esc(g.t)}</b>`,span:4}]);
+    g.items.forEach(([n,codes])=>{const cs=codes.filter(c=>cmap[c]);if(!cs.length)return;
+      cs.forEach((code,j)=>{const c=cmap[code],d=(descOf(code).th||"").replace(/\s+/g," ").trim();
+        r31.push([j?"":esc(n),d?esc(d.length>220?d.slice(0,220)+"…":d):{h:bkTodo("คำอธิบายรายวิชา")},`${code} ${c.th}`,{h:`${crT(c)}<br>${bkTodo("สัดส่วน …%")}`,cls:"c"}]);
+        const o=fac(ownerOf(code));r32.push([j?"":esc(n),`${code} ${c.th}`,{t:crT(c),cls:"c"},o?{h:`${esc(formalName(o))}<br><span class="small">${bookDegHtml(o)}</span>`}:{h:bkTodo("ยังไม่กำหนดผู้สอน (ข1)")}])})})});
+  h+=H("ส่วนที่ 3 รายละเอียดและสาระของวิชาตามองค์ความรู้")+h3("3.1 ตารางแจกแจงรายวิชาเทียบกับองค์ความรู้สาขาวิชาวิศวกรรมเครื่องกล")+
+   bkT(r31,["องค์ความรู้ที่สภาวิศวกรกำหนด","รายละเอียดและสาระของรายวิชาในหลักสูตร","รหัสวิชาและชื่อวิชา","ภาระหน่วยกิตและสัดส่วนเนื้อหา (%)"],{w:"100%",cw:["20%","44%","22%","14%"]})+
+   ind("ชื่อวิชาภาษาอังกฤษให้ใช้ตามรายละเอียดหลักสูตรฉบับสมบูรณ์ "+bkTodo("เติมสัดส่วนเนื้อหา (%) ที่ตรงกับองค์ความรู้แต่ละรายการ"))+
+   h3("3.2 ตารางแสดงผู้สอนในแต่ละองค์ความรู้")+bkT(r32,["องค์ความรู้ที่สภาวิศวกรกำหนด","รหัสวิชาและชื่อวิชา","หน่วยกิต","ผู้สอนและคุณวุฒิ"],{w:"100%",cw:["22%","30%","14%","34%"]})+BR;
+  // ส่วนที่ 4
+  const labs=L.filter(c=>c.p>0&&c.dept==="ME"&&!c.fl.coop);
+  h+=H("ส่วนที่ 4 สิ่งสนับสนุนการเรียนรู้")+h3("1. ห้องปฏิบัติการและวัสดุอุปกรณ์การทดลอง")+
+   bkT(labs.map((c,i)=>[String(i+1),`${c.code} ${c.th}`,{t:`${c.p} ชม./สัปดาห์`,cls:"c"},{h:bkTodo("ห้องปฏิบัติการ")},{h:bkTodo("ครุภัณฑ์หลักและจำนวนชุด")}]),["ลำดับ","รายวิชาที่มีชั่วโมงปฏิบัติ","ปฏิบัติ","ห้องปฏิบัติการ","ครุภัณฑ์และจำนวน"],{w:"100%",cw:["7%","33%","12%","18%","30%"]})+
+   ind(bkTodo("แขนงวิศวกรรมยานยนต์พลังงานใหม่และแขนงวิศวกรรมพลังงานและสิ่งแวดล้อม แนบแผนจัดหาครุภัณฑ์รายปี พ.ศ. 2571–2574"))+
+   li("1.2 โปรแกรมสำเร็จรูป / ซอฟต์แวร์ "+bkTodo("(เช่น AutoCAD, SolidWorks, MATLAB, ANSYS)"))+
+   h3("2. แหล่งบริการข้อมูลทางวิชาการ")+ind(bkTodo("ห้องสมุด ฐานข้อมูลวารสาร มาตรฐานวิศวกรรม และระบบสารสนเทศของมหาวิทยาลัย"))+
+   h3("3. กิจกรรมพัฒนานักศึกษาอื่น ๆ")+ind(bkTodo("กิจกรรมเสริมหลักสูตร การแข่งขัน ชมรม และการดูงาน"))+BR;
+  // ส่วนที่ 5
+  const ck=[["สถานภาพหลักสูตร","มีมติสภาวิชาการและสภามหาวิทยาลัย",!!(BF("acad")&&BF("council")),"ส่วนที่ 1 ข้อ 8"],
+   ["วัตถุประสงค์และองค์ความรู้","วัตถุประสงค์หลักสูตรและองค์ความรู้ครบตามสภาวิศวกร",!trs.some(t=>coe67Eval(t).some(g=>!g.ok)),"ส่วนที่ 1 ข้อ 4 · ส่วนที่ 3"],
+   ["รายละเอียดวิชา","รายละเอียดรายวิชาและแผนการสอนของวิชาที่เทียบองค์ความรู้",false,"เอกสารแนบ 3"],
+   ["ระบบการศึกษา","ระบบทวิภาค และการเทียบเคียงหน่วยกิต",true,"ส่วนที่ 1 ข้อ 5"],
+   ["โครงสร้างหลักสูตร","หน่วยกิตรวมและหมวดวิชาตามเกณฑ์",N.total>=120,"ส่วนที่ 1 ข้อ 6"],
+   ["ลักษณะบัณฑิต","ตารางเชื่อมโยงรายวิชากับ Graduate Attributes และ Knowledge and Attitude Profile",SD_GA.every(([t,wa])=>gaCourses(wa).length),"ส่วนที่ 2 ข้อ 3"],
+   ["อาจารย์","อาจารย์ผู้รับผิดชอบหลักสูตรและอาจารย์ประจำพร้อมคุณวุฒิ",team.length>=3,"ส่วนที่ 2 ข้อ 1–2"],
+   ["สิ่งสนับสนุนการเรียนรู้","ห้องปฏิบัติการ ครุภัณฑ์ และแหล่งข้อมูล",false,"ส่วนที่ 4"]];
+  h+=H("ส่วนที่ 5 แบบตรวจ (Checklist) สำหรับการยื่นคำขอรับรองปริญญา")+
+   bkT(ck.map(([a,b,ok,ref],i)=>[String(i+1),a,b,{t:ok?"มี":"",cls:"c"},{t:ok?"":"ไม่มี",cls:"c"},ref]),["ลำดับ","หัวข้อ","รายการ","มี","ไม่มี","อ้างอิง"],{w:"100%",cw:["7%","18%","37%","8%","8%","22%"]})+
+   h3("เอกสารแนบ")+["เอกสารที่สภามหาวิทยาลัยอนุมัติ / เห็นชอบหลักสูตร","รายละเอียดหลักสูตรฉบับสมบูรณ์ที่ได้รับอนุมัติ (ค1)","รายละเอียดรายวิชา (Course Specification) และแผนการสอน (Course Syllabus) เฉพาะวิชาที่นำมาเทียบองค์ความรู้","คำสั่งแต่งตั้งคณะกรรมการพัฒนาและวิพากษ์หลักสูตร"].map((t,i)=>li(`${i+1}. ${t}`)).join("");
+  return h}
+async function sdAssemble(){const fmt=bookFmt("h1");const ps=await paginateHtml(sdHtml(),fmt);
+  return {pages:ps.map((p,i)=>`<div class="bk-pg" style="${pgCssVars(fmt)}"><div class="bk-pgc" style="position:absolute;left:${fmt.mL}in;top:${fmt.mT}in;width:calc(8.27in - ${fmt.mL}in - ${fmt.mR}in)">${p}</div>${i?`<div class="bk-foot"><span>${SD_FOOT}</span><span>${i}</span></div>`:""}</div>`),slots:[]}}
+async function sdDocx(){
+  try{state.msg="กำลังสร้างไฟล์ .docx…";render();const D=await docxLib();const fmt=bookFmt("h1");window.__footTxt=SD_FOOT;
+    const sec=await bookDocxSection(D,"h1",sdHtml(),fmt,1);
+    const doc=new D.Document({creator:"ME curriculum platform",title:"Self-Declaration",styles:{default:{document:{run:{font:{ascii:fmt.font,hAnsi:fmt.font,cs:fmt.font,eastAsia:fmt.font,hint:"cs"},size:fmt.body*2,language:{value:"en-US",eastAsia:"en-US",bidirectional:"th-TH"}}}}},sections:[sec]});
+    const blob=await D.Packer.toBlob(doc);const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="Self-Declaration-วศบ-เครื่องกล-2571.docx";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+    state.msg="สร้างไฟล์ Self-Declaration-วศบ-เครื่องกล-2571.docx แล้ว";render()}
+  catch(e){console.error(e);state.msg="สร้าง .docx ไม่สำเร็จ: "+(e&&e.message||e);render()}finally{window.__footTxt=null}}
+function viewSd(){
+  const trs=Object.keys(TRACKS),team=(state.faculty||[]).filter(f=>roleOf(f.id));
+  const parts=[["ปก","ระบบใส่ให้ทั้งหมด","pass"],["ส่วนที่ 1 ข้อมูลหลักสูตร","ดึงจากรายวิชา โครงสร้าง แผนการเรียน และข้อมูลเล่ม · ต้องเติมชื่อผู้รับรองและโทรศัพท์ผู้ประสานงาน",BF("acad")&&BF("council")?"warn":"warn"],
+   ["ส่วนที่ 2 คณาจารย์และลักษณะบัณฑิต","รายชื่อและคุณวุฒิจาก ข1/ข4 · ตาราง Graduate Attributes จาก CLO ระดับ M · Knowledge and Attitude Profile เป็นร่างให้ตรวจ",team.length?"warn":"fail"],
+   ["ส่วนที่ 3 รายวิชาเทียบองค์ความรู้","ตารางแจกแจงจากการเทียบองค์ความรู้ในระบบ คำอธิบายรายวิชา และผู้สอนจาก ข1 · ต้องเติมสัดส่วนเนื้อหา (%)","warn"],
+   ["ส่วนที่ 4 สิ่งสนับสนุนการเรียนรู้","ระบบสร้างรายการวิชาที่มีชั่วโมงปฏิบัติให้ ต้องเติมห้องปฏิบัติการ ครุภัณฑ์ ซอฟต์แวร์ และแหล่งข้อมูล","fail"],
+   ["ส่วนที่ 5 แบบตรวจ","ระบบทำเครื่องหมายมี/ไม่มี จากข้อมูลจริง","pass"]];
+  return `<p class="lead">เอกสารคำรับรองตนเอง (Self-Declaration) สำหรับยื่นขอรับรองปริญญาต่อสภาวิศวกร ตามประกาศสภาวิศวกร ที่ 30/2568 หลักสูตรปรับปรุงต้องยื่นภายใน 1 ปีนับจากวันที่สภามหาวิทยาลัยเห็นชอบ ระบบสร้างเอกสารจากข้อมูลจริง ส่วนที่ต้องเติมเองแสดงเป็นแถบสีเหลือง</p>
+  <section class="panel"><h2>สร้างเอกสาร</h2><div class="row" style="gap:8px;flex-wrap:wrap"><button class="primary" id="sdView">ดูเอกสาร / ดาวน์โหลด PDF</button><button id="sdDocx">ดาวน์โหลด .docx เพื่อแก้ใน Word</button></div>
+   <p class="small muted" style="margin-top:8px">ข้อมูลที่แก้ในแถบ ก ข และ ค1 จะปรากฏในเอกสารทุกครั้งที่สร้างใหม่ ถ้าแก้ในไฟล์ Word ให้เก็บไฟล์นั้นเป็นฉบับยื่น</p></section>
+  <section class="panel"><h2>ความพร้อมของแต่ละส่วน</h2>${parts.map(([t,d,s])=>`<div class="check">${tbPill(s)}<span class="t">${esc(t)}</span><span class="d">${esc(d)}</span></div>`).join("")}</section>
+  <section class="panel"><h2>เอกสารแนบที่ต้องเตรียม</h2><div class="check">${tbPill("todo")}<span class="t">เอกสารที่สภามหาวิทยาลัยอนุมัติหลักสูตร</span></div><div class="check">${tbPill("pass")}<span class="t">รายละเอียดหลักสูตรฉบับสมบูรณ์</span><span class="d"><a href="#book/book">ค1</a> ดาวน์โหลด PDF ทั้งเล่ม</span></div><div class="check">${tbPill("warn")}<span class="t">รายละเอียดรายวิชาและแผนการสอน เฉพาะวิชาที่เทียบองค์ความรู้</span><span class="d">มีคำอธิบายรายวิชาและ CLO แล้ว ต้องจัดทำแผนการสอนรายสัปดาห์</span></div></section>`}
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("#sdView,#sdDocx");if(!b)return;if(b.id==="sdView")bookAllOpen({assemble:sdAssemble,title:"เอกสารคำรับรองตนเอง (Self-Declaration)",fname:"Self-Declaration-วศบ-เครื่องกล-2571"});else sdDocx()});
 function viewCheck(){
   const ev=evaluate(state.track);
   const all=["ME","EV","CE"].map(t=>{const e=evaluate(t);const f=e.out.flatMap(x=>x[1]);return [t,f.filter(x=>x.s==="fail").length,f.filter(x=>x.s==="warn").length,f.length]});
@@ -2620,7 +2735,7 @@ async function bookDocxSection(D,k,html,fmt,pageNo){
     await flush();return res};
   try{out.push(...await blocks(host,{sz:body},{}))}finally{host.remove()}
   const nofoot=BK_NOFOOT.includes(k);
-  const footer=nofoot?undefined:{default:new D.Footer({children:[new D.Paragraph({border:{top:{style:D.BorderStyle.SINGLE,size:4,color:"555555",space:1}},tabStops:[{type:D.TabStopType.RIGHT,position:Math.round(cw)}],children:[TRun({text:"หลักสูตรวิศวกรรมศาสตรบัณฑิต สาขาวิชาวิศวกรรมเครื่องกล (หลักสูตรปรับปรุง พ.ศ. 2571)",size:22,font}),TRun({children:[new D.Tab(),D.PageNumber.CURRENT],size:22,font})]})]})};
+  const footer=nofoot?undefined:{default:new D.Footer({children:[new D.Paragraph({border:{top:{style:D.BorderStyle.SINGLE,size:4,color:"555555",space:1}},tabStops:[{type:D.TabStopType.RIGHT,position:Math.round(cw)}],children:[TRun({text:window.__footTxt||"หลักสูตรวิศวกรรมศาสตรบัณฑิต สาขาวิชาวิศวกรรมเครื่องกล (หลักสูตรปรับปรุง พ.ศ. 2571)",size:22,font}),TRun({children:[new D.Tab(),D.PageNumber.CURRENT],size:22,font})]})]})};
   return {properties:{page:{size:{width:11906,height:16838},margin:{top:Math.round(fmt.mT*IN),bottom:Math.round(fmt.mB*IN),left:Math.round(fmt.mL*IN),right:Math.round(fmt.mR*IN),footer:Math.round(.45*IN)},pageNumbers:pageNo?{start:pageNo}:undefined}},footers:footer,children:out.length?out:[new D.Paragraph("")]};
 }
 async function bookDocx(all){
@@ -3111,10 +3226,10 @@ document.addEventListener("click",e=>{const t=e.target.closest("[data-regadd],[d
 
 const NAV={design:{t:"ออกแบบหลักสูตร",s:"ช่วงร่างและเสนอ",tabs:[["needs","ก1","ที่มาของ PLO"],["plo","ก2","PLO · Sub-PLO · YLO"],["clo","ก3","CLO รายวิชา (ผู้สอน)"],["map","ก4","Curriculum Mapping"],["plan","ก5","โครงสร้างและแผนการเรียน"],["check","ก6","ตรวจเกณฑ์"]]},
   manage:{t:"บริหารหลักสูตร",s:"ทุกภาคเรียน",tabs:[["struct","ข1","โครงสร้างหลักสูตรและอาจารย์"],["load","ข2","ภาระสอน"],["timetable","ข3","ตารางสอน"],["cv","ข4","ประวัติอาจารย์และผลงาน"],["transition","ข5","แผนเปลี่ยนผ่านหลักสูตร"]]},
-  book:{t:"เอกสารหลักสูตรและการรับรอง",s:"มทร.กรุงเทพ · สป.อว. · TABEE",tabs:[["book","ค1","รายละเอียดหลักสูตร (มคอ.2)"],["tabee","ค2","ความพร้อม TABEE"]]},
+  book:{t:"เอกสารหลักสูตรและการรับรอง",s:"มทร.กรุงเทพ · สป.อว. · สภาวิศวกร",tabs:[["book","ค1","รายละเอียดหลักสูตร (มคอ.2)"],["tabee","ค2","ความพร้อม TABEE"],["sd","ค3","Self-Declaration (สภาวิศวกร)"]]},
   ref:{t:"กฎหมายและระเบียบ",s:"คลังอ้างอิง",tabs:[["regs","จ1","กฎหมาย ระเบียบ และประกาศ"]]},
   admin:{t:"ผู้ดูแลระบบ",s:"เฉพาะกรรมการหลักสูตร",adminOnly:true,tabs:[["monitor","ง1","ติดตามการเข้าระบบและการกรอก CLO"]]}};
-const VIEWS={tabee:viewTabee,regs:viewRegs,transition:viewTransition,cv:viewCv,monitor:viewMonitor,survey:viewSurvey,struct:viewStruct,needs:viewNeeds,plo:viewPlo,clo:viewClo,map:viewMap,plan:viewPlan,check:viewCheck,load:viewLoad,timetable:viewTimetable,book:viewBook};
+const VIEWS={tabee:viewTabee,sd:viewSd,regs:viewRegs,transition:viewTransition,cv:viewCv,monitor:viewMonitor,survey:viewSurvey,struct:viewStruct,needs:viewNeeds,plo:viewPlo,clo:viewClo,map:viewMap,plan:viewPlan,check:viewCheck,load:viewLoad,timetable:viewTimetable,book:viewBook};
 function tblock(){const el=document.getElementById("tblock");if(!el)return;let tot="";try{tot=Math.min(...Object.keys(TRACKS).map(t=>sumCr(trackCourses(t))))}catch(e){}
   el.innerHTML=`<div><small>หลักสูตรปรับปรุง</small><b>พ.ศ. 2571</b></div><div><small>หน่วยกิตรวม</small><b>${tot||"–"}</b></div><div><small>แขนงวิชา</small><b>${Object.keys(TRACKS).length}</b></div><div><small>เปิดสอน</small><b>1/2571</b></div>`}
 function render(){
