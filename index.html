@@ -1194,7 +1194,7 @@ async function computeTocPages(){const map={};let no=0;
         if(e.tagName==="H2"){if(k==="h1"&&t==="รายละเอียดหลักสูตร")map["h1:H"]=map["h1:H"]||no;else if(k==="h1"&&/^หมวดที่ 1/.test(t))map["h1:H1"]=map["h1:H1"]||no;else if(k==="apx"){const m=t.match(/^ภาคผนวก ([กขค])/);if(m)map["apx:"+m[1]]=map["apx:"+m[1]]||no}else if(!map[k+":H"])map[k+":H"]=no}
         else{const m=t.match(/^(\d+)\.\s/);if(m&&!map[k+":"+m[1]])map[k+":"+m[1]]=no}})})}
   return map}
-function fillToc(html,map){if(!map||html.indexOf("data-tocpg")<0)return html;const d=document.createElement("div");d.innerHTML=html;d.querySelectorAll("[data-tocpg]").forEach(e=>{const v=map[e.dataset.tocpg];e.textContent=v||"–";e.classList.toggle("bk-todo",!v)});return d.innerHTML}
+function fillToc(html,map){if(!map||html.indexOf("data-tocpg")<0)return html;const d=document.createElement("div");d.innerHTML=html;d.querySelectorAll("[data-tocpg]").forEach(e=>{let v=map[e.dataset.tocpg];if(!v){const sp=e.dataset.tocpg.split(":")[0]+":";const ps=Object.entries(map).filter(([k,x])=>k.startsWith(sp)&&x).map(([k,x])=>+x).filter(x=>x>0);if(ps.length)v=String(Math.min(...ps))}e.textContent=v||"–";e.classList.toggle("bk-todo",!v)});d.querySelectorAll("[data-tocnote]").forEach(e=>e.remove());return d.innerHTML}
 const FIELD_SUB={code14:1,rvno:9,acad:9,council:9,pubReady:10,careers:11,place:13,swot:14,philo:1,obj:1,sys:1,qual:2,trackSel:2,proj:6};
 const secSubs=s=>BOOK_TOC.filter(x=>x[0]===s&&typeof x[1]==="number");
 const subKey=(s,n)=>`x_${s}_${n}`;
@@ -1404,7 +1404,7 @@ function viewBook(){
     <label class="ctl">ระยะก่อนหัวข้อ <select id="bfHB" ${adm?"":"disabled"}>${[0,4,6,8,10,12,18].map(v=>`<option ${fmt.hBefore==v?"selected":""}>${v}</option>`).join("")}</select> pt</label>
     
     <label class="ctl">ซูม <select id="bfZoom">${[0.5,0.65,0.8,1].map(v=>`<option ${(state.bookZoom||0.8)==v?"selected":""} value="${v}">${v*100}%</option>`).join("")}</select></label>
-    ${adm?`<button class="sm" id="bfReset" title="คืนค่ารูปแบบทุกส่วนตามแบบฟอร์ม">ตามแบบฟอร์ม</button>`:""}<button class="sm primary" id="bkPdf">สร้าง PDF ส่วนนี้</button><button class="sm" id="bkPdfAll">สร้าง PDF ทั้งเล่ม</button><button class="sm" id="bkDocx" title="ไฟล์ Word แก้ไขต่อได้">ดาวน์โหลด .docx ส่วนนี้</button><button class="sm" id="bkDocxAll">ดาวน์โหลด .docx ทั้งเล่ม</button><label class="sm btnlike" style="cursor:pointer;border:1px solid var(--line);border-radius:8px;padding:4px 10px;background:var(--surface,#fff)" title="อัปโหลดไฟล์ Word ที่แก้แล้ว เพื่อสร้าง PDF">อัปโหลด .docx → PDF<input type="file" id="bkDocxUp" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden></label></div></div>
+    ${adm?`<button class="sm" id="bfReset" title="คืนค่ารูปแบบทุกส่วนตามแบบฟอร์ม">ตามแบบฟอร์ม</button>`:""}<button class="sm" id="bkPdf">สร้าง PDF ส่วนนี้</button><button class="sm primary" id="bkAllView" title="ดูตัวอย่างทุกส่วนต่อกัน แล้วดาวน์โหลดไฟล์ PDF ทั้งเล่ม">ดูทั้งเล่ม / ดาวน์โหลด PDF</button><button class="sm" id="bkPdfAll" title="เปิดหน้าต่างพิมพ์ของเบราว์เซอร์">พิมพ์ทั้งเล่ม</button><button class="sm" id="bkDocx" title="ไฟล์ Word แก้ไขต่อได้">ดาวน์โหลด .docx ส่วนนี้</button><button class="sm" id="bkDocxAll">ดาวน์โหลด .docx ทั้งเล่ม</button><label class="sm btnlike" style="cursor:pointer;border:1px solid var(--line);border-radius:8px;padding:4px 10px;background:var(--surface,#fff)" title="อัปโหลดไฟล์ Word ที่แก้แล้ว เพื่อสร้าง PDF">อัปโหลด .docx → PDF<input type="file" id="bkDocxUp" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden></label></div></div>
    <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:6px"><span class="small">การปรับรูปแบบด้านบนมีผลกับ <b>${esc((BOOK_SECS.find(x=>x[0]===sec)||[])[1]||"")}</b> เท่านั้น</span>${fov?`<span class="pill warn">ส่วนนี้ใช้รูปแบบเฉพาะ</span>${adm?`<button class="sm" id="bfSecAll">ใช้รูปแบบนี้กับทุกส่วน</button><button class="sm" id="bfSecClear">กลับไปใช้รูปแบบรวม</button>`:""}`:`<span class="pill" style="background:var(--soft);color:var(--muted)">ใช้รูปแบบรวมของเล่ม</span>`}</div>
    <div class="bk-wrap"><nav class="bk-nav">${BOOK_SECS.map(([k,t],i)=>{const s=bookSecStatus(k);return `<button class="bk-sec${k===sec?" on":""}" data-bksec="${k}"><span class="bk-no">${i+1}</span><span class="bk-tt">${esc(t)}</span><span class="bk-st">${chk[k]?'<span class="pill pass">ตรวจแล้ว</span>':s==="pass"?'<span class="pill" style="background:var(--soft);color:var(--muted)">รอตรวจ</span>':pill(s,s==="warn"?"ควรเติม":"ยังขาด")}</span></button>${k===sec&&secSubs(k).length?`<div class="bk-subs">${secSubs(k).map(([s,n,t])=>`<button class="bk-sub" data-bksub="${s}:${n}"><span>${n}. ${esc(t)}</span><span class="small muted" data-subpg="${s}:${n}"></span></button>`).join("")}</div>`:""}`}).join("")}</nav>
     <div class="bk-main">${bkdBar(sec,adm)}${bookEditPanel(sec,adm)}<div class="row" style="justify-content:space-between;margin-bottom:6px"><b>${esc((BOOK_SECS.find(x=>x[0]===sec)||[])[1]||"")}</b><label class="ctl"><input type="checkbox" id="bkChk" ${chk[sec]?"checked":""} ${adm?"":"disabled"}> ตรวจแล้ว ถูกต้องตามแบบฟอร์ม${chk[sec]&&chk[sec].by?` <span class="small muted">(${esc(chk[sec].by)})</span>`:""}</label></div>
@@ -1538,12 +1538,67 @@ document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest
   if(b.dataset.bkddl)bkdDownload(b.dataset.bkddl);else if(b.dataset.bkdon){const m=bkdMeta()[b.dataset.bkdon];bkdSetOn(b.dataset.bkdon,!(m&&m.on!==false))}else if(b.dataset.bkddel)bkdDelete(b.dataset.bkddel)});
 window.bkdLoadMeta=bkdLoadMeta;setTimeout(bkdLoadMeta,1500);
 
-async function bookPrint(all){
-  const fmt=bookFmt();state.msg="กำลังจัดหน้าเพื่อสร้าง PDF…";render();
-  try{const secs=all?BOOK_SECS.map(([k])=>k):[state.bookSec||"cover"];let pages=[];const slots=[];
-  const tmap=secs.includes("toc")?await computeTocPages():null;let no=0;for(const k of secs){const nf=BK_NOFOOT.includes(k);const fk=bookFmt(k);
+// ---- ดูตัวอย่างทั้งเล่ม และดาวน์โหลดไฟล์ PDF ทั้งเล่ม (สร้างไฟล์ในเบราว์เซอร์ ไม่ผ่านหน้าต่างพิมพ์) ----
+const PDF_CDN={h2c:"https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js",jspdf:"https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"};
+async function bookAssemble(all){
+  const secs=all?BOOK_SECS.map(([k])=>k):[state.bookSec||"cover"];let pages=[];const slots=[];
+  const tmap=secs.includes("toc")?await computeTocPages():null;let no=0;
+  for(const k of secs){const nf=BK_NOFOOT.includes(k);const fk=bookFmt(k);
     if(bkdUse(k)){const n=await bkdPageCount(k);if(!nf)no+=n;slots.push(k);pages.push(`<div class="bkd-slot" data-sec="${k}"></div>`);continue}
     pages=pages.concat((await paginateHtml(k==="toc"?fillToc(bookSecFinal(k),tmap):bookSecFinal(k),fk)).map(p=>pageHtml(p,nf?0:++no,0,fk,nf)))}
+  return {pages,slots}}
+const BKALL_CSS=`#bkAll{position:fixed;inset:0;z-index:1000;background:#5b6470;display:flex;flex-direction:column}
+#bkAll .bka-bar{font-family:var(--sans);font-size:14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 16px;background:var(--panel,#fff);color:var(--ink,#000);border-bottom:1px solid var(--line,#ccc)}
+#bkAll .bka-bar b{font-size:15px;margin-right:6px}#bkAll .bka-bar button{font:inherit;font-size:13px;padding:5px 12px;border-radius:7px;border:1px solid var(--line,#ccc);background:var(--panel,#fff);color:var(--ink,#000);cursor:pointer}#bkAll .bka-bar button.primary{background:var(--accent,#8b1e2d);border-color:var(--accent,#8b1e2d);color:var(--accent-ink,#fff)}#bkAll .bka-bar button:disabled{opacity:.55;cursor:default}#bkAll select{font:inherit}#bkAll .bka-info{font-size:13px;color:var(--muted,#555);flex:1;min-width:200px}
+#bkAll .bka-prog{height:4px;background:var(--soft,#eee);flex-basis:100%;border-radius:2px;overflow:hidden;display:none}#bkAll .bka-prog i{display:block;height:100%;width:0;background:var(--accent,#8b1e2d);transition:width .2s}
+#bkAll .bka-scroll{flex:1;overflow:auto;padding:18px 8px}#bkAll .bka-pages{zoom:var(--bka-zoom,.7);margin:0 auto;width:max-content}
+#bkAll .bk-view.bka-view{max-height:none;overflow:visible;background:transparent;padding:0;border-radius:0}
+#bkAll .bk-pg{margin:0 auto 18px}`;
+async function bookAllOpen(){
+  state.msg="กำลังจัดหน้าทั้งเล่ม…";render();
+  try{const fmt=bookFmt();const {pages,slots}=await bookAssemble(true);
+    document.getElementById("bkAll")?.remove();const ov=document.createElement("div");ov.id="bkAll";ov.setAttribute("role","dialog");ov.setAttribute("aria-label","ตัวอย่างเล่มหลักสูตรทั้งเล่ม");
+    const z=state.bkAllZoom||0.7;
+    ov.innerHTML=`<style>${BKALL_CSS}${BOOK_CSS}${PAGE_CSS}${BKD_CSS}</style><div class="bka-bar"><b>ตัวอย่างเล่มหลักสูตรทั้งเล่ม</b><span class="bka-info" id="bkaInfo">กำลังเปิดไฟล์ Word ที่อัปโหลด…</span>
+      <label class="small">ซูม <select id="bkaZoom">${[0.5,0.7,0.85,1].map(v=>`<option value="${v}" ${v==z?"selected":""}>${v*100}%</option>`).join("")}</select></label>
+      <button class="sm primary" id="bkaPdf" disabled>ดาวน์โหลดไฟล์ PDF ทั้งเล่ม</button><button class="sm" id="bkaPrint">พิมพ์</button><button class="sm" id="bkaClose">ปิด</button><div class="bka-prog" id="bkaProg"><i></i></div></div>
+      <div class="bka-scroll"><div class="bka-pages" style="--bka-zoom:${z}"><div class="bk-view bka-view" style="${pgCssVars(fmt)}">${pages.join("")}</div></div></div>`;
+    document.body.appendChild(ov);document.body.style.overflow="hidden";state.msg="";render();
+    for(const k of slots){const el=ov.querySelector(`.bkd-slot[data-sec="${k}"]`);if(el){try{await bkdRenderInto(k,el,document.head)}catch(e){el.innerHTML=`<div class="bk-pg"><p style="padding:1in">เปิดไฟล์ Word ของส่วนนี้ไม่สำเร็จ: ${esc(e.message||String(e))}</p></div>`}}}
+    const n=ov.querySelectorAll(".bk-pg, section.docx").length;
+    document.getElementById("bkaInfo").textContent=`${n} หน้า · ตรวจทุกหน้าแล้วกด "ดาวน์โหลดไฟล์ PDF ทั้งเล่ม" ไฟล์จะบันทึกลงเครื่อง (โฟลเดอร์ดาวน์โหลด)`;
+    document.getElementById("bkaPdf").disabled=false}
+  catch(e){console.error(e);state.msg="จัดหน้าทั้งเล่มไม่สำเร็จ: "+(e&&e.message||e);render()}}
+function bookAllClose(){document.getElementById("bkAll")?.remove();document.body.style.overflow=""}
+async function bookPdfFile(){
+  const ov=document.getElementById("bkAll");if(!ov)return;const info=document.getElementById("bkaInfo"),btn=document.getElementById("bkaPdf"),prog=document.getElementById("bkaProg");
+  btn.disabled=true;prog.style.display="block";
+  let f;try{info.textContent="กำลังโหลดเครื่องมือสร้าง PDF…";
+    if(!window.html2canvas)await loadScript(PDF_CDN.h2c);if(!window.jspdf)await loadScript(PDF_CDN.jspdf);
+    const els=[...ov.querySelectorAll(".bk-pg, section.docx")];const vars=ov.querySelector(".bka-view").getAttribute("style")||"";
+    // เรนเดอร์ทีละหน้าใน iframe เบา ๆ เพื่อไม่ต้องคัดลอกทั้งหน้าเว็บทุกครั้ง
+    f=document.createElement("iframe");f.setAttribute("aria-hidden","true");f.style.cssText="position:fixed;left:-10000px;top:0;width:1000px;height:1400px;border:0";document.body.appendChild(f);
+    const docxCss=[...document.querySelectorAll("style")].filter(s=>/\.docx/.test(s.textContent)&&!s.closest("#bkAll")).map(s=>s.outerHTML).join("");
+    const d=f.contentDocument;d.open();d.write(`<!doctype html><html lang="th"><head><meta charset="utf-8">${docxCss}<style>${BOOK_CSS}${PAGE_CSS}${BKD_CSS}body{margin:0;background:#fff}.bk-pg{margin:0!important;box-shadow:none!important}.docx-wrapper>section.docx{margin:0!important;box-shadow:none!important}</style></head><body><div class="bk-view" style="${vars}" id="cap"></div></body></html>`);d.close();
+    try{await d.fonts.ready}catch(e){}
+    const {jsPDF}=window.jspdf;const pdf=new jsPDF({unit:"mm",format:"a4",compress:true});const cap=d.getElementById("cap");
+    for(let i=0;i<els.length;i++){const el=els[i];cap.innerHTML="";
+      const node=el.cloneNode(true);if(el.matches("section.docx")){const w=d.createElement("div");w.className="docx-wrapper";w.appendChild(node);cap.appendChild(w)}else cap.appendChild(node);
+      await new Promise(r=>setTimeout(r,30));
+      const cv=await html2canvas(node,{scale:1.4,backgroundColor:"#ffffff",logging:false,useCORS:true,windowWidth:1000});
+      if(i)pdf.addPage("a4","portrait");pdf.addImage(cv.toDataURL("image/jpeg",0.78),"JPEG",0,0,210,297,undefined,"FAST");cv.width=cv.height=0;
+      info.textContent=`กำลังสร้าง PDF หน้า ${i+1} / ${els.length}`;prog.firstChild.style.width=((i+1)/els.length*100)+"%"}
+    info.textContent="กำลังบันทึกไฟล์…";pdf.save(bookFileName(true)+".pdf");
+    info.textContent=`บันทึกไฟล์ ${bookFileName(true)}.pdf แล้ว (${els.length} หน้า) ดูได้ในโฟลเดอร์ดาวน์โหลดของเครื่อง`}
+  catch(e){console.error(e);info.textContent="สร้าง PDF ไม่สำเร็จ: "+(e&&e.message||e)}
+  finally{f&&f.remove();btn.disabled=false;setTimeout(()=>{prog.style.display="none"},1500)}}
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("#bkaClose,#bkaPdf,#bkaPrint");if(!b)return;
+  if(b.id==="bkaClose")bookAllClose();else if(b.id==="bkaPdf")bookPdfFile();else if(b.id==="bkaPrint")bookPrint(true)});
+document.addEventListener("change",e=>{if(e.target&&e.target.id==="bkaZoom"){state.bkAllZoom=+e.target.value;const p=document.querySelector("#bkAll .bka-pages");if(p)p.style.setProperty("--bka-zoom",e.target.value)}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&document.getElementById("bkAll"))bookAllClose()});
+async function bookPrint(all){
+  const fmt=bookFmt();state.msg="กำลังจัดหน้าเพื่อสร้าง PDF…";render();
+  try{const {pages,slots}=await bookAssemble(all);
   const body=pages.join("");
   await printHtmlDoc(`<!doctype html><html lang="th"><head><meta charset="utf-8"><title>${esc(bookFileName(all))}</title><style>${BOOK_CSS}${PAGE_CSS}@page{size:A4;margin:0}body{margin:0}.pbar{font:14px sans-serif;background:#fff8d6;border:1px solid #e0c96b;padding:8px 12px;margin:10px}.pbar button{margin-left:8px}@media print{.pbar{display:none}.bk-pg{margin:0!important;box-shadow:none!important;break-after:page}}@media screen{body{background:#e8e6e2}}${BKD_CSS}.bkd-slot{display:block}</style></head><body><div class="pbar">ในหน้าต่างพิมพ์ ให้เลือกปลายทาง <b>“บันทึกเป็น PDF / Save as PDF”</b> ขนาด A4 ระยะขอบ “ไม่มี/None” แล้วกดบันทึก (${pages.length} หน้า) <button onclick="print()">เปิดหน้าต่างบันทึก PDF อีกครั้ง</button></div><div class="bk-view" style="${pgCssVars(fmt)}">${body}</div></body></html>`,async d=>{for(const k of slots){const el=d.querySelector(`.bkd-slot[data-sec="${k}"]`);if(el)await bkdRenderInto(k,el,d.head)}});
   state.msg="เปิดหน้าต่างพิมพ์แล้ว เลือก “บันทึกเป็น PDF” ขนาด A4 ระยะขอบ ไม่มี";render()}
@@ -1981,7 +2036,7 @@ async function setPhoto(fid,file){
   const im=await new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=url});
   const S=200,cv=document.createElement("canvas");cv.width=cv.height=S;const s=Math.min(im.width,im.height);
   const g=cv.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,S,S);g.drawImage(im,(im.width-s)/2,(im.height-s)/2*0.6,s,s,0,0,S,S);
-  const img=cv.toDataURL("image/jpeg",0.82);state.photos[fid]=img;render();
+  const img=cv.toDataURL("image/jpeg",0.78);state.photos[fid]=img;render();
   await dbWrite(db=>db.doc("photo/"+fid).set({fid,img,updatedAt:new Date().toISOString()}),"รูปอาจารย์");
 }
 async function delPhoto(fid){delete state.photos[fid];render();await dbWrite(db=>db.doc("photo/"+fid).delete(),"รูปอาจารย์")}
@@ -3117,6 +3172,7 @@ document.addEventListener("click",async e=>{
   else if(d.bksec){state.bookSec=d.bksec;state.bookEditing=null;state.bookDirect=null;const y=window.scrollY;render();window.scrollTo(0,y)}
   else if(b.id==="bkPrint"){bookPrint(false)}
   else if(b.id==="bkPdf"||b.id==="bkPdfAll"){bookPrint(b.id==="bkPdfAll")}
+  else if(b.id==="bkAllView"){bookAllOpen()}
   else if(b.id==="bkPdfClose"){state.bookPdf=null;render()}
   else if(b.id==="bfReset"){if(!confirm("คืนค่ารูปแบบทุกส่วนตามแบบฟอร์ม?"))return;await saveFmtAll({...BOOK_FMT0,cGap:bookFmtAll().cGap,sec:{}})}
   else if(b.id==="bfSecAll"){const s=state.bookSec,f=bookFmtAll(),cur=bookFmt(s);await saveFmtAll({...cur,cGap:f.cGap,sec:{}},"รูปแบบเล่ม")}
