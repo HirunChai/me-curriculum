@@ -579,6 +579,37 @@ function cmp66Html(){
   return ind(esc(`หลักสูตรปรับปรุง พ.ศ. 2571 ปรับปรุงจากหลักสูตรวิศวกรรมศาสตรบัณฑิต สาขาวิชาวิศวกรรมเครื่องกล หลักสูตรปรับปรุง พ.ศ. 2566 หน่วยกิตรวม${O.total===N.total?"เท่าเดิม":(N.total<O.total?"ลดลง":"เพิ่มขึ้น")}จาก ${O.total} เป็น ${N.total} หน่วยกิต แบ่งเป็น ${trn.length} แขนงวิชาที่ใช้แกนวิชาชีพร่วมกัน รายวิชาในหมวดวิชาเฉพาะของหลักสูตรเดิม (รวมรายวิชาที่เปิดสอนให้สาขาวิชาอื่น) ${D.rows.length} รายวิชา คงเดิม ${n.same} รายวิชา ปรับปรุง ${n.mod} รายวิชา ยกเลิก ${n.cut} รายวิชา และเปิดรายวิชาใหม่ ${n.add} รายวิชา หมวดวิชาศึกษาทั่วไปใช้รายวิชาชุดใหม่ของมหาวิทยาลัย`))+
    h4("4.1 การเปลี่ยนแปลงสาระสำคัญของหลักสูตร")+bkT(t1,["หัวข้อ","หลักสูตรเดิม (พ.ศ. 2566)","หลักสูตรปรับปรุง (พ.ศ. 2571)","หมายเหตุ"],{w:"100%",auto:"cmp66",cw:["16%","30%","30%","24%"]})+
    h4("4.2 การเปรียบเทียบรายวิชา")+bkT(t2,["หลักสูตรเดิม (พ.ศ. 2566)","หลักสูตรปรับปรุง (พ.ศ. 2571)","หมายเหตุ"],{w:"100%",auto:"cmp66c",cw:["37%","37%","26%"]})}
+// ---- หมวดที่ 4 ข้อ 4 แผนการศึกษาและการกระจายความรับผิดชอบ PLO/Sub-PLO ลงสู่รายวิชา และ YLO รายชั้นปี ----
+const GRP_ABBR={GE:"ศท.",MS:"พช.",EB:"พช.",CORE:"ชค.",TR:"ชค.",TE:"ชล.",EXP:"ปส.",FREE:"ลส."};
+function courseSubLv(c){const m={};clos(c.code).forEach(x=>(x.subs||[]).forEach(s=>{if(!m[s]||LV_RANK[x.lv]>LV_RANK[m[s]])m[s]=x.lv}));return m}
+function studyPlanYloHtml(){
+  const plos=PLOS,trs=Object.keys(TRACKS),ix=s=>SUBS.findIndex(x=>x.code===s);
+  const crTxt=c=>c.fl&&c.fl.nc?`ไม่นับหน่วยกิต (${c.t}-${c.p}-${c.s})`:`${c.cr}(${c.t}-${c.p}-${c.s})`;
+  const cell=c=>{const m=courseSubLv(c);const ks=Object.keys(m).sort((a,b)=>ix(a)-ix(b));
+    if(ks.length){const L=[];for(const p of plos){const K=ks.filter(s=>(subOf(s)||{}).plo===p.n);if(!K.length)continue;
+      L.push(`PLO ${p.n} – `+["I","R","M"].filter(l=>K.some(s=>m[s]===l)).map(l=>`${l}: ${K.filter(s=>m[s]===l).join(", ")}`).join(" · "))}return {h:L.join("<br>")}}
+    if(clos(c.code).length)return "";const pm=c.plo||{};const L=Object.keys(pm).filter(k=>pm[k]).sort().map(k=>`PLO ${k} – ${pm[k]}*`);return {h:L.join("<br>")}};
+  const head=["รหัสวิชา","ชุดวิชา/รายวิชา","หน่วยกิต","กลุ่มวิชา","Sub-PLOs ที่รับผิดชอบ (ระดับ)"],ncol=head.length;
+  const span=(h,cls)=>[{h,span:ncol,cls:cls||""}];
+  let out="";
+  for(let y=1;y<=4;y++){const rows=[];
+    for(const term of TERMS.filter(t=>t.startsWith("Y"+y))){
+      const L=COURSES.filter(c=>c.term===term&&!(c.fl&&c.fl.pool));if(!L.length)continue;
+      rows.push(span(`<b>${term.endsWith("SS")?"ภาคฤดูร้อน":"ภาคการศึกษาที่ "+term.slice(-1)}</b>`,"grp"));
+      L.sort((a,b)=>(a.tr===A?0:1)-(b.tr===A?0:1)||trs.indexOf([].concat(a.tr)[0])-trs.indexOf([].concat(b.tr)[0])||a.code.localeCompare(b.code));
+      for(const c of L){const slot=!/^\d-\d{3}-\d{3}$/.test(c.code);
+        rows.push([slot?"":c.code,c.th+(slot&&c.g==="TE"?" (เลือกจากกลุ่มวิชาชีพเลือก)":slot&&c.g==="GE"?" (เลือกจากหมวดวิชาศึกษาทั่วไป)":slot&&c.g==="FREE"?" (เลือกเรียนรายวิชาใดก็ได้ในมหาวิทยาลัย)":""),{t:crTxt(c),cls:"c"},{t:GRP_ABBR[c.g]+(c.tr===A?"":" "+[].concat(c.tr).join("/")),cls:"c"},slot?"":cell(c)])}
+      const tot=trs.map(t=>sumCr(COURSES.filter(c=>c.term===term&&inTrack(c,t))));
+      rows.push([{h:`<b>รวม ${new Set(tot).size===1?tot[0]:trs.map((t,i)=>`${t} ${tot[i]}`).join(" · ")} หน่วยกิต</b>`,span:ncol,cls:"r"}])}
+    const yl=YLOS.find(v=>v.y===y);
+    if(yl)rows.push(span(`<b>สรุปผลลัพธ์การเรียนรู้รายชั้นปี (YLO ปีที่ ${y})</b><br>${esc(yl.t).split(" · ").map(t=>"- "+t).join("<br>")}<br><b>Sub-PLOs ที่ต้องบรรลุ:</b> ${esc(yl.subs.join(", "))}`));
+    out+=`<p class="li"><b>ปีการศึกษาที่ ${y}</b></p>`+bkT(rows,head,{w:"100%",auto:"ylo"+y,cw:["15%","28%","12%","9%","36%"]})}
+  const coop=COURSES.find(c=>c.fl&&c.fl.coop),pre=COURSES.find(c=>c.code==="4-001-301");
+  const tl=t=>t?`ปีที่ ${t[1]} ${t.endsWith("SS")?"ภาคฤดูร้อน":"ภาคการศึกษาที่ "+t.slice(-1)}`:"";
+  return `<p class="li"><b>4.1 แผนสหกิจศึกษาและการศึกษาเชิงบูรณาการกับการทำงาน</b></p>`+
+   `<p class="ind">${esc(`หลักสูตรใช้กลยุทธ์การจัดการศึกษาเชิงบูรณาการกับการทำงาน (CWIE) แบบสหกิจศึกษา (Cooperative Education) นักศึกษาทุกแขนงเรียนรายวิชา${pre?` ${pre.code} ${pre.th} (${tl(pre.term)})`:""}${coop?` แล้วปฏิบัติงานเต็มเวลาในสถานประกอบการที่ตรงกับแขนงวิชาในรายวิชา ${coop.code} ${coop.th} ${coop.cr} หน่วยกิต (${tl(coop.term)})`:""} และเตรียมความพร้อมด้านการปฏิบัติงานตั้งแต่ชั้นปีที่ 1 ผ่านรายวิชาฝึกพื้นฐานทางวิศวกรรม วิชาปฏิบัติงานของแขนงในชั้นปีที่ 2 และวิชาประลองในชั้นปีที่ 3–4`)}</p>`+
+   `<p class="ind">${esc("ตารางต่อไปนี้แสดงแผนการศึกษาแผนปกติ 4 ปี รายภาคการศึกษา และระบุ Sub-PLOs ที่แต่ละรายวิชารับผิดชอบพร้อมระดับ I R M ตามผลลัพธ์การเรียนรู้รายวิชา (CLOs) และสรุปผลลัพธ์การเรียนรู้รายชั้นปี (YLOs) ท้ายแต่ละชั้นปี")}</p>`+out+
+   `<p class="small-note">หมายเหตุ ความรับผิดชอบหลัก: ศท. = หมวดวิชาศึกษาทั่วไป · พช. = กลุ่มวิชาพื้นฐานวิชาชีพ · ชค. = กลุ่มวิชาชีพบังคับ · ชล. = กลุ่มวิชาชีพเลือก · ปส. = กลุ่มวิชาเสริมสร้างประสบการณ์ในวิชาชีพ · ลส. = หมวดวิชาเลือกเสรี · ${trs.map(t=>`${t} = แขนงวิชา${TRACKS[t]}`).join(" · ")} · I = แนะนำ (Introduce) R = ฝึกซ้ำ (Reinforce) M = ประเมินการบรรลุ (Mastery) · * ระดับตั้งต้นระดับ PLO ของรายวิชาที่ยังไม่มี CLO จากผู้สอน · ความรับผิดชอบ Sub-PLOs ของรายวิชาในกลุ่มวิชาชีพเลือกแสดงในข้อ 3</p>`}
 function swotHtml(){const S=SWOT0,ind=t=>`<p class="ind">${t}</p>`,li=t=>`<p class="li">${t}</p>`;const ul=L=>L.map((x,i)=>`${i+1}) ${esc(x)}`).join("<br>");
   return ind(esc(S.intro))+li("<b>(1) การวิเคราะห์ SWOT</b>")+bkT([[{h:"<b>จุดแข็ง (Strengths)</b><br>"+ul(S.S)},{h:"<b>จุดอ่อน (Weaknesses)</b><br>"+ul(S.W)}],[{h:"<b>โอกาส (Opportunities)</b><br>"+ul(S.O)},{h:"<b>อุปสรรค (Threats)</b><br>"+ul(S.T)}]],["ปัจจัยเชิงบวก","ปัจจัยเชิงลบ"],{w:"100%"})
    +li("<b>(2) ข้อมูลนักศึกษา 5 ปีการศึกษาย้อนหลัง (รับเข้า 2565–2569)</b>")+bkT(Object.entries(ENROLL).flatMap(([y,d])=>{const v=x=>x==null?"–":String(x);const g=a=>a[3]||0;const r=(lab,a)=>[lab,{t:v(a[0]),cls:"c"},{t:v(a[1]),cls:"c"},{t:v(a[2]),cls:"c"},{t:String(g(a)),cls:"c"},{t:(a[0]?((a[2]+g(a))/a[0]*100).toFixed(1):"–"),cls:"c"}];const L=[["ม.6 (4 ปี)",d.M6],["ปวส. ภาคปกติ (เทียบโอน)",d.PVS],["ปวส. ภาคสมทบ (เทียบโอน)",d.SMB]].filter(x=>x[1]);const K=L.filter(x=>x[1][0]!=null);const T=[0,1,2,3].map(i=>L.reduce((a,x)=>a+(x[1][i]||0),0));const TK=[0,1,2,3].map(i=>K.reduce((a,x)=>a+(x[1][i]||0),0));return [[{t:"ปีการศึกษาที่รับเข้า "+y,span:6,cls:"grp"}],...L.map(x=>r(x[0],x[1])),["รวม",{t:(K.length<L.length?"≥ ":"")+TK[0],cls:"c"},{t:(K.length<L.length?"≥ ":"")+TK[1],cls:"c"},{t:String(T[2]),cls:"c"},{t:String(T[3]),cls:"c"},{t:TK[0]?((TK[2]+TK[3])/TK[0]*100).toFixed(1)+(K.length<L.length?"*":""):"–",cls:"c"}]]}),["รุ่น / ภาค","รับเข้า","พ้นสภาพ","สถานะปกติ (กำลังศึกษา)","จบการศึกษา","ร้อยละคงอยู่"],{w:"100%"})+`<p class="small-note">${esc(ENROLL_NOTE)} · * ร้อยละคงอยู่ของแถวรวมคิดเฉพาะภาคที่มีข้อมูลรับเข้า</p>`
@@ -1317,7 +1348,7 @@ function bookSecHtml(id){
     return `${H("หมวดที่ 4 การจัดกระบวนการเรียนรู้")}${h3("1. การพัฒนาคุณลักษณะพิเศษของนักศึกษา")}${bkT([["ทักษะปฏิบัติงานวิศวกรรมในแขนงเฉพาะทาง","วิชาปฏิบัติงานแขนงปีที่ 2 การประลองแขนงปีที่ 4 และสหกิจศึกษาตรงแขนง"],["ใช้เครื่องมือและซอฟต์แวร์วิศวกรรมสมัยใหม่","CAD/CAE ในวิชาออกแบบและโครงงาน"],["ความพร้อมสอบใบอนุญาต กว.","จัดวิชาครบตามเกณฑ์สภาวิศวกร และติวสอบก่อนสำเร็จการศึกษา"]],["คุณลักษณะพิเศษ","กลยุทธ์หรือกิจกรรม"])}
     ${h3("2. การออกแบบการจัดกระบวนการเรียนรู้และการประเมินผล")}${bkT(plos.map(p=>[`PLO ${p.n} ${p.t}`,{h:String(p.d).split(/,\s*/).map(d=>"- "+esc(STR[d]||"")).join("<br>")},asm(p)]),["PLOs","กลยุทธ์การจัดการเรียนรู้","วิธีการประเมินผล"],{w:"100%"})}
     ${h3("3. แผนที่กระจายความรับผิดชอบของผลลัพธ์การเรียนรู้สู่รายวิชา (Curriculum Mapping)")}${bkT(map,["รหัสวิชา","รายวิชา",...plos.map(p=>"PLO"+p.n)],{w:"100%"})}<p class="small-note">I = แนะนำ · R = ฝึกซ้ำ · M = ประเมินการบรรลุ</p>
-    ${h3("5. องค์ประกอบเกี่ยวกับประสบการณ์ภาคสนาม (สหกิจศึกษา)")}${clos("4-116-302").map((x,i)=>li(`${i+1}) ${esc(x.t)}`)).join("")}${h3("6. ข้อกำหนดเกี่ยวกับการทำโครงงาน")}${ind(BFh("proj"))}`;
+    ${h3("4. แผนการศึกษาและการกระจายความรับผิดชอบของผลลัพธ์การเรียนรู้ของหลักสูตร ลงสู่รายวิชาและผลลัพธ์การเรียนรู้ระดับรายชั้นปี")}${studyPlanYloHtml()}${h3("5. องค์ประกอบเกี่ยวกับประสบการณ์ภาคสนาม (สหกิจศึกษา)")}${clos("4-116-302").map((x,i)=>li(`${i+1}) ${esc(x.t)}`)).join("")}${h3("6. ข้อกำหนดเกี่ยวกับการทำโครงงาน")}${ind(BFh("proj"))}`;
   }
   if(id==="h5"){
     const l1=loads("S1").m,l2=loads("S2").m,ls=loads("SS").m;
