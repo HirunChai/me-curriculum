@@ -2679,7 +2679,7 @@ const cvMine=()=>{const em=String((state.user&&state.user.email)||"").toLowerCas
 function viewCv(){
   if(!state.faculty.length)return `<section class="panel"><p class="muted">ยังไม่มีรายชื่ออาจารย์ เพิ่มได้ที่แถบ ข1</p></section>`;
   let F=state.faculty;
-  if(!state.isAdmin){const m=cvMine();if(!m)return `<section class="panel" style="max-width:640px"><h2 style="margin-top:0">ประวัติอาจารย์และผลงาน</h2><p>บัญชี <b>${esc((state.user&&state.user.email)||"")}</b> ยังไม่ได้ผูกกับรายชื่ออาจารย์</p><p class="muted">แจ้งกรรมการหลักสูตรให้ผูกอีเมลของท่านกับชื่อในรายชื่ออาจารย์ แล้วเปิดหน้านี้ใหม่ ท่านจะเห็นและแก้ไขได้เฉพาะประวัติของท่านเอง</p></section>`;F=[m];state.cvId=m.id}
+  if(!state.isAdmin){const m=cvMine();if(!m)return `<section class="panel" style="max-width:640px"><h2 style="margin-top:0">ประวัติอาจารย์และผลงาน</h2><p>บัญชี <b>${esc((state.user&&state.user.email)||"")}</b> ยังไม่ได้ผูกกับรายชื่ออาจารย์</p><p class="muted">ถ้าท่านเป็นอาจารย์ในสาขา แจ้งกรรมการหลักสูตรให้ผูกอีเมลของท่านกับชื่อในรายชื่ออาจารย์ แล้วเปิดหน้านี้ใหม่ ท่านจะเห็นและแก้ไขได้เฉพาะประวัติของท่านเอง</p><p class="muted">ประวัติอาจารย์และรูปถ่ายเป็นข้อมูลส่วนบุคคล ระบบจึงแสดงเฉพาะกรรมการหลักสูตรและเจ้าของประวัติ</p></section>`;F=[m];state.cvId=m.id}
   if(!state.cvId||!F.some(f=>f.id===state.cvId))state.cvId=(state.me&&F.some(f=>f.id===state.me))?state.me:F[0].id;
   const id=state.cvId,f=F.find(x=>x.id===id),can=cvCanEdit(id);
   if(!state.cvDraft||state.cvDraft.id!==id)cvStartDraft(id);
@@ -3362,8 +3362,8 @@ function loginScreen(msg){
   db.collection("courses").onSnapshot(s=>{const m={};s.docs.forEach(d=>{const r=d.data(),x=aliasCourse(r);if(x&&x.code&&!(m[x.code]&&m[x.code].__new))m[x.code]={...x,__new:r&&r.cv===5}});state.courseOv=m;rebuild();buildExpected();softRender()},err);
   db.doc("program/plos").onSnapshot(s=>{applyPloDoc(s.exists&&s.data());rebuild();softRender()},err);
   await db.refresh();
-  const isFac=state.faculty.some(f=>(f.email||"").toLowerCase()===email);
-  if(!state.isAdmin&&!isFac)state.msg="ท่านเปิดดูได้อย่างเดียว ถ้าเป็นผู้สอน ให้กรรมการหลักสูตรเพิ่มอีเมลของท่านในรายชื่ออาจารย์";
+  const isFac=state.faculty.some(f=>(f.email||"").toLowerCase()===email);state.isFac=isFac;
+  if(!state.isAdmin&&!isFac)state.msg="ท่านเปิดดูได้อย่างเดียว ประวัติและรูปถ่ายอาจารย์แสดงเฉพาะกรรมการหลักสูตรและอาจารย์ในสาขา ถ้าเป็นผู้สอน ให้กรรมการหลักสูตรเพิ่มอีเมลของท่านในรายชื่ออาจารย์";
   render();
   const bar=document.createElement("div");bar.className="row small muted userbar";bar.style.cssText="margin-left:auto;gap:8px;flex:none";
   bar.innerHTML=`<span>${esc(email)} · ${state.isAdmin?"กรรมการหลักสูตร":isFac?"ผู้สอน":"ผู้เยี่ยมชม"}</span><button class="sm" id="logout">ออกจากระบบ</button>`;
