@@ -224,6 +224,12 @@ header.top .userbar{grid-column:1/-1;margin:0!important;padding:6px 14px;border-
 nav.phase{gap:0!important;margin:0 0 14px;border:1.5px solid var(--steel);border-top:0;border-radius:0 0 var(--r-panel) var(--r-panel);background:var(--panel);overflow:hidden;flex-wrap:wrap}
 nav.phase a{flex:1 1 150px;border:0!important;border-right:1px solid var(--line)!important;border-radius:0!important;padding:9px 14px 10px;display:flex;flex-direction:column;gap:1px;line-height:1.3;background:transparent;transition:background .12s}
 nav.phase a:last-child{border-right:0!important}
+nav.phase a{flex-direction:row!important;align-items:center;gap:10px!important}
+nav.phase a b.pk{flex:none;width:28px;height:28px;border-radius:7px;display:grid;place-items:center;font-size:15px;font-weight:600;background:var(--soft);color:var(--ink)}
+nav.phase a .ptx{display:flex;flex-direction:column;gap:1px;min-width:0;color:inherit;font-size:inherit}
+nav.phase a .ptx span{font-size:12px;color:var(--muted)}
+nav.phase a[aria-current="page"] b.pk{background:var(--accent-ink);color:var(--accent)}
+nav.phase a[aria-current="page"] .ptx span{color:inherit;opacity:.85}
 nav.phase a span{margin:0!important;font-size:12px;color:var(--muted);opacity:1}
 nav.phase a:hover{background:var(--soft)}
 nav.phase a[aria-current="page"]{background:var(--accent)!important;color:var(--accent-ink)!important}
@@ -3027,7 +3033,7 @@ function tblock(){const el=document.getElementById("tblock");if(!el)return;let t
   el.innerHTML=`<div><small>หลักสูตรปรับปรุง</small><b>พ.ศ. 2571</b></div><div><small>หน่วยกิตรวม</small><b>${tot||"–"}</b></div><div><small>แขนงวิชา</small><b>${Object.keys(TRACKS).length}</b></div><div><small>เปิดสอน</small><b>1/2571</b></div>`}
 function render(){
   tblock();
-  document.getElementById("phase").innerHTML=Object.entries(NAV).filter(([k,v])=>!v.adminOnly||state.isAdmin).map(([k,v])=>`<a href="#${k}/${v.tabs[0][0]}" aria-current="${state.phase===k?"page":"false"}">${v.t}<span>${v.s}</span></a>`).join("");
+  const phL=v=>(v.tabs[0][1]||"").replace(/\d+$/,"");document.getElementById("phase").innerHTML=Object.entries(NAV).filter(([k,v])=>!v.adminOnly||state.isAdmin).sort((x,y)=>phL(x[1]).localeCompare(phL(y[1]),"th")).map(([k,v])=>`<a href="#${k}/${v.tabs[0][0]}" aria-current="${state.phase===k?"page":"false"}"><b class="pk">${phL(v)}</b><span class="ptx">${v.t}<span>${v.s}</span></span></a>`).join("");
   const ac=alertCount();document.getElementById("tabs").innerHTML=NAV[state.phase].tabs.map(([k,n,t])=>`<a href="#${state.phase}/${k}" aria-current="${(state.view==="survey"?"needs":state.view)===k?"page":"false"}"><b>${n}</b>${t}${k==="clo"&&ac?` <span class="pill fail" title="วิชาที่ CLO ไม่สอดรับกับ PLO">${ac}</span>`:""}</a>`).join("");
   document.getElementById("view").innerHTML=(state.msg?`<div class="note" role="status">${esc(state.msg)}</div>`:"")+VIEWS[state.view]();
   requestAnimationFrame(drawMM);
