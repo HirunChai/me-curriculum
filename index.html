@@ -1800,8 +1800,8 @@ function viewNeeds(){
    <div class="panel"><span class="muted small">กลุ่มสำรวจที่ได้ผลแล้ว</span><span class="big num">${na.surveyHave.length}/${na.L.filter(n=>n.g==="SUR").length}</span>${na.surveyHave.length?"":pill("warn","ยังไม่มีผลสำรวจ")}</div>
    <div class="panel"><span class="muted small">PLO ที่ไม่มีที่มา</span><span class="big num">${na.noSrc.length}</span>${na.noSrc.length?pill("fail","ต้องแก้"):pill("pass","ครบทุก PLO")}</div>
   </div>
-  ${ploList(na)}
   ${mindMap(na)}
+  ${ploList(na)}
   <section class="panel"><h2>ความต้องการของผู้มีส่วนได้ส่วนเสีย × PLO</h2><div class="scroll"><table>${Object.entries(NEED_GROUPS).map(([g,gt])=>{const rows=na.L.filter(n=>n.g===g);return `<tr id="ng-${g}"><th colspan="${PLOS.length+4}" style="background:var(--soft);color:var(--ink)">${gt}</th></tr>${head}${rows.map(row).join("")}`}).join("")}</table></div>
   ${state.needEdit==="new"?needForm({id:"new",g:"SUR",src:"",t:"",how:"",plos:[],st:"have"}):`<button data-neededit="new" style="margin-top:8px" ${dis()}>+ เพิ่มความต้องการ</button>`}</section>
   <section class="panel"><h2>จำนวนแหล่งที่มาต่อ PLO</h2><div class="scroll"><table><tr><th>PLO</th>${Object.values(NEED_GROUPS).map(t=>`<th class="r">${t}</th>`).join("")}<th>สถานะ</th></tr>
