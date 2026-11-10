@@ -2172,6 +2172,92 @@ function chkTodo(ev){const rows=ev.out.flatMap(([g,R])=>R.map(r=>({...r,g}))).fi
     return {how:r.d||"ตรวจรายละเอียดในกล่องด้านล่าง",btn:""}};
   return `<section class="panel" style="border-left:4px solid var(--warn)"><h2>ข้อที่ต้องแก้ · แขนง${TRACKS[state.track]} (${rows.length})</h2>${rows.map(r=>{const a=act(r);return `<div class="check">${pill(r.s)}<span class="t">${esc(r.t)} <span class="small muted">· ${esc(r.g)}</span></span><span class="d">${esc(a.how)}${a.btn?`<span class="row" style="gap:6px;margin-top:6px;display:flex">${a.btn}</span>`:""}</span></div>`}).join("")}</section>`}
 document.addEventListener("click",e=>{const h=e.target.closest&&e.target.closest("[data-gohash]");if(h){location.hash=h.dataset.gohash;return}const b=e.target.closest&&e.target.closest("[data-gocourse]");if(!b)return;state.cloCourse=b.dataset.gocourse;state.cloDraft=null;location.hash="#design/clo";setTimeout(()=>{render();window.scrollTo(0,0)},50)});
+// ---- ค2 ความพร้อม TABEE: ตรวจว่าเอกสารและข้อมูลหลักสูตรตอบเกณฑ์ 8 ข้อของ TABEE ----
+// เกณฑ์อ้างอิง TABEE Accreditation Criteria, Policy and Procedure Manual (รอบ 2019–2024) ตรวจกับคู่มือฉบับปัจจุบันของสภาวิศวกรก่อนยื่น
+const TB_ST={pass:["pass","พร้อม"],warn:["warn","บางส่วน"],fail:["fail","ยังขาด"],todo:["","เตรียมนอกระบบ"]};
+const tbPill=s=>`<span class="pill ${TB_ST[s][0]}">${TB_ST[s][1]}</span>`;
+const tbEv=L=>(L||[]).map(([t,h])=>h?`<a href="${h}">${esc(t)}</a>`:esc(t)).join(" · ");
+function tabeeData(){
+  const trs=Object.keys(TRACKS),EV=trs.map(t=>[t,evaluate(t)]),chk=state.bookCheck||{};
+  const worst=a=>a.includes("fail")?"fail":a.includes("warn")?"warn":"pass";
+  const bk=(k,label)=>chk[k]?["pass",`${label} กรรมการตรวจแล้ว`]:["warn",`${label} มีร่างในเล่มแล้ว รอกรรมการตรวจยืนยัน`];
+  const na=needsAnalysis(),ca=cloAnalysis(trs[0]),ta=teamAnalysis();
+  const F=state.faculty||[];
+  // ข้อมูลนักศึกษา
+  const cur=Object.values(ENROLL).reduce((a,y)=>a+["M6","PVS","SMB"].reduce((b,k)=>b+((y[k]&&y[k][2])||0),0),0);
+  const lastYr=Math.max(...Object.keys(ENROLL).map(Number));const ret=Object.entries(ENROLL).filter(([yr,y])=>+yr<lastYr&&y.M6&&y.M6[0]).map(([yr,y])=>[yr,Math.round(100*(y.M6[0]-y.M6[1])/y.M6[0])]);
+  const minRet=Math.min(...ret.map(x=>x[1]));
+  const sv=state.survey||{},svN=SV_GROUPS.filter(([k])=>sv[k]&&sv[k].n).length;
+  const me=ca.me,meNo=me.filter(c=>!hasClo(c.code));
+  const C=[];
+  C.push({n:1,t:"ผู้เรียน (Students)",it:[
+    {s:"pass",t:"เกณฑ์รับเข้าและคุณสมบัติผู้เข้าศึกษาทุกแผนการเรียน",d:"แผนปกติ แผนเทียบโอน ปวส. และแผนปริญญาตรีใบที่ 2",ev:[["ค1 หมวดที่ 3 ข้อ 2.3","#book/book"]]},
+    {s:"pass",t:"ระเบียบการเทียบโอนหน่วยกิต",d:"ระเบียบ มทร.กรุงเทพ ว่าด้วยการเทียบโอน พ.ศ. 2564 และประกาศ กมอ. 2565",ev:[["จ1 กฎหมายและระเบียบ","#ref/regs"]]},
+    {s:"warn",t:"การคงอยู่และการสำเร็จการศึกษารายรุ่น",d:`ภาคปกติ ม.6 มีข้อมูล ${ret.length} รุ่นที่เรียนครบอย่างน้อย 1 ปี (${ret.map(([y,v])=>`${y}: ${v}%`).join(" · ")}) อัตราคงอยู่ต่ำสุด ${minRet}% TABEE ดูว่าหลักสูตรติดตามและแก้ปัญหาอย่างไร ต้องแสดงมาตรการลดการออกกลางคันและผลที่เกิดขึ้น`,ev:[["ค1 หมวดที่ 1 ข้อ 14.3 SWOT","#book/book"]]},
+    {s:"warn",t:"ระบบอาจารย์ที่ปรึกษาและการติดตามความก้าวหน้า",d:"มีในร่างเล่ม (มาตรการกลุ่มเสี่ยงปี 1) ต้องเพิ่มหลักฐานการพบที่ปรึกษาและการติดตามรายภาค",ev:[["ค1 หมวดที่ 7","#book/book"]]},
+    {s:bk("h6","หมวดที่ 6")[0],t:"การประเมินผลการเรียนรู้และเกณฑ์สำเร็จการศึกษา",d:bk("h6","หมวดที่ 6")[1],ev:[["ค1 หมวดที่ 6","#book/book"]]}]});
+  const peoGap=PLOS.filter(p=>!PEOS.some(e=>e.plos.includes(p.n)));
+  C.push({n:2,t:"วัตถุประสงค์ของหลักสูตร (Program Educational Objectives)",it:[
+    {s:"pass",t:`กำหนด PEO ${PEOS.length} ข้อ ระบุสิ่งที่บัณฑิตทำได้หลังสำเร็จการศึกษา 3–5 ปี`,d:PEOS.map(e=>e.k).join(", "),ev:[["ก2 PLO · Sub-PLO · YLO","#design/plo"]]},
+    {s:peoGap.length?"warn":"pass",t:"PEO โยงกับ PLO",d:peoGap.length?"PLO ที่ไม่โยงกับ PEO: "+peoGap.map(p=>"PLO"+p.n).join(", "):"ทุก PLO รองรับ PEO อย่างน้อย 1 ข้อ",ev:[["ก2","#design/plo"]]},
+    {s:na.wait.length?"warn":"pass",t:"ผู้มีส่วนได้ส่วนเสียร่วมกำหนดวัตถุประสงค์",d:na.wait.length?`มีที่มาจากนโยบายและข้อกำหนดครบ ผลสำรวจได้แล้ว ${svN}/${SV_GROUPS.length} กลุ่ม`:"ผลสำรวจครบทุกกลุ่ม",ev:[["ก1 ที่มาของ PLO","#design/needs"],["ผลสำรวจ","#design/survey"]]},
+    {s:"warn",t:"ความสอดคล้องกับวิสัยทัศน์และพันธกิจของมหาวิทยาลัยและคณะ",d:"มีปรัชญาหลักสูตรในเล่ม ควรเพิ่มตารางเทียบ PEO กับพันธกิจมหาวิทยาลัยและคณะ",ev:[["ค1 หมวดที่ 2 ข้อ 1","#book/book"]]},
+    {s:"todo",t:"กระบวนการทบทวน PEO เป็นระยะ",d:"กำหนดรอบ (เช่น ทุก 3 ปี) ผู้รับผิดชอบ และแหล่งข้อมูล (ศิษย์เก่า ผู้ใช้บัณฑิต) เขียนในหมวดที่ 7",ev:[["ค1 หมวดที่ 7","#book/book"]]}]});
+  const waIt=WA.map(([k,n,p])=>({k,n,ok:p.length>0,p}));
+  const seqBad=ca.seq.filter(x=>x.fM===null||!x.ok);
+  C.push({n:3,t:"ผลลัพธ์ของผู้เรียน (Student Outcomes · 11 ข้อ)",it:[
+    {s:waIt.every(x=>x.ok)?"pass":"fail",t:`ผลลัพธ์ 11 ข้อของ TABEE มี PLO รองรับ ${waIt.filter(x=>x.ok).length}/11`,d:waIt.map(x=>`${x.k} ${x.n} → ${x.p.map(v=>"PLO"+v).join(",")||"ไม่มี"}`).join(" · "),ev:[["ก1 กลุ่ม TABEE","#design/needs"],["ก6","#design/check"]]},
+    {s:ca.uncovered.length?"warn":"pass",t:"ทุก Sub-PLO มี CLO รองรับ",d:ca.uncovered.length?"ยังไม่มี CLO: "+ca.uncovered.map(s=>s.code).join(", "):"ครบ",ev:[["ก4 Curriculum Mapping","#design/map"]]},
+    {s:seqBad.length?"warn":"pass",t:"PLO พัฒนาตามลำดับ I → R → M",d:seqBad.length?"ต้องตรวจ: "+seqBad.map(x=>"PLO"+x.p.n).join(", "):"ทุก PLO",ev:[["ก4","#design/map"]]},
+    {s:meNo.length?"warn":"pass",t:`วิชาที่สาขาสอนมี CLO ${me.length-meNo.length}/${me.length} วิชา`,d:meNo.length?"ยังไม่มี: "+meNo.map(c=>c.code).join(", "):"ครบ",ev:[["ก3 CLO รายวิชา","#design/clo"]]},
+    {s:wpHasRubric()?"pass":"warn",t:"rubric ปัญหาวิศวกรรมที่ซับซ้อน (WP1–WP7) สำหรับโครงงาน",d:WP_RULE,ev:[["ก6 ตรวจเกณฑ์","#design/check"]]},
+    {s:"warn",t:"ตัวชี้วัดและเกณฑ์การบรรลุผลลัพธ์ (performance indicators และ target)",d:"มีเกณฑ์ YLO รายชั้นปีแล้ว ควรกำหนดเกณฑ์ระดับ PLO เช่น ร้อยละ 70 ของนักศึกษาได้ระดับ 3 จาก 4 ขึ้นไป",ev:[["ก2 YLO","#design/plo"]]}]});
+  C.push({n:4,t:"การปรับปรุงอย่างต่อเนื่อง (Continuous Improvement)",it:[
+    {s:"pass",t:"แผนประเมินผลลัพธ์ทั้งทางตรงและทางอ้อม",d:"rubric ในรายวิชา + แบบสำรวจนักศึกษาก่อนจบ + แบบสำรวจผู้ใช้บัณฑิต",ev:[["ก6","#design/check"]]},
+    {s:"fail",t:"ผลการบรรลุ CLO และ PLO รายภาค รายรุ่น",d:"ระบบยังไม่มีที่บันทึกผล ต้องเริ่มเก็บตั้งแต่ภาคเรียนแรกที่เปิดสอน (ผู้สอนกรอกผลตามเครื่องมือประเมินของแต่ละ CLO) เป็นหลักฐานหลักของเกณฑ์นี้",ev:[]},
+    {s:"fail",t:"บันทึกการนำผลไปปรับปรุง (ปัญหา → สิ่งที่ปรับ → ผลหลังปรับ)",d:"ยังไม่มีในระบบ ควรบันทึกทุกปีการศึกษา",ev:[]},
+    {s:svN?(svN===SV_GROUPS.length?"pass":"warn"):"fail",t:`ผลสำรวจผู้มีส่วนได้ส่วนเสีย ${svN}/${SV_GROUPS.length} กลุ่ม`,d:"ใช้เป็นหลักฐานทางอ้อม ควรสำรวจซ้ำเป็นรอบ",ev:[["ผลสำรวจ","#design/survey"]]},
+    {s:"pass",t:"เคยปรับปรุงหลักสูตรจากข้อมูลที่เก็บ",d:"มีตารางเปรียบเทียบหลักสูตร 2566 กับ 2571 และที่มาของการปรับ ใช้เป็นตัวอย่างวงจรปรับปรุงได้",ev:[["ค1 ภาคผนวก ก ข้อ 4","#book/book"]]}]});
+  const cr=EV.map(([t,e])=>[t,e]);
+  const tot=EV.map(([t,e])=>e.total),ms=EV.map(([t,e])=>e.ms),eng=EV.map(([t,e])=>e.eng),ge=EV.map(([t,e])=>e.ge);
+  const coeFail=EV.flatMap(([t,e])=>(e.out.find(x=>x[0].startsWith("สภาวิศวกร"))||[0,[]])[1].filter(r=>r.s==="fail").map(r=>`${t}: ${r.t}`));
+  const rng=a=>Math.min(...a)===Math.max(...a)?String(a[0]):`${Math.min(...a)}–${Math.max(...a)}`;
+  C.push({n:5,t:"หลักสูตร (Curriculum)",it:[
+    {s:tot.every(v=>v>=120&&v<=150)?"pass":"fail",t:`หน่วยกิตรวม ${rng(tot)} (ช่วงที่ TABEE รับ 120–150)`,d:"หลักสูตร 4 ปี ระบบทวิภาค",ev:[["ก5","#design/plan"]]},
+    {s:ms.every(v=>v>=30)?"pass":"fail",t:`คณิตศาสตร์และวิทยาศาสตร์ ${rng(ms)} หน่วยกิต (ขั้นต่ำ 30)`,d:"รวมปฏิบัติการ",ev:[["ก6","#design/check"]]},
+    {s:eng.every(v=>v>=45)?"pass":"fail",t:`หัวข้อวิศวกรรม ${rng(eng)} หน่วยกิต (ขั้นต่ำ 45)`,d:"พื้นฐานและเฉพาะทาง รวมการทดลอง",ev:[["ก6","#design/check"]]},
+    {s:ge.every(v=>v>=24)?"pass":"fail",t:`ศึกษาทั่วไป ${rng(ge)} หน่วยกิต`,d:"เสริมด้านสังคม จรรยาบรรณ การสื่อสาร",ev:[["ก5","#design/plan"]]},
+    {s:wpHasRubric()?"pass":"warn",t:"โครงงานปีสุดท้ายใช้มาตรฐานวิศวกรรมและข้อจำกัดจริงหลายด้าน",d:"4-116-307 และ 4-116-408 ประเมินด้วย rubric WP1–WP7",ev:[["ก3","#design/clo"]]},
+    {s:coeFail.length?"fail":"pass",t:"องค์ความรู้ครบตามสภาวิศวกร (รับรองปริญญา)",d:coeFail.length?coeFail.join(" · "):"ทุกแขนงผ่าน",ev:[["ก6","#design/check"]]},
+    {s:"warn",t:"รายละเอียดรายวิชาและแผนการสอน (course syllabus)",d:`มีคำอธิบายรายวิชาและ CLO แล้ว ผู้ตรวจ TABEE ใช้ syllabus เป็นหลักฐานหลักของเกณฑ์นี้ ควรจัดทำแผนการสอนรายสัปดาห์ เครื่องมือประเมิน และตัวอย่างงานนักศึกษา`,ev:[["ก3","#design/clo"]]}]});
+  const ratio=F.length?Math.round(cur/F.length*10)/10:null;
+  C.push({n:6,t:"คณาจารย์ (Faculty)",it:[
+    {s:ratio==null?"fail":ratio<=20?"pass":"warn",t:`อาจารย์ ${F.length} คน นักศึกษาปัจจุบันประมาณ ${cur} คน (${ratio??"–"} : 1)`,d:"เทียบสัดส่วนที่ สป.อว. ใช้กับสาขาวิศวกรรม 20 : 1 (นับแบบหัวคน ควรคำนวณ FTES จริงก่อนยื่น)",ev:[["ข1","#manage/struct"]]},
+    {s:ta.short.length||ta.lowDeg.length?"fail":"pass",t:"อาจารย์ผู้รับผิดชอบหลักสูตรครบทุกแขนง คุณวุฒิตรงสาขา",d:ta.short.length?"แขนงที่ยังไม่ครบ 3 คน: "+ta.short.map(t=>TRACKS[t]).join(", "):"ครบทุกแขนง",ev:[["ข1","#manage/struct"]]},
+    {s:"pass",t:"ภาระงานสอนรายบุคคล",d:"คำนวณจากแผนการเรียนและจำนวนกลุ่มเรียน",ev:[["ข2 ภาระสอน","#manage/load"]]},
+    {s:"warn",t:"ประวัติ ผลงาน และใบอนุญาตประกอบวิชาชีพวิศวกรรมควบคุมของอาจารย์",d:"อาจารย์กรอกในระบบ ตรวจให้ครบทุกคน และระบุเลขใบอนุญาต กว.",ev:[["ข4 ประวัติอาจารย์","#manage/cv"]]},
+    {s:bk("h5","หมวดที่ 5")[0],t:"การพัฒนาอาจารย์และการประเมินการสอน",d:bk("h5","หมวดที่ 5")[1]+" แนบแผนพัฒนารายบุคคลและผลประเมินการสอน",ev:[["ค1 หมวดที่ 5","#book/book"]]}]});
+  const labs=COURSES.filter(c=>c.p>0&&c.dept==="ME"&&!c.fl.coop&&!c.fl.slot&&/^\d-\d{3}-\d{3}$/.test(c.code));
+  C.push({n:7,t:"สิ่งอำนวยความสะดวก (Facilities)",it:[
+    {s:"todo",t:`ห้องปฏิบัติการและครุภัณฑ์ของรายวิชาที่มีชั่วโมงปฏิบัติ ${labs.length} วิชา`,d:"จัดทำบัญชีห้องปฏิบัติการ ครุภัณฑ์หลัก จำนวนชุดต่อกลุ่มนักศึกษา และรายวิชาที่ใช้ แขนงใหม่ต้องแสดงแผนจัดหาครุภัณฑ์ ใช้ร่วมกับ Self-Declaration ส่วนที่ 4",ev:[]},
+    {s:bk("h5","หมวดที่ 5")[0],t:"การบริหารจัดการสิ่งสนับสนุนการเรียนรู้",d:"หมวดที่ 5 ข้อ 5 ห้องเรียน ห้องสมุด ระบบสารสนเทศ และการบำรุงรักษา",ev:[["ค1 หมวดที่ 5","#book/book"]]},
+    {s:"todo",t:"ความปลอดภัยในห้องปฏิบัติการ",d:"คู่มือความปลอดภัย การอบรม และบันทึกการตรวจอุปกรณ์",ev:[]}]});
+  C.push({n:8,t:"การสนับสนุนจากสถาบัน (Institutional Support)",it:[
+    {s:"todo",t:"งบประมาณดำเนินการและครุภัณฑ์ 5 ปี",d:"ขอข้อมูลจากคณะ แยกตามแขนง",ev:[]},
+    {s:"todo",t:"บุคลากรสายสนับสนุนและนักวิทยาศาสตร์หรือช่างเทคนิคประจำห้องปฏิบัติการ",d:"ขอข้อมูลจากคณะ",ev:[]},
+    {s:bk("h5","หมวดที่ 5")[0],t:"การรับและพัฒนาอาจารย์ใหม่",d:"หมวดที่ 5 ข้อ 1",ev:[["ค1 หมวดที่ 5","#book/book"]]}]});
+  return {C,tot,cur}}
+function viewTabee(){
+  const {C,tot}=tabeeData();const all=C.flatMap(c=>c.it);const cnt=k=>all.filter(x=>x.s===k).length;
+  const cs=c=>{const a=c.it.map(x=>x.s);return a.includes("fail")?"fail":a.includes("warn")||a.includes("todo")?"warn":"pass"};
+  return `<p class="lead">ตรวจว่าเอกสารและข้อมูลของหลักสูตรตอบเกณฑ์ 8 ข้อของ TABEE ครบหรือยัง แต่ละข้อบอกสถานะ สิ่งที่ต้องทำ และที่อยู่ของหลักฐานในระบบ สถานะคำนวณจากข้อมูลจริงในแถบ ก ข และ ค</p>
+  <div class="sum"><div class="panel"><span class="muted small">พร้อม</span><span class="big num">${cnt("pass")}/${all.length}</span></div><div class="panel"><span class="muted small">บางส่วน</span><span class="big num">${cnt("warn")}</span></div><div class="panel"><span class="muted small">ยังขาด</span><span class="big num">${cnt("fail")}</span></div><div class="panel"><span class="muted small">ต้องเตรียมนอกระบบ</span><span class="big num">${cnt("todo")}</span></div></div>
+  <section class="panel"><h2>คุณสมบัติหลักสูตรที่ยื่นขอ</h2>
+   <div class="check">${tbPill("pass")}<span class="t">หลักสูตรปริญญาตรีวิศวกรรมศาสตร์ 4 ปี หน่วยกิต ${[...new Set(tot)].join("/")} อยู่ในช่วง 120–150</span></div>
+   <div class="check">${tbPill("warn")}<span class="t">ประเภทการรับรอง</span><span class="d">หลักสูตรใหม่ที่ยังไม่มีบัณฑิตยื่นแบบชั่วคราว (provisional) ได้เมื่อเปิดสอนครบ 3 ปี และต้องยื่นใหม่เมื่อมีบัณฑิต 2 รุ่น หลักสูตร 2571 จึงยื่นแบบชั่วคราวได้ราวปี 2574 ถ้าคณะต้องการยื่นเร็วกว่านั้น ให้สอบถาม TABEE ว่ายื่นด้วยหลักสูตร 2566 ที่มีบัณฑิตแล้วได้หรือไม่ แล้วใช้หลักสูตร 2571 เป็นหลักฐานการปรับปรุง</span></div>
+   <div class="check">${tbPill("todo")}<span class="t">รอบการยื่น</span><span class="d">เปิดรับปีละครั้ง ปกติสัปดาห์แรกของเดือนพฤษภาคม ยื่นรายงานประเมินตนเอง (Self-Evaluation Report) ผ่านเว็บไซต์สภาวิศวกร</span></div></section>
+  <div class="checks">${C.map(c=>`<section class="panel"><h2>${tbPill(cs(c))} เกณฑ์ที่ ${c.n} ${esc(c.t)}</h2>${c.it.map(x=>`<div class="check">${tbPill(x.s)}<span class="t">${esc(x.t)}</span><span class="d">${esc(x.d||"")}${x.ev&&x.ev.length?`<br><span class="small">หลักฐาน: ${tbEv(x.ev)}</span>`:""}</span></div>`).join("")}</section>`).join("")}</div>
+  <p class="small muted">เกณฑ์ 8 ข้อและผลลัพธ์ 11 ข้อตามคู่มือ TABEE Accreditation Criteria, Policy and Procedure Manual รอบ 2019–2024 ตรวจกับคู่มือฉบับปัจจุบันของสภาวิศวกรก่อนจัดทำรายงานประเมินตนเอง</p>`}
 function viewCheck(){
   const ev=evaluate(state.track);
   const all=["ME","EV","CE"].map(t=>{const e=evaluate(t);const f=e.out.flatMap(x=>x[1]);return [t,f.filter(x=>x.s==="fail").length,f.filter(x=>x.s==="warn").length,f.length]});
@@ -3025,10 +3111,10 @@ document.addEventListener("click",e=>{const t=e.target.closest("[data-regadd],[d
 
 const NAV={design:{t:"ออกแบบหลักสูตร",s:"ช่วงร่างและเสนอ",tabs:[["needs","ก1","ที่มาของ PLO"],["plo","ก2","PLO · Sub-PLO · YLO"],["clo","ก3","CLO รายวิชา (ผู้สอน)"],["map","ก4","Curriculum Mapping"],["plan","ก5","โครงสร้างและแผนการเรียน"],["check","ก6","ตรวจเกณฑ์"]]},
   manage:{t:"บริหารหลักสูตร",s:"ทุกภาคเรียน",tabs:[["struct","ข1","โครงสร้างหลักสูตรและอาจารย์"],["load","ข2","ภาระสอน"],["timetable","ข3","ตารางสอน"],["cv","ข4","ประวัติอาจารย์และผลงาน"],["transition","ข5","แผนเปลี่ยนผ่านหลักสูตร"]]},
-  book:{t:"จัดทำเล่มหลักสูตร",s:"แบบฟอร์ม มทร.กรุงเทพ",tabs:[["book","ค1","ความพร้อมและข้อมูลเล่ม"]]},
+  book:{t:"เอกสารหลักสูตรและการรับรอง",s:"มทร.กรุงเทพ · สป.อว. · TABEE",tabs:[["book","ค1","รายละเอียดหลักสูตร (มคอ.2)"],["tabee","ค2","ความพร้อม TABEE"]]},
   ref:{t:"กฎหมายและระเบียบ",s:"คลังอ้างอิง",tabs:[["regs","จ1","กฎหมาย ระเบียบ และประกาศ"]]},
   admin:{t:"ผู้ดูแลระบบ",s:"เฉพาะกรรมการหลักสูตร",adminOnly:true,tabs:[["monitor","ง1","ติดตามการเข้าระบบและการกรอก CLO"]]}};
-const VIEWS={regs:viewRegs,transition:viewTransition,cv:viewCv,monitor:viewMonitor,survey:viewSurvey,struct:viewStruct,needs:viewNeeds,plo:viewPlo,clo:viewClo,map:viewMap,plan:viewPlan,check:viewCheck,load:viewLoad,timetable:viewTimetable,book:viewBook};
+const VIEWS={tabee:viewTabee,regs:viewRegs,transition:viewTransition,cv:viewCv,monitor:viewMonitor,survey:viewSurvey,struct:viewStruct,needs:viewNeeds,plo:viewPlo,clo:viewClo,map:viewMap,plan:viewPlan,check:viewCheck,load:viewLoad,timetable:viewTimetable,book:viewBook};
 function tblock(){const el=document.getElementById("tblock");if(!el)return;let tot="";try{tot=Math.min(...Object.keys(TRACKS).map(t=>sumCr(trackCourses(t))))}catch(e){}
   el.innerHTML=`<div><small>หลักสูตรปรับปรุง</small><b>พ.ศ. 2571</b></div><div><small>หน่วยกิตรวม</small><b>${tot||"–"}</b></div><div><small>แขนงวิชา</small><b>${Object.keys(TRACKS).length}</b></div><div><small>เปิดสอน</small><b>1/2571</b></div>`}
 function render(){
