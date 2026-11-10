@@ -1377,7 +1377,35 @@ async function bkdBuf(sec){const m=bkdMeta()[sec];if(!m)return null;const c=bkdC
 const b64Of=buf=>{const u=new Uint8Array(buf);let s="";for(let i=0;i<u.length;i+=0x8000)s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return btoa(s)};
 const BKD_OPTS={breakPages:true,ignoreLastRenderedPageBreak:false,ignoreWidth:false,ignoreHeight:false,renderHeaders:true,renderFooters:true,renderFootnotes:true,useBase64URL:true,inWrapper:true};
 const BKD_CSS=`.docx-wrapper{background:transparent!important;padding:0!important;display:block!important}.docx-wrapper>section.docx{margin:0 auto 18px!important;box-shadow:0 1px 5px rgba(0,0,0,.25)}@media print{.docx-wrapper>section.docx{margin:0!important;box-shadow:none!important;break-after:page}}`;
-async function bkdRenderInto(sec,box,styleBox){const PV=await docxPreviewLib();const buf=await bkdBuf(sec);if(!buf)throw new Error("ไม่พบไฟล์ .docx ของส่วนนี้");box.innerHTML="";await PV.renderAsync(buf,box,styleBox||box,BKD_OPTS);return box.querySelectorAll("section.docx").length}
+// docx-preview ไม่อ่านฟอนต์และขนาดอักษรของ "ภาษาไทย/อักษรซับซ้อน" (w:cs, w:cstheme, w:szCs) ที่ Word ใช้กับข้อความไทย
+// จึงแปลงไฟล์ก่อนแสดงผล: เติมฟอนต์ไทยเป็นฟอนต์สำรอง และใช้ขนาด szCs กับข้อความไทย (ไฟล์ที่เก็บในระบบไม่ถูกแก้)
+async function docxThaiFix(buf){try{if(!window.JSZip)await loadScript(DOCX_CDN.zip);const zip=await JSZip.loadAsync(buf);
+  const th=/[฀-๿]/;let thFont={minor:"",major:""};const tf=zip.file("word/theme/theme1.xml");
+  if(tf){const t=await tf.async("string");for(const k of ["minor","major"]){const m=t.match(new RegExp(`<a:${k}Font>[\\s\\S]*?</a:${k}Font>`));if(m){const f=m[0].match(/<a:font script="Thai" typeface="([^"]+)"/)||m[0].match(/<a:cs typeface="([^"]+)"/);if(f&&f[1])thFont[k]=f[1]}}}
+  const P=new DOMParser(),S=new XMLSerializer(),W="http://schemas.openxmlformats.org/wordprocessingml/2006/main";
+  const ga=(e,n)=>e.getAttributeNS(W,n)||e.getAttribute("w:"+n);const sa=(e,n,v)=>e.setAttributeNS(W,"w:"+n,v);
+  const csFont=rf=>{const c=ga(rf,"cs");if(c)return c;const ct=ga(rf,"cstheme");return ct?(/major/i.test(ct)?thFont.major:thFont.minor):""};
+  const fixFont=rPr=>{let rf=rPr.getElementsByTagNameNS(W,"rFonts")[0];const f=rf?csFont(rf):"";if(!f)return;const a=ga(rf,"ascii");
+    if(!a&&!ga(rf,"asciiTheme")){sa(rf,"ascii",f)}else{sa(rf,"eastAsia",f);rf.removeAttributeNS(W,"eastAsiaTheme");rf.removeAttribute("w:eastAsiaTheme")}};
+  const fixSize=rPr=>{const c=rPr.getElementsByTagNameNS(W,"szCs")[0];if(!c)return;let s=rPr.getElementsByTagNameNS(W,"sz")[0];
+    if(!s){s=rPr.ownerDocument.createElementNS(W,"w:sz");rPr.insertBefore(s,c)}sa(s,"val",ga(c,"val"))};
+  const docX=zip.file("word/document.xml");const docS=docX?await docX.async("string"):"";
+  const nTh=(docS.match(/[฀-๿]/g)||[]).length,nLat=(docS.replace(/<[^>]+>/g,"").match(/[A-Za-z]/g)||[]).length,thaiDoc=nTh>nLat;
+  // สไตล์และค่าเริ่มต้น: เติมฟอนต์ไทยเสมอ ปรับขนาดเมื่อเนื้อหาเป็นภาษาไทยเป็นหลัก
+  const sf=zip.file("word/styles.xml");if(sf){const d=P.parseFromString(await sf.async("string"),"application/xml");
+    for(const r of [...d.getElementsByTagNameNS(W,"rPr")]){fixFont(r);if(thaiDoc)fixSize(r)}zip.file("word/styles.xml",S.serializeToString(d))}
+  // รายการเลขข้อ
+  const nf=zip.file("word/numbering.xml");if(nf){const d=P.parseFromString(await nf.async("string"),"application/xml");
+    for(const r of [...d.getElementsByTagNameNS(W,"rPr")]){fixFont(r);if(thaiDoc)fixSize(r)}zip.file("word/numbering.xml",S.serializeToString(d))}
+  // เนื้อหา หัวกระดาษ ท้ายกระดาษ เชิงอรรถ: ข้อความที่มีอักษรไทยใช้ขนาด szCs
+  for(const name of Object.keys(zip.files).filter(n=>/^word\/(document|header\d*|footer\d*|footnotes|endnotes)\.xml$/.test(n))){
+    const d=P.parseFromString(await zip.file(name).async("string"),"application/xml");
+    for(const run of [...d.getElementsByTagNameNS(W,"r")]){const rPr=[...run.childNodes].find(n=>n.localName==="rPr");if(!rPr)continue;fixFont(rPr);
+      const txt=[...run.getElementsByTagNameNS(W,"t")].map(t=>t.textContent).join("");if(th.test(txt)||(thaiDoc&&!/[A-Za-z]/.test(txt)))fixSize(rPr)}
+    for(const p of [...d.getElementsByTagNameNS(W,"pPr")]){const r=[...p.childNodes].find(n=>n.localName==="rPr");if(r){fixFont(r);if(thaiDoc)fixSize(r)}}
+    zip.file(name,S.serializeToString(d))}
+  return await zip.generateAsync({type:"arraybuffer"})}catch(e){console.warn("docxThaiFix",e);return buf}}
+async function bkdRenderInto(sec,box,styleBox){const PV=await docxPreviewLib();const buf=await bkdBuf(sec);if(!buf)throw new Error("ไม่พบไฟล์ .docx ของส่วนนี้");box.innerHTML="";await PV.renderAsync(await docxThaiFix(buf),box,styleBox||box,BKD_OPTS);return box.querySelectorAll("section.docx").length}
 async function bkdPageCount(sec){const m=bkdMeta()[sec];if(m&&m.pages)return m.pages;const d=document.createElement("div");d.style.cssText="position:absolute;left:-99999px;top:0;width:900px";document.body.appendChild(d);try{return await bkdRenderInto(sec,d)}finally{d.remove()}}
 async function bkdUpload(sec,file){
   if(!file)return;if(!/\.docx$/i.test(file.name)){alert("เลือกไฟล์นามสกุล .docx");return}
@@ -1385,7 +1413,7 @@ async function bkdUpload(sec,file){
   state.msg="กำลังอัปโหลด "+file.name+"…";render();
   try{const buf=await file.arrayBuffer();
     const d=document.createElement("div");d.style.cssText="position:absolute;left:-99999px;top:0;width:900px";document.body.appendChild(d);let pages=0;
-    try{const PV=await docxPreviewLib();await PV.renderAsync(buf,d,d,BKD_OPTS);pages=d.querySelectorAll("section.docx").length}finally{d.remove()}
+    try{const PV=await docxPreviewLib();await PV.renderAsync(await docxThaiFix(buf),d,d,BKD_OPTS);pages=d.querySelectorAll("section.docx").length}finally{d.remove()}
     const meta={name:file.name,size:file.size,at:new Date().toISOString(),by:(state.user&&state.user.email)||"",pages,on:true};
     await bkdStore.put(sec,{...meta,b64:b64Of(buf)});bkdCache[sec]={at:meta.at,buf};bkdMeta()[sec]=meta;
     state.msg=`ใช้ไฟล์ ${file.name} (${pages} หน้า) แทนส่วนนี้แล้ว · PDF ส่วนนี้และ PDF ทั้งเล่มจะใช้ไฟล์นี้`;render()}
