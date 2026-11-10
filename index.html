@@ -266,6 +266,11 @@ a{color:var(--accent)}
 @media (max-width:900px){header.top{grid-template-columns:auto minmax(0,1fr)}header.top .tblock{grid-column:1/-1;border-left:0;border-top:1.5px solid var(--steel);grid-template-columns:repeat(4,1fr)}header.top .tblock div{min-width:0;padding:6px 10px}nav.phase a{flex-basis:45%}}
 @media (max-width:520px){header.top img.logo{width:46px;height:46px;margin:8px 10px}header.top h1{font-size:17px!important}header.top .tblock{grid-template-columns:repeat(2,1fr)}header.top .tblock div:nth-child(3){border-left:0}header.top .tblock div:nth-child(n+3){border-top:1px solid var(--line)}nav.phase a{flex-basis:100%;border-right:0!important;border-bottom:1px solid var(--line)}}
 label.btnlike,label.sm{font-size:13px!important;border-radius:var(--r-ctl)!important;background:var(--panel)!important;padding:3px 10px!important}
+.lab-cs{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:4px 14px;font-size:13px;max-height:260px;overflow:auto;padding:8px;border:1px solid var(--line);border-radius:var(--r-ctl)}
+.lab-tb input,.lab-tb select{width:100%;min-width:0}.lab-tb td{padding:3px 4px}
+.lab-ph{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}.lab-ph figure{margin:0;width:180px}.lab-ph img{width:180px;height:130px;object-fit:cover;border-radius:6px;background:var(--soft);display:block}
+.lab-ph figcaption{display:flex;gap:4px;margin-top:4px;font-size:12px}.lab-ph figcaption input{flex:1;min-width:0;font-size:12px}
+.lab-add{width:180px;height:130px;border:1.5px dashed var(--line);border-radius:6px;display:grid;place-items:center;cursor:pointer;color:var(--muted);font-size:13px}.lab-add:hover{border-color:var(--accent);color:var(--accent)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 @media print{header.top,nav.phase,nav.tabs{display:none}}
 </style>
@@ -2239,9 +2244,9 @@ function tabeeData(){
     {s:bk("h5","หมวดที่ 5")[0],t:"การพัฒนาอาจารย์และการประเมินการสอน",d:bk("h5","หมวดที่ 5")[1]+" แนบแผนพัฒนารายบุคคลและผลประเมินการสอน",ev:[["ค1 หมวดที่ 5","#book/book"]]}]});
   const labs=COURSES.filter(c=>c.p>0&&c.dept==="ME"&&!c.fl.coop&&!c.fl.slot&&/^\d-\d{3}-\d{3}$/.test(c.code));
   C.push({n:7,t:"สิ่งอำนวยความสะดวก (Facilities)",it:[
-    {s:"todo",t:`ห้องปฏิบัติการและครุภัณฑ์ของรายวิชาที่มีชั่วโมงปฏิบัติ ${labs.length} วิชา`,d:"จัดทำบัญชีห้องปฏิบัติการ ครุภัณฑ์หลัก จำนวนชุดต่อกลุ่มนักศึกษา และรายวิชาที่ใช้ แขนงใหม่ต้องแสดงแผนจัดหาครุภัณฑ์ ใช้ร่วมกับ Self-Declaration ส่วนที่ 4",ev:[]},
+    (()=>{const LL=labList(),pr=labPracticals(),miss=pr.filter(c=>!LL.some(l=>(l.courses||[]).includes(c.code)));return {s:!LL.length?"fail":miss.length?"warn":"pass",t:`ห้องปฏิบัติการ ${LL.length} ห้อง ครอบคลุมวิชาปฏิบัติ ${pr.length-miss.length}/${pr.length} วิชา`,d:!LL.length?"ยังไม่มีข้อมูล ให้เจ้าหน้าที่ห้องปฏิบัติการกรอกในแถบ ข6":miss.length?"วิชาที่ยังไม่ระบุห้อง: "+miss.map(c=>c.code).join(", "):"ทุกวิชาปฏิบัติมีห้องและครุภัณฑ์รองรับ",ev:[["ข6 ห้องปฏิบัติการ","#manage/lab"]]}})(),
     {s:bk("h5","หมวดที่ 5")[0],t:"การบริหารจัดการสิ่งสนับสนุนการเรียนรู้",d:"หมวดที่ 5 ข้อ 5 ห้องเรียน ห้องสมุด ระบบสารสนเทศ และการบำรุงรักษา",ev:[["ค1 หมวดที่ 5","#book/book"]]},
-    {s:"todo",t:"ความปลอดภัยในห้องปฏิบัติการ",d:"คู่มือความปลอดภัย การอบรม และบันทึกการตรวจอุปกรณ์",ev:[]}]});
+    (()=>{const LL=labList(),n=LL.filter(l=>l.safety).length;return {s:!LL.length?"todo":n===LL.length?"pass":"warn",t:`ความปลอดภัยในห้องปฏิบัติการ ${n}/${LL.length} ห้อง`,d:"คู่มือความปลอดภัย การอบรม และบันทึกการตรวจอุปกรณ์ กรอกในช่องความปลอดภัยของแต่ละห้อง",ev:[["ข6","#manage/lab"]]}})()]});
   C.push({n:8,t:"การสนับสนุนจากสถาบัน (Institutional Support)",it:[
     {s:"todo",t:"งบประมาณดำเนินการและครุภัณฑ์ 5 ปี",d:"ขอข้อมูลจากคณะ แยกตามแขนง",ev:[]},
     {s:"todo",t:"บุคลากรสายสนับสนุนและนักวิทยาศาสตร์หรือช่างเทคนิคประจำห้องปฏิบัติการ",d:"ขอข้อมูลจากคณะ",ev:[]},
@@ -2271,7 +2276,7 @@ const SD_WK=[["WK1","วิทยาศาสตร์ธรรมชาติ (
  ["WK8","การสืบค้นงานวิจัยและเอกสารทางวิชาการ (Research literature)",c=>["4-116-307","4-116-408"].includes(c.code)],
  ["WK9","จริยธรรมและการทำงานร่วมกับผู้อื่นอย่างเคารพความแตกต่าง (Ethics and inclusive behaviour)",c=>["4-116-409","0-122-002","4-001-301","4-116-302"].includes(c.code)]];
 const sdCourses=()=>COURSES.filter(c=>/^\d-\d{3}-\d{3}$/.test(c.code));
-function sdHtml(){
+function sdHtml(imgs={}){
   const trs=Object.keys(TRACKS),H=t=>`<h2 class="bk-h">${t}</h2>`,h3=t=>`<h3>${t}</h3>`,ind=t=>`<p class="ind">${t}</p>`,li=t=>`<p class="li">${t}</p>`,BR=`<div class="bk-break"></div>`;
   const crT=c=>c.fl&&c.fl.nc?`ไม่นับหน่วยกิต (${c.t}-${c.p}-${c.s})`:`${c.cr}(${c.t}-${c.p}-${c.s})`;
   const L=sdCourses(),tc=trackCourses(trs[0]),gc=gs=>sumCr(tc.filter(c=>gs.includes(c.g)));
@@ -2319,25 +2324,23 @@ function sdHtml(){
    li("3.2 แบบความรู้และทัศนคติ (Knowledge and Attitude Profile)")+
    bkT(SD_WK.map(([k,t,f])=>[k,t,L.filter(f).map(c=>c.code).join(", ")||{h:bkTodo("ยังไม่มีรายวิชา")}]),["รหัส","ความรู้และทัศนคติ","รายวิชาในหลักสูตร"],{w:"100%",cw:["9%","41%","50%"]})+ind(bkTodo("ร่างจากกลุ่มวิชาและชื่อรายวิชา กรรมการหลักสูตรตรวจก่อนยื่น"))+BR;
   // ส่วนที่ 3
-  const cmap=Object.fromEntries(L.map(c=>[c.code,c]));const fac=id=>(state.faculty||[]).find(f=>f.id===id);
+  const cmap=Object.fromEntries(L.map(c=>[c.code,c]));const enOf=c=>{const o=OLD66.find(x=>x[0]===c.code&&x[1]===c.th);return o&&o[2]?o[2]:""};const nm=c=>`${c.code} ${enOf(c)||c.th}${enOf(c)?"":" "+bkTodo("(ชื่ออังกฤษ)")}`;const fac=id=>(state.faculty||[]).find(f=>f.id===id);
   const r31=[],r32=[];
   COE67.forEach(g=>{r31.push([{h:`<b>${esc(g.t)}</b>`,span:4}]);r32.push([{h:`<b>${esc(g.t)}</b>`,span:4}]);
     g.items.forEach(([n,codes])=>{const cs=codes.filter(c=>cmap[c]);if(!cs.length)return;
       cs.forEach((code,j)=>{const c=cmap[code],d=(descOf(code).th||"").replace(/\s+/g," ").trim();
-        r31.push([j?"":esc(n),d?esc(d.length>220?d.slice(0,220)+"…":d):{h:bkTodo("คำอธิบายรายวิชา")},`${code} ${c.th}`,{h:`${crT(c)}<br>${bkTodo("สัดส่วน …%")}`,cls:"c"}]);
-        const o=fac(ownerOf(code));r32.push([j?"":esc(n),`${code} ${c.th}`,{t:crT(c),cls:"c"},o?{h:`${esc(formalName(o))}<br><span class="small">${bookDegHtml(o)}</span>`}:{h:bkTodo("ยังไม่กำหนดผู้สอน (ข1)")}])})})});
+        r31.push([j?"":esc(n),d?esc(d.length>220?d.slice(0,220)+"…":d):{h:bkTodo("คำอธิบายรายวิชา")},{h:nm(c)},{h:`${crT(c)}<br>${bkTodo("สัดส่วน …%")}`,cls:"c"}]);
+        const o=fac(ownerOf(code));r32.push([j?"":esc(n),{h:nm(c)},{t:crT(c),cls:"c"},o?{h:`${esc(formalName(o))}<br><span class="small">${bookDegHtml(o)}</span>`}:{h:bkTodo("ยังไม่กำหนดผู้สอน (ข1)")}])})})});
   h+=H("ส่วนที่ 3 รายละเอียดและสาระของวิชาตามองค์ความรู้")+h3("3.1 ตารางแจกแจงรายวิชาเทียบกับองค์ความรู้สาขาวิชาวิศวกรรมเครื่องกล")+
    bkT(r31,["องค์ความรู้ที่สภาวิศวกรกำหนด","รายละเอียดและสาระของรายวิชาในหลักสูตร","รหัสวิชาและชื่อวิชา","ภาระหน่วยกิตและสัดส่วนเนื้อหา (%)"],{w:"100%",cw:["20%","44%","22%","14%"]})+
-   ind("ชื่อวิชาภาษาอังกฤษให้ใช้ตามรายละเอียดหลักสูตรฉบับสมบูรณ์ "+bkTodo("เติมสัดส่วนเนื้อหา (%) ที่ตรงกับองค์ความรู้แต่ละรายการ"))+
+   ind("ชื่อวิชาภาษาอังกฤษของรายวิชาที่ชื่อไม่เปลี่ยน ดึงจากเล่มหลักสูตร พ.ศ. 2566 "+bkTodo("เติมชื่ออังกฤษของรายวิชาใหม่และสัดส่วนเนื้อหา (%)"))+
    h3("3.2 ตารางแสดงผู้สอนในแต่ละองค์ความรู้")+bkT(r32,["องค์ความรู้ที่สภาวิศวกรกำหนด","รหัสวิชาและชื่อวิชา","หน่วยกิต","ผู้สอนและคุณวุฒิ"],{w:"100%",cw:["22%","30%","14%","34%"]})+BR;
-  // ส่วนที่ 4
-  const labs=L.filter(c=>c.p>0&&c.dept==="ME"&&!c.fl.coop);
-  h+=H("ส่วนที่ 4 สิ่งสนับสนุนการเรียนรู้")+h3("1. ห้องปฏิบัติการและวัสดุอุปกรณ์การทดลอง")+
-   bkT(labs.map((c,i)=>[String(i+1),`${c.code} ${c.th}`,{t:`${c.p} ชม./สัปดาห์`,cls:"c"},{h:bkTodo("ห้องปฏิบัติการ")},{h:bkTodo("ครุภัณฑ์หลักและจำนวนชุด")}]),["ลำดับ","รายวิชาที่มีชั่วโมงปฏิบัติ","ปฏิบัติ","ห้องปฏิบัติการ","ครุภัณฑ์และจำนวน"],{w:"100%",cw:["7%","33%","12%","18%","30%"]})+
-   ind(bkTodo("แขนงวิศวกรรมยานยนต์พลังงานใหม่และแขนงวิศวกรรมพลังงานและสิ่งแวดล้อม แนบแผนจัดหาครุภัณฑ์รายปี พ.ศ. 2571–2574"))+
-   li("1.2 โปรแกรมสำเร็จรูป / ซอฟต์แวร์ "+bkTodo("(เช่น AutoCAD, SolidWorks, MATLAB, ANSYS)"))+
-   h3("2. แหล่งบริการข้อมูลทางวิชาการ")+ind(bkTodo("ห้องสมุด ฐานข้อมูลวารสาร มาตรฐานวิศวกรรม และระบบสารสนเทศของมหาวิทยาลัย"))+
-   h3("3. กิจกรรมพัฒนานักศึกษาอื่น ๆ")+ind(bkTodo("กิจกรรมเสริมหลักสูตร การแข่งขัน ชมรม และการดูงาน"))+BR;
+  // ส่วนที่ 4 (จากแถบ ข6)
+  {const d=labDocHtml(imgs,{pre:"1."});
+  h+=H("ส่วนที่ 4 สิ่งสนับสนุนการเรียนรู้")+h3("1. ห้องปฏิบัติการและวัสดุอุปกรณ์การทดลอง")+d.labs+
+   li("<b>โปรแกรมสำเร็จรูป / ซอฟต์แวร์</b>")+(d.soft.length?d.soft.map((t,i)=>li(`${i+1}) ${esc(t)}`)).join(""):ind(bkTodo("กรอกในแถบ ข6")))+
+   h3("2. แหล่งบริการข้อมูลทางวิชาการ")+(d.lib.length?d.lib.map(t=>ind(esc(t))).join(""):ind(bkTodo("กรอกในแถบ ข6")))+
+   h3("3. กิจกรรมพัฒนานักศึกษาอื่น ๆ")+(d.act.length?d.act.map(t=>ind(esc(t))).join(""):ind(bkTodo("กรอกในแถบ ข6")))+BR}
   // ส่วนที่ 5
   const ck=[["สถานภาพหลักสูตร","มีมติสภาวิชาการและสภามหาวิทยาลัย",!!(BF("acad")&&BF("council")),"ส่วนที่ 1 ข้อ 8"],
    ["วัตถุประสงค์และองค์ความรู้","วัตถุประสงค์หลักสูตรและองค์ความรู้ครบตามสภาวิศวกร",!trs.some(t=>coe67Eval(t).some(g=>!g.ok)),"ส่วนที่ 1 ข้อ 4 · ส่วนที่ 3"],
@@ -2346,16 +2349,16 @@ function sdHtml(){
    ["โครงสร้างหลักสูตร","หน่วยกิตรวมและหมวดวิชาตามเกณฑ์",N.total>=120,"ส่วนที่ 1 ข้อ 6"],
    ["ลักษณะบัณฑิต","ตารางเชื่อมโยงรายวิชากับ Graduate Attributes และ Knowledge and Attitude Profile",SD_GA.every(([t,wa])=>gaCourses(wa).length),"ส่วนที่ 2 ข้อ 3"],
    ["อาจารย์","อาจารย์ผู้รับผิดชอบหลักสูตรและอาจารย์ประจำพร้อมคุณวุฒิ",team.length>=3,"ส่วนที่ 2 ข้อ 1–2"],
-   ["สิ่งสนับสนุนการเรียนรู้","ห้องปฏิบัติการ ครุภัณฑ์ และแหล่งข้อมูล",false,"ส่วนที่ 4"]];
+   ["สิ่งสนับสนุนการเรียนรู้","ห้องปฏิบัติการ ครุภัณฑ์ และแหล่งข้อมูล",labList().length>0&&labPracticals().every(c=>labList().some(l=>(l.courses||[]).includes(c.code))),"ส่วนที่ 4"]];
   h+=H("ส่วนที่ 5 แบบตรวจ (Checklist) สำหรับการยื่นคำขอรับรองปริญญา")+
    bkT(ck.map(([a,b,ok,ref],i)=>[String(i+1),a,b,{t:ok?"มี":"",cls:"c"},{t:ok?"":"ไม่มี",cls:"c"},ref]),["ลำดับ","หัวข้อ","รายการ","มี","ไม่มี","อ้างอิง"],{w:"100%",cw:["7%","18%","37%","8%","8%","22%"]})+
    h3("เอกสารแนบ")+["เอกสารที่สภามหาวิทยาลัยอนุมัติ / เห็นชอบหลักสูตร","รายละเอียดหลักสูตรฉบับสมบูรณ์ที่ได้รับอนุมัติ (ค1)","รายละเอียดรายวิชา (Course Specification) และแผนการสอน (Course Syllabus) เฉพาะวิชาที่นำมาเทียบองค์ความรู้","คำสั่งแต่งตั้งคณะกรรมการพัฒนาและวิพากษ์หลักสูตร"].map((t,i)=>li(`${i+1}. ${t}`)).join("");
   return h}
-async function sdAssemble(){const fmt=bookFmt("h1");const ps=await paginateHtml(sdHtml(),fmt);
+async function sdAssemble(){const fmt=bookFmt("h1");const imgs=await labImgsFor(Object.keys(state.labPhotos||{}));const ps=await paginateHtml(sdHtml(imgs),fmt);
   return {pages:ps.map((p,i)=>`<div class="bk-pg" style="${pgCssVars(fmt)}"><div class="bk-pgc" style="position:absolute;left:${fmt.mL}in;top:${fmt.mT}in;width:calc(8.27in - ${fmt.mL}in - ${fmt.mR}in)">${p}</div>${i?`<div class="bk-foot"><span>${SD_FOOT}</span><span>${i}</span></div>`:""}</div>`),slots:[]}}
 async function sdDocx(){
   try{state.msg="กำลังสร้างไฟล์ .docx…";render();const D=await docxLib();const fmt=bookFmt("h1");window.__footTxt=SD_FOOT;
-    const sec=await bookDocxSection(D,"h1",sdHtml(),fmt,1);
+    const imgs=await labImgsFor(Object.keys(state.labPhotos||{}));const sec=await bookDocxSection(D,"h1",sdHtml(imgs),fmt,1);
     const doc=new D.Document({creator:"ME curriculum platform",title:"Self-Declaration",styles:{default:{document:{run:{font:{ascii:fmt.font,hAnsi:fmt.font,cs:fmt.font,eastAsia:fmt.font,hint:"cs"},size:fmt.body*2,language:{value:"en-US",eastAsia:"en-US",bidirectional:"th-TH"}}}}},sections:[sec]});
     const blob=await D.Packer.toBlob(doc);const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="Self-Declaration-วศบ-เครื่องกล-2571.docx";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
     state.msg="สร้างไฟล์ Self-Declaration-วศบ-เครื่องกล-2571.docx แล้ว";render()}
@@ -2365,7 +2368,7 @@ function viewSd(){
   const parts=[["ปก","ระบบใส่ให้ทั้งหมด","pass"],["ส่วนที่ 1 ข้อมูลหลักสูตร","ดึงจากรายวิชา โครงสร้าง แผนการเรียน และข้อมูลเล่ม · ต้องเติมชื่อผู้รับรองและโทรศัพท์ผู้ประสานงาน",BF("acad")&&BF("council")?"warn":"warn"],
    ["ส่วนที่ 2 คณาจารย์และลักษณะบัณฑิต","รายชื่อและคุณวุฒิจาก ข1/ข4 · ตาราง Graduate Attributes จาก CLO ระดับ M · Knowledge and Attitude Profile เป็นร่างให้ตรวจ",team.length?"warn":"fail"],
    ["ส่วนที่ 3 รายวิชาเทียบองค์ความรู้","ตารางแจกแจงจากการเทียบองค์ความรู้ในระบบ คำอธิบายรายวิชา และผู้สอนจาก ข1 · ต้องเติมสัดส่วนเนื้อหา (%)","warn"],
-   ["ส่วนที่ 4 สิ่งสนับสนุนการเรียนรู้","ระบบสร้างรายการวิชาที่มีชั่วโมงปฏิบัติให้ ต้องเติมห้องปฏิบัติการ ครุภัณฑ์ ซอฟต์แวร์ และแหล่งข้อมูล","fail"],
+   ["ส่วนที่ 4 สิ่งสนับสนุนการเรียนรู้",`ดึงจากแถบ ข6 ห้องปฏิบัติการและครุภัณฑ์ (มี ${labList().length} ห้อง รูป ${Object.keys(state.labPhotos||{}).length} รูป)`,labList().length?(labPracticals().every(c=>labList().some(l=>(l.courses||[]).includes(c.code)))?"pass":"warn"):"fail"],
    ["ส่วนที่ 5 แบบตรวจ","ระบบทำเครื่องหมายมี/ไม่มี จากข้อมูลจริง","pass"]];
   return `<p class="lead">เอกสารคำรับรองตนเอง (Self-Declaration) สำหรับยื่นขอรับรองปริญญาต่อสภาวิศวกร ตามประกาศสภาวิศวกร ที่ 30/2568 หลักสูตรปรับปรุงต้องยื่นภายใน 1 ปีนับจากวันที่สภามหาวิทยาลัยเห็นชอบ ระบบสร้างเอกสารจากข้อมูลจริง ส่วนที่ต้องเติมเองแสดงเป็นแถบสีเหลือง</p>
   <section class="panel"><h2>สร้างเอกสาร</h2><div class="row" style="gap:8px;flex-wrap:wrap"><button class="primary" id="sdView">ดูเอกสาร / ดาวน์โหลด PDF</button><button id="sdDocx">ดาวน์โหลด .docx เพื่อแก้ใน Word</button></div>
@@ -2373,6 +2376,102 @@ function viewSd(){
   <section class="panel"><h2>ความพร้อมของแต่ละส่วน</h2>${parts.map(([t,d,s])=>`<div class="check">${tbPill(s)}<span class="t">${esc(t)}</span><span class="d">${esc(d)}</span></div>`).join("")}</section>
   <section class="panel"><h2>เอกสารแนบที่ต้องเตรียม</h2><div class="check">${tbPill("todo")}<span class="t">เอกสารที่สภามหาวิทยาลัยอนุมัติหลักสูตร</span></div><div class="check">${tbPill("pass")}<span class="t">รายละเอียดหลักสูตรฉบับสมบูรณ์</span><span class="d"><a href="#book/book">ค1</a> ดาวน์โหลด PDF ทั้งเล่ม</span></div><div class="check">${tbPill("warn")}<span class="t">รายละเอียดรายวิชาและแผนการสอน เฉพาะวิชาที่เทียบองค์ความรู้</span><span class="d">มีคำอธิบายรายวิชาและ CLO แล้ว ต้องจัดทำแผนการสอนรายสัปดาห์</span></div></section>`}
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("#sdView,#sdDocx");if(!b)return;if(b.id==="sdView")bookAllOpen({assemble:sdAssemble,title:"เอกสารคำรับรองตนเอง (Self-Declaration)",fname:"Self-Declaration-วศบ-เครื่องกล-2571"});else sdDocx()});
+// ---- ข6 ห้องปฏิบัติการและครุภัณฑ์: เจ้าหน้าที่ห้องปฏิบัติการและอาจารย์กรอกข้อมูลและรูป ใช้ใน Self-Declaration ส่วนที่ 4 และ TABEE เกณฑ์ที่ 7 ----
+const LAB_ST={ok:"ใช้งานได้",fix:"ชำรุด รอซ่อม",plan:"แผนจัดซื้อ"};
+const labList=()=>Object.values(state.labs||{}).filter(l=>l&&l.name).sort((a,b)=>(a.order||0)-(b.order||0)||String(a.name).localeCompare(String(b.name),"th"));
+const labCanEdit=()=>!!(state.isAdmin||state.isFac||(state.labStaff||[]).includes(((state.user&&state.user.email)||"").toLowerCase())||!state.db);
+const labPracticals=()=>COURSES.filter(c=>c.p>0&&/^\d-\d{3}-\d{3}$/.test(c.code)&&!c.fl.coop&&!(c.fl&&c.fl.slot)&&(c.dept==="ME"||/^4-/.test(c.code))).sort((a,b)=>a.code.localeCompare(b.code));
+const labMem=(()=>{const m={};return{list:async()=>Object.fromEntries(Object.entries(m).map(([k,v])=>[k,{...v,img:undefined}])),get:async k=>m[k]||null,put:async(k,v)=>{m[k]=v},del:async k=>{delete m[k]}}})();
+const labStore=()=>window.__labPhotoStore||labMem;
+const labImgCache={};
+async function labLoadPhotos(){try{state.labPhotos=await labStore().list()||{};render()}catch(e){console.warn(e)}}
+async function labImg(id){if(labImgCache[id])return labImgCache[id];const d=await labStore().get(id);if(d&&d.img)labImgCache[id]=d.img;return labImgCache[id]||""}
+async function labImgsFor(ids){const o={};for(const id of ids){try{o[id]=await labImg(id)}catch(e){}}return o}
+const labPhotosOf=lid=>Object.entries(state.labPhotos||{}).filter(([id,p])=>p&&p.lab===lid).sort((a,b)=>String(a[1].at).localeCompare(String(b[1].at)));
+async function labSave(l){l.at=new Date().toISOString();l.by=(state.user&&state.user.email)||"";state.labs={...(state.labs||{}),[l.id]:l};render();await dbWrite(db=>db.doc("lab/"+l.id).set(l),"ข้อมูลห้องปฏิบัติการ")}
+async function labDel(id){if(!confirm("ลบห้องปฏิบัติการนี้และรูปทั้งหมดของห้อง?"))return;const s={...(state.labs||{})};delete s[id];state.labs=s;state.labEdit=null;render();
+  await dbWrite(db=>db.doc("lab/"+id).delete(),"ข้อมูลห้องปฏิบัติการ");for(const [pid] of labPhotosOf(id)){try{await labStore().del(pid);delete state.labPhotos[pid]}catch(e){}}render()}
+function labShrink(file,max=1400,q=0.78){return new Promise((ok,no)=>{const fr=new FileReader();fr.onerror=no;fr.onload=()=>{const im=new Image();im.onerror=()=>no(new Error("เปิดรูปไม่ได้"));im.onload=()=>{const k=Math.min(1,max/Math.max(im.width,im.height));const cv=document.createElement("canvas");cv.width=Math.round(im.width*k);cv.height=Math.round(im.height*k);cv.getContext("2d").drawImage(im,0,0,cv.width,cv.height);ok({img:cv.toDataURL("image/jpeg",q),w:cv.width,h:cv.height})};im.src=fr.result};fr.readAsDataURL(file)})}
+async function labAddPhotos(lid,files){
+  for(const f of [...files]){if(!/^image\//.test(f.type))continue;state.msg="กำลังย่อและอัปโหลดรูป "+f.name+"…";render();
+    try{const r=await labShrink(f);const id=lid+"_"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);const meta={lab:lid,cap:f.name.replace(/\.[^.]+$/,""),at:new Date().toISOString(),by:(state.user&&state.user.email)||"",w:r.w,h:r.h};
+      await labStore().put(id,{...meta,img:r.img});labImgCache[id]=r.img;state.labPhotos={...(state.labPhotos||{}),[id]:meta}}
+    catch(e){state.msg="อัปโหลดรูปไม่สำเร็จ: "+(e.message||e);render();return}}
+  state.msg="";render()}
+async function labCaption(id,cap){const d=await labStore().get(id);if(!d)return;await labStore().put(id,{...d,cap});state.labPhotos[id]={...state.labPhotos[id],cap};render()}
+async function labPhotoDel(id){if(!confirm("ลบรูปนี้?"))return;await labStore().del(id);delete state.labPhotos[id];delete labImgCache[id];render()}
+function labFromForm(){const f=document.getElementById("labForm");if(!f)return null;const g=k=>(f.querySelector(`[name="${k}"]`)||{}).value||"";
+  const items=[...f.querySelectorAll("tr[data-labrow]")].map(tr=>{const v=k=>(tr.querySelector(`[data-k="${k}"]`)||{}).value||"";return {name:v("name").trim(),spec:v("spec").trim(),qty:v("qty"),yr:v("yr"),st:v("st")||"ok"}}).filter(x=>x.name);
+  const courses=[...f.querySelectorAll('input[data-labc]:checked')].map(i=>i.dataset.labc);
+  const old=(state.labs||{})[f.dataset.id]||{};
+  return {...old,id:f.dataset.id,name:g("name").trim(),room:g("room").trim(),area:g("area"),cap:g("cap"),staff:g("staff").trim(),note:g("note").trim(),safety:g("safety").trim(),courses,items}}
+function labFormHtml(l){
+  const prac=labPracticals(),it=(l.items&&l.items.length?l.items:[{}]).concat([{}]);
+  const row=(x,i)=>`<tr data-labrow="${i}"><td><input data-k="name" value="${esc(x.name||"")}" placeholder="เช่น ชุดทดลองการถ่ายเทความร้อน"></td><td><input data-k="spec" value="${esc(x.spec||"")}" placeholder="ยี่ห้อ / รุ่น / รายละเอียด"></td><td><input data-k="qty" type="number" min="0" value="${esc(x.qty||"")}" style="width:70px"></td><td><input data-k="yr" type="number" min="2500" max="2600" value="${esc(x.yr||"")}" placeholder="พ.ศ." style="width:84px"></td><td><select data-k="st">${Object.entries(LAB_ST).map(([k,v])=>`<option value="${k}" ${(x.st||"ok")===k?"selected":""}>${v}</option>`).join("")}</select></td></tr>`;
+  return `<form id="labForm" data-id="${esc(l.id)}" class="panel" onsubmit="return false"><h2 style="margin-top:0">${l.name?"แก้ไข "+esc(l.name):"เพิ่มห้องปฏิบัติการ"}</h2>
+   <div class="row" style="gap:10px;flex-wrap:wrap">
+    <label class="ctl" style="flex:2 1 260px">ชื่อห้องปฏิบัติการ <input name="name" value="${esc(l.name||"")}" required placeholder="เช่น ห้องปฏิบัติการความร้อนและของไหล"></label>
+    <label class="ctl" style="flex:1 1 160px">อาคาร / เลขห้อง <input name="room" value="${esc(l.room||"")}"></label>
+    <label class="ctl" style="flex:0 1 110px">พื้นที่ (ตร.ม.) <input name="area" type="number" min="0" value="${esc(l.area||"")}"></label>
+    <label class="ctl" style="flex:0 1 150px">นักศึกษาต่อรอบ (คน) <input name="cap" type="number" min="0" value="${esc(l.cap||"")}"></label>
+    <label class="ctl" style="flex:1 1 220px">ผู้รับผิดชอบห้อง <input name="staff" value="${esc(l.staff||"")}"></label></div>
+   <h3>รายวิชาที่ใช้ห้องนี้</h3><div class="lab-cs">${prac.map(c=>`<label><input type="checkbox" data-labc="${c.code}" ${(l.courses||[]).includes(c.code)?"checked":""}> ${c.code} ${esc(c.th)}</label>`).join("")}</div>
+   <h3>ครุภัณฑ์และอุปกรณ์การทดลอง</h3><div class="scroll"><table class="lab-tb"><thead><tr><th>รายการ</th><th>รายละเอียด / รุ่น</th><th>จำนวน</th><th>ปีที่ได้มา</th><th>สถานะ</th></tr></thead><tbody id="labRows">${it.map(row).join("")}</tbody></table></div>
+   <button type="button" class="sm" id="labAddRow">เพิ่มแถว</button> <span class="small muted">แถวที่ไม่มีชื่อรายการจะไม่ถูกบันทึก</span>
+   <div class="row" style="gap:10px;flex-wrap:wrap;margin-top:10px"><label class="ctl" style="flex:1 1 320px">ความปลอดภัย (คู่มือ การอบรม การตรวจอุปกรณ์ล่าสุด) <textarea name="safety" rows="2">${esc(l.safety||"")}</textarea></label>
+    <label class="ctl" style="flex:1 1 320px">หมายเหตุ <textarea name="note" rows="2">${esc(l.note||"")}</textarea></label></div>
+   <div class="row" style="gap:8px;margin-top:10px"><button type="button" class="primary" id="labSave">บันทึก</button><button type="button" id="labCancel">ยกเลิก</button>${l.name?`<button type="button" id="labDel" style="margin-left:auto">ลบห้องนี้</button>`:""}</div></form>`}
+function viewLab(){
+  setTimeout(labFillImgs,0);
+  const L=labList(),ed=labCanEdit(),prac=labPracticals(),used=new Set(L.flatMap(l=>l.courses||[])),miss=prac.filter(c=>!used.has(c.code));
+  const nItem=L.reduce((a,l)=>a+(l.items||[]).length,0),nPh=Object.keys(state.labPhotos||{}).length;const info=state.labInfo||{};
+  const e=state.labEdit;const cur=e?(e==="new"?{id:"L"+Date.now().toString(36)}:(state.labs||{})[e]):null;
+  return `<p class="lead">เจ้าหน้าที่ห้องปฏิบัติการและอาจารย์กรอกข้อมูลห้อง ครุภัณฑ์ และรูปภาพไว้ที่นี่ที่เดียว ระบบนำไปใช้ใน Self-Declaration ส่วนที่ 4 (ค2) และหลักฐาน TABEE เกณฑ์ที่ 7 (ค3) และพิมพ์เป็นบัญชีห้องปฏิบัติการได้</p>
+  <div class="sum"><div class="panel"><span class="muted small">ห้องปฏิบัติการ</span><span class="big num">${L.length}</span></div><div class="panel"><span class="muted small">รายการครุภัณฑ์</span><span class="big num">${nItem}</span></div><div class="panel"><span class="muted small">รูปภาพ</span><span class="big num">${nPh}</span></div><div class="panel"><span class="muted small">วิชาปฏิบัติที่ระบุห้องแล้ว</span><span class="big num">${prac.length-miss.length}/${prac.length}</span></div></div>
+  <section class="panel"><div class="row" style="gap:8px;flex-wrap:wrap">${ed?`<button class="primary" id="labNew">เพิ่มห้องปฏิบัติการ</button>`:`<span class="small muted">บัญชีนี้ดูได้อย่างเดียว ถ้าเป็นเจ้าหน้าที่ห้องปฏิบัติการ แจ้งกรรมการหลักสูตรให้เพิ่มอีเมลของท่าน</span>`}<button id="labPrint">ดูบัญชีห้องปฏิบัติการ / ดาวน์โหลด PDF</button></div>
+   ${miss.length?`<p class="small" style="margin-bottom:0">วิชาที่มีชั่วโมงปฏิบัติแต่ยังไม่ระบุห้อง: ${miss.map(c=>c.code).join(", ")}</p>`:""}</section>
+  ${cur?labFormHtml(cur):""}
+  ${L.length?L.map(l=>{const ph=labPhotosOf(l.id);return `<section class="panel lab-card"><div class="row" style="gap:8px;align-items:flex-start"><div style="flex:1;min-width:0"><h2 style="margin:0">${esc(l.name)}</h2><p class="small muted" style="margin:2px 0 6px">${[l.room,l.area&&l.area+" ตร.ม.",l.cap&&l.cap+" คน/รอบ",l.staff&&"ผู้รับผิดชอบ "+l.staff].filter(Boolean).map(esc).join(" · ")||"&nbsp;"}</p></div>${ed?`<button class="sm" data-labedit="${l.id}">แก้ไข</button>`:""}</div>
+    <p class="small" style="margin:0 0 6px"><b>รายวิชา:</b> ${(l.courses||[]).length?(l.courses||[]).join(", "):"<span class='muted'>ยังไม่ระบุ</span>"}</p>
+    ${(l.items||[]).length?`<div class="scroll"><table><tr><th>รายการ</th><th>รายละเอียด</th><th>จำนวน</th><th>ปีที่ได้มา</th><th>สถานะ</th></tr>${l.items.map(x=>`<tr><td>${esc(x.name)}</td><td class="small">${esc(x.spec||"")}</td><td class="num">${esc(x.qty||"")}</td><td class="num">${esc(x.yr||"")}</td><td>${x.st==="ok"||!x.st?`<span class="pill pass">${LAB_ST.ok}</span>`:x.st==="fix"?`<span class="pill warn">${LAB_ST.fix}</span>`:`<span class="pill">${LAB_ST.plan}</span>`}</td></tr>`).join("")}</table></div>`:`<p class="small muted">ยังไม่มีรายการครุภัณฑ์</p>`}
+    <div class="lab-ph">${ph.map(([id,p])=>`<figure><img data-labimg="${id}" alt="${esc(p.cap||"")}" loading="lazy"><figcaption>${ed?`<input data-labcap="${id}" value="${esc(p.cap||"")}" aria-label="คำบรรยายรูป">`:esc(p.cap||"")}${ed?`<button class="sm" data-labphdel="${id}" aria-label="ลบรูป">ลบ</button>`:""}</figcaption></figure>`).join("")}
+     ${ed?`<label class="lab-add">เพิ่มรูป<input type="file" accept="image/*" multiple data-labph="${l.id}" hidden></label>`:""}</div></section>`}).join(""):`<section class="panel"><p class="muted">ยังไม่มีห้องปฏิบัติการ ${ed?"กด \"เพิ่มห้องปฏิบัติการ\" เพื่อเริ่ม":""}</p></section>`}
+  <section class="panel"><h2>ข้อมูลประกอบอื่น</h2><p class="small muted">ใช้ใน Self-Declaration ส่วนที่ 4 ข้อ 1.2–3</p>
+   ${["soft:โปรแกรมสำเร็จรูป / ซอฟต์แวร์ (บรรทัดละ 1 รายการ)","lib:แหล่งบริการข้อมูลทางวิชาการ (ห้องสมุด ฐานข้อมูล มาตรฐานวิศวกรรม)","act:กิจกรรมพัฒนานักศึกษาอื่น ๆ"].map(s=>{const [k,t]=s.split(":");return `<label class="ctl" style="display:block;margin-bottom:8px">${t}<textarea rows="3" data-labinfo="${k}" ${ed?"":"disabled"} style="width:100%">${esc(info[k]||"")}</textarea></label>`}).join("")}
+   ${ed?`<button class="sm" id="labInfoSave">บันทึกข้อมูลประกอบ</button>`:""}</section>
+  ${state.isAdmin?`<section class="panel"><h2>เจ้าหน้าที่ห้องปฏิบัติการที่แก้ไขหน้านี้ได้</h2><p class="small muted">อาจารย์ในรายชื่ออาจารย์แก้ได้อยู่แล้ว ใส่อีเมล @mail.rmutk.ac.th ของเจ้าหน้าที่ บรรทัดละ 1 อีเมล</p><textarea id="labStaff" rows="3" style="width:100%">${esc((state.labStaff||[]).join("\n"))}</textarea><button class="sm" id="labStaffSave">บันทึกรายชื่อ</button></section>`:""}`}
+// เอกสาร: บัญชีห้องปฏิบัติการ (ใช้ทั้งเอกสารแยกและ Self-Declaration ส่วนที่ 4)
+function labDocHtml(imgs,opt={}){
+  const L=labList(),info=state.labInfo||{},h3=t=>`<h3>${t}</h3>`,li=t=>`<p class="li">${t}</p>`,ind=t=>`<p class="ind">${t}</p>`;
+  const pre=opt.pre||"1.",prac=labPracticals();let h="";
+  if(!L.length)h+=ind(bkTodo("ยังไม่มีข้อมูลห้องปฏิบัติการ กรอกในแถบ ข6"));
+  L.forEach((l,i)=>{const ph=labPhotosOf(l.id).filter(([id])=>imgs[id]);
+    h+=li(`<b>${pre}${i+1} ${esc(l.name)}</b>`)+li([l.room&&"อาคาร/ห้อง "+esc(l.room),l.area&&"พื้นที่ "+esc(l.area)+" ตร.ม.",l.cap&&"รองรับ "+esc(l.cap)+" คนต่อรอบ",l.staff&&"ผู้รับผิดชอบ "+esc(l.staff)].filter(Boolean).join(" · "))+
+      li("รายวิชาที่ใช้: "+((l.courses||[]).map(c=>{const x=COURSES.find(y=>y.code===c);return c+(x?" "+esc(x.th):"")}).join(", ")||bkTodo("ยังไม่ระบุ")))+
+      bkT((l.items||[]).length?l.items.map((x,j)=>[{t:String(j+1),cls:"c"},esc(x.name)+(x.spec?`<br><span class="small">${esc(x.spec)}</span>`:""),{t:String(x.qty||""),cls:"c"},{t:x.st==="plan"?"แผนจัดซื้อ"+(x.yr?" "+x.yr:""):x.st==="fix"?"ชำรุด รอซ่อม":(x.yr?"ได้มา "+x.yr:"ใช้งานได้"),cls:"c"}]).map(r=>r.map(c=>typeof c==="string"?{h:c}:c)):[[{h:bkTodo("ยังไม่มีรายการครุภัณฑ์"),span:4}]],["ลำดับที่","รายละเอียดของอุปกรณ์การทดลอง","จำนวน","สถานะ"],{w:"100%",cw:["10%","56%","12%","22%"]})+
+      (l.safety?li("ความปลอดภัย: "+esc(l.safety)):"")+
+      ph.reduce((a,x,k)=>(k%2?a[a.length-1].push(x):a.push([x]),a),[]).map(pr=>`<p class="bk-phrow" style="text-align:center;text-indent:0;margin:6pt 0 0">${pr.map(([id])=>`<img src="${imgs[id]}" alt="" style="width:${pr.length>1?"47%":"60%"};max-height:2.5in;object-fit:contain;margin:0 1%">`).join("")}</p><p style="text-align:center;text-indent:0;font-size:.9em;margin:0 0 6pt">${pr.map(([id,p])=>esc(p.cap||"")).join(" · ")}</p>`).join("")});
+  const map=prac.map(c=>{const ls=L.filter(l=>(l.courses||[]).includes(c.code)).map(l=>esc(l.name));return [c.code,esc(c.th),{t:`${c.p} ชม./สัปดาห์`,cls:"c"},ls.length?{h:ls.join(", ")}:{h:bkTodo("ยังไม่ระบุห้อง")}]}).map(r=>r.map(c=>typeof c==="string"?{h:c}:c));
+  h+=li(`<b>${pre}${L.length+1} รายวิชาที่มีชั่วโมงปฏิบัติและห้องปฏิบัติการที่ใช้</b>`)+bkT(map,["รหัสวิชา","ชื่อวิชา","ปฏิบัติ","ห้องปฏิบัติการ"],{w:"100%",cw:["14%","42%","14%","30%"]});
+  const lines=k=>String(info[k]||"").split("\n").map(s=>s.trim()).filter(Boolean);
+  return {labs:h,soft:lines("soft"),lib:lines("lib"),act:lines("act")}}
+async function labDocAssemble(){const fmt=bookFmt("h1");const ids=Object.keys(state.labPhotos||{});const imgs=await labImgsFor(ids);const d=labDocHtml(imgs);
+  const html=`<h2 class="bk-h big">บัญชีห้องปฏิบัติการ ครุภัณฑ์ และสิ่งสนับสนุนการเรียนรู้</h2><p style="text-align:center;text-indent:0">หลักสูตรวิศวกรรมศาสตรบัณฑิต สาขาวิชาวิศวกรรมเครื่องกล (หลักสูตรปรับปรุง พ.ศ. 2571)<br>ข้อมูล ณ วันที่ ${new Date().toLocaleDateString("th-TH",{dateStyle:"long"})}</p><h3>1. ห้องปฏิบัติการและวัสดุอุปกรณ์การทดลอง</h3>${d.labs}<h3>2. โปรแกรมสำเร็จรูป / ซอฟต์แวร์</h3>${d.soft.length?d.soft.map((t,i)=>`<p class="li">${i+1}) ${esc(t)}</p>`).join(""):`<p class="ind">${bkTodo("ยังไม่ได้กรอก")}</p>`}<h3>3. แหล่งบริการข้อมูลทางวิชาการ</h3>${d.lib.map(t=>`<p class="ind">${esc(t)}</p>`).join("")||`<p class="ind">${bkTodo("ยังไม่ได้กรอก")}</p>`}<h3>4. กิจกรรมพัฒนานักศึกษาอื่น ๆ</h3>${d.act.map(t=>`<p class="ind">${esc(t)}</p>`).join("")||`<p class="ind">${bkTodo("ยังไม่ได้กรอก")}</p>`}`;
+  const ps=await paginateHtml(html,fmt);return {pages:ps.map((p,i)=>`<div class="bk-pg" style="${pgCssVars(fmt)}"><div class="bk-pgc" style="position:absolute;left:${fmt.mL}in;top:${fmt.mT}in;width:calc(8.27in - ${fmt.mL}in - ${fmt.mR}in)">${p}</div><div class="bk-foot"><span>บัญชีห้องปฏิบัติการ หลักสูตร วศ.บ. วิศวกรรมเครื่องกล (ปรับปรุง พ.ศ. 2571) มทร.กรุงเทพ</span><span>${i+1}</span></div></div>`),slots:[]}}
+async function labFillImgs(){for(const im of document.querySelectorAll("img[data-labimg]")){if(im.src)continue;const id=im.dataset.labimg;try{const s=await labImg(id);if(s)im.src=s}catch(e){}}}
+document.addEventListener("click",async e=>{const b=e.target.closest&&e.target.closest("#labNew,#labSave,#labCancel,#labDel,#labAddRow,#labInfoSave,#labStaffSave,#labPrint,[data-labedit],[data-labphdel]");if(!b)return;
+  if(b.id==="labNew"){state.labEdit="new";render();return}
+  if(b.dataset.labedit){state.labEdit=b.dataset.labedit;render();setTimeout(()=>{const f=document.getElementById("labForm");f&&f.scrollIntoView({behavior:"smooth",block:"start"})},50);return}
+  if(b.id==="labCancel"){state.labEdit=null;render();return}
+  if(b.id==="labAddRow"){const tb=document.getElementById("labRows");const n=tb.children.length;const tr=tb.lastElementChild.cloneNode(true);tr.dataset.labrow=n;tr.querySelectorAll("input").forEach(i=>i.value="");tb.appendChild(tr);return}
+  if(b.id==="labSave"){const l=labFromForm();if(!l||!l.name){alert("ใส่ชื่อห้องปฏิบัติการก่อนบันทึก");return}state.labEdit=null;await labSave(l);return}
+  if(b.id==="labDel"){const f=document.getElementById("labForm");if(f)await labDel(f.dataset.id);return}
+  if(b.dataset.labphdel){await labPhotoDel(b.dataset.labphdel);return}
+  if(b.id==="labInfoSave"){const d={};document.querySelectorAll("[data-labinfo]").forEach(t=>d[t.dataset.labinfo]=t.value);d.at=new Date().toISOString();state.labInfo=d;render();await dbWrite(db=>db.doc("program/labinfo").set(d),"ข้อมูลประกอบ");return}
+  if(b.id==="labStaffSave"){const L=document.getElementById("labStaff").value.split(/[\s,;]+/).map(s=>s.trim().toLowerCase()).filter(s=>/@mail\.rmutk\.ac\.th$/.test(s));state.labStaff=L;render();await dbWrite(db=>db.doc("program/labstaff").set({emails:L,at:new Date().toISOString()}),"รายชื่อเจ้าหน้าที่");return}
+  if(b.id==="labPrint"){bookAllOpen({assemble:labDocAssemble,title:"บัญชีห้องปฏิบัติการและครุภัณฑ์",fname:"บัญชีห้องปฏิบัติการ-วศบ-เครื่องกล-2571"});return}});
+document.addEventListener("change",e=>{const t=e.target;if(!t||!t.dataset)return;if(t.dataset.labph){const f=t.files;const lid=t.dataset.labph;labAddPhotos(lid,f);t.value=""}else if(t.dataset.labcap){labCaption(t.dataset.labcap,t.value)}});
+window.labLoadPhotos=labLoadPhotos;setTimeout(labLoadPhotos,1600);
 function viewCheck(){
   const ev=evaluate(state.track);
   const all=["ME","EV","CE"].map(t=>{const e=evaluate(t);const f=e.out.flatMap(x=>x[1]);return [t,f.filter(x=>x.s==="fail").length,f.filter(x=>x.s==="warn").length,f.length]});
@@ -3225,11 +3324,11 @@ document.addEventListener("click",e=>{const t=e.target.closest("[data-regadd],[d
   if(t.dataset.regdel){R.items=(R.items||[]).filter(x=>x.id!==t.dataset.regdel);regSave();render()}});
 
 const NAV={design:{t:"ออกแบบหลักสูตร",s:"ช่วงร่างและเสนอ",tabs:[["needs","ก1","ที่มาของ PLO"],["plo","ก2","PLO · Sub-PLO · YLO"],["clo","ก3","CLO รายวิชา (ผู้สอน)"],["map","ก4","Curriculum Mapping"],["plan","ก5","โครงสร้างและแผนการเรียน"],["check","ก6","ตรวจเกณฑ์"]]},
-  manage:{t:"บริหารหลักสูตร",s:"ทุกภาคเรียน",tabs:[["struct","ข1","โครงสร้างหลักสูตรและอาจารย์"],["load","ข2","ภาระสอน"],["timetable","ข3","ตารางสอน"],["cv","ข4","ประวัติอาจารย์และผลงาน"],["transition","ข5","แผนเปลี่ยนผ่านหลักสูตร"]]},
-  book:{t:"เอกสารหลักสูตรและการรับรอง",s:"มทร.กรุงเทพ · สป.อว. · สภาวิศวกร",tabs:[["book","ค1","รายละเอียดหลักสูตร (มคอ.2)"],["tabee","ค2","ความพร้อม TABEE"],["sd","ค3","Self-Declaration (สภาวิศวกร)"]]},
+  manage:{t:"บริหารหลักสูตร",s:"ทุกภาคเรียน",tabs:[["struct","ข1","โครงสร้างหลักสูตรและอาจารย์"],["load","ข2","ภาระสอน"],["timetable","ข3","ตารางสอน"],["cv","ข4","ประวัติอาจารย์และผลงาน"],["transition","ข5","แผนเปลี่ยนผ่านหลักสูตร"],["lab","ข6","ห้องปฏิบัติการและครุภัณฑ์"]]},
+  book:{t:"เอกสารหลักสูตรและการรับรอง",s:"มทร.กรุงเทพ · สป.อว. · สภาวิศวกร",tabs:[["book","ค1","รายละเอียดหลักสูตร (มคอ.2)"],["sd","ค2","Self-Declaration (สภาวิศวกร)"],["tabee","ค3","ความพร้อม TABEE"]]},
   ref:{t:"กฎหมายและระเบียบ",s:"คลังอ้างอิง",tabs:[["regs","จ1","กฎหมาย ระเบียบ และประกาศ"]]},
   admin:{t:"ผู้ดูแลระบบ",s:"เฉพาะกรรมการหลักสูตร",adminOnly:true,tabs:[["monitor","ง1","ติดตามการเข้าระบบและการกรอก CLO"]]}};
-const VIEWS={tabee:viewTabee,sd:viewSd,regs:viewRegs,transition:viewTransition,cv:viewCv,monitor:viewMonitor,survey:viewSurvey,struct:viewStruct,needs:viewNeeds,plo:viewPlo,clo:viewClo,map:viewMap,plan:viewPlan,check:viewCheck,load:viewLoad,timetable:viewTimetable,book:viewBook};
+const VIEWS={tabee:viewTabee,sd:viewSd,lab:viewLab,regs:viewRegs,transition:viewTransition,cv:viewCv,monitor:viewMonitor,survey:viewSurvey,struct:viewStruct,needs:viewNeeds,plo:viewPlo,clo:viewClo,map:viewMap,plan:viewPlan,check:viewCheck,load:viewLoad,timetable:viewTimetable,book:viewBook};
 function tblock(){const el=document.getElementById("tblock");if(!el)return;let tot="";try{tot=Math.min(...Object.keys(TRACKS).map(t=>sumCr(trackCourses(t))))}catch(e){}
   el.innerHTML=`<div><small>หลักสูตรปรับปรุง</small><b>พ.ศ. 2571</b></div><div><small>หน่วยกิตรวม</small><b>${tot||"–"}</b></div><div><small>แขนงวิชา</small><b>${Object.keys(TRACKS).length}</b></div><div><small>เปิดสอน</small><b>1/2571</b></div>`}
 function render(){
@@ -3484,7 +3583,7 @@ function sbErr(e){const m=(e&&(e.message||e.msg))||String(e);return {code:/row-l
 function makeSbDb(){
   const listeners=[];let cache={};let loaded=false;
   async function refresh(){
-    const {data,error}=await sb.from("kv").select("collection,id,data").neq("collection","bookdocx");
+    const {data,error}=await sb.from("kv").select("collection,id,data").neq("collection","bookdocx").neq("collection","labphoto");
     if(error){state.msg="โหลดข้อมูลไม่สำเร็จ: "+error.message;render();return}
     const c={};data.forEach(r=>{(c[r.collection]=c[r.collection]||{})[r.id]=r.data});cache=c;loaded=true;listeners.forEach(l=>l());
   }
@@ -3492,7 +3591,7 @@ function makeSbDb(){
   const snapCol=c=>({docs:Object.entries(cache[c]||{}).map(([id,d])=>({id,data:()=>d}))});
   const sub=f=>{listeners.push(f);if(loaded)f()};
   sb.channel("kv-live").on("postgres_changes",{event:"*",schema:"public",table:"kv"},p=>{
-    const r=p.new&&p.new.collection?p.new:p.old;if(!r||!r.collection)return;if(r.collection==="bookdocx"){if(window.bkdLoadMeta)window.bkdLoadMeta();return}
+    const r=p.new&&p.new.collection?p.new:p.old;if(!r||!r.collection)return;if(r.collection==="bookdocx"){if(window.bkdLoadMeta)window.bkdLoadMeta();return}if(r.collection==="labphoto"){if(window.labLoadPhotos)window.labLoadPhotos();return}
     if(p.eventType==="DELETE"){if(cache[r.collection])delete cache[r.collection][r.id]}else (cache[r.collection]=cache[r.collection]||{})[r.id]=p.new.data;
     listeners.forEach(l=>l());
   }).subscribe();
@@ -3533,6 +3632,12 @@ function loginScreen(msg){
     get:async id=>{const {data,error}=await sb.from("kv").select("data").eq("collection","bookdocx").eq("id",id).maybeSingle();if(error)throw sbErr(error);return data&&data.data},
     put:async(id,d)=>{const {error}=await sb.from("kv").upsert({collection:"bookdocx",id,data:d});if(error)throw sbErr(error)},
     del:async id=>{const {error}=await sb.from("kv").delete().match({collection:"bookdocx",id});if(error)throw sbErr(error)}};
+  window.__labPhotoStore={ // รูปห้องปฏิบัติการ: โหลดเฉพาะเมื่อใช้
+    list:async()=>{const {data,error}=await sb.from("kv").select("id,lab:data->>lab,cap:data->>cap,at:data->>at,by:data->>by,w:data->w,h:data->h").eq("collection","labphoto");if(error)throw sbErr(error);const o={};(data||[]).forEach(r=>{o[r.id]={lab:r.lab,cap:r.cap,at:r.at,by:r.by,w:+r.w||0,h:+r.h||0}});return o},
+    get:async id=>{const {data,error}=await sb.from("kv").select("data").eq("collection","labphoto").eq("id",id).maybeSingle();if(error)throw sbErr(error);return data&&data.data},
+    put:async(id,d)=>{const {error}=await sb.from("kv").upsert({collection:"labphoto",id,data:d});if(error)throw sbErr(error)},
+    del:async id=>{const {error}=await sb.from("kv").delete().match({collection:"labphoto",id});if(error)throw sbErr(error)}};
+  if(window.labLoadPhotos)setTimeout(window.labLoadPhotos,400);
   if(window.bkdLoadMeta)setTimeout(window.bkdLoadMeta,300);
   const db=makeSbDb();state.db=db;const err=()=>{};
   try{const k="mecp_lastlog",t=+localStorage.getItem(k)||0;if(Date.now()-t>30*60*1000){sb.rpc("log_access").then(r=>{if(!r.error)localStorage.setItem(k,String(Date.now()))})}}catch(x){sb.rpc("log_access")}
@@ -3550,6 +3655,9 @@ function loginScreen(msg){
   db.doc("owners/map").onSnapshot(s=>{const d=s.exists?s.data():{};state.owners=aliasKeys(d.map,d.cv===5);softRender()},err);
   db.doc("owners/ext").onSnapshot(s=>{state.extOwners=aliasKeys((s.exists&&s.data().map)||{},true);softRender()},err);
   db.collection("cv").onSnapshot(s=>{const m={};s.docs.forEach(d=>{const x=d.data();if(x)m[d.id]=x});state.cv=m;softRender()},err);
+  db.collection("lab").onSnapshot(s=>{const m={};s.docs.forEach(d=>{const x=d.data();if(x)m[d.id]={...x,id:d.id}});state.labs=m;softRender()},err);
+  db.doc("program/labinfo").onSnapshot(s=>{state.labInfo=s.exists?s.data():{};softRender()},err);
+  db.doc("program/labstaff").onSnapshot(s=>{state.labStaff=((s.exists&&s.data().emails)||[]).map(x=>String(x).toLowerCase());softRender()},err);
   db.collection("survey").onSnapshot(s=>{const m={};s.docs.forEach(d=>{const x=d.data();if(x&&x.rows)m[d.id]=x});state.survey=m;softRender()},err);
   db.doc("program/intake").onSnapshot(s=>{const d=s.exists&&s.data();if(d&&d.ME!=null)state.intake={ME:+d.ME||0,EV:+d.EV||0,CE:+d.CE||0,rooms:+d.rooms||2,smbN:d.smbN!=null?+d.smbN:15,smbTrack:d.smbTrack||"ME"};softRender()},err);
   db.doc("program/bookedit").onSnapshot(s=>{const d=s.exists&&s.data();state.bookEdit=d?{logo:d.logo||"",logoH:d.logoH,f:d.f||{},html:d.html||{}}:null;softRender()},err);
