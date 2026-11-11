@@ -271,6 +271,60 @@ label.btnlike,label.sm{font-size:13px!important;border-radius:var(--r-ctl)!impor
 .lab-ph{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}.lab-ph figure{margin:0;width:180px}.lab-ph img{width:180px;height:130px;object-fit:cover;border-radius:6px;background:var(--soft);display:block}
 .lab-ph figcaption{display:flex;gap:4px;margin-top:4px;font-size:12px}.lab-ph figcaption input{flex:1;min-width:0;font-size:12px}
 .lab-add{width:180px;height:130px;border:1.5px dashed var(--line);border-radius:6px;display:grid;place-items:center;cursor:pointer;color:var(--muted);font-size:13px}.lab-add:hover{border-color:var(--accent);color:var(--accent)}
+/* ===== สีประจำหมวด ก–จ: แต่ละหมวดมีสีของตัวเอง แถบสี 5 สีบนหัวเว็บคือรหัสหมวด ===== */
+:root{--c-design:#c0263b;--c-manage:#0b8793;--c-book:#4f46e5;--c-admin:#c2620a;--c-ref:#168a4a;
+ --s-design:#fde8eb;--s-manage:#dff5f6;--s-book:#ebeafe;--s-admin:#fdf0e2;--s-ref:#e2f6ea}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--c-design:#ff7a8e;--c-manage:#3fd3dd;--c-book:#a5a0ff;--c-admin:#ffb454;--c-ref:#5be08f;
+ --s-design:#3b1a21;--s-manage:#103538;--s-book:#25234a;--s-admin:#3a2810;--s-ref:#123722}}
+:root[data-theme="dark"]{--c-design:#ff7a8e;--c-manage:#3fd3dd;--c-book:#a5a0ff;--c-admin:#ffb454;--c-ref:#5be08f;
+ --s-design:#3b1a21;--s-manage:#103538;--s-book:#25234a;--s-admin:#3a2810;--s-ref:#123722}
+body{--ph:var(--c-design);--ph-soft:var(--s-design)}
+body[data-phase="manage"]{--ph:var(--c-manage);--ph-soft:var(--s-manage)}
+body[data-phase="book"]{--ph:var(--c-book);--ph-soft:var(--s-book)}
+body[data-phase="admin"]{--ph:var(--c-admin);--ph-soft:var(--s-admin)}
+body[data-phase="ref"]{--ph:var(--c-ref);--ph-soft:var(--s-ref)}
+body[data-phase]{--accent:var(--ph);--accent-soft:var(--ph-soft)}
+body{background:radial-gradient(1100px 420px at 0% -8%,var(--ph-soft),transparent 70%),radial-gradient(900px 360px at 100% 0%,color-mix(in srgb,var(--ph-soft) 70%,transparent),transparent 70%),var(--bg);background-attachment:fixed;transition:background-color .2s}
+/* หัวเว็บ: แถบรหัสสี 5 หมวด */
+header.top{position:relative;padding-top:6px;background-image:linear-gradient(90deg,var(--c-design) 0 20%,var(--c-manage) 20% 40%,var(--c-book) 40% 60%,var(--c-admin) 60% 80%,var(--c-ref) 80% 100%),linear-gradient(115deg,var(--ph-soft),var(--panel) 55%);background-size:100% 6px,100% 100%;background-repeat:no-repeat}
+header.top h1{color:var(--ink)}
+header.top .tblock b{color:var(--ph)}
+/* เมนูหลัก: ป้ายอักษรมีสีหมวดของตัวเองเสมอ */
+nav.phase a[data-ph="design"]{--c:var(--c-design);--cs:var(--s-design)}nav.phase a[data-ph="manage"]{--c:var(--c-manage);--cs:var(--s-manage)}nav.phase a[data-ph="book"]{--c:var(--c-book);--cs:var(--s-book)}nav.phase a[data-ph="admin"]{--c:var(--c-admin);--cs:var(--s-admin)}nav.phase a[data-ph="ref"]{--c:var(--c-ref);--cs:var(--s-ref)}
+nav.phase a b.pk{background:var(--c)!important;color:#fff!important;box-shadow:0 2px 6px color-mix(in srgb,var(--c) 35%,transparent)}
+nav.phase a:hover{background:var(--cs)!important}
+nav.phase a[aria-current="page"]{background:var(--c)!important;color:#fff!important}
+nav.phase a[aria-current="page"] b.pk{background:#fff!important;color:var(--c)!important;box-shadow:none}
+nav.phase a[aria-current="page"] .ptx span{color:#fff!important;opacity:.85}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) nav.phase a[aria-current="page"]{color:#10141a!important}:root:not([data-theme="light"]) nav.phase a[aria-current="page"] .ptx span{color:#10141a!important}:root:not([data-theme="light"]) nav.phase a[aria-current="page"] b.pk{background:#10141a!important}:root:not([data-theme="light"]) nav.phase a b.pk{color:#10141a!important}:root:not([data-theme="light"]) nav.phase a[aria-current="page"] b.pk{color:var(--c)!important}}
+/* แถบย่อย */
+nav.tabs a[aria-current="page"]{border-color:var(--ph);color:var(--ph)}
+nav.tabs a[aria-current="page"] b{background:var(--ph);color:#fff}
+nav.tabs a:hover{background:var(--ph-soft)}
+nav.tabs a b{background:var(--ph-soft);color:var(--ph)}
+/* กล่องสรุปตัวเลข */
+.sum .panel{border-top:4px solid var(--ph)!important;background:linear-gradient(180deg,var(--ph-soft),var(--panel) 75%)}
+.sum .big{color:var(--ph);font-weight:700}
+/* หัวข้อกล่อง */
+.panel>h2:first-child,.panel>h2{position:relative;padding-left:12px}
+.panel>h2::before{content:"";position:absolute;left:0;top:.18em;bottom:.18em;width:4px;border-radius:2px;background:var(--ph)}
+.panel{box-shadow:0 1px 2px rgba(20,30,45,.05),0 4px 14px rgba(20,30,45,.04)}
+/* ตาราง */
+th{background:var(--ph-soft)!important;color:var(--ink);border-bottom:2px solid color-mix(in srgb,var(--ph) 45%,transparent)!important}
+tbody tr:hover td,tr:hover>td{background:color-mix(in srgb,var(--ph-soft) 45%,transparent)}
+/* ป้ายสถานะสดขึ้น */
+.pill.pass{background:var(--pass-bg);color:var(--pass);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pass) 30%,transparent)}
+.pill.warn{background:var(--warn-bg);color:var(--warn);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--warn) 30%,transparent)}
+.pill.fail{background:var(--fail-bg);color:var(--fail);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--fail) 30%,transparent)}
+/* ปุ่ม */
+button.primary{background:linear-gradient(180deg,color-mix(in srgb,var(--ph) 88%,#fff),var(--ph));border-color:var(--ph);color:#fff;box-shadow:0 2px 8px color-mix(in srgb,var(--ph) 30%,transparent)}
+button:not(.primary):hover:not(:disabled){background:var(--ph-soft);border-color:color-mix(in srgb,var(--ph) 45%,var(--line))}
+/* แถบขั้นตอน */
+.flow span.on{background:var(--ph);color:#fff}
+.flow span{background:var(--ph-soft);color:color-mix(in srgb,var(--ph) 70%,var(--ink))}
+.note{border-left-color:var(--ph)}
+a{color:var(--ph)}
+:focus-visible{outline-color:var(--ph)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 @media print{header.top,nav.phase,nav.tabs{display:none}}
 </style>
@@ -1543,7 +1597,8 @@ function bkdBar(sec,adm){const m=bkdMeta()[sec];const when=m?new Date(m.at).toLo
    <span class="small"><b>แก้ใน Word:</b> ดาวน์โหลด .docx ส่วนนี้ → ปรับตำแหน่งหรือเพิ่มข้อความ → อัปโหลดกลับ ระบบจะแสดงและพิมพ์ส่วนนี้จากไฟล์ Word</span>
    ${adm?`<label class="sm btnlike" style="cursor:pointer;border:1px solid var(--line);border-radius:8px;padding:4px 10px;background:var(--surface,#fff)">อัปโหลด .docx ของส่วนนี้<input type="file" data-bkdup="${sec}" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden></label>`:""}
    ${m?`<span class="pill ${m.on!==false?"pass":""}">${m.on!==false?"กำลังใช้":"ไม่ได้ใช้"} ${esc(m.name)} · ${m.pages||"?"} หน้า · ${esc(when)}${m.by?" · "+esc(m.by.split("@")[0]):""}</span><button class="sm" data-bkddl="${sec}">ดาวน์โหลดไฟล์นี้</button>${adm?`<button class="sm" data-bkdon="${sec}">${m.on!==false?"แสดงข้อมูลจากระบบแทน":"ใช้ไฟล์ Word นี้"}</button><button class="sm" data-bkddel="${sec}">ลบไฟล์</button>`:""}`:""}
-  </div>${m&&m.on!==false?`<p class="small muted" style="margin:-4px 0 8px">ข้อมูลที่แก้ในระบบภายหลังจะไม่ปรากฏในส่วนนี้จนกว่าจะดาวน์โหลด .docx ใหม่ แก้ แล้วอัปโหลดอีกครั้ง หรือกด "แสดงข้อมูลจากระบบแทน"</p>`:""}`}
+  </div>${(()=>{if(!(m&&m.on!==false&&["h1","h3","apx"].includes(sec)))return "";const nw=Object.entries(state.cv||{}).filter(([id,c])=>c&&c.at&&c.at>m.at).map(([id])=>((state.faculty||[]).find(f=>f.id===id)||{}).name).filter(Boolean);
+    return nw.length?`<div class="note" role="status" style="margin:0 0 8px"><b>ประวัติอาจารย์ในระบบใหม่กว่าไฟล์ Word นี้ ${nw.length} คน</b> (${nw.map(n=>esc(shortName(n))).join(", ")}) ส่วนนี้ยังแสดงข้อมูลเดิมจากไฟล์ Word กด "แสดงข้อมูลจากระบบแทน" เพื่อใช้ข้อมูลล่าสุด หรือดาวน์โหลด .docx ส่วนนี้ใหม่ แก้ แล้วอัปโหลดกลับ</div>`:""})()}${m&&m.on!==false?`<p class="small muted" style="margin:-4px 0 8px">ข้อมูลที่แก้ในระบบภายหลังจะไม่ปรากฏในส่วนนี้จนกว่าจะดาวน์โหลด .docx ใหม่ แก้ แล้วอัปโหลดอีกครั้ง หรือกด "แสดงข้อมูลจากระบบแทน"</p>`:""}`}
 async function bkdPreview(sec,box){const inf=document.getElementById("bkPgInfo");try{box.innerHTML='<div class="note">กำลังเปิดไฟล์ Word…</div>';const st=document.getElementById("bkdStyle")||Object.assign(document.head.appendChild(document.createElement("div")),{id:"bkdStyle"});
   const holder=document.createElement("div");const n=await bkdRenderInto(sec,holder,st);box.innerHTML=`<style>${BKD_CSS}</style>`;box.appendChild(holder);if(inf)inf.textContent=`ส่วนนี้ใช้ไฟล์ Word ${n} หน้า ·`;const m=bkdMeta()[sec];if(m&&m.pages!==n)m.pages=n}
   catch(e){box.innerHTML='<div class="note">เปิดไฟล์ Word ไม่สำเร็จ: '+esc(e&&e.message||String(e))+'</div>'}}
@@ -3340,7 +3395,7 @@ function tblock(){const el=document.getElementById("tblock");if(!el)return;let t
   el.innerHTML=`<div><small>หลักสูตรปรับปรุง</small><b>พ.ศ. 2571</b></div><div><small>หน่วยกิตรวม</small><b>${tot||"–"}</b></div><div><small>แขนงวิชา</small><b>${Object.keys(TRACKS).length}</b></div><div><small>เปิดสอน</small><b>1/2571</b></div>`}
 function render(){
   tblock();
-  const phL=v=>(v.tabs[0][1]||"").replace(/\d+$/,"");document.getElementById("phase").innerHTML=Object.entries(NAV).filter(([k,v])=>!v.adminOnly||state.isAdmin).sort((x,y)=>phL(x[1]).localeCompare(phL(y[1]),"th")).map(([k,v])=>`<a href="#${k}/${v.tabs[0][0]}" aria-current="${state.phase===k?"page":"false"}"><b class="pk">${phL(v)}</b><span class="ptx">${v.t}<span>${v.s}</span></span></a>`).join("");
+  document.body.dataset.phase=state.phase;const phL=v=>(v.tabs[0][1]||"").replace(/\d+$/,"");document.getElementById("phase").innerHTML=Object.entries(NAV).filter(([k,v])=>!v.adminOnly||state.isAdmin).sort((x,y)=>phL(x[1]).localeCompare(phL(y[1]),"th")).map(([k,v])=>`<a href="#${k}/${v.tabs[0][0]}" data-ph="${k}" aria-current="${state.phase===k?"page":"false"}"><b class="pk">${phL(v)}</b><span class="ptx">${v.t}<span>${v.s}</span></span></a>`).join("");
   const ac=alertCount();document.getElementById("tabs").innerHTML=NAV[state.phase].tabs.map(([k,n,t])=>`<a href="#${state.phase}/${k}" aria-current="${(state.view==="survey"?"needs":state.view)===k?"page":"false"}"><b>${n}</b>${t}${k==="clo"&&ac?` <span class="pill fail" title="วิชาที่ CLO ไม่สอดรับกับ PLO">${ac}</span>`:""}</a>`).join("");
   document.getElementById("view").innerHTML=(state.msg?`<div class="note" role="status">${esc(state.msg)}</div>`:"")+VIEWS[state.view]();
   requestAnimationFrame(drawMM);
