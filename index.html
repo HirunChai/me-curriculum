@@ -59,7 +59,8 @@
 .mmx-plo.on{border-color:var(--accent)}
 .mmx-plo .n{flex:none;background:var(--accent);color:var(--panel);border-radius:999px;padding:2px 8px;font-weight:700;font-size:11.5px}
 .mmx-plo .c{margin-left:auto;color:var(--muted);font-size:11px;white-space:nowrap}
-@media (max-width:820px){.mmx{grid-template-columns:1fr;gap:12px}.mmx svg{display:none}.mmx-hub{order:-1}}
+.mmx-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}.mmx-hint{display:none}
+@media (max-width:820px){.mmx{width:max-content;grid-template-columns:230px 270px 230px;gap:18px 44px}.mmx-plo{border-radius:14px}.mmx-hint{display:block}}
 /* org chart ข1 */
 .org{--t-ME:#2f5f9e;--t-EV:#b4552a;--t-CE:#2f7d3a;position:relative;padding:4px 0 0}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .org{--t-ME:#8fb4ea;--t-EV:#f0a37c;--t-CE:#7fd08a}}
@@ -790,7 +791,7 @@ const CLO0={
 "4-112-311":[["วิเคราะห์การใช้พลังงานของระบบหลักในอาคารควบคุมและโรงงานควบคุม เช่น ระบบปรับอากาศ หม้อไอน้ำ ระบบอากาศอัด และระบบแสงสว่าง", ["K3-5"], "Analyze", "R", "สอบ / กรณีศึกษา"], ["วัดและตรวจวิเคราะห์การใช้พลังงานตามแนวทางการตรวจสอบพลังงาน และตีความข้อมูลการวัด", ["S4-3"], "Apply", "R", "รายงานการตรวจวัด"], ["ประเมินมาตรการอนุรักษ์พลังงานด้วยระยะเวลาคืนทุนและความคุ้มค่า", ["S5-2"], "Evaluate", "R", "รายงานมาตรการอนุรักษ์พลังงาน"], ["จัดทำรายงานการจัดการพลังงานตามรูปแบบที่กฎหมายกำหนด", ["S5-3"], "Apply", "R", "รายงานการจัดการพลังงาน"], ["อธิบายข้อกำหนดตาม พ.ร.บ.การส่งเสริมการอนุรักษ์พลังงาน และหน้าที่ของผู้รับผิดชอบด้านพลังงาน", ["E6-1"], "Understand", "I", "แบบทดสอบ"]]
 };
 
-const APP_VER="รุ่น 11 พ.ย. 2569 (17:00)";
+const APP_VER="รุ่น 11 พ.ย. 2569 (18:10)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -1150,11 +1151,11 @@ function mindMap(na){
   const per=PLOS.map(p=>new Set(links.filter(l=>l.p===p.n&&!l.pend).map(l=>l.g)).size);
   state.mmLinks=links;
   return `<section class="panel"><h2>Mind map ที่มาของ PLOs</h2><p class="small muted" style="margin:0 0 12px">เส้นโยงจากแหล่งที่มาไปยัง PLO ความหนาของเส้นตามจำนวนรายการ เส้นประคือแหล่งที่ยังรอผล ชี้ที่กล่องหรือ PLO เพื่อเน้นเส้นที่เกี่ยวข้อง</p>
-   <div class="mmx" id="mmx"><svg aria-hidden="true"></svg>
+   <p class="small muted mmx-hint" style="margin:0 0 6px">↔ เลื่อนซ้าย–ขวาเพื่อดู mind map ทั้งภาพ</p><div class="mmx-wrap"><div class="mmx" id="mmx"><svg aria-hidden="true"></svg>
     <div class="mmx-col">${left}</div>
     <div class="mmx-hub"><div class="ttl">PLOs ${PLOS.length} ข้อ</div>${PLOS.map((p,i)=>`<div class="mmx-plo" data-mmp="${p.n}"><span class="n">PLO${p.n}</span><span>${esc(PLO_SHORT[p.n]||"")}</span><span class="c">${per[i]} แหล่ง</span></div>`).join("")}</div>
     <div class="mmx-col">${right}</div>
-   </div>
+   </div></div>
    <div class="row small muted" style="margin-top:12px;gap:14px"><span><i class="lg k-meet"></i>มติที่ประชุม</span><span><i class="lg k-pol"></i>นโยบายและแผน</span><span><i class="lg k-acc"></i>ข้อกำหนดรับรอง</span><span><i class="lg k-sur"></i>ผลสำรวจผู้มีส่วนได้ส่วนเสีย</span><span><i class="lg k-wait"></i>ยังรอผล</span><span>คลิกกล่องเพื่อไปที่แถวในตาราง</span></div></section>`;
 }
 function drawMM(){
