@@ -3705,7 +3705,7 @@ function loginScreen(msg){
   if(window.labLoadPhotos)setTimeout(window.labLoadPhotos,400);
   if(window.bkdLoadMeta)setTimeout(window.bkdLoadMeta,300);
   const db=makeSbDb();state.db=db;const err=()=>{};
-  try{const k="mecp_lastlog",t=+localStorage.getItem(k)||0;if(Date.now()-t>30*60*1000){sb.rpc("log_access").then(r=>{if(!r.error)localStorage.setItem(k,String(Date.now()))})}}catch(x){sb.rpc("log_access")}
+  try{const k="mecp_lastlog:"+email,t=+localStorage.getItem(k)||0;if(Date.now()-t>30*60*1000){sb.rpc("log_access").then(r=>{if(!r.error)localStorage.setItem(k,String(Date.now()))})}}catch(x){sb.rpc("log_access")}
   if(state.isAdmin)window.__adminActivity=async()=>{
     const [l,a]=await Promise.all([sb.from("access_log").select("email,at").order("at",{ascending:false}).limit(3000),
       sb.from("audit_log").select("email,at,doc_id,code:data->>code").eq("collection","clo").order("at",{ascending:false}).limit(3000)]);
