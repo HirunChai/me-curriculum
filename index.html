@@ -333,6 +333,8 @@ a{color:var(--ph)}
 .upd-box section{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}.upd-box h3{margin:0 0 6px;font-size:14px}
 .upd-form{display:grid;gap:6px;margin:6px 0 10px}.upd-form input,.upd-form textarea{width:100%}.upd-form button{justify-self:start}
 @media (max-width:640px){.userbar .upd-last{white-space:normal}}
+.ks-tbl{border-collapse:collapse;font-size:12.5px;min-width:1100px}.ks-tbl th,.ks-tbl td{border:1px solid var(--line);padding:4px 5px;vertical-align:middle}.ks-tbl th.ks{width:26px;font-size:11px}.ks-tbl td.c{text-align:center;font-weight:700;color:var(--accent)}
+.ks-tbl tr.ks-sem td,.ks-book tr.ks-sem td{background:var(--soft)}.ks-tbl td.ks-est,.ks-book td.ks-est{font-style:italic;font-weight:400;opacity:.7}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 @media print{header.top,nav.phase,nav.tabs{display:none}}
 </style>
@@ -374,14 +376,14 @@ C("0-124-005","กิจกรรมทางกายเพื่อสุข�
 C("0-125-006","ก้าวทันเทคโนโลยีดิจิทัล",3,3,0,6,"GE",A,"Y2S2","EXT","",{1:"R",6:"I"}),
 C("GE-7","วิชาเลือกในหมวดวิชาศึกษาทั่วไป 1",3,3,0,6,"GE",A,"Y3S1","EXT","",{1:"M"}),
 C("GE-8","วิชาเลือกในหมวดวิชาศึกษาทั่วไป 2",3,3,0,6,"GE",A,"Y3S2","EXT","",{1:"M"}),
-C("2-110-152","เคมีสำหรับวิศวกร",3,3,0,6,"MS",A,"Y1S1","EXT","",{2:"M"}),
-C("2-110-153","ปฏิบัติการเคมีสำหรับวิศวกร",1,0,3,0,"MS",A,"Y1S1","EXT","",{2:"M"}),
-C("2-131-101","ฟิสิกส์สำหรับวิศวกร 1",3,3,0,6,"MS",A,"Y1S1","EXT","",{2:"M"}),
-C("2-131-102","ปฏิบัติการฟิสิกส์สำหรับวิศวกร 1",1,0,3,0,"MS",A,"Y1S1","EXT","",{2:"M"}),
-C("2-131-103","ฟิสิกส์สำหรับวิศวกร 2",3,3,0,6,"MS",A,"Y1S2","EXT","",{2:"M"}),
-C("2-131-104","ปฏิบัติการฟิสิกส์สำหรับวิศวกร 2",1,0,3,0,"MS",A,"Y1S2","EXT","",{2:"M"}),
-C("2-212-106","แคลคูลัสสำหรับวิศวกร 1",3,3,0,6,"MS",A,"Y1S1","EXT","",{2:"M"}),
-C("2-212-107","แคลคูลัสสำหรับวิศวกร 2",3,3,0,6,"MS",A,"Y1S2","EXT","",{2:"M"}),
+C("2-110-152","เคมีสำหรับวิศวกร",3,3,0,6,"MS",A,"Y1S1","EXT","",{2:"I"}),
+C("2-110-153","ปฏิบัติการเคมีสำหรับวิศวกร",1,0,3,0,"MS",A,"Y1S1","EXT","",{2:"I"}),
+C("2-131-101","ฟิสิกส์สำหรับวิศวกร 1",3,3,0,6,"MS",A,"Y1S1","EXT","",{2:"I"}),
+C("2-131-102","ปฏิบัติการฟิสิกส์สำหรับวิศวกร 1",1,0,3,0,"MS",A,"Y1S1","EXT","",{2:"I"}),
+C("2-131-103","ฟิสิกส์สำหรับวิศวกร 2",3,3,0,6,"MS",A,"Y1S2","EXT","",{2:"I"}),
+C("2-131-104","ปฏิบัติการฟิสิกส์สำหรับวิศวกร 2",1,0,3,0,"MS",A,"Y1S2","EXT","",{2:"I"}),
+C("2-212-106","แคลคูลัสสำหรับวิศวกร 1",3,3,0,6,"MS",A,"Y1S1","EXT","",{2:"I"}),
+C("2-212-107","แคลคูลัสสำหรับวิศวกร 2",3,3,0,6,"MS",A,"Y1S2","EXT","",{2:"I"}),
 C("4-110-201","คณิตศาสตร์สำหรับวิศวกรรมเครื่องกล",3,3,0,6,"MS",A,"Y2S1","ME","math",{3:"R"}),
 C("4-110-202","ความน่าจะเป็นและสถิติสำหรับวิศวกร",3,3,0,6,"MS",A,"Y2S2","ME","math",{3:"R",4:"I"},[],{proposed:true}),
 C("4-116-310","ระเบียบวิธีเชิงตัวเลขและการวิเคราะห์ด้วยคอมพิวเตอร์ในงานวิศวกรรม",3,2,3,4,"MS",A,"Y3S1","ME","math",{3:"R",4:"R"},["machdesign"],{proposed:true,force:true}),
@@ -805,7 +807,7 @@ const CLO0={
 "4-112-311":[["วิเคราะห์การใช้พลังงานของระบบหลักในอาคารควบคุมและโรงงานควบคุม เช่น ระบบปรับอากาศ หม้อไอน้ำ ระบบอากาศอัด และระบบแสงสว่าง", ["K3-5"], "Analyze", "R", "สอบ / กรณีศึกษา"], ["วัดและตรวจวิเคราะห์การใช้พลังงานตามแนวทางการตรวจสอบพลังงาน และตีความข้อมูลการวัด", ["S4-3"], "Apply", "R", "รายงานการตรวจวัด"], ["ประเมินมาตรการอนุรักษ์พลังงานด้วยระยะเวลาคืนทุนและความคุ้มค่า", ["S5-2"], "Evaluate", "R", "รายงานมาตรการอนุรักษ์พลังงาน"], ["จัดทำรายงานการจัดการพลังงานตามรูปแบบที่กฎหมายกำหนด", ["S5-3"], "Apply", "R", "รายงานการจัดการพลังงาน"], ["อธิบายข้อกำหนดตาม พ.ร.บ.การส่งเสริมการอนุรักษ์พลังงาน และหน้าที่ของผู้รับผิดชอบด้านพลังงาน", ["E6-1"], "Understand", "I", "แบบทดสอบ"]]
 };
 
-const APP_VER="รุ่น 18 พ.ย. 2569 (17:40)";
+const APP_VER="รุ่น 18 พ.ย. 2569 (18:10)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -1440,7 +1442,7 @@ function bookSecHtml(id){
     const map=all.filter(c=>/^\d-\d{3}-\d{3}$/.test(c.code)).sort((a,b)=>(a.g==="GE"?0:1)-(b.g==="GE"?0:1)||TERMS.indexOf(a.term)-TERMS.indexOf(b.term)).filter((c,i,s)=>s.findIndex(x=>x.code===c.code)===i).map(c=>{const m=ploOf(c).map||{};return [c.code,c.th,...plos.map(p=>({t:m[p.n]||"",cls:"c"}))]});
     return `${H("หมวดที่ 4 การจัดกระบวนการเรียนรู้")}${h3("1. การพัฒนาคุณลักษณะพิเศษของนักศึกษา")}${bkT([["ทักษะปฏิบัติงานวิศวกรรมในแขนงเฉพาะทาง","วิชาปฏิบัติงานแขนงปีที่ 2 การประลองแขนงปีที่ 4 และสหกิจศึกษาตรงแขนง"],["ใช้เครื่องมือและซอฟต์แวร์วิศวกรรมสมัยใหม่","CAD/CAE ในวิชาออกแบบและโครงงาน"],["ความพร้อมสอบใบอนุญาต กว.","จัดวิชาครบตามเกณฑ์สภาวิศวกร และติวสอบก่อนสำเร็จการศึกษา"]],["คุณลักษณะพิเศษ","กลยุทธ์หรือกิจกรรม"])}
     ${h3("2. การออกแบบการจัดกระบวนการเรียนรู้และการประเมินผล")}${bkT(plos.map(p=>[`PLO ${p.n} ${p.t}`,{h:String(p.d).split(/,\s*/).map(d=>"- "+esc(STR[d]||"")).join("<br>")},asm(p)]),["PLOs","กลยุทธ์การจัดการเรียนรู้","วิธีการประเมินผล"],{w:"100%"})}
-    ${h3("3. แผนที่กระจายความรับผิดชอบของผลลัพธ์การเรียนรู้สู่รายวิชา (Curriculum Mapping)")}${bkT(map,["รหัสวิชา","รายวิชา",...plos.map(p=>"PLO"+p.n)],{w:"100%"})}<p class="small-note">I = แนะนำ · R = ฝึกซ้ำ · M = ประเมินการบรรลุ</p>
+    ${h3("3. แผนที่กระจายความรับผิดชอบของผลลัพธ์การเรียนรู้สู่รายวิชา (Curriculum Mapping)")}${bkT(map,["รหัสวิชา","รายวิชา",...plos.map(p=>"PLO"+p.n)],{w:"100%"})}<p class="small-note">I = แนะนำ · R = ฝึกซ้ำ · M = ประเมินการบรรลุ</p>${ksecBookHtml()}
     ${h3("4. แผนการศึกษาและการกระจายความรับผิดชอบของผลลัพธ์การเรียนรู้ของหลักสูตร ลงสู่รายวิชาและผลลัพธ์การเรียนรู้ระดับรายชั้นปี")}${studyPlanYloHtml()}${h3("5. องค์ประกอบเกี่ยวกับประสบการณ์ภาคสนาม (สหกิจศึกษา)")}${clos("4-116-302").map((x,i)=>li(`${i+1}) ${esc(x.t)}`)).join("")}${h3("6. ข้อกำหนดเกี่ยวกับการทำโครงงาน")}${ind(BFh("proj"))}`;
   }
   if(id==="h5"){
@@ -1701,7 +1703,7 @@ async function bookPrint(all){
 }
 const YEAR_TXT="2571";
 const PAGE_CSS=`.bk-pg{position:relative;width:8.27in;height:11.69in;background:#fff;margin:0 auto 18px;box-shadow:0 1px 5px rgba(0,0,0,.25);overflow:hidden;box-sizing:border-box}.bk-foot{position:absolute;left:1in;right:1in;bottom:.45in;display:flex;justify-content:space-between;font-size:11pt;border-top:1px solid #555;padding-top:2px;color:#000}`;
-const BOOK_CSS=`.bk-view{font-family:var(--bk-font);font-size:var(--bk-body);line-height:var(--bk-line);color:#000}
+const BOOK_CSS=`table.ks-book{font-size:8pt;width:100%;table-layout:fixed;margin-bottom:10pt}table.ks-book th,table.ks-book td{padding:1pt 2pt!important;text-align:center}table.ks-book td:nth-child(1){font-family:inherit;white-space:nowrap;font-size:7.5pt}table.ks-book td:nth-child(2),table.ks-book td:nth-child(3){text-align:left}table.ks-book tr.ks-sem td{text-align:left;background:#e8e8e8}table.ks-book td.ks-est{font-style:italic}.bk-view{font-family:var(--bk-font);font-size:var(--bk-body);line-height:var(--bk-line);color:#000}
 .bk-view p{margin:0 0 var(--bk-pafter,2pt);text-align:left}.bk-view .ind{text-indent:.5in;text-align:justify}.bk-view .li{padding-left:.5in}.bk-view .li2{padding-left:1in}
 .bk-view h2.bk-h{font-size:1em;font-weight:700;text-align:center;margin:.4em 0 .6em}.bk-view h2.big{font-size:1.25em}.bk-view h3{font-size:1em;font-weight:700;margin:var(--bk-hbefore,8pt) 0 .2em}
 .bk-view table.bk-t{border-collapse:collapse;margin:.3em auto .6em;font-size:var(--bk-table);line-height:1.1;page-break-inside:auto}.bk-view .bk-t th,.bk-view .bk-t td{border:1px solid #000;padding:2px 5px;vertical-align:top}.bk-view .bk-t th{background:#e7e6e6;text-align:center;font-size:inherit;font-weight:700;color:#000;text-transform:none;letter-spacing:0;white-space:normal}.bk-view .bk-t td.c{text-align:center}.bk-view .bk-t td.r{text-align:right}.bk-view .bk-t td.b{font-weight:700}.bk-view .bk-t td.grp{background:#f2f2f2;font-weight:700}.bk-view tr{break-inside:avoid}
@@ -2073,6 +2075,31 @@ function viewClo(){
   ${alerts.length?`<section class="panel" style="border-color:var(--fail)"><h2>แจ้งเตือนถึงกรรมการหลักสูตร · ${alerts.length} วิชาไม่สอดรับ</h2>${alerts.map(o=>`<div class="row small" style="gap:8px;margin:4px 0"><span class="mono">${esc(o.x.code)}</span><span>${esc(o.x.th)}</span><span class="muted">${esc(facName(ownerOf(o.x.code)))||"ยังไม่กำหนดผู้รับผิดชอบ"}</span>${pill("fail",o.s.t)}<button class="sm" data-opencourse="${esc(o.x.code)}">เปิดดู</button></div>`).join("")}</section>`:""}
   ${claimPanel()}${cloTodoPanel(all,gs)}${editor}${list}`;
 }
+// ---- ตาราง PLO × KSEC รายชั้นปี (รูปแบบเล่ม มคอ.2) ----
+const KSEC=["K","S","E","C"];
+function courseKsec(c){const out={};const L=clos(c.code);
+  if(L.length){L.forEach(x=>(x.subs||[]).forEach(s=>{const sb=subOf(s);if(!sb)return;const k=sb.plo+":"+(sb.dom||String(s)[0]);if(!out[k]||LV_RANK[x.lv]>LV_RANK[out[k].lv])out[k]={lv:x.lv||"●",est:false}}));return out}
+  Object.entries(c.plo||{}).forEach(([n,lv])=>{const p=PLOS.find(x=>x.n===+n);String(p&&p.d||"K").split(/,\s*/).forEach(d=>{out[n+":"+d]={lv,est:true}})});return out}
+function ksecYears(){const real=c=>/^\d-\d{3}-\d{3}$/.test(c.code)&&!(c.fl&&(c.fl.pool||c.fl.slot));const seen={};
+  Object.keys(TRACKS).forEach(t=>trackCourses(t).filter(real).forEach(c=>{const s=seen[c.code]||(seen[c.code]={c,trs:[]});s.trs.push(t)}));
+  const all=Object.values(seen),nT=Object.keys(TRACKS).length;
+  return [1,2,3,4].map(y=>({y,sems:[["S1","ภาคการศึกษาที่ 1"],["S2","ภาคการศึกษาที่ 2"],["SS","ภาคฤดูร้อน"]].map(([k,t])=>({t,rows:all.filter(x=>x.c.term==="Y"+y+k).sort((a,b)=>a.c.code.localeCompare(b.c.code))})).filter(s=>s.rows.length),nT}))}
+const KS_GRP={GE:"ศึกษาทั่วไป",MS:"คณิต–วิทย์",EB:"พื้นฐานวิศวกรรม",CORE:"บังคับร่วม",TR:"บังคับแขนง",TE:"ชีพเลือก",EXP:"ประสบการณ์",FREE:"เลือกเสรี"};
+const ksecGrp=x=>{const g=KS_GRP[x.c.g]||GROUPS[x.c.g]||x.c.g;return x.c.g==="TR"&&x.trs.length<x.nT?g+" "+x.trs.map(t=>TR_AB[t]||t).join("/"):g};
+function ksecTableHtml(Y,book){const plos=PLOS,cols=plos.length*4;
+  const th=`<thead><tr><th colspan="${3+cols}" class="c">ปีการศึกษาที่ ${Y.y}</th></tr><tr><th rowspan="2" style="width:${book?"9%":"90px"}">รหัสวิชา</th><th rowspan="2" style="width:${book?"20%":"220px"}">ชุดวิชา/รายวิชา</th><th rowspan="2" style="width:${book?"9%":"110px"}">กลุ่มวิชา</th>${plos.map(p=>`<th colspan="4" class="c">PLO ${p.n}</th>`).join("")}</tr><tr>${plos.map(()=>KSEC.map(d=>`<th class="c ks">${d}</th>`).join("")).join("")}</tr></thead>`;
+  const body=Y.sems.map(s=>`<tr class="ks-sem"><td colspan="${3+cols}"><b>${s.t}</b></td></tr>`+s.rows.map(x=>{const m=courseKsec(x.c);return `<tr><td class="mono">${esc(x.c.code)}</td><td>${esc(x.c.th)}</td><td class="small">${esc(ksecGrp({...x,nT:Y.nT}))}</td>${plos.map(p=>KSEC.map(d=>{const v=m[p.n+":"+d];return `<td class="c${v&&v.est?" ks-est":""}">${v?esc(v.lv):""}</td>`}).join("")).join("")}</tr>`}).join("")).join("");
+  const cg=book?`<colgroup><col style="width:11%"><col style="width:21%"><col style="width:9%">${"<col>".repeat(cols)}</colgroup>`:"";
+  return `<table class="${book?"bk-t ks-book":"ks-tbl"}">${cg}${th}<tbody>${body}</tbody></table>`}
+const KSEC_NOTE="I = แนะนำ · R = ฝึกซ้ำ · M = ประเมินการบรรลุ · K = ด้านความรู้ S = ด้านทักษะ E = ด้านจริยธรรม C = ด้านคุณลักษณะ · ระบุตาม Sub-PLO ที่ CLO ของรายวิชารับผิดชอบ (ตัวเอียง = ระดับตั้งต้นของหลักสูตร รายวิชายังไม่มี CLO)";
+function ksecBookHtml(){return `<p class="li"><b>ตารางแสดงความรับผิดชอบของรายวิชาต่อผลลัพธ์การเรียนรู้ของหลักสูตร จำแนกตามผลลัพธ์การเรียนรู้ 4 ด้าน (KSEC) รายชั้นปี</b></p>`+ksecYears().map(Y=>ksecTableHtml(Y,true)).join("")+`<p class="small-note">${KSEC_NOTE}</p>`}
+function ksecPanel(){const Ys=ksecYears();const y=state.ksecY||1;const Y=Ys.find(x=>x.y===y)||Ys[0];
+  const est=Ys.flatMap(Y=>Y.sems.flatMap(s=>s.rows)).filter(x=>!clos(x.c.code).length);
+  return `<section class="panel" id="ksecPanel"><div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:8px"><h2 style="margin:0">ตาราง PLO × KSEC รายชั้นปี (รูปแบบเล่ม มคอ.2)</h2><div class="row" style="gap:6px">${Ys.map(x=>`<button class="sm${x.y===Y.y?" primary":""}" data-ksecy="${x.y}">ปี ${x.y}</button>`).join("")}</div></div>
+   <p class="small muted">ตารางนี้อยู่ในเล่ม มคอ.2 หมวด 4 ต่อจากข้อ 3 Curriculum Mapping · สร้างจาก CLO ใน ก3 และ Sub-PLO ใน ก2 อัตโนมัติ ${est.length?`· ${est.length} วิชายังไม่มี CLO แสดงระดับตั้งต้นแบบตัวเอียง: ${est.map(x=>x.c.code).join(", ")}`:""}</p>
+   <div class="scroll">${ksecTableHtml(Y,false)}</div><p class="small muted">${KSEC_NOTE}</p></section>`}
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-ksecy]");if(!b)return;state.ksecY=+b.dataset.ksecy;render();requestAnimationFrame(()=>{const p=document.getElementById("ksecPanel");if(p)p.scrollIntoView({block:"start"})})});
+
 function viewMap(){
   const ca=cloAnalysis(state.track);
   const seqRow=x=>`<tr><td><b>PLO${x.p.n}</b></td><td class="small">${x.fI!==null?TERM_TH[TERMS[x.fI]]:"—"}</td><td class="small">${x.fR!==null?TERM_TH[TERMS[x.fR]]:"—"}</td><td class="small">${x.fM!==null?TERM_TH[TERMS[x.fM]]:"—"}</td><td class="r num">${x.n}</td><td>${x.fM===null?pill("fail","ไม่มี M"):x.ok?(x.self?pill("pass","ผ่าน · วิชาพื้นฐานของคณะ พัฒนาและประเมินในรายวิชา"):pill("pass")):pill("warn","M มาก่อน I/R")}</td></tr>`;
@@ -2085,6 +2112,7 @@ function viewMap(){
   <section class="panel"><h2>ลำดับการพัฒนา PLO · แขนง${TRACKS[state.track]}</h2><div class="scroll"><table><tr><th>PLO</th><th>I ครั้งแรก</th><th>R ครั้งแรก</th><th>M ครั้งแรก</th><th class="r">จำนวนวิชา</th><th>สถานะ</th></tr>${ca.seq.map(seqRow).join("")}</table></div>
   ${ca.wide.length?`<p class="small" style="color:var(--warn)">วิชาที่โยงมากกว่า 4 PLO อาจประเมินได้ไม่ลึก: ${ca.wide.map(c=>c.code).join(", ")}</p>`:""}</section>
   ${mappingGrouped()}
+  ${ksecPanel()}
   <section class="panel"><h2>Sub-PLO × รายวิชาที่รองรับ</h2><div class="scroll"><table><tr><th>Sub-PLO</th><th>ผลลัพธ์</th><th>รายวิชา (ระดับ)</th></tr>${SUBS.map(s=>`<tr><td><span class="code">${s.code}</span></td><td class="small">${esc(s.t)}</td><td>${ca.subCov[s.code].length?ca.subCov[s.code].map(x=>`<span class="tag">${esc(x.c.code)} ${x.lv}</span>`).join(""):pill("warn","ยังไม่มี CLO")}</td></tr>`).join("")}</table></div></section>`;
 }
 // ---- ข1 โครงสร้างหลักสูตรและอาจารย์ ----
@@ -2602,6 +2630,7 @@ document.addEventListener("keydown",e=>{if(e.target.id!=="cloQ"||e.key!=="Enter"
 
 // ---- แถบสถานะมุมขวาบน: ฉบับของหลักสูตร + การอัปเดตล่าสุด ----
 const CHANGELOG=[
+ ["18 พ.ย. 2569 (18:10)","ตาราง PLO × KSEC รายชั้นปีตามรูปแบบเล่ม (แถบ ก4 และ มคอ.2 หมวด 4)"],
  ["18 พ.ย. 2569 (17:40)","ปรับ PLO2 เป็นหลักการพื้นฐานทางวิศวกรรมและวิทยาศาสตร์ เพิ่ม Sub-PLO K2-8 K2-9 K2-10 S2-6 S2-7 และย้ายวิชาคณิตศาสตร์ ฟิสิกส์ เคมี มารับผิดชอบ PLO2"],
  ["18 พ.ย. 2569 (17:10)","ปุ่มแก้อัตโนมัติครอบคลุมข้อ B5 B8 B13 F8 (CLO คำอธิบายรายวิชา และไฟล์ Word)"],
  ["18 พ.ย. 2569 (16:30)","ร่างแผนการศึกษาแผนเทียบโอน ปวส. และปริญญาตรีใบที่ 2 · แก้ข้อความทั้งเล่มตามผลการตรวจ (รวมไฟล์ Word)"],
