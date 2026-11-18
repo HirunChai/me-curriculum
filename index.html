@@ -808,7 +808,7 @@ const CLO0={
 };
 
 const FAC_HINT={"adisorn.sa@mail.rmutk.ac.th":"นายอดิสร สโมสร"};
-const APP_VER="รุ่น 18 พ.ย. 2569 (19:00)";
+const APP_VER="รุ่น 18 พ.ย. 2569 (19:20)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -1871,11 +1871,11 @@ function viewMonitor(){
      ${x.em?`<div class="row mon-bind" style="gap:6px;flex-wrap:wrap;align-items:center;margin:4px 0 8px;font-size:13px"><span>อีเมล <b>${esc(x.em)}</b> ผูกกับชื่อนี้</span><button class="sm" data-unbind="${esc(x.f.id)}">ยกเลิกการผูก</button><span class="muted">หรือย้ายไปผูกกับ</span><select data-rebindsel="${esc(x.f.id)}"><option value="">— เลือกชื่ออาจารย์ —</option>${state.faculty.filter(g=>g.id!==x.f.id).slice().sort((a,b)=>(!!a.email-!!b.email)||a.name.localeCompare(b.name,"th")).map(g=>`<option value="${esc(g.id)}">${esc(g.name)}${g.email?" (มีอีเมลแล้ว)":""}</option>`).join("")}</select><button class="sm primary" data-rebind="${esc(x.f.id)}">ย้าย</button></div>`:""}
      ${x.L.length?`<table class="mon-tb"><tr><th>รายวิชา</th><th>สถานะ CLO</th><th>บันทึกล่าสุด</th><th></th></tr>${x.L.map(({c,s,e})=>`<tr><td><b>${esc(c.code)}</b> ${esc(c.th)} <span class="small muted">${esc(TERM_TH[c.term]||c.term)}</span></td><td>${pill2(s)}</td><td class="small">${e?`${esc(dt(e.at))}<br><span class="muted">${esc(e.email||"")}${e.email&&x.em&&e.email.toLowerCase()!==x.em?" (ไม่ใช่ผู้รับผิดชอบ)":""}</span>`:'<span class="muted">–</span>'}</td><td><a class="sm btnlink" href="#design/clo" data-cc="${esc(c.code)}">เปิด</a></td></tr>`).join("")}</table>`:""}</details>`).join("")||'<p class="muted">ไม่มีรายการตามตัวกรองนี้</p>'}</div></section>
   ${noOwner.length?`<section class="panel"><h2>รายวิชาที่ยังไม่กำหนดผู้รับผิดชอบ (${noOwner.length})</h2><p class="small muted">กำหนดได้ที่แถบ ข1 โครงสร้างหลักสูตรและอาจารย์</p><div class="small">${noOwner.map(c=>`<span class="tag">${esc(c.code)} ${esc(c.th)}</span>`).join(" ")}</div></section>`:""}
-  ${(()=>{const known=new Set(state.faculty.map(f=>canonEmail(f.email)).filter(Boolean));const un=[...new Set(logins.map(r=>canonEmail(r.email)).filter(e=>e&&!known.has(e)))];if(!un.length)return "";
-   const opts=state.faculty.slice().sort((a,b)=>(!!a.email-!!b.email)||a.name.localeCompare(b.name,"th")).map(f=>`<option value="${esc(f.id)}">${esc(f.name)}${f.email?" (มีอีเมลแล้ว)":""}</option>`).join("");
+  ${(()=>{const known=new Set([...state.faculty.map(f=>canonEmail(f.email)),...labStaffList().map(x=>x.email)].filter(Boolean));const un=[...new Set(logins.map(r=>canonEmail(r.email)).filter(e=>e&&!known.has(e)))];if(!un.length)return "";
+   const opts=state.faculty.slice().sort((a,b)=>(!!a.email-!!b.email)||a.name.localeCompare(b.name,"th")).map(f=>`<option value="${esc(f.id)}">${esc(f.name)}${f.email?" (มีอีเมลแล้ว)":""}</option>`).join("");const LS=labStaffList();const optsL=LS.length?`<optgroup label="เจ้าหน้าที่ห้องปฏิบัติการ">${LS.map((x,i)=>`<option value="lab:${i}">${esc(x.name||x.email)}${x.email?" (มีอีเมลแล้ว)":""}</option>`).join("")}</optgroup>`:"";
    return `<section class="panel" style="border:2px solid var(--warn,#d9a400)"><h2>อีเมลที่เข้าระบบแล้ว แต่ยังไม่ได้ผูกกับชื่ออาจารย์ (${un.length})</h2><p class="small muted">เลือกชื่ออาจารย์ให้ตรงกับอีเมล แล้วกด "ผูก" ระบบจะนับการเข้าระบบให้ท่านนั้นทันที</p>
-   <table>${un.map(e=>`<tr><td class="small"><b>${esc(e)}</b></td><td><select data-bindsel="${esc(e)}"><option value="">— เลือกชื่ออาจารย์ —</option>${opts}</select></td><td><button class="sm primary" data-bindem="${esc(e)}">ผูก</button></td></tr><tr><td class="small muted" style="text-align:right">ไม่มีชื่อในรายการ</td><td><input data-bindname="${esc(e)}" value="${esc(FAC_HINT[canonEmail(e)]||"")}" placeholder="ชื่อ-นามสกุล เช่น นายอดิสร สโมสร" aria-label="ชื่ออาจารย์ใหม่สำหรับ ${esc(e)}" style="width:100%"></td><td><button class="sm" data-bindnew="${esc(e)}">เพิ่มชื่อใหม่และผูก</button></td></tr>`).join("")}</table></section>`})()}
-  <section class="panel"><h2>การเข้าระบบล่าสุด</h2><div class="scroll"><table><tr><th>เวลา</th><th>อีเมล</th><th>ชื่อ</th></tr>${logins.slice(0,30).map(r=>{const f=state.faculty.find(f=>canonEmail(f.email)===canonEmail(r.email));return `<tr><td class="small">${esc(dt(r.at))}</td><td class="small">${esc(r.email)}</td><td>${f?esc(f.name):'<span class="muted small">ไม่อยู่ในรายชื่ออาจารย์</span>'}</td></tr>`}).join("")||'<tr><td colspan="3" class="muted">ยังไม่มีข้อมูล</td></tr>'}</table></div></section>`;
+   <table>${un.map(e=>`<tr><td class="small"><b>${esc(e)}</b></td><td><select data-bindsel="${esc(e)}"><option value="">— เลือกชื่ออาจารย์ / เจ้าหน้าที่ —</option><optgroup label="อาจารย์">${opts}</optgroup>${optsL}</select></td><td><button class="sm primary" data-bindem="${esc(e)}">ผูก</button></td></tr><tr><td class="small muted" style="text-align:right">ไม่มีชื่อในรายการ</td><td><input data-bindname="${esc(e)}" value="${esc(FAC_HINT[canonEmail(e)]||"")}" placeholder="ชื่อ-นามสกุล เช่น นายอดิสร สโมสร" aria-label="ชื่ออาจารย์ใหม่สำหรับ ${esc(e)}" style="width:100%"></td><td><select data-bindkind="${esc(e)}" aria-label="ประเภท"><option value="fac">อาจารย์</option><option value="lab">เจ้าหน้าที่ห้องปฏิบัติการ</option></select> <button class="sm" data-bindnew="${esc(e)}">เพิ่มชื่อใหม่และผูก</button></td></tr>`).join("")}</table></section>`})()}
+  <section class="panel"><h2>การเข้าระบบล่าสุด</h2><div class="scroll"><table><tr><th>เวลา</th><th>อีเมล</th><th>ชื่อ</th></tr>${logins.slice(0,30).map(r=>{const f=state.faculty.find(f=>canonEmail(f.email)===canonEmail(r.email));const ls=!f&&labStaffList().find(x=>x.email&&x.email===canonEmail(r.email));return `<tr><td class="small">${esc(dt(r.at))}</td><td class="small">${esc(r.email)}</td><td>${f?esc(f.name):ls?esc(ls.name||"เจ้าหน้าที่")+' <span class="muted small">· เจ้าหน้าที่ห้องปฏิบัติการ</span>':'<span class="muted small">ไม่อยู่ในรายชื่ออาจารย์</span>'}</td></tr>`}).join("")||'<tr><td colspan="3" class="muted">ยังไม่มีข้อมูล</td></tr>'}</table></div></section>`;
 }
 function monitorCsv(){
   const own=state.owners||{},rows=[["อาจารย์","อีเมล","รหัสวิชา","รายวิชา","สถานะ CLO"]];
@@ -2589,7 +2589,7 @@ function viewLab(){
   <section class="panel"><h2>ข้อมูลประกอบอื่น</h2><p class="small muted">ใช้ใน Self-Declaration ส่วนที่ 4 ข้อ 1.2–3</p>
    ${["soft:โปรแกรมสำเร็จรูป / ซอฟต์แวร์ (บรรทัดละ 1 รายการ)","lib:แหล่งบริการข้อมูลทางวิชาการ (ห้องสมุด ฐานข้อมูล มาตรฐานวิศวกรรม)","act:กิจกรรมพัฒนานักศึกษาอื่น ๆ"].map(s=>{const [k,t]=s.split(":");return `<label class="ctl" style="display:block;margin-bottom:8px">${t}<textarea rows="3" data-labinfo="${k}" ${ed?"":"disabled"} style="width:100%">${esc(info[k]||"")}</textarea></label>`}).join("")}
    ${ed?`<button class="sm" id="labInfoSave">บันทึกข้อมูลประกอบ</button>`:""}</section>
-  ${state.isAdmin?`<section class="panel"><h2>เจ้าหน้าที่ห้องปฏิบัติการที่แก้ไขหน้านี้ได้</h2><p class="small muted">อาจารย์ในรายชื่ออาจารย์แก้ได้อยู่แล้ว ใส่อีเมล @mail.rmutk.ac.th หรือ @rmutk.ac.th ของเจ้าหน้าที่ บรรทัดละ 1 อีเมล</p><textarea id="labStaff" rows="3" style="width:100%">${esc((state.labStaff||[]).join("\n"))}</textarea><button class="sm" id="labStaffSave">บันทึกรายชื่อ</button></section>`:""}`}
+  ${labStaffPanelHtml()}`}
 // เอกสาร: บัญชีห้องปฏิบัติการ (ใช้ทั้งเอกสารแยกและ Self-Declaration ส่วนที่ 4)
 function labDocHtml(imgs,opt={}){
   const L=labList(),info=state.labInfo||{},h3=t=>`<h3>${t}</h3>`,li=t=>`<p class="li">${t}</p>`,ind=t=>`<p class="ind">${t}</p>`;
@@ -2618,6 +2618,7 @@ document.addEventListener("click",async e=>{const b=e.target.closest&&e.target.c
   if(b.id==="labDel"){const f=document.getElementById("labForm");if(f)await labDel(f.dataset.id);return}
   if(b.dataset.labphdel){await labPhotoDel(b.dataset.labphdel);return}
   if(b.id==="labInfoSave"){const d={};document.querySelectorAll("[data-labinfo]").forEach(t=>d[t.dataset.labinfo]=t.value);d.at=new Date().toISOString();state.labInfo=d;render();await dbWrite(db=>db.doc("program/labinfo").set(d),"ข้อมูลประกอบ");return}
+  if(b.dataset.lsdel!=null){const L=labStaffList();const x=L[+b.dataset.lsdel];if(!x||!confirm("ลบ "+(x.name||x.email)+" ออกจากรายชื่อเจ้าหน้าที่?"))return;L.splice(+b.dataset.lsdel,1);await labStaffWrite(L);return}
   if(b.id==="labStaffSave"){const L=document.getElementById("labStaff").value.split(/[\s,;]+/).map(s=>s.trim().toLowerCase()).filter(s=>/@(mail\.)?rmutk\.ac\.th$/.test(s)).map(canonEmail);state.labStaff=L;render();await dbWrite(db=>db.doc("program/labstaff").set({emails:L,at:new Date().toISOString()}),"รายชื่อเจ้าหน้าที่");return}
   if(b.id==="labPrint"){bookAllOpen({assemble:labDocAssemble,title:"บัญชีห้องปฏิบัติการและครุภัณฑ์",fname:"บัญชีห้องปฏิบัติการ-วศบ-เครื่องกล-2571"});return}});
 document.addEventListener("change",e=>{const t=e.target;if(!t||!t.dataset)return;if(t.dataset.labph){const f=t.files;const lid=t.dataset.labph;labAddPhotos(lid,f);t.value=""}else if(t.dataset.labcap){labCaption(t.dataset.labcap,t.value)}});
@@ -2650,6 +2651,7 @@ document.addEventListener("keydown",e=>{if(e.target.id!=="cloQ"||e.key!=="Enter"
 
 // ---- แถบสถานะมุมขวาบน: ฉบับของหลักสูตร + การอัปเดตล่าสุด ----
 const CHANGELOG=[
+ ["18 พ.ย. 2569 (19:20)","เพิ่มเจ้าหน้าที่ประจำห้องปฏิบัติการได้จากฟอร์มเพิ่มอาจารย์ และผูกบัญชีที่แถบ ง1 แบบเดียวกับอาจารย์"],
  ["18 พ.ย. 2569 (19:00)","แถบ ง1 เพิ่มชื่ออาจารย์ใหม่และผูกอีเมลได้ในขั้นตอนเดียว"],
  ["18 พ.ย. 2569 (18:45)","CLO ที่บันทึกไว้ของวิชาคณิต ฟิสิกส์ เคมี ชี้ Sub-PLO ใหม่ K2-8 K2-9 K2-10 S2-6 S2-7 อัตโนมัติ"],
  ["18 พ.ย. 2569 (18:30)","ตาราง PLOs ของรายวิชาที่สาขาสอนให้สาขาอื่น (ข1 ก4 และ มคอ.2 หมวด 4)"],
@@ -2936,14 +2938,22 @@ function viewLoad(){
   <section class="panel"><div class="row" style="justify-content:space-between"><h2>ภาระสอนรายคน · ${SEM_TH[sem]}</h2>
     <span class="row" style="gap:8px"><button class="primary" id="auto" ${F.length&&state.canWrite?"":"disabled"}>จัดอัตโนมัติเฉพาะที่ว่าง</button><button id="reauto" ${F.length&&state.canWrite?"":"disabled"}>จัดใหม่ทั้งหมด</button></span></div>
    ${F.length?`<div class="scroll"><table><tr><th>อาจารย์</th><th class="r">ชม./สัปดาห์</th><th class="r">วิชา</th><th>เทียบค่าเฉลี่ย</th><th></th></tr>${facRows}</table></div>`:`<div class="empty">ยังไม่มีรายชื่ออาจารย์ เพิ่มชื่อและความเชี่ยวชาญด้านล่าง ระบบจะจัดภาระสอนให้ใกล้เคียงกัน</div>`}
-   <h3>${state.editing?"แก้ไขอาจารย์":"เพิ่มอาจารย์"}</h3>${facForm()}</section>
+   <h3>${state.editing?"แก้ไขอาจารย์":"เพิ่มอาจารย์ / เจ้าหน้าที่"}</h3>${facForm()}</section>${labStaffPanelHtml()}
   <section class="panel"><h2>กลุ่มเรียนที่สาขาสอน</h2><div class="scroll"><table><tr><th>รหัส</th><th>รายวิชา</th><th>ชั้นปี</th><th>ส่วน</th><th class="r">นศ.</th><th class="r">ชม.</th><th>ผู้สอน</th></tr>
   ${Object.values(byCourse).map(us=>us.map((u,i)=>`<tr>${i===0?`<td class="mono" rowspan="${us.length}">${esc(u.c.code)}</td><td rowspan="${us.length}">${esc(u.c.th)}<div class="small muted">${u.c.tr===A?"ทุกแขนง":u.c.tr.map(t=>TRACKS[t]).join(", ")}</div></td><td rowspan="${us.length}" class="num">${u.year}</td>`:""}<td class="small">${u.part==="L"?"บรรยาย":"ปฏิบัติ"}${u.secs>1?" กลุ่ม "+u.sec:""}</td><td class="r num">${u.n}</td><td class="r num">${u.hrs}</td><td><select data-unit="${u.key}" aria-label="ผู้สอน ${esc(u.c.code)}" ${dis()}>${opts(u.key)}</select></td></tr>`).join("")).join("")}</table></div>
   <p class="small muted">กลุ่มเรียนบรรยายสูงสุด 60 คน ปฏิบัติสูงสุด 20 คน ไม่รวมวิชาที่หน่วยงานอื่นสอนและการนิเทศสหกิจศึกษา</p></section>`;
 }
+// ---- เจ้าหน้าที่ประจำห้องปฏิบัติการ (program/labstaff: staff=[{name,email}], emails=[...] ใช้ตรวจสิทธิ์ใน SQL) ----
+const labStaffList=()=>{const L=(state.labStaffList||[]).map(x=>({name:x.name||"",email:canonEmail(x.email||"")}));const have=new Set(L.map(x=>x.email).filter(Boolean));(state.labStaff||[]).forEach(e=>{e=canonEmail(e);if(e&&!have.has(e))L.push({name:"",email:e})});return L};
+async function labStaffWrite(L){L=L.map(x=>({name:String(x.name||"").trim(),email:canonEmail(String(x.email||"").trim().toLowerCase())}));const emails=[...new Set(L.map(x=>x.email).filter(e=>/@mail\.rmutk\.ac\.th$/.test(e)))];
+  state.labStaffList=L;state.labStaff=emails;render();await dbWrite(db=>db.doc("program/labstaff").set({staff:L,emails,at:new Date().toISOString()}),"รายชื่อเจ้าหน้าที่ห้องปฏิบัติการ")}
+function labStaffPanelHtml(){const L=labStaffList(),ed=state.isAdmin;
+  return `<section class="panel"><h2>เจ้าหน้าที่ประจำห้องปฏิบัติการ (${L.length})</h2><p class="small muted">เจ้าหน้าที่ที่ผูกอีเมลแล้วเข้าระบบมาแก้ข้อมูลห้องปฏิบัติการ ครุภัณฑ์ และรูปในแถบ ข6 ได้ · เพิ่มได้จากฟอร์ม "เพิ่มอาจารย์/เจ้าหน้าที่" (เลือกประเภทเจ้าหน้าที่) หรือผูกอีเมลที่แถบ ง1</p>
+   ${L.length?`<table><tr><th>ชื่อ-นามสกุล</th><th>อีเมล</th>${ed?"<th></th>":""}</tr>${L.map((x,i)=>`<tr><td>${esc(x.name||"(ยังไม่ระบุชื่อ)")}</td><td class="small">${x.email?esc(x.email):'<span class="muted">ยังไม่ผูกอีเมล</span>'}</td>${ed?`<td><button class="sm" data-lsdel="${i}">ลบ</button></td>`:""}</tr>`).join("")}</table>`:'<p class="small muted">ยังไม่มีรายชื่อ</p>'}</section>`}
+
 function facForm(){
   const f=state.faculty.find(x=>x.id===state.editing)||{name:"",tags:[]};
-  return `<form class="fl row" id="facForm" style="gap:8px"><input type="text" id="facName" placeholder="ชื่อ-นามสกุล" value="${esc(f.name)}" ${dis()}><input type="text" id="facEmail" placeholder="อีเมลมหาวิทยาลัย" value="${esc(f.email||"")}" ${dis()} style="min-width:200px">
+  return `<form class="fl row" id="facForm" style="gap:8px">${state.editing?"":`<select id="facKind" aria-label="ประเภทบุคลากร" ${dis()}><option value="fac">อาจารย์</option><option value="lab">เจ้าหน้าที่ประจำห้องปฏิบัติการ</option></select>`}<input type="text" id="facName" placeholder="ชื่อ-นามสกุล" value="${esc(f.name)}" ${dis()}><input type="text" id="facEmail" placeholder="อีเมลมหาวิทยาลัย" value="${esc(f.email||"")}" ${dis()} style="min-width:200px">
   <span>${Object.entries(EXPERTISE).map(([k,v])=>`<label class="chk"><input type="checkbox" name="tag" value="${k}" ${(f.tags||[]).includes(k)?"checked":""} ${dis()}>${v}</label>`).join("")}</span>
   <button class="primary" type="submit" ${dis()}>${state.editing?"บันทึก":"เพิ่ม"}</button>${state.editing?`<button type="button" id="facDel">ลบ</button><button type="button" id="facCancel">ยกเลิก</button>`:""}<span id="facErr" class="err"></span></form>`;
 }
@@ -3807,11 +3817,14 @@ document.addEventListener("click",async e=>{
   const b=e.target.closest("button");if(!b)return;const d=b.dataset;
   if(d.monf){state.monFilter=d.monf;render();return}
   if(d.bindnew){const em=d.bindnew;const inp=[...document.querySelectorAll("[data-bindname]")].find(x=>x.dataset.bindname===em);const name=(inp&&inp.value||"").trim().replace(/\s+/g," ");
-    if(!name){state.msg="พิมพ์ชื่ออาจารย์ก่อน";render();return}
+    if(!name){state.msg="พิมพ์ชื่อก่อน";render();return}
+    const kind=([...document.querySelectorAll("[data-bindkind]")].find(x=>x.dataset.bindkind===em)||{}).value;
+    if(kind==="lab"){const L=labStaffList();const j=L.findIndex(x=>x.name.replace(/\s+/g,"")===name.replace(/\s+/g,""));if(j>=0)L[j].email=canonEmail(em);else L.push({name,email:canonEmail(em)});state.msg=`เพิ่ม ${name} เป็นเจ้าหน้าที่ห้องปฏิบัติการและผูกกับ ${em} แล้ว · ท่านแก้ข้อมูลในแถบ ข6 ได้`;await labStaffWrite(L);return}
     const dup=state.faculty.find(x=>x.name.replace(/\s+/g,"")===name.replace(/\s+/g,""));if(dup){state.msg=`มีชื่อ ${dup.name} อยู่แล้ว เลือกจากรายการแล้วกด "ผูก" แทน`;render();return}
     const id="f"+Date.now().toString(36);const rec={name,email:em,tags:[],order:Math.max(0,...state.faculty.map(x=>x.order||0))+1};state.faculty.push({id,...rec});
     state.msg=`เพิ่ม ${name} ในรายชื่ออาจารย์และผูกกับ ${em} แล้ว · กำหนดบทบาทและคุณวุฒิได้ที่แถบ ข1`;render();await dbWrite(db=>db.doc("faculty/"+id).set(rec),"รายชื่ออาจารย์");return}
-  if(d.bindem){const em=d.bindem;const sel=[...document.querySelectorAll("[data-bindsel]")].find(x=>x.dataset.bindsel===em);const id=sel&&sel.value;if(!id){state.msg="เลือกชื่ออาจารย์ก่อนกดผูก";render();return}
+  if(d.bindem){const em=d.bindem;const sel=[...document.querySelectorAll("[data-bindsel]")].find(x=>x.dataset.bindsel===em);const id=sel&&sel.value;if(!id){state.msg="เลือกชื่ออาจารย์หรือเจ้าหน้าที่ก่อนกดผูก";render();return}
+    if(id.startsWith("lab:")){const L=labStaffList();const x=L[+id.slice(4)];if(!x)return;x.email=canonEmail(em);state.msg=`ผูกอีเมล ${em} กับเจ้าหน้าที่ ${x.name||""} แล้ว`;await labStaffWrite(L);return}
     const f=state.faculty.find(x=>x.id===id);if(!f)return;const {id:_,...rest}=f;const rec={...rest,email:em};Object.assign(f,{email:em});state.msg=`ผูกอีเมล ${em} กับ ${f.name} แล้ว`;render();await dbWrite(db=>db.doc("faculty/"+id).set(rec),"รายชื่ออาจารย์");return}
   if(d.unbind||d.rebind){const fid=d.unbind||d.rebind;const f=state.faculty.find(x=>x.id===fid);if(!f||!f.email)return;const em=f.email;
     const save=async(g,email)=>{const {id:gid,...rest}=g;Object.assign(g,{email});await dbWrite(db=>db.doc("faculty/"+gid).set({...rest,email}),"รายชื่ออาจารย์")};
@@ -3955,6 +3968,12 @@ document.addEventListener("submit",async e=>{
     if(old)Object.assign(old,rec);else state.faculty.push({id,...rec});
     state.sEdit=null;render();await dbWrite(db=>db.doc("faculty/"+id).set(rec),"รายชื่ออาจารย์");return;
   }
+  if(f.id==="facForm"&&(document.getElementById("facKind")||{}).value==="lab"){
+    const name=document.getElementById("facName").value.trim(),email=canonEmail((document.getElementById("facEmail")||{value:""}).value.trim().toLowerCase());
+    if(!name){document.getElementById("facErr").textContent="ใส่ชื่อเจ้าหน้าที่ก่อน";return}
+    if(email&&!/@(mail\.)?rmutk\.ac\.th$/.test(email)){document.getElementById("facErr").textContent="ใช้อีเมล @mail.rmutk.ac.th หรือ @rmutk.ac.th";return}
+    const L=labStaffList();if(L.some(x=>x.name.replace(/\s+/g,"")===name.replace(/\s+/g,""))){document.getElementById("facErr").textContent="มีชื่อนี้อยู่แล้ว";return}
+    L.push({name,email});state.msg=`เพิ่มเจ้าหน้าที่ ${name} แล้ว${email?"":" · ผูกอีเมลได้ที่แถบ ง1 เมื่อท่านเข้าระบบ"}`;await labStaffWrite(L);return}
   if(f.id==="facForm"){
     const name=document.getElementById("facName").value.trim();
     if(!name){document.getElementById("facErr").textContent="ใส่ชื่ออาจารย์ก่อน";return}
@@ -4110,7 +4129,7 @@ const withTO=(p,ms,st)=>Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(
   db.collection("cv").onSnapshot(s=>{const m={};s.docs.forEach(d=>{const x=d.data();if(x)m[d.id]=x});state.cv=m;softRender()},err);
   db.collection("lab").onSnapshot(s=>{const m={};s.docs.forEach(d=>{const x=d.data();if(x)m[d.id]={...x,id:d.id}});state.labs=m;softRender()},err);
   db.doc("program/labinfo").onSnapshot(s=>{state.labInfo=s.exists?s.data():{};softRender()},err);
-  db.doc("program/labstaff").onSnapshot(s=>{state.labStaff=((s.exists&&s.data().emails)||[]).map(x=>String(x).toLowerCase());softRender()},err);
+  db.doc("program/labstaff").onSnapshot(s=>{const d=(s.exists&&s.data())||{};state.labStaff=(d.emails||[]).map(x=>String(x).toLowerCase());state.labStaffList=Array.isArray(d.staff)?d.staff:null;softRender()},err);
   db.collection("survey").onSnapshot(s=>{const m={};s.docs.forEach(d=>{const x=d.data();if(x&&x.rows)m[d.id]=x});state.survey=m;softRender()},err);
   db.doc("program/intake").onSnapshot(s=>{const d=s.exists&&s.data();if(d&&d.ME!=null)state.intake={ME:+d.ME||0,EV:+d.EV||0,CE:+d.CE||0,rooms:+d.rooms||2,smbN:d.smbN!=null?+d.smbN:15,smbTrack:d.smbTrack||"ME"};softRender()},err);
   db.doc("program/bookedit").onSnapshot(s=>{const d=s.exists&&s.data();state.bookEdit=d?{logo:d.logo||"",logoH:d.logoH,f:d.f||{},html:d.html||{}}:null;softRender()},err);
@@ -4133,7 +4152,7 @@ const withTO=(p,ms,st)=>Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(
   if(state.isGuest)state.msg="ท่านเข้าดูในฐานะผู้เยี่ยมชมภายนอก เปิดดูได้อย่างเดียว ไม่แสดงประวัติอาจารย์";else if(!state.isAdmin&&!isFac)state.msg="ท่านเปิดดูได้อย่างเดียว ประวัติและรูปถ่ายอาจารย์แสดงเฉพาะกรรมการหลักสูตรและอาจารย์ในสาขา ถ้าเป็นผู้สอน ให้กรรมการหลักสูตรเพิ่มอีเมลของท่านในรายชื่ออาจารย์";
   render();
   const bar=document.createElement("div");bar.className="row small muted userbar";bar.style.cssText="margin-left:auto;gap:8px;flex:none";
-  bar.innerHTML=`<span id="updbar" class="row" style="gap:8px"></span><span class="muted" title="รุ่นของไฟล์ index.html">${APP_VER}</span><span>${esc(rawEmail)} · ${state.isAdmin?"กรรมการหลักสูตร":isFac?"ผู้สอน":state.isGuest?"ผู้เยี่ยมชมภายนอก":"ผู้เยี่ยมชม"}</span><button class="sm" id="logout">ออกจากระบบ</button>`;
+  bar.innerHTML=`<span id="updbar" class="row" style="gap:8px"></span><span class="muted" title="รุ่นของไฟล์ index.html">${APP_VER}</span><span>${esc(rawEmail)} · ${state.isAdmin?"กรรมการหลักสูตร":isFac?"ผู้สอน":(state.labStaff||[]).map(canonEmail).includes(email)?"เจ้าหน้าที่ห้องปฏิบัติการ":state.isGuest?"ผู้เยี่ยมชมภายนอก":"ผู้เยี่ยมชม"}</span><button class="sm" id="logout">ออกจากระบบ</button>`;
   document.querySelector("header.top").appendChild(bar);
   bar.style.flexWrap="wrap";updBarPaint();
   document.getElementById("logout").onclick=async()=>{await sb.auth.signOut();location.reload()};
