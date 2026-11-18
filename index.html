@@ -798,7 +798,7 @@ const CLO0={
 "4-112-311":[["วิเคราะห์การใช้พลังงานของระบบหลักในอาคารควบคุมและโรงงานควบคุม เช่น ระบบปรับอากาศ หม้อไอน้ำ ระบบอากาศอัด และระบบแสงสว่าง", ["K3-5"], "Analyze", "R", "สอบ / กรณีศึกษา"], ["วัดและตรวจวิเคราะห์การใช้พลังงานตามแนวทางการตรวจสอบพลังงาน และตีความข้อมูลการวัด", ["S4-3"], "Apply", "R", "รายงานการตรวจวัด"], ["ประเมินมาตรการอนุรักษ์พลังงานด้วยระยะเวลาคืนทุนและความคุ้มค่า", ["S5-2"], "Evaluate", "R", "รายงานมาตรการอนุรักษ์พลังงาน"], ["จัดทำรายงานการจัดการพลังงานตามรูปแบบที่กฎหมายกำหนด", ["S5-3"], "Apply", "R", "รายงานการจัดการพลังงาน"], ["อธิบายข้อกำหนดตาม พ.ร.บ.การส่งเสริมการอนุรักษ์พลังงาน และหน้าที่ของผู้รับผิดชอบด้านพลังงาน", ["E6-1"], "Understand", "I", "แบบทดสอบ"]]
 };
 
-const APP_VER="รุ่น 18 พ.ย. 2569 (09:30)";
+const APP_VER="รุ่น 18 พ.ย. 2569 (11:40)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -2148,7 +2148,18 @@ const SERVICE=[{code:"4-000-101",th:"กลศาสตร์วิศวกร�
   ["ประยุกต์ใช้สมการความต่อเนื่อง สมการโมเมนตัม และสมการพลังงาน วิเคราะห์การไหลแบบราบเรียบและแบบปั่นป่วนในระบบท่อและอุปกรณ์ในสาขาของผู้เรียน","Analyze","สอบ · โครงงานย่อย",""]],
  map:"กำหนดตาม PLO ของหลักสูตรผู้เรียน",
  forTh:"นักศึกษาสาขาวิชาอื่นที่หลักสูตรกำหนดให้เรียน (ระบุสาขาผู้ใช้หลังประสานงาน)",
- note:"คำอธิบายรายวิชาคงตามเล่ม 2566 CLO เป็นร่างของสาขา ให้ประสานกับหลักสูตรผู้เรียนเพื่อกำหนด Curriculum Mapping"}];
+ note:"คำอธิบายรายวิชาคงตามเล่ม 2566 CLO เป็นร่างของสาขา ให้ประสานกับหลักสูตรผู้เรียนเพื่อกำหนด Curriculum Mapping"},
+ {code:"4-124-204",th:"การประลองวิศวกรรมเครื่องกลและวัสดุ",en:"Mechanical and Material Engineering Laboratory",cr:2,t:1,p:3,s:2,g:"SVC",fl:{},
+ pre:"",preEn:"",src:"รายละเอียดรายวิชาที่สาขาวิศวกรรมเครื่องกลจัดสอนให้หลักสูตรอื่น (ข้อมูลจากกรรมการหลักสูตร 18 พ.ย. 2569)",
+ dth:"หลักการทดสอบวัสดุ สมบัติทางกลของวัสดุภายใต้แรงดึง แรงบิด ความแข็ง ความล้า และแรงกระแทก การทดสอบทางอุณหพลศาสตร์ ตามกฎข้อที่ 1 และ 2 ของอุณหพลศาสตร์ พลังงานอิสระที่เป็นฟังก์ชันกับอุณหภูมิ และแรงดัน",
+ den:"Principles of material testing, mechanical properties of materials under tension, torsion, hardness, fatigue and impact, thermodynamics testing based on the 1st and 2nd laws of thermodynamics, free energy as a function of temperature and pressure.",
+ clos:[["อธิบายหลักการทดสอบวัสดุและข้อควรระวังด้านความปลอดภัยในการใช้เครื่องทดสอบ","Understand","สอบ · สังเกตการปฏิบัติ",""],
+  ["ทดสอบสมบัติทางกลของวัสดุภายใต้แรงดึง แรงบิด ความแข็ง ความล้า และแรงกระแทก ตามมาตรฐานการทดสอบ","Apply","สอบปฏิบัติ · ใบงาน",""],
+  ["ทดลองทางอุณหพลศาสตร์ตามกฎข้อที่ 1 และ 2 และหาพลังงานอิสระที่เปลี่ยนตามอุณหภูมิและแรงดัน","Apply","ใบงาน · รายงานการทดลอง",""],
+  ["วิเคราะห์ผลการทดลองเทียบกับทฤษฎี ประเมินความคลาดเคลื่อน และเขียนรายงานการทดลอง","Analyze","rubric รายงาน",""]],
+ map:"กำหนดตาม PLO ของหลักสูตรผู้เรียน",
+ forTh:"นักศึกษาสาขาวิชาอื่นที่หลักสูตรกำหนดให้เรียน (ระบุสาขาผู้ใช้หลังประสานงาน)",
+ note:"คำอธิบายรายวิชาตามที่หลักสูตรผู้เรียนกำหนด CLO เป็นร่างของสาขา ให้ประสานกับหลักสูตรผู้เรียนเพื่อยืนยัน CLO และ Curriculum Mapping"}];
 const svcDescHtml=(ind,bkT)=>SERVICE.map(c=>bkT([[c.code,c.th+" ("+c.en+")",crTxt(c)]],null,{w:"92%"})+(c.pre?ind("วิชาบังคับก่อน : "+esc(c.pre))+ind("Pre-requisite : "+esc(c.preEn)):"")+ind(esc(c.dth))+ind(esc(c.den))+`<p class="li"><b>ผลลัพธ์การเรียนรู้</b></p>`+c.clos.map((x,i)=>`<p class="li2">${i+1}. ${esc(x[0])}</p>`).join("")).join("");
 function svcPanel(){return `<section class="panel"><h2>รายวิชาที่สาขาเปิดสอนให้นักศึกษาต่างสาขา · ${SERVICE.length} วิชา</h2><p class="small muted">ไม่นับหน่วยกิตในหลักสูตรนี้ แต่เป็นภาระสอนของสาขาและแสดงในเล่มหมวด 3 ข้อ 3.2 (กลุ่มที่ 5) และ 3.5</p>${SERVICE.map(c=>`<article style="border-top:1px solid var(--line);padding-top:10px;margin-top:10px"><h3 style="margin:0">${esc(c.code)} ${esc(c.th)} <span class="muted small">${esc(c.en)} · ${crTxt(c)}</span></h3><p class="small">${c.pre?"วิชาบังคับก่อน: "+esc(c.pre)+" · ":""}ผู้เรียน: ${esc(c.forTh)} · ที่มา: ${esc(c.src)}</p><p>${esc(c.dth)}</p><p class="small muted">${esc(c.den)}</p><table><tr><th>CLO</th><th>ผลลัพธ์การเรียนรู้</th><th>Bloom</th><th>การประเมิน</th><th>Sub-PLO</th></tr>${c.clos.map((x,i)=>`<tr><td class="num">${i+1}</td><td>${esc(x[0])}</td><td>${esc(x[1])}</td><td class="small">${esc(x[2])}</td><td class="small">${esc(x[3]||"")}</td></tr>`).join("")}</table><p class="small">Curriculum Mapping: ${esc(c.map)}</p><p class="small muted">${esc(c.note)}</p></article>`).join("")}</section>`}
 function viewStruct(){
@@ -2560,6 +2571,7 @@ document.addEventListener("keydown",e=>{if(e.target.id!=="cloQ"||e.key!=="Enter"
 
 // ---- แถบสถานะมุมขวาบน: ฉบับของหลักสูตร + การอัปเดตล่าสุด ----
 const CHANGELOG=[
+ ["18 พ.ย. 2569 (11:40)","เพิ่มวิชา 4-124-204 การประลองวิศวกรรมเครื่องกลและวัสดุ ในรายวิชาที่สอนให้สาขาอื่น"],
  ["18 พ.ย. 2569","แถบสถานะฉบับหลักสูตรและการอัปเดตล่าสุด · ค้นหารายวิชาในแถบ ก3"],
  ["11 พ.ย. 2569","ผู้เยี่ยมชมภายนอกเข้าดูได้ (ยกเว้นประวัติอาจารย์) · mind map บนโทรศัพท์ · โลโก้ใหม่ · หน้ากำลังเชื่อมต่อฐานข้อมูล"],
  ["10 พ.ย. 2569","รองรับบัญชี @rmutk.ac.th · ยกเลิกและผูกบัญชีอาจารย์ใหม่ในแถบ ง1 · ปรับสีทุกแถบ"],
