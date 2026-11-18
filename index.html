@@ -807,7 +807,8 @@ const CLO0={
 "4-112-311":[["วิเคราะห์การใช้พลังงานของระบบหลักในอาคารควบคุมและโรงงานควบคุม เช่น ระบบปรับอากาศ หม้อไอน้ำ ระบบอากาศอัด และระบบแสงสว่าง", ["K3-5"], "Analyze", "R", "สอบ / กรณีศึกษา"], ["วัดและตรวจวิเคราะห์การใช้พลังงานตามแนวทางการตรวจสอบพลังงาน และตีความข้อมูลการวัด", ["S4-3"], "Apply", "R", "รายงานการตรวจวัด"], ["ประเมินมาตรการอนุรักษ์พลังงานด้วยระยะเวลาคืนทุนและความคุ้มค่า", ["S5-2"], "Evaluate", "R", "รายงานมาตรการอนุรักษ์พลังงาน"], ["จัดทำรายงานการจัดการพลังงานตามรูปแบบที่กฎหมายกำหนด", ["S5-3"], "Apply", "R", "รายงานการจัดการพลังงาน"], ["อธิบายข้อกำหนดตาม พ.ร.บ.การส่งเสริมการอนุรักษ์พลังงาน และหน้าที่ของผู้รับผิดชอบด้านพลังงาน", ["E6-1"], "Understand", "I", "แบบทดสอบ"]]
 };
 
-const APP_VER="รุ่น 18 พ.ย. 2569 (18:45)";
+const FAC_HINT={"adisorn.sa@mail.rmutk.ac.th":"นายอดิสร สโมสร"};
+const APP_VER="รุ่น 18 พ.ย. 2569 (19:00)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -1873,7 +1874,7 @@ function viewMonitor(){
   ${(()=>{const known=new Set(state.faculty.map(f=>canonEmail(f.email)).filter(Boolean));const un=[...new Set(logins.map(r=>canonEmail(r.email)).filter(e=>e&&!known.has(e)))];if(!un.length)return "";
    const opts=state.faculty.slice().sort((a,b)=>(!!a.email-!!b.email)||a.name.localeCompare(b.name,"th")).map(f=>`<option value="${esc(f.id)}">${esc(f.name)}${f.email?" (มีอีเมลแล้ว)":""}</option>`).join("");
    return `<section class="panel" style="border:2px solid var(--warn,#d9a400)"><h2>อีเมลที่เข้าระบบแล้ว แต่ยังไม่ได้ผูกกับชื่ออาจารย์ (${un.length})</h2><p class="small muted">เลือกชื่ออาจารย์ให้ตรงกับอีเมล แล้วกด "ผูก" ระบบจะนับการเข้าระบบให้ท่านนั้นทันที</p>
-   <table>${un.map(e=>`<tr><td class="small"><b>${esc(e)}</b></td><td><select data-bindsel="${esc(e)}"><option value="">— เลือกชื่ออาจารย์ —</option>${opts}</select></td><td><button class="sm primary" data-bindem="${esc(e)}">ผูก</button></td></tr>`).join("")}</table></section>`})()}
+   <table>${un.map(e=>`<tr><td class="small"><b>${esc(e)}</b></td><td><select data-bindsel="${esc(e)}"><option value="">— เลือกชื่ออาจารย์ —</option>${opts}</select></td><td><button class="sm primary" data-bindem="${esc(e)}">ผูก</button></td></tr><tr><td class="small muted" style="text-align:right">ไม่มีชื่อในรายการ</td><td><input data-bindname="${esc(e)}" value="${esc(FAC_HINT[canonEmail(e)]||"")}" placeholder="ชื่อ-นามสกุล เช่น นายอดิสร สโมสร" aria-label="ชื่ออาจารย์ใหม่สำหรับ ${esc(e)}" style="width:100%"></td><td><button class="sm" data-bindnew="${esc(e)}">เพิ่มชื่อใหม่และผูก</button></td></tr>`).join("")}</table></section>`})()}
   <section class="panel"><h2>การเข้าระบบล่าสุด</h2><div class="scroll"><table><tr><th>เวลา</th><th>อีเมล</th><th>ชื่อ</th></tr>${logins.slice(0,30).map(r=>{const f=state.faculty.find(f=>canonEmail(f.email)===canonEmail(r.email));return `<tr><td class="small">${esc(dt(r.at))}</td><td class="small">${esc(r.email)}</td><td>${f?esc(f.name):'<span class="muted small">ไม่อยู่ในรายชื่ออาจารย์</span>'}</td></tr>`}).join("")||'<tr><td colspan="3" class="muted">ยังไม่มีข้อมูล</td></tr>'}</table></div></section>`;
 }
 function monitorCsv(){
@@ -2649,6 +2650,7 @@ document.addEventListener("keydown",e=>{if(e.target.id!=="cloQ"||e.key!=="Enter"
 
 // ---- แถบสถานะมุมขวาบน: ฉบับของหลักสูตร + การอัปเดตล่าสุด ----
 const CHANGELOG=[
+ ["18 พ.ย. 2569 (19:00)","แถบ ง1 เพิ่มชื่ออาจารย์ใหม่และผูกอีเมลได้ในขั้นตอนเดียว"],
  ["18 พ.ย. 2569 (18:45)","CLO ที่บันทึกไว้ของวิชาคณิต ฟิสิกส์ เคมี ชี้ Sub-PLO ใหม่ K2-8 K2-9 K2-10 S2-6 S2-7 อัตโนมัติ"],
  ["18 พ.ย. 2569 (18:30)","ตาราง PLOs ของรายวิชาที่สาขาสอนให้สาขาอื่น (ข1 ก4 และ มคอ.2 หมวด 4)"],
  ["18 พ.ย. 2569 (18:10)","ตาราง PLO × KSEC รายชั้นปีตามรูปแบบเล่ม (แถบ ก4 และ มคอ.2 หมวด 4)"],
@@ -3804,6 +3806,11 @@ document.addEventListener("click",async e=>{
   const j=e.target.closest("[data-jump]");if(j){e.preventDefault();const t=document.getElementById(j.dataset.jump);if(t)t.scrollIntoView({behavior:"smooth",block:"start"});return}
   const b=e.target.closest("button");if(!b)return;const d=b.dataset;
   if(d.monf){state.monFilter=d.monf;render();return}
+  if(d.bindnew){const em=d.bindnew;const inp=[...document.querySelectorAll("[data-bindname]")].find(x=>x.dataset.bindname===em);const name=(inp&&inp.value||"").trim().replace(/\s+/g," ");
+    if(!name){state.msg="พิมพ์ชื่ออาจารย์ก่อน";render();return}
+    const dup=state.faculty.find(x=>x.name.replace(/\s+/g,"")===name.replace(/\s+/g,""));if(dup){state.msg=`มีชื่อ ${dup.name} อยู่แล้ว เลือกจากรายการแล้วกด "ผูก" แทน`;render();return}
+    const id="f"+Date.now().toString(36);const rec={name,email:em,tags:[],order:Math.max(0,...state.faculty.map(x=>x.order||0))+1};state.faculty.push({id,...rec});
+    state.msg=`เพิ่ม ${name} ในรายชื่ออาจารย์และผูกกับ ${em} แล้ว · กำหนดบทบาทและคุณวุฒิได้ที่แถบ ข1`;render();await dbWrite(db=>db.doc("faculty/"+id).set(rec),"รายชื่ออาจารย์");return}
   if(d.bindem){const em=d.bindem;const sel=[...document.querySelectorAll("[data-bindsel]")].find(x=>x.dataset.bindsel===em);const id=sel&&sel.value;if(!id){state.msg="เลือกชื่ออาจารย์ก่อนกดผูก";render();return}
     const f=state.faculty.find(x=>x.id===id);if(!f)return;const {id:_,...rest}=f;const rec={...rest,email:em};Object.assign(f,{email:em});state.msg=`ผูกอีเมล ${em} กับ ${f.name} แล้ว`;render();await dbWrite(db=>db.doc("faculty/"+id).set(rec),"รายชื่ออาจารย์");return}
   if(d.unbind||d.rebind){const fid=d.unbind||d.rebind;const f=state.faculty.find(x=>x.id===fid);if(!f||!f.email)return;const em=f.email;
