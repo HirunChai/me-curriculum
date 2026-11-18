@@ -800,7 +800,7 @@ const CLO0={
 "4-112-311":[["วิเคราะห์การใช้พลังงานของระบบหลักในอาคารควบคุมและโรงงานควบคุม เช่น ระบบปรับอากาศ หม้อไอน้ำ ระบบอากาศอัด และระบบแสงสว่าง", ["K3-5"], "Analyze", "R", "สอบ / กรณีศึกษา"], ["วัดและตรวจวิเคราะห์การใช้พลังงานตามแนวทางการตรวจสอบพลังงาน และตีความข้อมูลการวัด", ["S4-3"], "Apply", "R", "รายงานการตรวจวัด"], ["ประเมินมาตรการอนุรักษ์พลังงานด้วยระยะเวลาคืนทุนและความคุ้มค่า", ["S5-2"], "Evaluate", "R", "รายงานมาตรการอนุรักษ์พลังงาน"], ["จัดทำรายงานการจัดการพลังงานตามรูปแบบที่กฎหมายกำหนด", ["S5-3"], "Apply", "R", "รายงานการจัดการพลังงาน"], ["อธิบายข้อกำหนดตาม พ.ร.บ.การส่งเสริมการอนุรักษ์พลังงาน และหน้าที่ของผู้รับผิดชอบด้านพลังงาน", ["E6-1"], "Understand", "I", "แบบทดสอบ"]]
 };
 
-const APP_VER="รุ่น 18 พ.ย. 2569 (13:30)";
+const APP_VER="รุ่น 18 พ.ย. 2569 (16:30)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -1422,7 +1422,7 @@ function bookSecHtml(id){
     return `${H("หมวดที่ 3 ระบบการจัดการศึกษา การดำเนินการ และโครงสร้างของหลักสูตร")}${h3("1. ระบบการจัดการศึกษา")}${ind(BFh("sys"))}${h3("2. การดำเนินการหลักสูตร")}${li("2.1 วัน-เวลาในการดำเนินการเรียนการสอน ภาคการศึกษาที่ 1 มิถุนายน – ตุลาคม · ภาคการศึกษาที่ 2 พฤศจิกายน – มีนาคม · ภาคฤดูร้อน มีนาคม – พฤษภาคม")}${li("2.2 การเปิดโอกาสให้ผู้เข้าศึกษา ภาคปกติ (แผนปกติ 4 ปี และแผนเทียบโอน ปวส.) และภาคสมทบนอกเวลาราชการ (แผนปริญญาตรีใบที่ 2)")}${li("2.3 คุณสมบัติของผู้เข้าศึกษา")}${ind(BFh("qual"))}${li(`2.4 แผนการรับนักศึกษา ภาคปกติปีละ ${regRooms()} ห้อง (${regN()} คน รวมผู้เข้าด้วยวุฒิ ม.6 และ ปวส.) และภาคสมทบ (แผนปริญญาตรีใบที่ 2) ปีละ 1 ห้อง ไม่น้อยกว่า 15 คน (วางแผน ${smbN()} คน) ชั้นปีที่ 1–2 เรียนร่วมกันโดยไม่แยกแขนง`)}${bkT([...[1,2,3,4].map(y=>[`ภาคปกติ ชั้นปีที่ ${y}`,...[0,1,2,3,4].map(k=>({t:k>=y-1?String(regN()):"-",cls:"c"}))]),...[1,2,3].map(y=>[`ภาคสมทบ ปีที่ ${y}`,...[0,1,2,3,4].map(k=>({t:k>=y-1?String(smbN()):"-",cls:"c"}))]),["รวม",...[0,1,2,3,4].map(k=>({t:String(regN()*Math.min(k+1,4)+smbN()*Math.min(k+1,3)),cls:"c b"}))],["คาดว่าสำเร็จการศึกษา",...[0,1,2,3,4].map(k=>({t:k>=3?String(regN()+smbN()):k===2?String(smbN()):"-",cls:"c"}))]],["จำนวนนักศึกษา",...[0,1,2,3,4].map(k=>String(YEAR+k))],{w:"86%"})}${li("2.5 การเลือกแขนงวิชา")}${ind(BFh("trackSel"))}
     ${h3("3. โครงสร้างหลักสูตร")}${bkT([["ก. หมวดวิชาศึกษาทั่วไป",{t:String(cr(["GE"])),cls:"r"}],["ข. หมวดวิชาเฉพาะ",{t:String(SPEC),cls:"r"}],["   1. กลุ่มวิชาพื้นฐานวิชาชีพ",{t:String(cr(["MS","EB"])),cls:"r"}],["   2. กลุ่มวิชาชีพบังคับ",{t:String(cr(["CORE","TR"])),cls:"r"}],["   3. กลุ่มวิชาชีพเลือก",{t:String(cr(["TE"])),cls:"r"}],["   4. กลุ่มวิชาเสริมสร้างประสบการณ์ในวิชาชีพ",{t:String(cr(["EXP"])),cls:"r"}],["ค. หมวดวิชาเลือกเสรี",{t:String(cr(["FREE"])),cls:"r"}],[{t:"รวมไม่น้อยกว่า",cls:"b"},{t:String(sumCr(ME)),cls:"r b"}]],["หมวด / กลุ่มวิชา","หน่วยกิต"],{w:"70%"})}
     ${li("<b>3.2 ชื่อรายวิชา · ก. หมวดวิชาศึกษาทั่วไป</b>")}${ctab(all.filter(c=>c.g==="GE"))}<p class="small-note">* รายวิชาไม่นับหน่วยกิต</p>${li("<b>ข. หมวดวิชาเฉพาะ</b>")}${grp("1. กลุ่มวิชาพื้นฐานวิชาชีพ",core.filter(c=>["MS","EB"].includes(c.g)))}${li(`<b>2. กลุ่มวิชาชีพบังคับ</b> ${cr(["CORE","TR"])} หน่วยกิต (วิชาชีพบังคับร่วม ${sumCr(core.filter(c=>c.g==="CORE"))} หน่วยกิต และวิชาบังคับแขนงวิชาละ ${sumCr(all.filter(c=>c.g==="TR"&&inTrack(c,trs[0])))} หน่วยกิต)`)}${grp("2.1 วิชาชีพบังคับร่วม",core.filter(c=>c.g==="CORE"))}${trs.map((t,i)=>grp(`2.${i+2} วิชาบังคับแขนงวิชา${TRACKS[t]}`,all.filter(c=>c.g==="TR"&&inTrack(c,t)))).join("")}${grp("3. กลุ่มวิชาชีพเลือก ให้เลือกเรียนไม่น้อยกว่า 3 หน่วยกิต จากรายวิชาต่อไปนี้ หรือจากรายวิชาบังคับแขนงของแขนงวิชาอื่น (นักศึกษาทุกแขนงเลือกเรียนร่วมกันได้)",all.filter(c=>c.g==="TE"&&c.code!=="TE-1"),cr(["TE"]))}${grp("4. กลุ่มวิชาเสริมสร้างประสบการณ์ในวิชาชีพ",core.filter(c=>c.g==="EXP"))}${SERVICE.length?li("<b>5. กลุ่มวิชาที่เปิดสอนให้เฉพาะนักศึกษาต่างสาขา</b> (ไม่นับหน่วยกิตในหลักสูตรนี้)")+ctab(SERVICE):""}${li(`<b>ค. หมวดวิชาเลือกเสรี</b> ${cr(["FREE"])} หน่วยกิต`)}${ind("ให้เลือกเรียนรายวิชาใด ๆ ที่เปิดสอนในมหาวิทยาลัยเทคโนโลยีราชมงคลกรุงเทพหรือสถาบันอุดมศึกษาอื่น รวมถึงรายวิชาในกลุ่มวิชาชีพเลือกและรายวิชาบังคับแขนงของแขนงวิชาอื่นในหลักสูตรนี้ โดยต้องไม่ซ้ำกับรายวิชาที่นับหน่วยกิตในหมวดวิชาหรือกลุ่มวิชาอื่นแล้ว และไม่นับหน่วยกิตรายวิชาเดียวกันซ้ำ")}
-    <div class="bk-break"></div>${h3("3.3 แผนการศึกษา")}${plans}<div class="bk-break"></div>${h3("3.4 คำอธิบายรายวิชา (หมวดวิชาเฉพาะ)")}<p class="small-note">หมวดวิชาศึกษาทั่วไปใช้คำอธิบายตามแบบฟอร์มของมหาวิทยาลัย</p>${desc}${SERVICE.length?h3("3.5 คำอธิบายรายวิชาที่เปิดสอนให้เฉพาะนักศึกษาต่างสาขา")+svcDescHtml(ind,bkT):""}`;
+    <div class="bk-break"></div>${h3("3.3 แผนการศึกษา")}${plans}<div class="bk-break"></div>${altPlansHtml()}<div class="bk-break"></div>${h3("3.4 คำอธิบายรายวิชา (หมวดวิชาเฉพาะ)")}<p class="small-note">หมวดวิชาศึกษาทั่วไปใช้คำอธิบายตามแบบฟอร์มของมหาวิทยาลัย</p>${desc}${SERVICE.length?h3("3.5 คำอธิบายรายวิชาที่เปิดสอนให้เฉพาะนักศึกษาต่างสาขา")+svcDescHtml(ind,bkT):""}`;
   }
   if(id==="h4"){
     const STR={K:"บรรยายร่วมกับการแก้โจทย์ปัญหา กรณีศึกษา และการเรียนรู้แบบใช้ปัญหาเป็นฐาน",S:"ปฏิบัติการ การประลอง การเรียนรู้แบบโครงงาน และ CWIE",E:"กรณีศึกษาจรรยาบรรณวิศวกร และกำกับความซื่อสัตย์ทางวิชาการในงานทุกชิ้น",C:"กิจกรรมกลุ่ม การนำเสนอ กิจกรรมจิตอาสา และการเรียนรู้ด้วยตนเอง"};
@@ -2592,6 +2592,7 @@ document.addEventListener("keydown",e=>{if(e.target.id!=="cloQ"||e.key!=="Enter"
 
 // ---- แถบสถานะมุมขวาบน: ฉบับของหลักสูตร + การอัปเดตล่าสุด ----
 const CHANGELOG=[
+ ["18 พ.ย. 2569 (16:30)","ร่างแผนการศึกษาแผนเทียบโอน ปวส. และปริญญาตรีใบที่ 2 · แก้ข้อความทั้งเล่มตามผลการตรวจ (รวมไฟล์ Word)"],
  ["18 พ.ย. 2569 (13:30)","แก้ตามผลการตรวจเอกสาร 11 พ.ย. 2569 · แถบ ค4 ติดตามผลการตรวจ · ร่างหมวด 5 7 8 · ตารางองค์ความรู้สภาวิศวกรแยกรายแขนง"],
  ["18 พ.ย. 2569 (11:40)","เพิ่มวิชา 4-124-204 การประลองวิศวกรรมเครื่องกลและวัสดุ ในรายวิชาที่สอนให้สาขาอื่น · ช่องค้นหา ก3 ค้นได้ทุกรายวิชา ทั้งหลักสูตร 2571 วิชาที่สอนให้สาขาอื่น และหลักสูตรเดิม 2566"],
  ["18 พ.ย. 2569","แถบสถานะฉบับหลักสูตรและการอัปเดตล่าสุด · ค้นหารายวิชาในแถบ ก3"],
@@ -2629,6 +2630,76 @@ document.addEventListener("click",e=>{if(e.target.closest&&e.target.closest("#up
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-svcgo]");if(!b)return;const code=b.dataset.svcgo;location.hash="manage/struct";setTimeout(()=>{const a=document.getElementById("svc-"+code);if(a){a.scrollIntoView({behavior:"smooth",block:"start"});a.style.outline="3px solid var(--accent)";a.style.outlineOffset="6px";setTimeout(()=>{a.style.outline=""},2500)}},350)});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")updClose()});
 
+// ---- ร่างแผนการศึกษา แผนเทียบโอน ปวส. และแผนปริญญาตรีใบที่ 2 (ข้อ A3) ----
+const ALT_CFG={pvs:{t:"แผนเทียบโอน ปวส. (ภาคปกติ)",cap:22,capSS:9,yoff:2,years:3,def:["FREE-1","FREE-2","0-124-005","4-000-102","4-110-101","4-122-201"]},
+  sec:{t:"แผนปริญญาตรีใบที่ 2 (ภาคสมทบ)",cap:10,capSS:6,yoff:3,years:3,defG:["GE","FREE","MS","EB"]}};
+// ลำดับวิชาที่ต้องเรียนก่อน ใช้จัดลำดับในร่างแผน (ไม่ใช่วิชาบังคับก่อนอย่างเป็นทางการ)
+const ALT_SEQ=[["2-212-106","2-212-107"],["2-131-101","2-131-103"],["2-131-102","2-131-104"],["2-212-107","4-110-201"],["4-111-102","4-111-203"],["4-111-102","4-111-204"],["4-111-204","4-111-308"],["4-111-203","4-111-306"],["4-111-203","4-114-302"],["4-112-201","4-112-306"],["4-112-203","4-112-306"],["4-112-201","4-112-408"],["4-112-306","4-112-407"],["4-116-202","4-116-303"],["4-116-303","4-116-304"],["4-116-307","4-116-408"],["4-001-301","4-116-302"]];
+const altReal=c=>!(c.fl&&c.fl.pool);
+function altTransfer(k){const S=state.altplan&&state.altplan[k];if(Array.isArray(S))return S;const cfg=ALT_CFG[k];
+  if(cfg.def)return cfg.def;return COURSES.filter(c=>cfg.defG.includes(c.g)&&altReal(c)).map(c=>c.code).filter((x,i,s)=>s.indexOf(x)===i)}
+function altSchedule(k,t){const cfg=ALT_CFG[k],tr=new Set(altTransfer(k));
+  const L=trackCourses(t).filter(c=>altReal(c)&&!tr.has(c.code));const coop=L.filter(c=>c.fl&&c.fl.coop);
+  const flex=c=>c.g==="GE"||c.g==="FREE";const rest=L.filter(c=>!(c.fl&&c.fl.coop)).sort((a,b)=>(flex(a)-flex(b))||TERMS.indexOf(a.term)-TERMS.indexOf(b.term));
+  const isSS=i=>i%3===2,cap=i=>isSS(i)?cfg.capSS:cfg.cap,load=[],at={},coopIdx=coop.length?cfg.years*3-2:9999;
+  rest.forEach(c=>{const oy=+c.term[1]||1;
+    let lo=flex(c)?0:Math.max(0,Math.max(0,oy-cfg.yoff)*3-1);ALT_SEQ.forEach(([a,b])=>{if(b===c.code&&at[a]!=null)lo=Math.max(lo,at[a]+1)});
+    const ss=/SS$/.test(c.term);const ok=(i,allowSS)=>i!==coopIdx&&(!isSS(i)||ss||allowSS)&&(load[i]||0)+c.cr<=cap(i);
+    let i=-1;for(const allowSS of [false,true]){for(let j=lo;j<coopIdx;j++){if(ss&&!isSS(j)&&j<lo+3)continue;if(ok(j,allowSS)){i=j;break}}if(i>=0)break}
+    if(i<0){i=coopIdx+1;while(!ok(i,false))i++}
+    load[i]=(load[i]||0)+c.cr;at[c.code]=i});
+  if(coop.length){let i=coopIdx;const last=Math.max(-1,...Object.values(at));if(last>i){i=last+1;while(isSS(i))i++}coop.forEach(c=>{at[c.code]=i;load[i]=(load[i]||0)+c.cr})}
+  const n=Math.max(-1,...Object.values(at))+1,slots=[];
+  for(let i=0;i<n;i++){const cs=L.filter(c=>at[c.code]===i).sort((a,b)=>TERMS.indexOf(a.term)-TERMS.indexOf(b.term)||a.code.localeCompare(b.code));if(cs.length)slots.push({i,name:`ปี ${Math.floor(i/3)+1} ${isSS(i)?"ภาคฤดูร้อน":"ภาค "+(i%3+1)}`,cs})}
+  return {slots,tr:trackCourses(t).filter(c=>altReal(c)&&tr.has(c.code)),years:Math.ceil(n/3)}}
+function altPlansHtml(){const trs=Object.keys(TRACKS),ind=t=>`<p class="ind">${t}</p>`;const row=c=>[c.g==="FREE"||c.g==="TE"?"x-xxx-xxx":c.code,c.g==="FREE"?"วิชาเลือกเสรี":c.g==="TE"?"วิชาชีพเลือก":c.th,c.fl&&c.fl.nc?`(${c.t})`:String(c.cr),String(c.t),String(c.p),String(c.s)];
+  return ["pvs","sec"].map((k,ki)=>{const cfg=ALT_CFG[k];const s0=altSchedule(k,trs[0]);
+    const trT=bkT([...s0.tr.map(c=>[c.g==="FREE"?"x-xxx-xxx":c.code,c.th,c.fl&&c.fl.nc?`(${c.t})`:String(c.cr)]),[{t:"รวมเทียบโอนได้",span:2,cls:"r b"},{t:String(sumCr(s0.tr)),cls:"b"}]],["รหัสวิชา","รายวิชาที่เทียบโอน","หน่วยกิต"],{w:"88%"});
+    return `<p class="li"><b>${ki?"แผน ค.":"แผน ข."} ${cfg.t}</b></p>${ind(k==="pvs"?"ผู้เข้าศึกษาด้วยวุฒิ ปวส. เทียบโอนรายวิชาตามระเบียบมหาวิทยาลัยเทคโนโลยีราชมงคลกรุงเทพ ว่าด้วยการเทียบโอนผลการเรียน พ.ศ. 2564 รายวิชาที่เทียบโอนได้ตามตารางด้านล่าง ผู้ที่เทียบโอนได้ไม่ครบต้องลงเรียนรายวิชาที่ขาดเพิ่มตามแผนปกติ":"ผู้สำเร็จการศึกษาระดับปริญญาตรีเทียบโอนตามคุณสมบัติในข้อ 2.3.3 เรียนนอกเวลาราชการ ภาคการศึกษาละไม่เกิน "+cfg.cap+" หน่วยกิต รายวิชาที่ต้องลงเรียนเพิ่มกรณีเทียบโอนไม่ครบให้ลงเรียนตามแผนปกติ")}${trT}${ind(`รวมหน่วยกิตที่ต้องเรียนในหลักสูตร ${140-sumCr(s0.tr)} หน่วยกิต ระยะเวลาตามแผน ${s0.years} ปีการศึกษา`)}`+
+      trs.map(t=>{const S=altSchedule(k,t);return `<p class="li"><b>${cfg.t} · แขนงวิชา${TRACKS[t]}</b></p>`+S.slots.map(sl=>{const rows=sl.cs.map(row);rows.push([{t:"รวม",span:2,cls:"r b"},{t:String(sumCr(sl.cs)),cls:"b"},"","",""]);return bkT(rows,[sl.name,"","หน่วยกิต","ทฤษฎี","ปฏิบัติ","ศึกษาด้วยตนเอง"],{w:"88%"})}).join("")}).join('<div class="bk-break"></div>')}).join('<div class="bk-break"></div>')}
+function altEditorHtml(){const ed=state.isAdmin;const trs=Object.keys(TRACKS);
+  const pool=COURSES.filter(c=>altReal(c)&&c.g!=="TR"&&c.g!=="TE").filter((c,i,s)=>s.findIndex(x=>x.code===c.code)===i).sort((a,b)=>TERMS.indexOf(a.term)-TERMS.indexOf(b.term));
+  return `<section class="panel" id="altEd"><h2>ร่างแผนการศึกษา แผนเทียบโอน ปวส. และแผนปริญญาตรีใบที่ 2 (ข้อ A3)</h2>
+   <p class="small muted">ติ๊กรายวิชาที่เทียบโอนได้ ระบบจัดรายวิชาที่เหลือเป็นแผนรายภาคตามลำดับของแผนปกติ และใส่ในเล่ม มคอ.2 หมวด 3 ข้อ 3.3 (แผน ข. และ แผน ค.) ทันที ค่าตั้งต้น: ปวส. เทียบโอนวิชาเลือกเสรี กิจกรรมทางกาย เขียนแบบ ฝึกพื้นฐาน และกระบวนการผลิต · ปริญญาตรีใบที่ 2 เทียบโอนตามข้อ 2.3.3 (3)${ed?"":" · กรรมการหลักสูตรเท่านั้นที่แก้ได้"}</p>
+   <div class="scroll"><table class="small"><tr><th>รหัส</th><th>รายวิชา</th><th>นก.</th><th>แผนปกติ</th><th>เทียบโอน ปวส.</th><th>เทียบโอน ป.ตรีใบที่ 2</th></tr>${pool.map(c=>`<tr><td class="mono">${esc(c.code)}</td><td>${esc(c.th)}</td><td>${c.cr}</td><td class="small">${esc(TERM_TH[c.term]||"")}</td>${["pvs","sec"].map(k=>`<td style="text-align:center"><input type="checkbox" data-alt="${k}" value="${esc(c.code)}" ${altTransfer(k).includes(c.code)?"checked":""} ${ed?"":"disabled"} aria-label="เทียบโอน ${esc(c.code)} ${k}"></td>`).join("")}</tr>`).join("")}
+   <tr><th colspan="4" style="text-align:right">รวมเทียบโอน / เรียนจริง / ระยะเวลา (แขนง${esc(TRACKS[trs[0]])})</th>${["pvs","sec"].map(k=>{const S=altSchedule(k,trs[0]);return `<th>${sumCr(S.tr)} / ${140-sumCr(S.tr)} นก. · ${S.years} ปี</th>`}).join("")}</tr></table></div></section>`}
+document.addEventListener("change",async e=>{const k=e.target.dataset&&e.target.dataset.alt;if(!k)return;const cur=new Set(altTransfer(k));e.target.checked?cur.add(e.target.value):cur.delete(e.target.value);
+  state.altplan={...(state.altplan||{}),[k]:[...cur]};render();await dbWrite(db=>db.doc("program/altplan").set({...state.altplan,updatedAt:new Date().toISOString()}),"แผนเทียบโอน")});
+
+// ---- แก้ข้อความทั้งเล่มตามผลการตรวจ (ข้อ A4): ช่องกรอกด้วยมือ ฉบับแก้มือ และไฟล์ Word ที่อัปโหลด ----
+const FIX_RULES=[
+ {id:"cr",d:"คำนำ: 145 หน่วยกิต → 140 หน่วยกิต",re:/145(\s*)หน่วยกิต/g,to:"140$1หน่วยกิต",only:["front"],fld:/^fw/},
+ {id:"en1",d:"ชื่อแขนงภาษาอังกฤษ → Energy and Environmental Engineering",re:/(แขนง(?:วิชา)?วิศวกรรมพลังงาน)(?:และสิ่งแวดล้อม)?(\s*)\(Energy Engineering\)/g,to:"$1และสิ่งแวดล้อม$2(Energy and Environmental Engineering)"},
+ {id:"en2",d:"Energy Engineering track/major → Energy and Environmental Engineering",re:/Energy Engineering(?=\s+(?:[Tt]rack|[Mm]ajor|[Oo]ption|[Pp]rogram))/g,to:"Energy and Environmental Engineering"},
+ {id:"th",d:"แขนงวิชาวิศวกรรมพลังงาน → แขนงวิชาวิศวกรรมพลังงานและสิ่งแวดล้อม",re:/(แขนง(?:วิชา)?วิศวกรรมพลังงาน)(?!และสิ่งแวดล้อม|ทดแทน)/g,to:"$1และสิ่งแวดล้อม"}];
+const fixApplies=(r,sec,fld)=>(!r.only||r.only.includes(sec))&&(!fld||!r.fld||r.fld.test(fld));
+function fixText(s,sec,fld,hits,where){let o=String(s);FIX_RULES.forEach(r=>{if(!fixApplies(r,sec,fld))return;o=o.replace(r.re,(...m)=>{const off=m[m.length-2],src=m[m.length-1];hits.push({where,rule:r.d,ctx:src.slice(Math.max(0,off-30),off+m[0].length+30).replace(/<[^>]*>/g,"")});return m[0].replace(new RegExp(r.re.source),r.to)})});return o}
+async function docxFixBuf(buf,sec,hits,where){if(!window.JSZip)await loadScript(DOCX_CDN.zip);const zip=await JSZip.loadAsync(buf);let n0=hits.length;
+  for(const f of Object.keys(zip.files).filter(f=>/^word\/(document|header\d*|footer\d*)\.xml$/.test(f))){const xml=await zip.file(f).async("string");
+    const doc=new DOMParser().parseFromString(xml,"application/xml");const W="http://schemas.openxmlformats.org/wordprocessingml/2006/main";let ch=false;
+    [...doc.getElementsByTagNameNS(W,"p")].forEach(p=>{const ts=[...p.getElementsByTagNameNS(W,"t")];if(!ts.length)return;
+      FIX_RULES.forEach(r=>{if(!fixApplies(r,sec))return;const full=ts.map(t=>t.textContent).join("");const re=new RegExp(r.re.source,"g");const ms=[...full.matchAll(re)];if(!ms.length)return;
+        let txt=ts.map(t=>t.textContent);for(const m of ms.reverse()){const rep=m[0].replace(new RegExp(r.re.source),r.to);let s=m.index,e=s+m[0].length,acc=0,a=-1,oa=0,b=-1,ob=0;
+          txt.forEach((x,i)=>{if(a<0&&s<acc+x.length){a=i;oa=s-acc}if(b<0&&e<=acc+x.length){b=i;ob=e-acc}acc+=x.length});if(a<0||b<0)continue;
+          if(a===b)txt[a]=txt[a].slice(0,oa)+rep+txt[a].slice(ob);else{txt[a]=txt[a].slice(0,oa)+rep;for(let i=a+1;i<b;i++)txt[i]="";txt[b]=txt[b].slice(ob)}
+          hits.push({where,rule:r.d,ctx:full.slice(Math.max(0,s-30),e+30)});ch=true}
+        txt.forEach((x,i)=>{ts[i].textContent=x;ts[i].setAttribute("xml:space","preserve")});});});
+    if(ch)zip.file(f,new XMLSerializer().serializeToString(doc))}
+  return hits.length>n0?await zip.generateAsync({type:"arraybuffer"}):null}
+async function bookFixRun(apply){if(apply&&!state.isAdmin)return;state.fixRes={busy:true};render();const hits=[];const ed=JSON.parse(JSON.stringify(state.bookEdit||{}));
+  try{const f=ed.f||{};Object.keys(f).forEach(k=>{const sec=(Object.entries(BOOK_FIELDS).find(([s,L])=>L.some(x=>x[0]===k))||["?"])[0];const v=fixText(f[k],sec,k,hits,"ช่องกรอก "+((Object.values(BOOK_FIELDS).flat().find(x=>x[0]===k)||[0,k])[1]));if(v!==f[k])f[k]=v});
+    const hh=ed.html||{};Object.keys(hh).forEach(sec=>{if(hh[sec]&&hh[sec].h){const v=fixText(hh[sec].h,sec,null,hits,"ฉบับแก้มือ "+((BOOK_SECS.find(x=>x[0]===sec)||[0,sec])[1]));if(v!==hh[sec].h)hh[sec]={...hh[sec],h:v,at:new Date().toISOString()}}});
+    const dx=[];for(const sec of Object.keys(bkdMeta())){const buf=await bkdBuf(sec);if(!buf)continue;const nb=await docxFixBuf(buf,sec,hits,"ไฟล์ Word "+((BOOK_SECS.find(x=>x[0]===sec)||[0,sec])[1]));if(nb)dx.push([sec,nb])}
+    if(apply&&hits.length){if(Object.keys(f).length||Object.keys(hh).length){state.bookMerge={};await saveBookEdit(ed,"แก้ข้อความตามผลการตรวจ")}
+      for(const [sec,nb] of dx){const m=bkdMeta()[sec];const meta={...m,at:new Date().toISOString(),by:(state.user&&state.user.email)||"",size:nb.byteLength};await bkdStore.put(sec,{...meta,b64:b64Of(nb)});bkdCache[sec]={at:meta.at,buf:nb};bkdMeta()[sec]=meta}
+      state.review=state.review||{};state.review.st={...(state.review.st||{}),A4:"done"};state.review.note={...(state.review.note||{}),A4:`แก้อัตโนมัติ ${hits.length} จุด เมื่อ ${new Date().toLocaleString("th-TH")}`};await reviewSave()}
+    state.fixRes={hits,applied:apply}}catch(e){console.error(e);state.fixRes={err:e&&e.message||String(e)}}render()}
+function fixPanelHtml(){const r=state.fixRes;return `<section class="panel"><h2>แก้ข้อความในเล่มตามผลการตรวจ (ข้อ A4)</h2>
+  <p class="small muted">ค้นและแก้ทั้งช่องกรอกข้อความ ฉบับแก้มือ และไฟล์ Word ที่อัปโหลดในแถบ ค1 · กฎที่ใช้: ${FIX_RULES.map(x=>esc(x.d)).join(" · ")} (ชื่อปริญญาของอาจารย์ เช่น วิศวกรรมพลังงานทดแทน ไม่ถูกแก้)</p>
+  <div class="row" style="gap:8px"><button class="sm" id="fixScan">ตรวจหาข้อความที่ต้องแก้</button>${state.isAdmin&&r&&r.hits&&r.hits.length&&!r.applied?`<button class="sm primary" id="fixApply">แก้ทั้งหมด ${r.hits.length} จุด</button>`:""}</div>
+  ${r&&r.busy?'<p class="small">กำลังตรวจ…</p>':r&&r.err?`<p class="note small">ไม่สำเร็จ: ${esc(r.err)}</p>`:r&&r.hits?(r.hits.length?`<p class="small">${r.applied?"แก้แล้ว":"พบ"} ${r.hits.length} จุด</p><div class="scroll" style="max-height:300px;overflow:auto"><table class="small"><tr><th>ตำแหน่ง</th><th>กฎ</th><th>ข้อความเดิม</th></tr>${r.hits.map(x=>`<tr><td>${esc(x.where)}</td><td>${esc(x.rule)}</td><td>…${esc(x.ctx)}…</td></tr>`).join("")}</table></div>`:`<p class="small">${r.applied?"แก้เรียบร้อย":"ไม่พบข้อความที่ต้องแก้แล้ว"} ส่วนที่ระบบสร้างอัตโนมัติใช้ 140 หน่วยกิตและชื่อแขนงที่ถูกต้องอยู่แล้ว</p>`):""}</section>`}
+document.addEventListener("click",e=>{if(e.target.id==="fixScan")bookFixRun(false);if(e.target.id==="fixApply"&&confirm("แก้ข้อความในเล่มทั้งหมด รวมไฟล์ Word ที่อัปโหลด?"))bookFixRun(true)});
+
 // ---- ผลการตรวจเอกสารหลักสูตร (ค4) ----
 // k: sys = แก้ในระบบแล้ว · data = กรอก/แก้ข้อมูลใน platform · word = แก้ข้อความในเล่ม (Word ที่อัปโหลด หรือ ✎ แก้ไขข้อความ) · decide = รอมติกรรมการหลักสูตร
 const REVIEW_SRC="ผลการตรวจสอบหลักสูตร วศ.บ. วิศวกรรมเครื่องกล (ปรับปรุง 2571) · 11 พ.ย. 2569";
@@ -2637,8 +2708,8 @@ const REVIEW_K={sys:["pass","แก้ในระบบแล้ว"],data:["wa
 const REVIEW=[
  ["A1","A","อาจารย์ผู้รับผิดชอบหลักสูตร 2 คน (ผศ.สิริพงษ์ ผศ.ธีรวัส) ยังไม่มีผลงานในรอบ 5 ปี และอีก 2 คนผลงานอาจนอกช่วงเวลา","decide","สลับเป็นอาจารย์ประจำหลักสูตร แล้วนำอาจารย์ที่มีผลงานมาแทน (กำหนดบทบาทที่แถบ ข1) และให้อาจารย์เติมผลงานในแถบ ข4","manage/struct"],
  ["A2","A","หมวด 5 (ข้อ 1, 2, 3, 5, 4.2) หมวด 7 และหมวด 8 ยังเป็นข้อความว่าง","sys","ระบบเขียนร่างเนื้อหาให้ครบแล้ว ตรวจและปรับถ้อยคำได้ที่ ✎ แก้ไขข้อความ ส่วนภาคผนวก ข ดูข้อ C11","book"],
- ["A3","A","ไม่มีแผนการศึกษาของแผนเทียบโอน ปวส. และแผนปริญญาตรีใบที่ 2 (ภาคสมทบ)","decide","กรรมการกำหนดรายวิชาที่เทียบโอนและลำดับรายวิชาของทั้ง 2 แผน แล้วแจ้งเพื่อสร้างตารางแผนการศึกษาในหมวด 3 ข้อ 3.3",""],
- ["A4","A","หน่วยกิตในคำนำ (145) ขัดกับเนื้อหา (140) และชื่อแขนงพลังงานเขียน 2 แบบ","word","แก้คำนำเป็น 140 หน่วยกิต และใช้ชื่อ \"แขนงวิชาวิศวกรรมพลังงานและสิ่งแวดล้อม (Energy and Environmental Engineering)\" ทั้งเล่ม (ระบบแก้ชื่อภาษาอังกฤษในส่วนที่สร้างอัตโนมัติแล้ว)","book"],
+ ["A3","A","ไม่มีแผนการศึกษาของแผนเทียบโอน ปวส. และแผนปริญญาตรีใบที่ 2 (ภาคสมทบ)","decide","ระบบสร้างร่างแผน ข. และแผน ค. ในหมวด 3 ข้อ 3.3 แล้ว กรรมการตรวจรายวิชาที่เทียบโอนในตารางด้านบนของหน้านี้ แล้วเปลี่ยนสถานะเป็นแก้แล้ว","book"],
+ ["A4","A","หน่วยกิตในคำนำ (145) ขัดกับเนื้อหา (140) และชื่อแขนงพลังงานเขียน 2 แบบ","word","กดปุ่ม \"ตรวจหาข้อความที่ต้องแก้\" แล้ว \"แก้ทั้งหมด\" ด้านบนของหน้านี้ ระบบแก้คำนำเป็น 140 หน่วยกิต และใช้ชื่อ \"แขนงวิชาวิศวกรรมพลังงานและสิ่งแวดล้อม (Energy and Environmental Engineering)\" ทั้งเล่ม (ระบบแก้ชื่อภาษาอังกฤษในส่วนที่สร้างอัตโนมัติแล้ว)","book"],
  ["A5","A","ต้องยืนยันว่าแต่ละแขนงครอบคลุมองค์ความรู้สภาวิศวกร","sys","ภาคผนวก ก.5 แยกตารางรายแขนงแล้ว แสดง \"ไม่มี\" ตรงหัวข้อที่แขนงยังขาด (เช่น Thermal System Design, Fire Protection, Air Conditioning ของแขนงพลังงาน) ใช้ประกอบการตัดสินใจข้อ E4","book"],
  ["B1","B","เลขหน้า 7–14 พิมพ์เลข 1 ทุกหน้า และสารบัญไม่ตรง","word","เกิดในไฟล์ Word ที่อัปโหลด ตั้งค่าเลขหน้าต่อเนื่องในไฟล์ Word หรือใช้ \"ดูทั้งเล่ม / ดาวน์โหลด PDF\" ที่เรียงเลขหน้าและสารบัญให้อัตโนมัติ","book"],
  ["B2","B","สารบัญภาคผนวก ก.5 เขียน \"โมเดลรูปแบบการจัดการเรียนการสอน\" แต่เนื้อหาคือตารางองค์ความรู้สภาวิศวกร","sys","แก้ชื่อในสารบัญให้ตรงกับเนื้อหาแล้ว","book"],
@@ -2674,7 +2745,7 @@ const REVIEW=[
  ["D4","D","นายสิรภพ ประสบการณ์ปฏิบัติการระบุเพียง \"อาจารย์ มทร.กรุงเทพ\"","data","เพิ่มประสบการณ์ปฏิบัติการและความสัมพันธ์กับแขนงในแถบ ข4","manage/cv"],
  ["D5","D","ผศ.มณฑล ผศ.สิริพงษ์ ผศ.ดิฐภัทร ผศ.ธีรวัส และนายฐานทัพ ไม่มีหัวข้อประสบการณ์ด้านปฏิบัติการ","data","อาจารย์กรอกประสบการณ์ด้านปฏิบัติการในแถบ ข4 (หลักสูตรประเภทปฏิบัติการ)","manage/cv"],
  ["D6","D","ภาระสอนหมวด 5 ข้อ 4.1 ใส่ตัวเลขเท่ากันทุกปี 2571–2574","sys","คำนวณใหม่แยกรายปี นับเฉพาะชั้นปีที่เปิดสอนแล้ว","book"],
- ["E1","E","ไม่มีแผนการศึกษาแผนเทียบโอน ปวส. และปริญญาตรีใบที่ 2","decide","ดูข้อ A3",""],
+ ["E1","E","ไม่มีแผนการศึกษาแผนเทียบโอน ปวส. และปริญญาตรีใบที่ 2","decide","ดูข้อ A3 (มีร่างแผนแล้ว)",""],
  ["E2","E","สหกิจศึกษาสำหรับนักศึกษาภาคสมทบที่ทำงานอยู่แล้ว ยังไม่มีกลไก","decide","กำหนดกลไกเทียบโอนประสบการณ์หรือสหกิจศึกษาในที่ทำงาน แล้วเขียนในหมวด 4 ข้อ 5",""],
  ["E3","E","คำอธิบาย 4-116-302 เขียน \"ไม่น้อยกว่า 15 สัปดาห์\" ควรตรวจกับแนวปฏิบัติ CWIE (16 สัปดาห์)","data","ผู้รับผิดชอบรายวิชาแก้คำอธิบาย 4-116-302 ในแถบ ก3 เป็น \"ไม่น้อยกว่า 16 สัปดาห์\" หลังตรวจประกาศ","design/clo"],
  ["E4","E","องค์ความรู้สภาวิศวกรรายแขนง: แขนงพลังงานฯ ไม่มี Air Conditioning, Thermal System Design, Fire Protection และแขนงยานยนต์ไม่มี Thermal System Design, Fire Protection","decide","ตัดสินใจเพิ่มวิชาบังคับแขนง หรือยืนยันจำนวนขั้นต่ำตามระเบียบ (ตาราง ก.5 แยกรายแขนงแล้ว)",""],
@@ -2709,7 +2780,7 @@ function viewReview(){const S=state.review||{},note=S.note||{},ed=state.isAdmin;
   return `<section class="panel"><h2>ผลการตรวจเอกสารหลักสูตร</h2><p class="small muted">${esc(REVIEW_SRC)} · ${tot} ประเด็น</p>
    <div class="sum" style="margin:10px 0"><div class="panel"><div class="small muted">แก้แล้ว</div><b style="font-size:26px">${done}</b><div class="small">จาก ${tot} ประเด็น</div></div>${byK.map(([k,n])=>`<div class="panel"><div class="small muted">${REVIEW_K[k][1]}</div><b style="font-size:26px">${n}</b><div class="small">ยังค้าง</div></div>`).join("")}</div>
    <div class="row" style="gap:6px;flex-wrap:wrap;margin:6px 0">${[["open","ยังค้าง"],["all","ทั้งหมด"],["sys","แก้ในระบบแล้ว"],["data","กรอกข้อมูลใน platform"],["word","แก้ข้อความในเล่ม"],["decide","รอมติกรรมการ"]].map(([k,t])=>`<button class="sm${f===k?" primary":""}" data-revf="${k}">${t}</button>`).join("")}</div>
-   ${!ed?'<p class="note small">กรรมการหลักสูตรเปลี่ยนสถานะและบันทึกหมายเหตุได้ ท่านดูได้อย่างเดียว</p>':""}</section>
+   ${!ed?'<p class="note small">กรรมการหลักสูตรเปลี่ยนสถานะและบันทึกหมายเหตุได้ ท่านดูได้อย่างเดียว</p>':""}</section>${fixPanelHtml()}${altEditorHtml()}
    ${REVIEW_GRP.map(([g,t])=>{const L=REVIEW.filter(r=>r[1]===g&&(f==="all"||(f==="open"?reviewSt(r)!=="done":r[3]===f)));if(!L.length)return "";
     return `<section class="panel"><h2>${g}. ${t}</h2><div class="scroll"><table><tr><th style="width:52px">ข้อ</th><th>ประเด็นจากผู้ตรวจ</th><th style="width:30%">วิธีแก้</th><th style="width:150px">สถานะ</th></tr>${L.map(r=>{const st=reviewSt(r);return `<tr${st==="done"?' style="opacity:.62"':""}><td class="mono">${r[0]}</td><td>${esc(r[2])}<div style="margin-top:4px">${pill(REVIEW_K[r[3]][0],REVIEW_K[r[3]][1])} ${go(r[5])}</div></td><td class="small">${esc(r[4])}${note[r[0]]?`<div class="small" style="margin-top:4px;color:var(--accent)">หมายเหตุ: ${esc(note[r[0]])}</div>`:""}</td><td><select data-revst="${r[0]}" ${ed?"":"disabled"} aria-label="สถานะ ${r[0]}"><option value="todo" ${st==="todo"?"selected":""}>ยังไม่แก้</option><option value="doing" ${st==="doing"?"selected":""}>กำลังแก้</option><option value="done" ${st==="done"?"selected":""}>แก้แล้ว</option><option value="na" ${st==="na"?"selected":""}>ไม่แก้ (มีเหตุผล)</option></select>${ed?`<button class="sm" data-revnote="${r[0]}" style="margin-top:4px">หมายเหตุ</button>`:""}</td></tr>`}).join("")}</table></div></section>`}).join("")}`}
 async function reviewSave(){const d={st:(state.review&&state.review.st)||{},note:(state.review&&state.review.note)||{},updatedAt:new Date().toISOString()};await dbWrite(db=>db.doc("program/review").set(d),"ผลการตรวจเอกสาร")}
@@ -3959,6 +4030,7 @@ const withTO=(p,ms,st)=>Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(
   db.doc("program/team").onSnapshot(s=>{const d=s.exists&&s.data();state.team={role:(d&&d.role)||{},qual:(d&&d.qual)||{}};softRender()},err);
   db.collection("photo").onSnapshot(s=>{const m={};s.docs.forEach(d=>{const x=d.data();if(x&&x.fid&&x.img)m[x.fid]=x.img});state.photos=m;softRender()},err);
   db.collection("courses").onSnapshot(s=>{const m={};s.docs.forEach(d=>{const r=d.data(),x=aliasCourse(r);if(x&&x.code&&!(m[x.code]&&m[x.code].__new))m[x.code]={...x,__new:r&&r.cv===5}});state.courseOv=m;rebuild();buildExpected();softRender()},err);
+  db.doc("program/altplan").onSnapshot(s=>{state.altplan=s.exists?s.data():null;softRender()},err);
   db.doc("program/review").onSnapshot(s=>{state.review=s.exists?s.data():null;softRender()},err);
   db.doc("program/curver").onSnapshot(s=>{state.curver=s.exists?s.data():null;if(window.updBarPaint)updBarPaint()},err);
   db.doc("program/plos").onSnapshot(s=>{applyPloDoc(s.exists&&s.data());rebuild();softRender()},err);
