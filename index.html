@@ -807,7 +807,7 @@ const CLO0={
 "4-112-311":[["วิเคราะห์การใช้พลังงานของระบบหลักในอาคารควบคุมและโรงงานควบคุม เช่น ระบบปรับอากาศ หม้อไอน้ำ ระบบอากาศอัด และระบบแสงสว่าง", ["K3-5"], "Analyze", "R", "สอบ / กรณีศึกษา"], ["วัดและตรวจวิเคราะห์การใช้พลังงานตามแนวทางการตรวจสอบพลังงาน และตีความข้อมูลการวัด", ["S4-3"], "Apply", "R", "รายงานการตรวจวัด"], ["ประเมินมาตรการอนุรักษ์พลังงานด้วยระยะเวลาคืนทุนและความคุ้มค่า", ["S5-2"], "Evaluate", "R", "รายงานมาตรการอนุรักษ์พลังงาน"], ["จัดทำรายงานการจัดการพลังงานตามรูปแบบที่กฎหมายกำหนด", ["S5-3"], "Apply", "R", "รายงานการจัดการพลังงาน"], ["อธิบายข้อกำหนดตาม พ.ร.บ.การส่งเสริมการอนุรักษ์พลังงาน และหน้าที่ของผู้รับผิดชอบด้านพลังงาน", ["E6-1"], "Understand", "I", "แบบทดสอบ"]]
 };
 
-const APP_VER="รุ่น 18 พ.ย. 2569 (18:30)";
+const APP_VER="รุ่น 18 พ.ย. 2569 (18:45)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -938,7 +938,11 @@ const needs=()=>{const m={};NEEDS0.forEach(n=>m[n.id]=n);Object.values(state.nee
     m[n.id]={...n,st:"have",auto:true,plos:ps.filter(([,v])=>v>=SV_HIGH).map(([k])=>k),how:`แบบสำรวจออนไลน์ · ผู้ตอบ ${d.n} คน`,
       t:"ค่าเฉลี่ยความสำคัญ: "+ps.map(([k,v])=>`PLO${k} ${v.toFixed(2)}`).join(" · "),sh:`${n.id} (${d.n} คน)`}});
   return Object.values(m)};
-const clos=code=>{const o=state.cloOv[code];if(o)return o.items||[];return (CLO0[code]||[]).map(([t,subs,bloom,lv,as])=>({t,subs,bloom,lv,as}))};
+// PLO2 ฉบับปรับปรุง (คณะ): วิชาคณิต ฟิสิกส์ เคมี ย้ายมารับผิดชอบ Sub-PLO K2-8 K2-9 K2-10 S2-6 S2-7 · แปลง CLO ที่บันทึกไว้ก่อนหน้าให้ชี้ Sub-PLO ใหม่ (คงข้อความ CLO เดิม)
+const SCI_V13={"2-212-106":["K2-8"],"2-212-107":["K2-8"],"2-131-101":["K2-9"],"2-131-103":["K2-9"],"2-131-102":["K2-9","S2-6"],"2-131-104":["K2-9","S2-6"],"2-110-152":["K2-10"],"2-110-153":["K2-10","S2-7"]};
+const sciRemap=(code,items)=>{const m=SCI_V13[code];if(!m)return items;return items.map(x=>{const ss=[].concat(x.subs||[]);if(ss.some(s=>m.includes(s)))return x;
+  const isS=ss.some(s=>/^S/.test(s))||(!ss.some(s=>/^K/.test(s))&&m[1]&&/ทดลอง|ปฏิบัติ|รายงาน|เครื่องมือ/.test(x.t||""));return {...x,subs:[isS&&m[1]?m[1]:m[0]]}})};
+const clos=code=>{const o=state.cloOv[code];if(o)return sciRemap(code,o.items||[]);return (CLO0[code]||[]).map(([t,subs,bloom,lv,as])=>({t,subs,bloom,lv,as}))};
 const hasClo=code=>clos(code).length>0;
 function ploOf(c){
   const L=clos(c.code);if(!L.length)return {map:c.plo,src:"default"};
@@ -2645,6 +2649,7 @@ document.addEventListener("keydown",e=>{if(e.target.id!=="cloQ"||e.key!=="Enter"
 
 // ---- แถบสถานะมุมขวาบน: ฉบับของหลักสูตร + การอัปเดตล่าสุด ----
 const CHANGELOG=[
+ ["18 พ.ย. 2569 (18:45)","CLO ที่บันทึกไว้ของวิชาคณิต ฟิสิกส์ เคมี ชี้ Sub-PLO ใหม่ K2-8 K2-9 K2-10 S2-6 S2-7 อัตโนมัติ"],
  ["18 พ.ย. 2569 (18:30)","ตาราง PLOs ของรายวิชาที่สาขาสอนให้สาขาอื่น (ข1 ก4 และ มคอ.2 หมวด 4)"],
  ["18 พ.ย. 2569 (18:10)","ตาราง PLO × KSEC รายชั้นปีตามรูปแบบเล่ม (แถบ ก4 และ มคอ.2 หมวด 4)"],
  ["18 พ.ย. 2569 (17:40)","ปรับ PLO2 เป็นหลักการพื้นฐานทางวิศวกรรมและวิทยาศาสตร์ เพิ่ม Sub-PLO K2-8 K2-9 K2-10 S2-6 S2-7 และย้ายวิชาคณิตศาสตร์ ฟิสิกส์ เคมี มารับผิดชอบ PLO2"],
