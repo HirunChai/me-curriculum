@@ -326,6 +326,13 @@ button:not(.primary):hover:not(:disabled){background:var(--ph-soft);border-color
 .note{border-left-color:var(--ph)}
 a{color:var(--ph)}
 :focus-visible{outline-color:var(--ph)}
+.cq-bar{margin:10px 0 4px;gap:10px}.cq-in{flex:1;min-width:240px;max-width:620px}.cq-in input{flex:1;min-width:0;padding:8px 12px;border-radius:8px;border:2px solid var(--accent);font-size:15px}.cq-res table{margin:4px 0 8px}.upd-form input{padding:7px 10px;border-radius:6px}
+.userbar .upd-ver{border-color:var(--accent);color:var(--accent);font-weight:600}.userbar .upd-last{white-space:nowrap}
+.upd-ov{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:9999;display:grid;place-items:start center;padding:40px 16px;overflow:auto}
+.upd-box{background:var(--panel);color:var(--ink);border-radius:12px;max-width:720px;width:100%;padding:18px 20px;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.upd-box section{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}.upd-box h3{margin:0 0 6px;font-size:14px}
+.upd-form{display:grid;gap:6px;margin:6px 0 10px}.upd-form input,.upd-form textarea{width:100%}.upd-form button{justify-self:start}
+@media (max-width:640px){.userbar .upd-last{white-space:normal}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 @media print{header.top,nav.phase,nav.tabs{display:none}}
 </style>
@@ -791,7 +798,7 @@ const CLO0={
 "4-112-311":[["วิเคราะห์การใช้พลังงานของระบบหลักในอาคารควบคุมและโรงงานควบคุม เช่น ระบบปรับอากาศ หม้อไอน้ำ ระบบอากาศอัด และระบบแสงสว่าง", ["K3-5"], "Analyze", "R", "สอบ / กรณีศึกษา"], ["วัดและตรวจวิเคราะห์การใช้พลังงานตามแนวทางการตรวจสอบพลังงาน และตีความข้อมูลการวัด", ["S4-3"], "Apply", "R", "รายงานการตรวจวัด"], ["ประเมินมาตรการอนุรักษ์พลังงานด้วยระยะเวลาคืนทุนและความคุ้มค่า", ["S5-2"], "Evaluate", "R", "รายงานมาตรการอนุรักษ์พลังงาน"], ["จัดทำรายงานการจัดการพลังงานตามรูปแบบที่กฎหมายกำหนด", ["S5-3"], "Apply", "R", "รายงานการจัดการพลังงาน"], ["อธิบายข้อกำหนดตาม พ.ร.บ.การส่งเสริมการอนุรักษ์พลังงาน และหน้าที่ของผู้รับผิดชอบด้านพลังงาน", ["E6-1"], "Understand", "I", "แบบทดสอบ"]]
 };
 
-const APP_VER="รุ่น 11 พ.ย. 2569 (18:30)";
+const APP_VER="รุ่น 18 พ.ย. 2569 (09:30)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -1991,6 +1998,7 @@ function cloTodoPanel(all,gs){
   const T=(k,t,n)=>`<button class="sm${tab===k?" primary":""}" data-clotodo="${k}">${t} (${n})</button>`;
   return `<section class="panel"><div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:8px"><h2 style="margin:0">เลือกรายวิชาที่ต้องการดู</h2>
    <label class="ctl" style="flex:1;min-width:260px;max-width:620px">รายวิชา <select id="cloPick" style="flex:1;min-width:0">${gs.map(g=>`<optgroup label="${esc(g.t)}">${g.L.map(x=>{const w=why(x);return `<option value="${esc(x.code)}" ${x.code===state.cloCourse?"selected":""}>${esc(x.code)} ${esc(x.th)}${w.length?" ⚠":""}</option>`}).join("")}</optgroup>`).join("")}</select></label></div>
+   <div class="row cq-bar"><label class="ctl cq-in">🔍 <input type="search" id="cloQ" value="${esc(state.cloQ||"")}" placeholder="ค้นหารหัสหรือชื่อวิชา เช่น 4-112-201 หรือ เทอร์โม" aria-label="ค้นหารายวิชาด้วยรหัสหรือชื่อ" autocomplete="off"></label><span class="small muted" id="cloQn"></span></div><div id="cqRes" class="cq-res"></div>
    <p class="small muted" style="margin:6px 0">⚠ = ยังไม่ครบ${state.cloMine&&state.me?" · แสดงเฉพาะวิชาของท่าน (ติ๊ก \"เฉพาะวิชาของฉัน\" ในตารางด้านล่าง)":""}</p>
    <div class="row" style="gap:6px;flex-wrap:wrap;margin:8px 0">${T("desc","ยังไม่มีคำอธิบายรายวิชา",noDesc.length)}${T("clo","ยังไม่มี CLO / ยังเป็นร่างตั้งต้น",noClo.length)}${T("bad","CLO ยังไม่สอดรับหรือมีคำเตือน",bad.length)}</div>
    ${L.length?`<div class="scroll" style="max-height:320px;overflow:auto"><table><tr><th>รหัส</th><th>รายวิชา</th><th>ผู้รับผิดชอบ</th><th>ที่ยังขาด</th><th></th></tr>${L.map(x=>`<tr${x.code===state.cloCourse?' style="background:var(--accent-soft)"':""}><td class="mono">${esc(x.code)}</td><td>${esc(x.th)}<div class="small muted">${esc(TERM_TH[x.term]||"")}</div></td><td class="small">${esc(ownerLabel(x))}</td><td class="small">${why(x).map(esc).join("<br>")}</td><td><button class="sm" data-opencourse="${esc(x.code)}">เปิด</button></td></tr>`).join("")}</table></div>`:'<p class="small">'+pill("pass","ครบทุกวิชาแล้ว")+'</p>'}
@@ -2016,7 +2024,7 @@ function viewClo(){
     <label class="ctl"><input type="checkbox" id="mineOnly" ${state.cloMine?"checked":""} ${state.me?"":"disabled"}> เฉพาะวิชาของฉัน</label>
     <button id="ownFromLoad" ${dis()}>ดึงผู้รับผิดชอบจากภาระสอน</button></span></div>
     <p class="lead">กรรมการกำหนดผู้รับผิดชอบรายวิชา แล้วผู้สอนเลือกชื่อตัวเองเพื่อดูเฉพาะวิชาของตน คอลัมน์ "หลักสูตรกำหนด" คือ PLO และระดับที่วิชานี้ต้องรับผิดชอบตาม Curriculum Mapping ระบบเทียบ CLO ที่กรอกกับค่านี้</p>
-    <div class="scroll"><table>${gs.map(g=>`<tr><th colspan="6" style="background:var(--soft);color:var(--ink)">${g.t} · ${g.L.length} วิชา</th></tr><tr><th>รหัส</th><th>รายวิชา</th><th>หลักสูตรกำหนด</th><th>ผู้รับผิดชอบ</th><th>สถานะ CLO</th><th></th></tr>${g.L.map(x=>{const s=courseStatus(x.code);return `<tr${x.code===state.cloCourse?' style="background:var(--accent-soft)"':""}><td class="mono">${esc(x.code)}</td><td>${esc(x.th)}<div class="small muted">${TERM_TH[x.term]||""} · ${x.cr} นก.${x.dept==="EXT"?" · สอนโดยหน่วยงานอื่น":""}</div></td><td><div class="chips">${expTxt(x.code)}</div></td><td>${ownerSel(x.code)}</td><td>${pillOf(s)}</td><td><button class="sm${x.code===state.cloCourse?" primary":""}" data-opencourse="${esc(x.code)}">กรอก CLO</button></td></tr>`}).join("")}`).join("")}</table></div></section>`;
+    <div class="scroll"><table>${gs.map(g=>`<tr class="cq-g"><th colspan="6" style="background:var(--soft);color:var(--ink)">${g.t} · ${g.L.length} วิชา</th></tr><tr><th>รหัส</th><th>รายวิชา</th><th>หลักสูตรกำหนด</th><th>ผู้รับผิดชอบ</th><th>สถานะ CLO</th><th></th></tr>${g.L.map(x=>{const s=courseStatus(x.code);return `<tr class="cq-r" data-q="${esc(cqKey(x))}"${x.code===state.cloCourse?' style="background:var(--accent-soft)"':""}><td class="mono">${esc(x.code)}</td><td>${esc(x.th)}<div class="small muted">${TERM_TH[x.term]||""} · ${x.cr} นก.${x.dept==="EXT"?" · สอนโดยหน่วยงานอื่น":""}</div></td><td><div class="chips">${expTxt(x.code)}</div></td><td>${ownerSel(x.code)}</td><td>${pillOf(s)}</td><td><button class="sm${x.code===state.cloCourse?" primary":""}" data-opencourse="${esc(x.code)}">กรอก CLO</button></td></tr>`}).join("")}`).join("")}</table></div></section>`;
   const subChips=(sel,i)=>`<div class="chips">${PLOS.map(p=>`<span class="small muted" style="margin-left:4px">PLO${p.n}</span>${SUBS.filter(s=>s.plo===p.n).map(s=>`<label class="chk" title="${esc(s.t)}"><input type="checkbox" name="cs${i}" value="${s.code}" ${sel.includes(s.code)?"checked":""} ${cdis}>${s.code}</label>`).join("")}`).join("")}</div>`;
   const ico={err:"fail",warn:"warn",info:""};
   const issueList=arr=>arr.map(x=>`<div class="small" style="margin:2px 0">${x.lv==="info"?'<span class="pill" style="background:var(--soft);color:var(--muted)">ข้อสังเกต</span>':pill(ico[x.lv],x.lv==="err"?"ไม่สอดรับ":"เตือน")} ${esc(x.msg)}</div>`).join("");
@@ -2538,6 +2546,54 @@ document.addEventListener("click",async e=>{const b=e.target.closest&&e.target.c
   if(b.id==="labPrint"){bookAllOpen({assemble:labDocAssemble,title:"บัญชีห้องปฏิบัติการและครุภัณฑ์",fname:"บัญชีห้องปฏิบัติการ-วศบ-เครื่องกล-2571"});return}});
 document.addEventListener("change",e=>{const t=e.target;if(!t||!t.dataset)return;if(t.dataset.labph){const f=t.files;const lid=t.dataset.labph;labAddPhotos(lid,f);t.value=""}else if(t.dataset.labcap){labCaption(t.dataset.labcap,t.value)}});
 window.labLoadPhotos=labLoadPhotos;setTimeout(labLoadPhotos,1600);
+// ---- ค้นหารายวิชาในแถบ ก3 ----
+const cqNorm=s=>String(s||"").toLowerCase().replace(/[\s\-–.]/g,"");
+const cqKey=x=>cqNorm(x.code)+" "+cqNorm(x.th)+" "+cqNorm(x.en||(DESC0[x.code]&&"")||"");
+function cloFilter(){const q=cqNorm(state.cloQ);let n=0,first=null;
+  document.querySelectorAll("tr.cq-r").forEach(r=>{const ok=!q||r.dataset.q.includes(q);r.style.display=ok?"":"none"});
+  document.querySelectorAll("tr.cq-g").forEach(g=>{let x=g.nextElementSibling,any=false;while(x&&!x.classList.contains("cq-g")){if(x.classList.contains("cq-r")&&x.style.display!=="none")any=true;x=x.nextElementSibling}g.style.display=any?"":"none"});
+  const M=q?COURSES.filter(c=>c.g!=="FREE"&&!(c.fl&&c.fl.slot)&&cqKey(c).includes(q)):[];n=M.length;first=M[0]||null;
+  const box=document.getElementById("cqRes");if(box)box.innerHTML=M.length?`<table class="small">${M.slice(0,12).map(x=>`<tr${x.code===state.cloCourse?' style="background:var(--accent-soft)"':""}><td class="mono">${esc(x.code)}</td><td>${esc(x.th)} <span class="muted">· ${esc(TERM_TH[x.term]||"")} · ${x.cr} นก.</span></td><td class="small">${esc(ownerLabel(x))}</td><td><button class="sm" data-opencourse="${esc(x.code)}">เปิด</button></td></tr>`).join("")}</table>${M.length>12?`<p class="small muted">แสดง 12 จาก ${M.length} วิชา พิมพ์คำค้นให้เจาะจงขึ้น</p>`:""}`:"";
+  const el=document.getElementById("cloQn");if(el)el.textContent=q?(n?`พบ ${n} วิชา · กด Enter เพื่อเปิดวิชาแรก`:"ไม่พบรายวิชาที่ตรงกับคำค้น"):"";return {n,first}}
+document.addEventListener("input",e=>{if(e.target.id!=="cloQ")return;state.cloQ=e.target.value;cloFilter()});
+document.addEventListener("keydown",e=>{if(e.target.id!=="cloQ"||e.key!=="Enter")return;e.preventDefault();const {first}=cloFilter();if(first){const b=document.querySelector('#cqRes [data-opencourse="'+first.code+'"]');if(b)b.click()}});
+
+// ---- แถบสถานะมุมขวาบน: ฉบับของหลักสูตร + การอัปเดตล่าสุด ----
+const CHANGELOG=[
+ ["18 พ.ย. 2569","แถบสถานะฉบับหลักสูตรและการอัปเดตล่าสุด · ค้นหารายวิชาในแถบ ก3"],
+ ["11 พ.ย. 2569","ผู้เยี่ยมชมภายนอกเข้าดูได้ (ยกเว้นประวัติอาจารย์) · mind map บนโทรศัพท์ · โลโก้ใหม่ · หน้ากำลังเชื่อมต่อฐานข้อมูล"],
+ ["10 พ.ย. 2569","รองรับบัญชี @rmutk.ac.th · ยกเลิกและผูกบัญชีอาจารย์ใหม่ในแถบ ง1 · ปรับสีทุกแถบ"],
+ ["พ.ย. 2569","แถบ ข6 ห้องปฏิบัติการ · ค2 Self-Declaration · ค3 ความพร้อม TABEE · PDF ทั้งเล่ม"],
+ ["ต.ค. 2569","ตารางเปรียบเทียบหลักสูตร 2566–2571 · แผนการศึกษาและการกระจาย PLO รายชั้นปี"]];
+const UPD_COL={clo:"CLO และคำอธิบายรายวิชา",cv:"ประวัติอาจารย์",faculty:"รายชื่ออาจารย์",courses:"รายวิชา",needs:"ที่มาของ PLO",photo:"รูปอาจารย์",lab:"ห้องปฏิบัติการ",labphoto:"รูปห้องปฏิบัติการ",bookdocx:"ไฟล์ Word เล่ม มคอ.2",survey:"ผลสำรวจ",owners:"ผู้รับผิดชอบรายวิชา"};
+const UPD_PROG={plos:"PLO · Sub-PLO",bookedit:"เล่ม มคอ.2",bookfmt:"รูปแบบเล่ม",bookplan:"แผนจัดทำเล่ม",bookcheck:"การตรวจเล่ม",regs:"กฎหมายและระเบียบ",transition:"แผนเปลี่ยนผ่าน",team:"ทีมอาจารย์",intake:"แผนรับนักศึกษา",labinfo:"ข้อมูลห้องปฏิบัติการ",labstaff:"เจ้าหน้าที่ห้องปฏิบัติการ",curver:"ฉบับของหลักสูตร"};
+function updLabel(m){if(m.c==="program")return UPD_PROG[m.id]||"ข้อมูลหลักสูตร";const t=UPD_COL[m.c]||m.c;
+  if(m.c==="clo"||m.c==="courses"){const c=COURSES.find(x=>x.code===m.id||x.code===(m.code||""));return t+(c?" "+c.code+" "+c.th:" "+m.id)}
+  if(m.c==="cv"||m.c==="photo"||m.c==="faculty"){const f=(state.faculty||[]).find(x=>x.id===m.id);return t+(f&&!state.isGuest?" "+shortName(f.name):"")}
+  return t}
+function updWho(e){if(!e||state.isGuest)return "";const f=(state.faculty||[]).find(x=>canonEmail(x.email)===canonEmail(e));return f?shortName(f.name):e.split("@")[0]}
+const thDT=(iso,withY)=>{if(!iso)return "";const d=new Date(iso);if(isNaN(d))return "";return d.toLocaleDateString("th-TH",{day:"numeric",month:"short",...(withY?{year:"2-digit"}:{})})+" "+d.toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"})+" น."};
+function curVer(){const h=((state.curver&&state.curver.hist)||[]);return h[h.length-1]||null}
+function updLatest(){const L=Object.values(state.kvMeta||{}).filter(m=>m.at);L.sort((a,b)=>b.at.localeCompare(a.at));return L}
+function updBarPaint(){const el=document.getElementById("updbar");if(!el)return;const v=curVer(),L=updLatest(),u=L[0];
+  el.innerHTML=`<button type="button" class="sm upd-ver" id="updOpen" title="ดูฉบับของหลักสูตรและประวัติการอัปเดต">📘 ${v?esc(v.label):"ยังไม่บันทึกฉบับ"}</button>${u?`<span class="upd-last" title="${esc(updLabel(u))}">อัปเดตล่าสุด ${esc(thDT(u.at))}${updWho(u.by)?" · "+esc(updWho(u.by)):""}</span>`:""}`}
+function updOpen(){updClose();const v=curVer(),hist=((state.curver&&state.curver.hist)||[]).slice().reverse(),L=updLatest().slice(0,15);
+  const ov=document.createElement("div");ov.id="updOv";ov.className="upd-ov";ov.setAttribute("role","dialog");ov.setAttribute("aria-label","ฉบับของหลักสูตรและการอัปเดต");
+  ov.innerHTML=`<div class="upd-box"><div class="row" style="justify-content:space-between"><h2 style="margin:0">ฉบับของหลักสูตรและการอัปเดต</h2><button class="sm" id="updX">ปิด</button></div>
+   <section><h3>ฉบับปัจจุบันของหลักสูตร</h3>${v?`<p style="margin:4px 0"><b style="font-size:16px">${esc(v.label)}</b> <span class="small muted">บันทึกเมื่อ ${esc(thDT(v.at,1))}${updWho(v.by)?" โดย "+esc(updWho(v.by)):""}</span></p>${v.note?`<p class="small" style="margin:0 0 6px">${esc(v.note)}</p>`:""}`:`<p class="small muted">ยังไม่ได้บันทึกฉบับ${state.isAdmin?" กรรมการกรอกด้านล่างเพื่อเริ่มนับฉบับ":""}</p>`}
+   ${state.isAdmin?`<form id="updForm" class="upd-form"><input name="label" required placeholder="ชื่อฉบับ เช่น ร่างที่ 3 (เสนอคณะกรรมการประจำคณะ)" value=""><textarea name="note" rows="2" placeholder="สิ่งที่เปลี่ยนในฉบับนี้ (ไม่บังคับ)"></textarea><button class="primary sm">บันทึกเป็นฉบับใหม่</button></form>`:""}
+   ${hist.length>1?`<table class="small"><tr><th>ฉบับ</th><th>วันที่</th><th>สิ่งที่เปลี่ยน</th></tr>${hist.map(x=>`<tr><td>${esc(x.label)}</td><td style="white-space:nowrap">${esc(thDT(x.at,1))}</td><td>${esc(x.note||"")}</td></tr>`).join("")}</table>`:""}</section>
+   <section><h3>ข้อมูลที่อัปเดตล่าสุด</h3>${L.length?`<table class="small"><tr><th>เวลา</th><th>ส่วนที่แก้</th>${state.isGuest?"":"<th>โดย</th>"}</tr>${L.map(m=>`<tr><td style="white-space:nowrap">${esc(thDT(m.at,1))}</td><td>${esc(updLabel(m))}</td>${state.isGuest?"":`<td>${esc(updWho(m.by))}</td>`}</tr>`).join("")}</table>`:'<p class="small muted">ยังไม่มีข้อมูล</p>'}</section>
+   <section><h3>การพัฒนาแพลตฟอร์ม <span class="small muted">· ไฟล์ที่เปิดอยู่ ${esc(APP_VER)}</span></h3><table class="small">${CHANGELOG.map(([d,t])=>`<tr><td style="white-space:nowrap">${d}</td><td>${t}</td></tr>`).join("")}</table></section></div>`;
+  document.body.appendChild(ov);ov.addEventListener("click",e=>{if(e.target===ov||e.target.id==="updX")updClose()});
+  const f=ov.querySelector("#updForm");if(f)f.addEventListener("submit",async e=>{e.preventDefault();const label=f.label.value.trim();if(!label)return;
+    const hist2=[...((state.curver&&state.curver.hist)||[]),{label,note:f.note.value.trim(),at:new Date().toISOString(),by:state.user&&state.user.email||""}];
+    state.curver={hist:hist2};updBarPaint();updOpen();await dbWrite(db=>db.doc("program/curver").set({hist:hist2,updatedAt:new Date().toISOString()}),"ฉบับของหลักสูตร")});
+  const x=ov.querySelector("#updX");if(x)x.focus()}
+function updClose(){const o=document.getElementById("updOv");if(o)o.remove()}
+document.addEventListener("click",e=>{if(e.target.closest&&e.target.closest("#updOpen"))updOpen()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")updClose()});
+
 function viewCheck(){
   const ev=evaluate(state.track);
   const all=["ME","EV","CE"].map(t=>{const e=evaluate(t);const f=e.out.flatMap(x=>x[1]);return [t,f.filter(x=>x.s==="fail").length,f.filter(x=>x.s==="warn").length,f.length]});
@@ -3404,6 +3460,8 @@ function render(){
   const ac=alertCount();document.getElementById("tabs").innerHTML=NAV[state.phase].tabs.filter(t=>!(state.isGuest&&t[0]==="cv")).map(([k,n,t])=>`<a href="#${state.phase}/${k}" aria-current="${(state.view==="survey"?"needs":state.view)===k?"page":"false"}"><b>${n}</b>${t}${k==="clo"&&ac?` <span class="pill fail" title="วิชาที่ CLO ไม่สอดรับกับ PLO">${ac}</span>`:""}</a>`).join("");
   document.getElementById("view").innerHTML=(state.msg?`<div class="note" role="status">${esc(state.msg)}</div>`:"")+VIEWS[state.view]();
   requestAnimationFrame(drawMM);
+  if(state.view==="clo")cloFilter();
+  if(typeof updBarPaint==="function")updBarPaint();
 }
 const busy=()=>(state.cvDraft&&state.cvDraft.dirty)||state.bookDirect||state.bookEditing||state.ploEdit||state.sEdit||state.needEdit||state.courseEdit||state.editing||(state.cloDraft&&state.cloDraft.dirty);
 function softRender(){if(busy())state.pending=true;else render()}
@@ -3658,13 +3716,16 @@ function makeSbDb(){
   async function refresh(){
     const {data,error}=await sb.from("kv").select("collection,id,data").neq("collection","bookdocx").neq("collection","labphoto");
     if(error){state.msg="โหลดข้อมูลไม่สำเร็จ: "+error.message;render();return error}
-    const c={};data.forEach(r=>{(c[r.collection]=c[r.collection]||{})[r.id]=r.data});cache=c;loaded=true;listeners.forEach(l=>l());
+    const c={};data.forEach(r=>{(c[r.collection]=c[r.collection]||{})[r.id]=r.data});cache=c;loaded=true;
+    try{const {data:mt}=await sb.from("kv").select("collection,id,updated_at,updated_by").order("updated_at",{ascending:false}).limit(300);const M={};(mt||[]).forEach(r=>{M[r.collection+"/"+r.id]={c:r.collection,id:r.id,at:r.updated_at,by:r.updated_by}});state.kvMeta=M}catch(x){}
+    listeners.forEach(l=>l());
   }
   const snapDoc=path=>{const [c,id]=path.split("/");const d=(cache[c]||{})[id];return {exists:!!d,data:()=>d}};
   const snapCol=c=>({docs:Object.entries(cache[c]||{}).map(([id,d])=>({id,data:()=>d}))});
   const sub=f=>{listeners.push(f);if(loaded)f()};
   sb.channel("kv-live").on("postgres_changes",{event:"*",schema:"public",table:"kv"},p=>{
-    const r=p.new&&p.new.collection?p.new:p.old;if(!r||!r.collection)return;if(r.collection==="bookdocx"){if(window.bkdLoadMeta)window.bkdLoadMeta();return}if(r.collection==="labphoto"){if(window.labLoadPhotos)window.labLoadPhotos();return}
+    const r=p.new&&p.new.collection?p.new:p.old;if(!r||!r.collection)return;if(p.new&&p.new.collection){(state.kvMeta=state.kvMeta||{})[r.collection+"/"+r.id]={c:r.collection,id:r.id,at:p.new.updated_at||new Date().toISOString(),by:p.new.updated_by};if(window.updBarPaint)updBarPaint()}if(r.collection==="bookdocx"){if(window.bkdLoadMeta)window.bkdLoadMeta();return}if(r.collection==="labphoto"){if(window.labLoadPhotos)window.labLoadPhotos();return}
+    if(p.eventType!=="DELETE"&&p.new){(state.kvMeta=state.kvMeta||{})[r.collection+"/"+r.id]={c:r.collection,id:r.id,at:p.new.updated_at||new Date().toISOString(),by:p.new.updated_by};if(window.updBarPaint)updBarPaint()}
     if(p.eventType==="DELETE"){if(cache[r.collection])delete cache[r.collection][r.id]}else (cache[r.collection]=cache[r.collection]||{})[r.id]=p.new.data;
     listeners.forEach(l=>l());
   }).subscribe();
@@ -3775,6 +3836,7 @@ const withTO=(p,ms,st)=>Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(
   db.doc("program/team").onSnapshot(s=>{const d=s.exists&&s.data();state.team={role:(d&&d.role)||{},qual:(d&&d.qual)||{}};softRender()},err);
   db.collection("photo").onSnapshot(s=>{const m={};s.docs.forEach(d=>{const x=d.data();if(x&&x.fid&&x.img)m[x.fid]=x.img});state.photos=m;softRender()},err);
   db.collection("courses").onSnapshot(s=>{const m={};s.docs.forEach(d=>{const r=d.data(),x=aliasCourse(r);if(x&&x.code&&!(m[x.code]&&m[x.code].__new))m[x.code]={...x,__new:r&&r.cv===5}});state.courseOv=m;rebuild();buildExpected();softRender()},err);
+  db.doc("program/curver").onSnapshot(s=>{state.curver=s.exists?s.data():null;if(window.updBarPaint)updBarPaint()},err);
   db.doc("program/plos").onSnapshot(s=>{applyPloDoc(s.exists&&s.data());rebuild();softRender()},err);
   gateStage(stage="data");
   const eRef=await withTO(db.refresh(),30000,"data");if(eRef)throw new Error("โหลดข้อมูล: "+eRef.message);
@@ -3783,8 +3845,9 @@ const withTO=(p,ms,st)=>Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(
   if(state.isGuest)state.msg="ท่านเข้าดูในฐานะผู้เยี่ยมชมภายนอก เปิดดูได้อย่างเดียว ไม่แสดงประวัติอาจารย์";else if(!state.isAdmin&&!isFac)state.msg="ท่านเปิดดูได้อย่างเดียว ประวัติและรูปถ่ายอาจารย์แสดงเฉพาะกรรมการหลักสูตรและอาจารย์ในสาขา ถ้าเป็นผู้สอน ให้กรรมการหลักสูตรเพิ่มอีเมลของท่านในรายชื่ออาจารย์";
   render();
   const bar=document.createElement("div");bar.className="row small muted userbar";bar.style.cssText="margin-left:auto;gap:8px;flex:none";
-  bar.innerHTML=`<span class="muted" title="รุ่นของไฟล์ index.html">${APP_VER}</span><span>${esc(rawEmail)} · ${state.isAdmin?"กรรมการหลักสูตร":isFac?"ผู้สอน":state.isGuest?"ผู้เยี่ยมชมภายนอก":"ผู้เยี่ยมชม"}</span><button class="sm" id="logout">ออกจากระบบ</button>`;
+  bar.innerHTML=`<span id="updbar" class="row" style="gap:8px"></span><span class="muted" title="รุ่นของไฟล์ index.html">${APP_VER}</span><span>${esc(rawEmail)} · ${state.isAdmin?"กรรมการหลักสูตร":isFac?"ผู้สอน":state.isGuest?"ผู้เยี่ยมชมภายนอก":"ผู้เยี่ยมชม"}</span><button class="sm" id="logout">ออกจากระบบ</button>`;
   document.querySelector("header.top").appendChild(bar);
+  bar.style.flexWrap="wrap";updBarPaint();
   document.getElementById("logout").onclick=async()=>{await sb.auth.signOut();location.reload()};
   sb.auth.onAuthStateChange((ev)=>{if(ev==="SIGNED_OUT")location.reload()});
 }catch(x){console.error(x);offlineScreen("err",{stage:GATE_ST[stage],err:x&&x.message||String(x)})}})();
