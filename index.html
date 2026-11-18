@@ -807,7 +807,7 @@ const CLO0={
 "4-112-311":[["วิเคราะห์การใช้พลังงานของระบบหลักในอาคารควบคุมและโรงงานควบคุม เช่น ระบบปรับอากาศ หม้อไอน้ำ ระบบอากาศอัด และระบบแสงสว่าง", ["K3-5"], "Analyze", "R", "สอบ / กรณีศึกษา"], ["วัดและตรวจวิเคราะห์การใช้พลังงานตามแนวทางการตรวจสอบพลังงาน และตีความข้อมูลการวัด", ["S4-3"], "Apply", "R", "รายงานการตรวจวัด"], ["ประเมินมาตรการอนุรักษ์พลังงานด้วยระยะเวลาคืนทุนและความคุ้มค่า", ["S5-2"], "Evaluate", "R", "รายงานมาตรการอนุรักษ์พลังงาน"], ["จัดทำรายงานการจัดการพลังงานตามรูปแบบที่กฎหมายกำหนด", ["S5-3"], "Apply", "R", "รายงานการจัดการพลังงาน"], ["อธิบายข้อกำหนดตาม พ.ร.บ.การส่งเสริมการอนุรักษ์พลังงาน และหน้าที่ของผู้รับผิดชอบด้านพลังงาน", ["E6-1"], "Understand", "I", "แบบทดสอบ"]]
 };
 
-const APP_VER="รุ่น 18 พ.ย. 2569 (18:10)";
+const APP_VER="รุ่น 18 พ.ย. 2569 (18:30)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -1442,7 +1442,7 @@ function bookSecHtml(id){
     const map=all.filter(c=>/^\d-\d{3}-\d{3}$/.test(c.code)).sort((a,b)=>(a.g==="GE"?0:1)-(b.g==="GE"?0:1)||TERMS.indexOf(a.term)-TERMS.indexOf(b.term)).filter((c,i,s)=>s.findIndex(x=>x.code===c.code)===i).map(c=>{const m=ploOf(c).map||{};return [c.code,c.th,...plos.map(p=>({t:m[p.n]||"",cls:"c"}))]});
     return `${H("หมวดที่ 4 การจัดกระบวนการเรียนรู้")}${h3("1. การพัฒนาคุณลักษณะพิเศษของนักศึกษา")}${bkT([["ทักษะปฏิบัติงานวิศวกรรมในแขนงเฉพาะทาง","วิชาปฏิบัติงานแขนงปีที่ 2 การประลองแขนงปีที่ 4 และสหกิจศึกษาตรงแขนง"],["ใช้เครื่องมือและซอฟต์แวร์วิศวกรรมสมัยใหม่","CAD/CAE ในวิชาออกแบบและโครงงาน"],["ความพร้อมสอบใบอนุญาต กว.","จัดวิชาครบตามเกณฑ์สภาวิศวกร และติวสอบก่อนสำเร็จการศึกษา"]],["คุณลักษณะพิเศษ","กลยุทธ์หรือกิจกรรม"])}
     ${h3("2. การออกแบบการจัดกระบวนการเรียนรู้และการประเมินผล")}${bkT(plos.map(p=>[`PLO ${p.n} ${p.t}`,{h:String(p.d).split(/,\s*/).map(d=>"- "+esc(STR[d]||"")).join("<br>")},asm(p)]),["PLOs","กลยุทธ์การจัดการเรียนรู้","วิธีการประเมินผล"],{w:"100%"})}
-    ${h3("3. แผนที่กระจายความรับผิดชอบของผลลัพธ์การเรียนรู้สู่รายวิชา (Curriculum Mapping)")}${bkT(map,["รหัสวิชา","รายวิชา",...plos.map(p=>"PLO"+p.n)],{w:"100%"})}<p class="small-note">I = แนะนำ · R = ฝึกซ้ำ · M = ประเมินการบรรลุ</p>${ksecBookHtml()}
+    ${h3("3. แผนที่กระจายความรับผิดชอบของผลลัพธ์การเรียนรู้สู่รายวิชา (Curriculum Mapping)")}${bkT(map,["รหัสวิชา","รายวิชา",...plos.map(p=>"PLO"+p.n)],{w:"100%"})}<p class="small-note">I = แนะนำ · R = ฝึกซ้ำ · M = ประเมินการบรรลุ</p>${ksecBookHtml()}${SERVICE.length?svcPloBookHtml():""}
     ${h3("4. แผนการศึกษาและการกระจายความรับผิดชอบของผลลัพธ์การเรียนรู้ของหลักสูตร ลงสู่รายวิชาและผลลัพธ์การเรียนรู้ระดับรายชั้นปี")}${studyPlanYloHtml()}${h3("5. องค์ประกอบเกี่ยวกับประสบการณ์ภาคสนาม (สหกิจศึกษา)")}${clos("4-116-302").map((x,i)=>li(`${i+1}) ${esc(x.t)}`)).join("")}${h3("6. ข้อกำหนดเกี่ยวกับการทำโครงงาน")}${ind(BFh("proj"))}`;
   }
   if(id==="h5"){
@@ -2113,6 +2113,7 @@ function viewMap(){
   ${ca.wide.length?`<p class="small" style="color:var(--warn)">วิชาที่โยงมากกว่า 4 PLO อาจประเมินได้ไม่ลึก: ${ca.wide.map(c=>c.code).join(", ")}</p>`:""}</section>
   ${mappingGrouped()}
   ${ksecPanel()}
+  ${svcPloPanel()}
   <section class="panel"><h2>Sub-PLO × รายวิชาที่รองรับ</h2><div class="scroll"><table><tr><th>Sub-PLO</th><th>ผลลัพธ์</th><th>รายวิชา (ระดับ)</th></tr>${SUBS.map(s=>`<tr><td><span class="code">${s.code}</span></td><td class="small">${esc(s.t)}</td><td>${ca.subCov[s.code].length?ca.subCov[s.code].map(x=>`<span class="tag">${esc(x.c.code)} ${x.lv}</span>`).join(""):pill("warn","ยังไม่มี CLO")}</td></tr>`).join("")}</table></div></section>`;
 }
 // ---- ข1 โครงสร้างหลักสูตรและอาจารย์ ----
@@ -2182,23 +2183,23 @@ const SERVICE=[{code:"4-000-101",th:"กลศาสตร์วิศวกร�
  pre:"2-212-106 แคลคูลัสสำหรับวิศวกร 1",preEn:"2-212-106 Calculus for Engineers 1",src:"เล่มหลักสูตร วศ.บ. วิศวกรรมเครื่องกล ปรับปรุง พ.ศ. 2566 (กลุ่มวิชาที่เปิดสอนให้เฉพาะนักศึกษาต่างสาขา)",
  dth:"แนวคิดของเทอร์โมไดนามิกส์ สมบัติ พลังงานและกระบวนการ กฎข้อที่ศูนย์ กฎข้อที่หนึ่ง และกฎข้อที่สองของเทอร์โมไดนามิกส์ สมบัติของของไหล ของไหลสถิตและพลศาสตร์ คุณลักษณะเฉพาะของการไหลแบบราบเรียบและการไหลแบบปั่นป่วน สมการโมเมนตัมและพลังงาน",
  den:"Concepts of thermodynamics, properties, energy and processes, zeroth law of thermodynamics, first law of thermodynamics, second law of thermodynamics, properties of fluid, fluid static and dynamics, characteristic of laminar and turbulent flow, momentum and energy equation.",
- clos:[["อธิบายแนวคิดพื้นฐาน สมบัติของสาร พลังงาน และกระบวนการทางเทอร์โมไดนามิกส์","Understand","สอบ",""],
-  ["ประยุกต์ใช้กฎข้อที่หนึ่งของเทอร์โมไดนามิกส์คำนวณงาน ความร้อน และพลังงานในระบบปิดและระบบเปิด","Apply","สอบ · การบ้าน",""],
-  ["วิเคราะห์ประสิทธิภาพของเครื่องยนต์ความร้อนและเครื่องทำความเย็นด้วยกฎข้อที่สองของเทอร์โมไดนามิกส์","Analyze","สอบ",""],
-  ["คำนวณแรงดันและแรงของของไหลสถิตที่กระทำบนพื้นผิว","Apply","สอบ · การบ้าน",""],
-  ["ประยุกต์ใช้สมการความต่อเนื่อง สมการโมเมนตัม และสมการพลังงาน วิเคราะห์การไหลแบบราบเรียบและแบบปั่นป่วนในระบบท่อและอุปกรณ์ในสาขาของผู้เรียน","Analyze","สอบ · โครงงานย่อย",""]],
- map:"กำหนดตาม PLO ของหลักสูตรผู้เรียน",
+ clos:[["อธิบายแนวคิดพื้นฐาน สมบัติของสาร พลังงาน และกระบวนการทางเทอร์โมไดนามิกส์","Understand","สอบ","K3-3"],
+  ["ประยุกต์ใช้กฎข้อที่หนึ่งของเทอร์โมไดนามิกส์คำนวณงาน ความร้อน และพลังงานในระบบปิดและระบบเปิด","Apply","สอบ · การบ้าน","K3-3"],
+  ["วิเคราะห์ประสิทธิภาพของเครื่องยนต์ความร้อนและเครื่องทำความเย็นด้วยกฎข้อที่สองของเทอร์โมไดนามิกส์","Analyze","สอบ","K3-3"],
+  ["คำนวณแรงดันและแรงของของไหลสถิตที่กระทำบนพื้นผิว","Apply","สอบ · การบ้าน","K3-3"],
+  ["ประยุกต์ใช้สมการความต่อเนื่อง สมการโมเมนตัม และสมการพลังงาน วิเคราะห์การไหลแบบราบเรียบและแบบปั่นป่วนในระบบท่อและอุปกรณ์ในสาขาของผู้เรียน","Analyze","สอบ · โครงงานย่อย","K3-3"]],
+ map:"ร่าง · เทียบกับ Sub-PLO ของหลักสูตรวิศวกรรมเครื่องกล (ยืนยันกับหลักสูตรผู้เรียน)",
  forTh:"นักศึกษาสาขาวิชาอื่นที่หลักสูตรกำหนดให้เรียน (ระบุสาขาผู้ใช้หลังประสานงาน)",
  note:"คำอธิบายรายวิชาคงตามเล่ม 2566 CLO เป็นร่างของสาขา ให้ประสานกับหลักสูตรผู้เรียนเพื่อกำหนด Curriculum Mapping"},
  {code:"4-124-204",th:"การประลองวิศวกรรมเครื่องกลและวัสดุ",en:"Mechanical and Material Engineering Laboratory",cr:2,t:1,p:3,s:2,g:"SVC",fl:{},
  pre:"",preEn:"",src:"รายละเอียดรายวิชาที่สาขาวิศวกรรมเครื่องกลจัดสอนให้หลักสูตรอื่น (ข้อมูลจากกรรมการหลักสูตร 18 พ.ย. 2569)",
  dth:"หลักการทดสอบวัสดุ สมบัติทางกลของวัสดุภายใต้แรงดึง แรงบิด ความแข็ง ความล้า และแรงกระแทก การทดสอบทางอุณหพลศาสตร์ ตามกฎข้อที่ 1 และ 2 ของอุณหพลศาสตร์ พลังงานอิสระที่เป็นฟังก์ชันกับอุณหภูมิ และแรงดัน",
  den:"Principles of material testing, mechanical properties of materials under tension, torsion, hardness, fatigue and impact, thermodynamics testing based on the 1st and 2nd laws of thermodynamics, free energy as a function of temperature and pressure.",
- clos:[["อธิบายหลักการทดสอบวัสดุและข้อควรระวังด้านความปลอดภัยในการใช้เครื่องทดสอบ","Understand","สอบ · สังเกตการปฏิบัติ",""],
-  ["ทดสอบสมบัติทางกลของวัสดุภายใต้แรงดึง แรงบิด ความแข็ง ความล้า และแรงกระแทก ตามมาตรฐานการทดสอบ","Apply","สอบปฏิบัติ · ใบงาน",""],
-  ["ทดลองทางอุณหพลศาสตร์ตามกฎข้อที่ 1 และ 2 และหาพลังงานอิสระที่เปลี่ยนตามอุณหภูมิและแรงดัน","Apply","ใบงาน · รายงานการทดลอง",""],
-  ["วิเคราะห์ผลการทดลองเทียบกับทฤษฎี ประเมินความคลาดเคลื่อน และเขียนรายงานการทดลอง","Analyze","rubric รายงาน",""]],
- map:"กำหนดตาม PLO ของหลักสูตรผู้เรียน",
+ clos:[["อธิบายหลักการทดสอบวัสดุและข้อควรระวังด้านความปลอดภัยในการใช้เครื่องทดสอบ","Understand","สอบ · สังเกตการปฏิบัติ","C2-1"],
+  ["ทดสอบสมบัติทางกลของวัสดุภายใต้แรงดึง แรงบิด ความแข็ง ความล้า และแรงกระแทก ตามมาตรฐานการทดสอบ","Apply","สอบปฏิบัติ · ใบงาน","S4-3"],
+  ["ทดลองทางอุณหพลศาสตร์ตามกฎข้อที่ 1 และ 2 และหาพลังงานอิสระที่เปลี่ยนตามอุณหภูมิและแรงดัน","Apply","ใบงาน · รายงานการทดลอง","S4-3"],
+  ["วิเคราะห์ผลการทดลองเทียบกับทฤษฎี ประเมินความคลาดเคลื่อน และเขียนรายงานการทดลอง","Analyze","rubric รายงาน","S5-3"]],
+ map:"ร่าง · เทียบกับ Sub-PLO ของหลักสูตรวิศวกรรมเครื่องกล (ยืนยันกับหลักสูตรผู้เรียน)",
  forTh:"นักศึกษาสาขาวิชาอื่นที่หลักสูตรกำหนดให้เรียน (ระบุสาขาผู้ใช้หลังประสานงาน)",
  note:"คำอธิบายรายวิชาตามที่หลักสูตรผู้เรียนกำหนด CLO เป็นร่างของสาขา ให้ประสานกับหลักสูตรผู้เรียนเพื่อยืนยัน CLO และ Curriculum Mapping"}];
 const svcDescHtml=(ind,bkT)=>SERVICE.map(c=>bkT([[c.code,c.th+" ("+c.en+")",crTxt(c)]],null,{w:"92%"})+(c.pre?ind("วิชาบังคับก่อน : "+esc(c.pre))+ind("Pre-requisite : "+esc(c.preEn)):"")+ind(esc(c.dth))+ind(esc(c.den))+`<p class="li"><b>ผลลัพธ์การเรียนรู้</b></p>`+c.clos.map((x,i)=>`<p class="li2">${i+1}. ${esc(x[0])}</p>`).join("")).join("");
@@ -2206,7 +2207,21 @@ const EXT_UNIT=[[/^0-/,"หมวดวิชาศึกษาทั่วไ�
 function extUnitRows(){const L=COURSES.filter(c=>c.dept==="EXT"&&/^\d-\d{3}-\d{3}$/.test(c.code));const g={};
   L.forEach(c=>{const u=(EXT_UNIT.find(([r])=>r.test(c.code))||[0,"หน่วยงานอื่น"])[1];(g[u]=g[u]||[]).push(c)});
   return Object.entries(g).map(([u,cs])=>[u,{h:cs.map(c=>esc(c.code+" "+c.th)).join("<br>")},{h:cs.map(c=>{const n=String((state.extOwners||{})[c.code]||"").trim();return n?esc(n):bkTodo("ระบุชื่อผู้สอน")}).join("<br>")}])}
-function svcPanel(){return `<section class="panel"><h2>รายวิชาที่สาขาเปิดสอนให้นักศึกษาต่างสาขา · ${SERVICE.length} วิชา</h2><p class="small muted">ไม่นับหน่วยกิตในหลักสูตรนี้ แต่เป็นภาระสอนของสาขาและแสดงในเล่มหมวด 3 ข้อ 3.2 (กลุ่มที่ 5) และ 3.5</p>${SERVICE.map(c=>`<article id="svc-${esc(c.code)}" style="scroll-margin-top:12px;border-top:1px solid var(--line);padding-top:10px;margin-top:10px"><h3 style="margin:0">${esc(c.code)} ${esc(c.th)} <span class="muted small">${esc(c.en)} · ${crTxt(c)}</span></h3><p class="small">${c.pre?"วิชาบังคับก่อน: "+esc(c.pre)+" · ":""}ผู้เรียน: ${esc(c.forTh)} · ที่มา: ${esc(c.src)}</p><p>${esc(c.dth)}</p><p class="small muted">${esc(c.den)}</p><table><tr><th>CLO</th><th>ผลลัพธ์การเรียนรู้</th><th>Bloom</th><th>การประเมิน</th><th>Sub-PLO</th></tr>${c.clos.map((x,i)=>`<tr><td class="num">${i+1}</td><td>${esc(x[0])}</td><td>${esc(x[1])}</td><td class="small">${esc(x[2])}</td><td class="small">${esc(x[3]||"")}</td></tr>`).join("")}</table><p class="small">Curriculum Mapping: ${esc(c.map)}</p><p class="small muted">${esc(c.note)}</p></article>`).join("")}</section>`}
+// ---- ตาราง PLO ของรายวิชาที่สาขาสอนให้สาขาอื่น ----
+function svcSubs(c){return c.clos.map(x=>String(x[3]||"").split(/[,\s·]+/).filter(Boolean))}
+function svcKsecHtml(book){const plos=PLOS,cols=plos.length*4;
+  const th=`<thead><tr><th rowspan="2">รหัสวิชา</th><th rowspan="2">รายวิชา</th><th rowspan="2">สถานะ</th>${plos.map(p=>`<th colspan="4" class="c">PLO ${p.n}</th>`).join("")}</tr><tr>${plos.map(()=>KSEC.map(d=>`<th class="c ks">${d}</th>`).join("")).join("")}</tr></thead>`;
+  const body=SERVICE.map(c=>{const m={};svcSubs(c).flat().forEach(s=>{const sb=subOf(s);if(sb)m[sb.plo+":"+sb.dom]=1});const draft=/^ร่าง/.test(c.map);
+    return `<tr><td class="mono">${esc(c.code)}</td><td>${esc(c.th)}</td><td class="small">${draft?"ร่าง":"ตามมติคณะ"}</td>${plos.map(p=>KSEC.map(d=>`<td class="c${draft?" ks-est":""}">${m[p.n+":"+d]?"●":""}</td>`).join("")).join("")}</tr>`}).join("");
+  const cg=book?`<colgroup><col style="width:11%"><col style="width:22%"><col style="width:8%">${"<col>".repeat(cols)}</colgroup>`:"";
+  return `<table class="${book?"bk-t ks-book":"ks-tbl"}">${cg}${th}<tbody>${body}</tbody></table>`}
+function svcCloRows(){return SERVICE.flatMap(c=>c.clos.map((x,i)=>{const ss=svcSubs(c)[i];return [i?"":c.code+" "+c.th,`CLO${i+1} ${x[0]}`,x[1],ss.join(", ")||"-",[...new Set(ss.map(s=>{const sb=subOf(s);return sb?"PLO"+sb.plo+" ("+sb.dom+")":""}).filter(Boolean))].join(", ")||"-",x[2]]}))}
+const SVC_NOTE="● = CLO ของรายวิชารับผิดชอบ Sub-PLO ในด้านนั้น · ตัวเอียง = ร่างที่สาขาเทียบกับ PLO ของหลักสูตรวิศวกรรมเครื่องกล ต้องยืนยันกับหลักสูตรผู้เรียน · 4-000-101 เป็นวิชาพื้นฐานร่วมของคณะ รับผิดชอบ PLO2 ตามบันทึก วช.041";
+function svcPloBookHtml(){return `<p class="li"><b>ตารางแสดงความรับผิดชอบต่อผลลัพธ์การเรียนรู้ (PLOs) ของรายวิชาที่สาขาเปิดสอนให้นักศึกษาต่างสาขา</b></p>${svcKsecHtml(true)}${bkT(svcCloRows(),["รายวิชา","ผลลัพธ์การเรียนรู้ระดับรายวิชา (CLO)","Bloom","Sub-PLO","PLO (ด้าน)","การประเมิน"],{w:"100%",cw:["17%","37%","10%","10%","12%","14%"]})}<p class="small-note">${SVC_NOTE}</p>`}
+function svcPloPanel(){return `<section class="panel" id="svcPlo"><h2>ตาราง PLOs ของรายวิชาที่สาขาสอนให้สาขาอื่น</h2><p class="small muted">อยู่ในเล่ม มคอ.2 หมวด 4 ต่อจากตาราง PLO × KSEC รายชั้นปี</p><div class="scroll">${svcKsecHtml(false)}</div>
+  <div class="scroll" style="margin-top:12px"><table class="ks-tbl" style="min-width:900px"><tr><th>รายวิชา</th><th>CLO</th><th>Bloom</th><th>Sub-PLO</th><th>PLO (ด้าน)</th><th>การประเมิน</th></tr>${svcCloRows().map(r=>`<tr>${r.map((v,i)=>`<td${i===0?' style="font-weight:600"':""}>${esc(v)}</td>`).join("")}</tr>`).join("")}</table></div><p class="small muted">${SVC_NOTE}</p></section>`}
+
+function svcPanel(){return svcPloPanel()+`<section class="panel"><h2>รายวิชาที่สาขาเปิดสอนให้นักศึกษาต่างสาขา · ${SERVICE.length} วิชา</h2><p class="small muted">ไม่นับหน่วยกิตในหลักสูตรนี้ แต่เป็นภาระสอนของสาขาและแสดงในเล่มหมวด 3 ข้อ 3.2 (กลุ่มที่ 5) และ 3.5</p>${SERVICE.map(c=>`<article id="svc-${esc(c.code)}" style="scroll-margin-top:12px;border-top:1px solid var(--line);padding-top:10px;margin-top:10px"><h3 style="margin:0">${esc(c.code)} ${esc(c.th)} <span class="muted small">${esc(c.en)} · ${crTxt(c)}</span></h3><p class="small">${c.pre?"วิชาบังคับก่อน: "+esc(c.pre)+" · ":""}ผู้เรียน: ${esc(c.forTh)} · ที่มา: ${esc(c.src)}</p><p>${esc(c.dth)}</p><p class="small muted">${esc(c.den)}</p><table><tr><th>CLO</th><th>ผลลัพธ์การเรียนรู้</th><th>Bloom</th><th>การประเมิน</th><th>Sub-PLO</th></tr>${c.clos.map((x,i)=>`<tr><td class="num">${i+1}</td><td>${esc(x[0])}</td><td>${esc(x[1])}</td><td class="small">${esc(x[2])}</td><td class="small">${esc(x[3]||"")}</td></tr>`).join("")}</table><p class="small">Curriculum Mapping: ${esc(c.map)}</p><p class="small muted">${esc(c.note)}</p></article>`).join("")}</section>`}
 function viewStruct(){
   const F=state.faculty,ta=teamAnalysis();
   const roleSel=f=>`<select data-role="${f.id}" aria-label="บทบาท ${esc(f.name)}" ${dis()}><option value="">อาจารย์ประจำหลักสูตร</option>${Object.entries(TRACKS).map(([k,v])=>`<option value="${k}" ${roleOf(f.id)===k?"selected":""}>ผู้รับผิดชอบหลักสูตร · แขนง${v}</option>`).join("")}</select>`;
@@ -2630,6 +2645,7 @@ document.addEventListener("keydown",e=>{if(e.target.id!=="cloQ"||e.key!=="Enter"
 
 // ---- แถบสถานะมุมขวาบน: ฉบับของหลักสูตร + การอัปเดตล่าสุด ----
 const CHANGELOG=[
+ ["18 พ.ย. 2569 (18:30)","ตาราง PLOs ของรายวิชาที่สาขาสอนให้สาขาอื่น (ข1 ก4 และ มคอ.2 หมวด 4)"],
  ["18 พ.ย. 2569 (18:10)","ตาราง PLO × KSEC รายชั้นปีตามรูปแบบเล่ม (แถบ ก4 และ มคอ.2 หมวด 4)"],
  ["18 พ.ย. 2569 (17:40)","ปรับ PLO2 เป็นหลักการพื้นฐานทางวิศวกรรมและวิทยาศาสตร์ เพิ่ม Sub-PLO K2-8 K2-9 K2-10 S2-6 S2-7 และย้ายวิชาคณิตศาสตร์ ฟิสิกส์ เคมี มารับผิดชอบ PLO2"],
  ["18 พ.ย. 2569 (17:10)","ปุ่มแก้อัตโนมัติครอบคลุมข้อ B5 B8 B13 F8 (CLO คำอธิบายรายวิชา และไฟล์ Word)"],
