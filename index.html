@@ -800,7 +800,7 @@ const CLO0={
 "4-112-311":[["วิเคราะห์การใช้พลังงานของระบบหลักในอาคารควบคุมและโรงงานควบคุม เช่น ระบบปรับอากาศ หม้อไอน้ำ ระบบอากาศอัด และระบบแสงสว่าง", ["K3-5"], "Analyze", "R", "สอบ / กรณีศึกษา"], ["วัดและตรวจวิเคราะห์การใช้พลังงานตามแนวทางการตรวจสอบพลังงาน และตีความข้อมูลการวัด", ["S4-3"], "Apply", "R", "รายงานการตรวจวัด"], ["ประเมินมาตรการอนุรักษ์พลังงานด้วยระยะเวลาคืนทุนและความคุ้มค่า", ["S5-2"], "Evaluate", "R", "รายงานมาตรการอนุรักษ์พลังงาน"], ["จัดทำรายงานการจัดการพลังงานตามรูปแบบที่กฎหมายกำหนด", ["S5-3"], "Apply", "R", "รายงานการจัดการพลังงาน"], ["อธิบายข้อกำหนดตาม พ.ร.บ.การส่งเสริมการอนุรักษ์พลังงาน และหน้าที่ของผู้รับผิดชอบด้านพลังงาน", ["E6-1"], "Understand", "I", "แบบทดสอบ"]]
 };
 
-const APP_VER="รุ่น 18 พ.ย. 2569 (16:30)";
+const APP_VER="รุ่น 18 พ.ย. 2569 (17:10)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -2592,6 +2592,7 @@ document.addEventListener("keydown",e=>{if(e.target.id!=="cloQ"||e.key!=="Enter"
 
 // ---- แถบสถานะมุมขวาบน: ฉบับของหลักสูตร + การอัปเดตล่าสุด ----
 const CHANGELOG=[
+ ["18 พ.ย. 2569 (17:10)","ปุ่มแก้อัตโนมัติครอบคลุมข้อ B5 B8 B13 F8 (CLO คำอธิบายรายวิชา และไฟล์ Word)"],
  ["18 พ.ย. 2569 (16:30)","ร่างแผนการศึกษาแผนเทียบโอน ปวส. และปริญญาตรีใบที่ 2 · แก้ข้อความทั้งเล่มตามผลการตรวจ (รวมไฟล์ Word)"],
  ["18 พ.ย. 2569 (13:30)","แก้ตามผลการตรวจเอกสาร 11 พ.ย. 2569 · แถบ ค4 ติดตามผลการตรวจ · ร่างหมวด 5 7 8 · ตารางองค์ความรู้สภาวิศวกรแยกรายแขนง"],
  ["18 พ.ย. 2569 (11:40)","เพิ่มวิชา 4-124-204 การประลองวิศวกรรมเครื่องกลและวัสดุ ในรายวิชาที่สอนให้สาขาอื่น · ช่องค้นหา ก3 ค้นได้ทุกรายวิชา ทั้งหลักสูตร 2571 วิชาที่สอนให้สาขาอื่น และหลักสูตรเดิม 2566"],
@@ -2671,7 +2672,25 @@ const FIX_RULES=[
  {id:"cr",d:"คำนำ: 145 หน่วยกิต → 140 หน่วยกิต",re:/145(\s*)หน่วยกิต/g,to:"140$1หน่วยกิต",only:["front"],fld:/^fw/},
  {id:"en1",d:"ชื่อแขนงภาษาอังกฤษ → Energy and Environmental Engineering",re:/(แขนง(?:วิชา)?วิศวกรรมพลังงาน)(?:และสิ่งแวดล้อม)?(\s*)\(Energy Engineering\)/g,to:"$1และสิ่งแวดล้อม$2(Energy and Environmental Engineering)"},
  {id:"en2",d:"Energy Engineering track/major → Energy and Environmental Engineering",re:/Energy Engineering(?=\s+(?:[Tt]rack|[Mm]ajor|[Oo]ption|[Pp]rogram))/g,to:"Energy and Environmental Engineering"},
- {id:"th",d:"แขนงวิชาวิศวกรรมพลังงาน → แขนงวิชาวิศวกรรมพลังงานและสิ่งแวดล้อม",re:/(แขนง(?:วิชา)?วิศวกรรมพลังงาน)(?!และสิ่งแวดล้อม|ทดแทน)/g,to:"$1และสิ่งแวดล้อม"}];
+ {id:"th",d:"แขนงวิชาวิศวกรรมพลังงาน → แขนงวิชาวิศวกรรมพลังงานและสิ่งแวดล้อม",re:/(แขนง(?:วิชา)?วิศวกรรมพลังงาน)(?!และสิ่งแวดล้อม|ทดแทน)/g,to:"$1และสิ่งแวดล้อม"},
+ {id:"B5",d:"B5 ขามยนต์ → ยานยนต์",re:/ขามยนต์/g,to:"ยานยนต์"},
+ {id:"F8a",d:"F8 other processing in thermodynamics → other thermodynamic processes",re:/other processing in thermodynamics/g,to:"other thermodynamic processes"},
+ {id:"F8b",d:"F8 writting → writing",re:/\bwritting\b/g,to:"writing"}];
+// เรียงเลขข้อย่อย 1) 2) 3) ใหม่ใต้หัวข้อ 14.4 (ข้อ B13)
+const RENUM={sec:"h1",start:/^\s*14\.4\b/,stop:/^\s*(14\.[5-9]|1[5-9]\.|หมวดที่)/,item:/^\s*(\d+)\)/};
+function renumHtml(html,hits,where){const d=document.createElement("div");d.innerHTML=html;let on=false,n=0,ch=false;
+  [...d.querySelectorAll("p,li,h2,h3,h4,div")].filter(e=>!e.querySelector("p,li,h2,h3,h4,div")).forEach(e=>{const t=e.textContent;if(RENUM.start.test(t)){on=true;n=0;return}if(!on)return;if(RENUM.stop.test(t)){on=false;return}
+    const m=t.match(RENUM.item);if(!m)return;n++;if(+m[1]!==n){e.innerHTML=e.innerHTML.replace(/(\d+)\)/,n+")");hits.push({where,rule:"B13 เรียงเลขข้อใต้ 14.4 ใหม่",ctx:m[1]+") → "+n+") "+t.trim().slice(0,50)});ch=true}});
+  return ch?d.innerHTML:html}
+// แก้ CLO และคำอธิบายรายวิชาที่บันทึกไว้ (ข้อ B5 B8 F8)
+async function courseFixRun(apply,hits){const out=[];for(const [code,o] of Object.entries(state.cloOv||{})){if(!o)continue;let n={...o,items:(o.items||[]).map(x=>({...x}))},ch=false;
+  for(const f of ["descTh","descEn"])if(n[f]){const v=fixText(n[f],"clo",null,hits,`คำอธิบาย ${code}`);if(v!==n[f]){n[f]=v;ch=true}}
+  n.items.forEach((x,i)=>{if(!x.t)return;let v=fixText(x.t,"clo",null,hits,`CLO${i+1} ${code}`);
+    if(code==="4-111-102"&&i===0&&/ของไหล|การเคลื่อนที่/.test(v)){const s=(CLO0[code]||[])[0];if(s){hits.push({where:"CLO1 "+code,rule:"B8 ใช้ CLO1 ตามคำอธิบายรายวิชา (ระบบแรง โมเมนต์ สมดุล)",ctx:v.slice(0,80)});v=s[0]}}
+    if(v!==x.t){x.t=v;ch=true}});
+  if(ch)out.push([code,n])}
+  if(apply)for(const [code,n] of out){state.cloOv[code]=n;await dbWrite(db=>db.doc("clo/"+key(code)).set({...n,sv:5,updatedAt:new Date().toISOString()}),"CLO "+code)}
+  return out.length}
 const fixApplies=(r,sec,fld)=>(!r.only||r.only.includes(sec))&&(!fld||!r.fld||r.fld.test(fld));
 function fixText(s,sec,fld,hits,where){let o=String(s);FIX_RULES.forEach(r=>{if(!fixApplies(r,sec,fld))return;o=o.replace(r.re,(...m)=>{const off=m[m.length-2],src=m[m.length-1];hits.push({where,rule:r.d,ctx:src.slice(Math.max(0,off-30),off+m[0].length+30).replace(/<[^>]*>/g,"")});return m[0].replace(new RegExp(r.re.source),r.to)})});return o}
 async function docxFixBuf(buf,sec,hits,where){if(!window.JSZip)await loadScript(DOCX_CDN.zip);const zip=await JSZip.loadAsync(buf);let n0=hits.length;
@@ -2684,18 +2703,23 @@ async function docxFixBuf(buf,sec,hits,where){if(!window.JSZip)await loadScript(
           if(a===b)txt[a]=txt[a].slice(0,oa)+rep+txt[a].slice(ob);else{txt[a]=txt[a].slice(0,oa)+rep;for(let i=a+1;i<b;i++)txt[i]="";txt[b]=txt[b].slice(ob)}
           hits.push({where,rule:r.d,ctx:full.slice(Math.max(0,s-30),e+30)});ch=true}
         txt.forEach((x,i)=>{ts[i].textContent=x;ts[i].setAttribute("xml:space","preserve")});});});
+    if(sec===RENUM.sec&&f==="word/document.xml"){let on=false,n=0;[...doc.getElementsByTagNameNS(W,"p")].forEach(p=>{const ts=[...p.getElementsByTagNameNS(W,"t")];const full=ts.map(t=>t.textContent).join("");
+      if(RENUM.start.test(full)){on=true;n=0;return}if(!on)return;if(RENUM.stop.test(full)){on=false;return}const m=full.match(RENUM.item);if(!m)return;n++;
+      if(+m[1]!==n){const t=ts.find(t=>/\d+/.test(t.textContent));if(t){t.textContent=t.textContent.replace(/\d+/,String(n));hits.push({where,rule:"B13 เรียงเลขข้อใต้ 14.4 ใหม่",ctx:m[1]+") → "+n+") "+full.trim().slice(0,50)});ch=true}}})}
     if(ch)zip.file(f,new XMLSerializer().serializeToString(doc))}
   return hits.length>n0?await zip.generateAsync({type:"arraybuffer"}):null}
 async function bookFixRun(apply){if(apply&&!state.isAdmin)return;state.fixRes={busy:true};render();const hits=[];const ed=JSON.parse(JSON.stringify(state.bookEdit||{}));
   try{const f=ed.f||{};Object.keys(f).forEach(k=>{const sec=(Object.entries(BOOK_FIELDS).find(([s,L])=>L.some(x=>x[0]===k))||["?"])[0];const v=fixText(f[k],sec,k,hits,"ช่องกรอก "+((Object.values(BOOK_FIELDS).flat().find(x=>x[0]===k)||[0,k])[1]));if(v!==f[k])f[k]=v});
-    const hh=ed.html||{};Object.keys(hh).forEach(sec=>{if(hh[sec]&&hh[sec].h){const v=fixText(hh[sec].h,sec,null,hits,"ฉบับแก้มือ "+((BOOK_SECS.find(x=>x[0]===sec)||[0,sec])[1]));if(v!==hh[sec].h)hh[sec]={...hh[sec],h:v,at:new Date().toISOString()}}});
+    const hh=ed.html||{};Object.keys(hh).forEach(sec=>{if(hh[sec]&&hh[sec].h){const wh="ฉบับแก้มือ "+((BOOK_SECS.find(x=>x[0]===sec)||[0,sec])[1]);let v=fixText(hh[sec].h,sec,null,hits,wh);if(sec===RENUM.sec)v=renumHtml(v,hits,wh);if(v!==hh[sec].h)hh[sec]={...hh[sec],h:v,at:new Date().toISOString()}}});
+    await courseFixRun(apply,hits);
     const dx=[];for(const sec of Object.keys(bkdMeta())){const buf=await bkdBuf(sec);if(!buf)continue;const nb=await docxFixBuf(buf,sec,hits,"ไฟล์ Word "+((BOOK_SECS.find(x=>x[0]===sec)||[0,sec])[1]));if(nb)dx.push([sec,nb])}
     if(apply&&hits.length){if(Object.keys(f).length||Object.keys(hh).length){state.bookMerge={};await saveBookEdit(ed,"แก้ข้อความตามผลการตรวจ")}
       for(const [sec,nb] of dx){const m=bkdMeta()[sec];const meta={...m,at:new Date().toISOString(),by:(state.user&&state.user.email)||"",size:nb.byteLength};await bkdStore.put(sec,{...meta,b64:b64Of(nb)});bkdCache[sec]={at:meta.at,buf:nb};bkdMeta()[sec]=meta}
-      state.review=state.review||{};state.review.st={...(state.review.st||{}),A4:"done"};state.review.note={...(state.review.note||{}),A4:`แก้อัตโนมัติ ${hits.length} จุด เมื่อ ${new Date().toLocaleString("th-TH")}`};await reviewSave()}
+      const ids=[...new Set(hits.map(x=>x.rule.startsWith("B5")?"B5":x.rule.startsWith("B8")?"B8":x.rule.startsWith("B13")?"B13":x.rule.startsWith("F8")?"F8":"A4"))];const when=new Date().toLocaleString("th-TH");
+      state.review=state.review||{};state.review.st={...(state.review.st||{}),...Object.fromEntries(ids.map(i=>[i,"done"]))};state.review.note={...(state.review.note||{}),...Object.fromEntries(ids.map(i=>[i,`แก้อัตโนมัติ ${hits.filter(x=>(i==="A4"?!/^(B5|B8|B13|F8)/.test(x.rule):x.rule.startsWith(i))).length} จุด เมื่อ ${when}`]))};await reviewSave()}
     state.fixRes={hits,applied:apply}}catch(e){console.error(e);state.fixRes={err:e&&e.message||String(e)}}render()}
-function fixPanelHtml(){const r=state.fixRes;return `<section class="panel"><h2>แก้ข้อความในเล่มตามผลการตรวจ (ข้อ A4)</h2>
-  <p class="small muted">ค้นและแก้ทั้งช่องกรอกข้อความ ฉบับแก้มือ และไฟล์ Word ที่อัปโหลดในแถบ ค1 · กฎที่ใช้: ${FIX_RULES.map(x=>esc(x.d)).join(" · ")} (ชื่อปริญญาของอาจารย์ เช่น วิศวกรรมพลังงานทดแทน ไม่ถูกแก้)</p>
+function fixPanelHtml(){const r=state.fixRes;return `<section class="panel"><h2>แก้ข้อความในเล่มอัตโนมัติ (ข้อ A4 B5 B8 B13 F8)</h2>
+  <p class="small muted">ค้นและแก้ทั้งช่องกรอกข้อความ ฉบับแก้มือ ไฟล์ Word ที่อัปโหลดในแถบ ค1 และ CLO/คำอธิบายรายวิชาที่บันทึกไว้ · เรียงเลขข้อใต้หมวด 1 ข้อ 14.4 ใหม่ · กฎที่ใช้: ${FIX_RULES.map(x=>esc(x.d)).join(" · ")} (ชื่อปริญญาของอาจารย์ เช่น วิศวกรรมพลังงานทดแทน ไม่ถูกแก้)</p>
   <div class="row" style="gap:8px"><button class="sm" id="fixScan">ตรวจหาข้อความที่ต้องแก้</button>${state.isAdmin&&r&&r.hits&&r.hits.length&&!r.applied?`<button class="sm primary" id="fixApply">แก้ทั้งหมด ${r.hits.length} จุด</button>`:""}</div>
   ${r&&r.busy?'<p class="small">กำลังตรวจ…</p>':r&&r.err?`<p class="note small">ไม่สำเร็จ: ${esc(r.err)}</p>`:r&&r.hits?(r.hits.length?`<p class="small">${r.applied?"แก้แล้ว":"พบ"} ${r.hits.length} จุด</p><div class="scroll" style="max-height:300px;overflow:auto"><table class="small"><tr><th>ตำแหน่ง</th><th>กฎ</th><th>ข้อความเดิม</th></tr>${r.hits.map(x=>`<tr><td>${esc(x.where)}</td><td>${esc(x.rule)}</td><td>…${esc(x.ctx)}…</td></tr>`).join("")}</table></div>`:`<p class="small">${r.applied?"แก้เรียบร้อย":"ไม่พบข้อความที่ต้องแก้แล้ว"} ส่วนที่ระบบสร้างอัตโนมัติใช้ 140 หน่วยกิตและชื่อแขนงที่ถูกต้องอยู่แล้ว</p>`):""}</section>`}
 document.addEventListener("click",e=>{if(e.target.id==="fixScan")bookFixRun(false);if(e.target.id==="fixApply"&&confirm("แก้ข้อความในเล่มทั้งหมด รวมไฟล์ Word ที่อัปโหลด?"))bookFixRun(true)});
@@ -2715,15 +2739,15 @@ const REVIEW=[
  ["B2","B","สารบัญภาคผนวก ก.5 เขียน \"โมเดลรูปแบบการจัดการเรียนการสอน\" แต่เนื้อหาคือตารางองค์ความรู้สภาวิศวกร","sys","แก้ชื่อในสารบัญให้ตรงกับเนื้อหาแล้ว","book"],
  ["B3","B","เลขหัวข้อหมวด 3 ข้าม 2.3 ไป 2.7","sys","เรียงเลขใหม่เป็น 2.4 แผนการรับนักศึกษา และ 2.5 การเลือกแขนงวิชา","book"],
  ["B4","B","ไม่มีหัวข้อ \"2. กลุ่มวิชาชีพบังคับ 46 หน่วยกิต\"","sys","เพิ่มหัวข้อกลุ่มพร้อมจำนวนหน่วยกิตแล้ว","book"],
- ["B5","B","คำสะกด 4-113-311 \"ในขามยนต์\"","data","แก้เป็น \"ในยานยนต์\" ในคำอธิบายรายวิชา 4-113-311 (แถบ ก3) ถ้ายังพบในไฟล์ Word ให้แก้ที่ไฟล์ด้วย","design/clo"],
+ ["B5","B","คำสะกด 4-113-311 \"ในขามยนต์\"","data","กดปุ่มแก้อัตโนมัติด้านบน ระบบแก้ทั้งคำอธิบายรายวิชาที่บันทึกไว้และไฟล์ Word","design/clo"],
  ["B6","B","4-111-308 และ 4-114-401 ใช้ 3(2-3-5) ต่างจากวิชาอื่น 3(2-3-4)","sys","ปรับเป็น 3(2-3-4) แล้ว","design/plan"],
  ["B7","B","คำอธิบาย 4-111-308 อ้าง \"ต่อยอดจากวิชา 4-116-310\" ทั้งที่อยู่ภาคเดียวกัน","sys","ตัดข้อความอ้างอิงในร่างคำอธิบายแล้ว ผู้สอนต้องกดรับร่างฉบับปรับปรุงในแถบ ก3 ถ้าเคยบันทึกคำอธิบายไว้","design/clo"],
- ["B8","B","CLO 1 ของ 4-111-102 สถิตยศาสตร์ กล่าวถึงการเคลื่อนที่และสมบัติของไหล ซึ่งไม่อยู่ในคำอธิบาย","data","ผู้สอนแก้ CLO 1 ในแถบ ก3 ให้เหลือเฉพาะระบบแรง โมเมนต์ และสมดุล (ร่างตั้งต้นของระบบถูกต้องแล้ว ข้อความที่ผิดมาจาก CLO ที่บันทึกไว้)","design/clo"],
+ ["B8","B","CLO 1 ของ 4-111-102 สถิตยศาสตร์ กล่าวถึงการเคลื่อนที่และสมบัติของไหล ซึ่งไม่อยู่ในคำอธิบาย","data","กดปุ่มแก้อัตโนมัติด้านบน ระบบเปลี่ยน CLO 1 เป็น \"อธิบายหลักการของระบบแรง โมเมนต์ของแรง แรงคู่ควบ และเงื่อนไขสภาวะสมดุล…\" ตามคำอธิบายรายวิชา","design/clo"],
  ["B9","B","ภาคผนวก ก.3 ลำดับ 3 Engineering Skills / Investigation ควรสอดคล้อง PLO 4","sys","ปรับเป็น PLO 3, 4 แล้ว (ถ้าเคยแก้รายการนี้ในแถบ ก1 ให้ตรวจอีกครั้ง)","design/needs"],
  ["B10","B","ตารางองค์ความรู้: Pneumatic and Hydraulic Control เขียนว่า \"เนื้อหาอยู่ในวิชาเลือก\" และ IoT and AI ว่า \"ไม่มีวิชาบังคับ\"","sys","ตารางใหม่แสดงรายวิชาตามจริงรายแขนง และเพิ่ม 4-114-401 ในหัวข้อ IoT and AI แล้ว ส่วน Pneumatic ยังมีเพียงวิชาเลือก (ดูข้อ G3)","book"],
  ["B11","B","รหัส 4-000-103 และ 4-116-311 เดิมเป็นวิชาอื่น นำมาใช้กับวิชาใหม่","sys","4-116-311 เปลี่ยนเป็น 4-116-305 แล้ว ส่วน 4-000-103 เป็นรหัสที่คณะกำหนด ระบุเหตุผลไว้ในตารางเปรียบเทียบภาคผนวก ก.4 แล้ว","book"],
  ["B12","B","ผลงาน ผศ.สุรชัย (Zenodo) ระบุเป็นวารสาร Pubmed ค่าน้ำหนัก 1","data","เจ้าของประวัติแก้ฐานข้อมูลเป็นประเภทอื่นหรือตัดออกในแถบ ข4","manage/cv"],
- ["B13","B","หมวด 1 ข้อ 14.4 มีข้อ 6) ซ้ำ 2 ข้อ","word","รายการที่ระบบสร้างเรียงเลขถูกต้อง ข้อที่ซ้ำอยู่ในไฟล์ Word หรือข้อความที่แก้ด้วยมือ ให้แก้ข้อสุดท้ายเป็น 7)","book"],
+ ["B13","B","หมวด 1 ข้อ 14.4 มีข้อ 6) ซ้ำ 2 ข้อ","word","กดปุ่มแก้อัตโนมัติด้านบน ระบบเรียงเลขข้อใต้ 14.4 ใหม่ทั้งในฉบับแก้มือและไฟล์ Word","book"],
  ["B14","B","ตารางข้อมูลนักศึกษาและความเสี่ยง (หมวด 1) ตัวอักษรเล็กมากเมื่อพิมพ์","word","ในไฟล์ Word ให้แยกตารางเป็น 2 หน้าหรือใช้หน้าแนวนอน",""],
  ["C1","C","รหัสหลักสูตร (หมวด 1 ข้อ 1) ยังว่าง","word","กรอกรหัสหลักสูตรที่ ✎ แก้ไขข้อความ หมวด 1 เมื่อได้รับจาก สป.อว.","book"],
  ["C2","C","วันที่ประชุมสภาวิชาการและสภามหาวิทยาลัย (หมวด 1 ข้อ 9) ยังเป็น xx","word","กรอกวันที่ประชุมจริงที่ ✎ แก้ไขข้อความ หมวด 1","book"],
@@ -2761,7 +2785,7 @@ const REVIEW=[
  ["F5","F","Sub-PLO S5-1 (ปฏิบัติงานในสถานประกอบการ) อยู่ใน YLO ปี 2","data","ย้าย S5-1 ไป YLO ปี 4 ในแถบ ก2","design/plo"],
  ["F6","F","หมายเหตุ \"ระดับตั้งต้น…ยังไม่มี CLO จากผู้สอน\" ยังปรากฏ","data","ผู้สอนยืนยัน CLO ให้ครบทุกวิชาในแถบ ก3 หมายเหตุจะหายเอง","design/clo"],
  ["F7","F","วัสดุวิศวกรรม (4-111-205) เนื้อหามียาง ไม้ คอนกรีต ซึ่งเหมาะกับโยธา","data","ผู้สอนปรับคำอธิบายเป็นวัสดุเชิงกล พอลิเมอร์วิศวกรรม และวัสดุแบตเตอรี่ในแถบ ก3","design/clo"],
- ["F8","F","ภาษาอังกฤษในคำอธิบาย เช่น \"other processing in thermodynamics\" (4-112-201) \"application letter writting\" (4-001-301)","data","แก้ในแถบ ก3 (คำอธิบายภาษาอังกฤษ) ถ้ามาจากไฟล์ Word ให้แก้ที่ไฟล์ด้วย","design/clo"],
+ ["F8","F","ภาษาอังกฤษในคำอธิบาย เช่น \"other processing in thermodynamics\" (4-112-201) \"application letter writting\" (4-001-301)","data","กดปุ่มแก้อัตโนมัติด้านบน ระบบแก้ทั้งคำอธิบายที่บันทึกไว้และไฟล์ Word","design/clo"],
  ["F9","F","สถิตยศาสตร์ (4-111-102) map เพียง PLO 2 ทั้งที่เนื้อหาตรง K3-2","decide","พิจารณาเพิ่ม PLO 3 (ระดับ I/R)",""],
  ["G1","G","ทำแบบสำรวจใหม่ให้มีน้ำหนัก (ผู้ตอบ 23 คน)","decide","สำรวจผู้ใช้บัณฑิตแต่ละแขนงอย่างน้อย 10–15 แห่ง",""],
  ["G2","G","เพิ่มวิชาชีพเลือกจาก 3 เป็น 6 หน่วยกิต","decide","ลดวิชาเลือกเสรีหรือเพิ่มหน่วยกิตรวม",""],
