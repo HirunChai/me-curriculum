@@ -808,7 +808,7 @@ const CLO0={
 };
 
 const FAC_HINT={"adisorn.sa@mail.rmutk.ac.th":"นายอดิสร สโมสร"};
-const APP_VER="รุ่น 19 พ.ย. 2569 (19:20)";
+const APP_VER="รุ่น 19 พ.ย. 2569 (19:30)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -1813,9 +1813,14 @@ async function paginateHtml(html,fmt,trace,land){
     if(n.nodeType===1&&n.classList.contains("bk-land")&&!land){flush();rec(ni,-1);const sub=await paginateHtml(n.innerHTML,fmt,null,true);sub.forEach(p=>pages.push(LAND_MARK+p));want=true;continue}
     const c=n.cloneNode(true);rec(ni,-1);pg.appendChild(c);if(fits())continue;
     pg.removeChild(c);
+    const contHd=()=>{let h;if(lastHd&&lastHd.tagName!=="H3"&&lastHd.querySelector("b,strong")){h=lastHd.cloneNode(true);["data-cont","data-hd","data-k"].forEach(a=>h.removeAttribute(a));h.classList.add("bk-cont");const bs=[...h.querySelectorAll("b,strong")],lb=bs[bs.length-1];lb.textContent=lb.textContent.replace(/\s*\(ต่อ\)$/,"")+" (ต่อ)";[...h.childNodes].forEach(x=>{if(x.nodeType===3&&x.textContent.trim())x.remove()})}else if(lastHd&&lastHd.tagName!=="H3"){h=lastHd.cloneNode(false);h.removeAttribute("data-cont");h.classList.add("bk-cont");h.innerHTML="<b></b>";h.firstChild.textContent=lastH3+" (ต่อ)"}else{h=document.createElement("h3");h.className="bk-cont";h.textContent=lastH3+" (ต่อ)"}pg.appendChild(h)};
+    // คำอธิบายรายวิชา 1 วิชาไม่แยกหน้า: ถ้าไม่พอในหน้านี้แต่พอในหน้าใหม่ ให้ขึ้นหน้าใหม่ทั้งวิชา
+    if(n.nodeType===1&&n.tagName==="TABLE"&&n.classList.contains("bk-desc")&&pg.children.length){const pv=pg.lastElementChild;const carry=bkTakeHeads(pg);flush();rec(ni-carry.length,-1);
+      if(carry.length)carry.forEach(x=>pg.appendChild(x));else if(lastH3&&pv&&pv.tagName==="TABLE")contHd();
+      pg.appendChild(c);if(fits())continue;pg.removeChild(c)}
     if(n.nodeType===1&&n.tagName==="TABLE"&&n.tBodies[0]&&n.tBodies[0].rows.length>1){
       const head=n.tHead?n.tHead.cloneNode(true):null;const rows=[...n.tBodies[0].rows];
-      const mk=(cont,split)=>{if(cont&&lastH3&&!(n.dataset&&n.dataset.nocont==="2")){let h;if(lastHd&&lastHd.tagName!=="H3"&&lastHd.querySelector("b,strong")){h=lastHd.cloneNode(true);["data-cont","data-hd","data-k"].forEach(a=>h.removeAttribute(a));h.classList.add("bk-cont");const bs=[...h.querySelectorAll("b,strong")],lb=bs[bs.length-1];lb.textContent=lb.textContent.replace(/\s*\(ต่อ\)$/,"")+" (ต่อ)";[...h.childNodes].forEach(x=>{if(x.nodeType===3&&x.textContent.trim())x.remove()})}else if(lastHd&&lastHd.tagName!=="H3"){h=lastHd.cloneNode(false);h.removeAttribute("data-cont");h.classList.add("bk-cont");h.innerHTML="<b></b>";h.firstChild.textContent=lastH3+" (ต่อ)"}else{h=document.createElement("h3");h.className="bk-cont";h.textContent=lastH3+" (ต่อ)"}pg.appendChild(h)}const t=n.cloneNode(false);if(head){const hc=head.cloneNode(true);if(cont&&split&&n.dataset&&n.dataset.thcont){const th=hc.rows[0]&&hc.rows[0].cells[0];if(th)th.textContent=th.textContent.replace(/\s*\(ต่อ\)$/,"")+" (ต่อ)"}t.appendChild(hc)}const tb=document.createElement("tbody");t.appendChild(tb);pg.appendChild(t);return tb};
+      const mk=(cont,split)=>{if(cont&&lastH3&&!(n.dataset&&n.dataset.nocont==="2"))contHd();const t=n.cloneNode(false);if(head){const hc=head.cloneNode(true);if(cont&&split&&n.dataset&&n.dataset.thcont){const th=hc.rows[0]&&hc.rows[0].cells[0];if(th)th.textContent=th.textContent.replace(/\s*\(ต่อ\)$/,"")+" (ต่อ)"}t.appendChild(hc)}const tb=document.createElement("tbody");t.appendChild(tb);pg.appendChild(t);return tb};
       let tb=mk();
       for(const [ri,r] of rows.entries()){tb.appendChild(r.cloneNode(true));if(!fits()){tb.removeChild(tb.lastChild);if(!tb.rows.length){pg.removeChild(tb.parentNode);const hs=bkTakeHeads(pg).filter(x=>!x.classList.contains("bk-cont"));const keepH=hs.length>0;flush();rec(ni,ri);hs.forEach(x=>pg.appendChild(x));const pv=nodes.slice(0,ni).reverse().find(x=>x.nodeType===1&&!/^(DIV)$/.test(x.tagName));tb=mk(!keepH&&(ri>0||!!(pv&&pv.tagName==="TABLE")),ri>0);tb.appendChild(r.cloneNode(true))}else{flush();rec(ni,ri);tb=mk(true,true);tb.appendChild(r.cloneNode(true))}}}
       continue;
@@ -2930,6 +2935,7 @@ document.addEventListener("keydown",e=>{if(e.target.id!=="cloQ"||e.key!=="Enter"
 
 // ---- แถบสถานะมุมขวาบน: ฉบับของหลักสูตร + การอัปเดตล่าสุด ----
 const CHANGELOG=[
+ ["19 พ.ย. 2569 (19:30)","คำอธิบายรายวิชาไม่ถูกแบ่งครึ่งข้ามหน้า: วิชาที่ไม่พอในหน้าเดิมขึ้นหน้าใหม่ทั้งวิชา"],
  ["19 พ.ย. 2569 (19:20)","ตารางแผนการศึกษาที่ต่อหน้าขึ้นหัวแผน (ต่อ) แม้หมวด 3 มีฉบับแก้มือที่บันทึกก่อนหน้า"],
  ["19 พ.ย. 2569 (19:10)","แผน ค. ปริญญาตรีใบที่ 2 (ภาคสมทบ) ชั้นปีที่ 1–2 รวมทุกแขนงวิชาเป็นตารางเดียวเหมือนแผน ก. และ ข."],
  ["19 พ.ย. 2569 (19:00)","แผนการศึกษาหมวด 3 ข้อ 3.3: แผน ก. และแผน ข. ชั้นปีที่ 1–2 รวมทุกแขนงวิชาเป็นตารางเดียว รายวิชาเฉพาะแขนงระบุแขนงในวงเล็บ แยกแขนงตั้งแต่ชั้นปีที่ 3"],
