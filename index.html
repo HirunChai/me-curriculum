@@ -808,7 +808,7 @@ const CLO0={
 };
 
 const FAC_HINT={"adisorn.sa@mail.rmutk.ac.th":"นายอดิสร สโมสร"};
-const APP_VER="รุ่น 19 พ.ย. 2569 (20:10)";
+const APP_VER="รุ่น 19 พ.ย. 2569 (20:30)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -1668,7 +1668,7 @@ function bookSecHtml(id){
     const asm=p=>{const ss=new Set(subs.filter(s=>s.plo===p.n).map(s=>s.code)),o=new Set();COURSES.forEach(c=>clos(c.code).forEach(x=>{if((x.subs||[]).some(s=>ss.has(s))&&x.as)x.as.split(/[·,/]/).forEach(a=>{a=a.trim();if(a)o.add(a)})}));return [...o].slice(0,6).join(" · ")||"การสอบ · ชิ้นงาน · rubric"};
     const map=all.filter(c=>/^\d-\d{3}-\d{3}$/.test(c.code)).sort((a,b)=>(a.g==="GE"?0:1)-(b.g==="GE"?0:1)||TERMS.indexOf(a.term)-TERMS.indexOf(b.term)).filter((c,i,s)=>s.findIndex(x=>x.code===c.code)===i).map(c=>{const m=ploOf(c).map||{};return [c.code,c.th,...plos.map(p=>({t:m[p.n]||"",cls:"c"}))]});
     return `${H("หมวดที่ 4 การจัดกระบวนการเรียนรู้")}${h3("1. การพัฒนาคุณลักษณะพิเศษของนักศึกษา")}${bkT([["ทักษะปฏิบัติงานวิศวกรรมในแขนงเฉพาะทาง","วิชาปฏิบัติงานแขนงปีที่ 2 การประลองแขนงปีที่ 4 และสหกิจศึกษาตรงแขนง"],["ใช้เครื่องมือและซอฟต์แวร์วิศวกรรมสมัยใหม่","CAD/CAE ในวิชาออกแบบและโครงงาน"],["ความพร้อมสอบใบอนุญาต กว.","จัดวิชาครบตามเกณฑ์สภาวิศวกร และติวสอบก่อนสำเร็จการศึกษา"]],["คุณลักษณะพิเศษ","กลยุทธ์หรือกิจกรรม"])}
-    ${h3("2. การออกแบบการจัดกระบวนการเรียนรู้และการประเมินผล")}${ploStratTable(plos,true)}<p class="small-note">${esc(STRAT_NOTE)}</p>
+    <div class="bk-land">${h3("2. การออกแบบการจัดกระบวนการเรียนรู้และการประเมินผล")}<p class="li" data-hd="1"><b>2.1 แนวทางการออกแบบการจัดกระบวนการเรียนรู้</b></p>${ploDesignTable(plos,subs)}<p class="small-note"><b>หมายเหตุ</b> C = พุทธิพิสัย Cognitive (U = Remembering/Understanding, A = Applying/Analyzing, E = Evaluating/Creating) AF = จิตพิสัย Affective, P = ทักษะพิสัย Psychomotor · Generic LO = ผลลัพธ์การเรียนรู้ทั่วไปที่มหาวิทยาลัยกำหนด · Specific LO = ผลลัพธ์การเรียนรู้เฉพาะสาขา</p><div class="bk-break"></div><p class="li" data-hd="1"><b>2.2 กลยุทธ์การจัดการเรียนรู้และวิธีการประเมินผลการเรียนรู้</b></p>${ploStratTable(plos,true)}<p class="small-note">${esc(STRAT_NOTE)}</p></div>
     ${h3("3. แผนที่กระจายความรับผิดชอบของผลลัพธ์การเรียนรู้สู่รายวิชา (Curriculum Mapping)")}${bkT(map,["รหัสวิชา","รายวิชา",...plos.map(p=>"PLO"+p.n)],{w:"100%"})}<p class="small-note">I = แนะนำ · R = ฝึกซ้ำ · M = ประเมินการบรรลุ</p>${ksecBookHtml()}${SERVICE.length?svcPloBookHtml():""}
     ${h3("4. แผนการศึกษาและการกระจายความรับผิดชอบของผลลัพธ์การเรียนรู้ของหลักสูตร ลงสู่รายวิชาและผลลัพธ์การเรียนรู้ระดับรายชั้นปี")}${studyPlanYloHtml()}${h3("5. องค์ประกอบเกี่ยวกับประสบการณ์ภาคสนาม (สหกิจศึกษา)")}${clos("4-116-302").map((x,i)=>li(`${i+1}) ${esc(x.t)}`)).join("")}${h3("6. ข้อกำหนดเกี่ยวกับการทำโครงงาน")}${ind(BFh("proj"))}`;
   }
@@ -1787,6 +1787,14 @@ function objSubTables(OBJ,plos,subs){const MAX=24,groups=[];let cur=[],n=0;
     const head=`<tr><th rowspan="2" style="width:2.4in">วัตถุประสงค์ของหลักสูตร</th>${g.map(p=>`<th colspan="${Math.max(1,subs.filter(s=>s.plo===p.n).length)}">PLO ${p.n}</th>`).join("")}</tr><tr>${cols.map(s=>`<th class="c" style="font-size:.78em;line-height:1.15;padding:2px 1px">${s.none?"-":lab(s.code)}</th>`).join("")}</tr>`;
     const body=OBJ.map((o,i)=>`<tr><td>${i+1}. ${esc(o[0])}</td>${cols.map(s=>`<td class="c">${!s.none&&objSubHit(i,o,s)?"✓":(s.none&&(o[1]||[]).includes(s.plo)?"✓":"")}</td>`).join("")}</tr>`).join("");
     return `${gi?'<div style="height:.5em"></div>':""}<table class="bk-t" style="width:100%"><thead>${head}</thead><tbody>${body}</tbody></table>`}).join("")}
+// หมวด 4 ข้อ 2.1 แนวทางการออกแบบการจัดกระบวนการเรียนรู้ (Generic/Specific LO · Bloom C/AF/P · 4 ด้าน)
+function ploDesignTable(plos,subs){const lv=b=>({Remember:"U",Understand:"U",Apply:"A",Analyze:"A",Evaluate:"E",Create:"E"})[b];
+  const ck='<span style="font-size:1.15em">✓</span>';
+  const rows=plos.map(p=>{const ss=subs.filter(s=>s.plo===p.n),C=[...new Set(ss.filter(s=>s.dom==="K"||s.dom==="S").map(s=>lv(s.bloom)).filter(Boolean))].sort((a,b)=>"UAE".indexOf(a)-"UAE".indexOf(b));
+    const af=ss.some(s=>AFFECTIVE.includes(s.bloom)),ps=ss.some(s=>s.dom==="S");const bl=[...C,...(af?["AF"]:[]),...(ps?["P"]:[])].join(", ");
+    const d=String(p.d).split(/,\s*/);const gen=p.n===1;
+    return `<tr><td>PLO ${p.n} ${esc(p.t)}</td><td class="c">${gen?ck:""}</td><td class="c">${gen?"":ck}</td><td class="c b">${bl}</td>${["K","S","E","C"].map(k=>`<td class="c">${d.includes(k)?ck:""}</td>`).join("")}</tr>`}).join("");
+  return `<table class="bk-t" style="width:100%"><thead><tr><th rowspan="2" style="width:34%">ผลลัพธ์การเรียนรู้ของหลักสูตร</th><th rowspan="2" style="width:9%">ผลลัพธ์การเรียนรู้ทั่วไป<br>(Generic LO)</th><th rowspan="2" style="width:9%">ผลลัพธ์การเรียนรู้เฉพาะสาขา<br>(Specific LO)</th><th rowspan="2" style="width:12%">Bloom’s Taxonomy<br>C (U, A, E) AF, P</th><th colspan="4">ผลลัพธ์การเรียนรู้ตามมาตรฐานคุณวุฒิระดับอุดมศึกษา</th></tr><tr><th>ความรู้</th><th>ทักษะ</th><th>จริยธรรม</th><th>ลักษณะบุคคล</th></tr></thead><tbody>${rows}</tbody></table>`}
 function ksecDetailTable(plos,subs){const D=[["K","ด้านความรู้ (K)"],["S","ด้านทักษะ (S)"],["E","ด้านจริยธรรม (E)"],["C","ด้านลักษณะบุคคล (C)"]];
   const cell=(p,d)=>subs.filter(s=>s.plo===p.n&&s.dom===d).map(s=>`${esc(s.code)}: ${esc(s.t)}`).join("<br>");
   return `<table class="bk-t" style="width:100%"><thead><tr><th rowspan="2" style="width:24%">ผลลัพธ์การเรียนรู้ของหลักสูตร</th><th colspan="4">รายละเอียดผลลัพธ์การเรียนรู้</th></tr><tr>${D.map(([,t])=>`<th style="width:19%">${t}</th>`).join("")}</tr></thead><tbody>${plos.map(p=>`<tr><td>PLO ${p.n} ${esc(p.t)}</td>${D.map(([d])=>`<td>${cell(p,d)}</td>`).join("")}</tr>`).join("")}</tbody></table>`}
@@ -2948,6 +2956,7 @@ document.addEventListener("keydown",e=>{if(e.target.id!=="cloQ"||e.key!=="Enter"
 
 // ---- แถบสถานะมุมขวาบน: ฉบับของหลักสูตร + การอัปเดตล่าสุด ----
 const CHANGELOG=[
+ ["19 พ.ย. 2569 (20:30)","หมวด 4 ข้อ 2: หน้าแนวนอน 2.1 แนวทางการออกแบบการจัดกระบวนการเรียนรู้ (Generic/Specific LO · Bloom · 4 ด้าน) และ 2.2 กลยุทธ์และวิธีประเมิน"],
  ["19 พ.ย. 2569 (20:10)","4-116-302 สหกิจศึกษา: เพิ่มหมายเหตุการวัดผลแบบ พ.จ./ม.จ. (S/U) ท้ายคำอธิบายรายวิชาไทยและอังกฤษ"],
  ["19 พ.ย. 2569 (20:00)","ตรวจตามเกณฑ์การเขียนคำอธิบายรายวิชา: เพิ่มวิชาบังคับก่อนไทย/อังกฤษ 25 วิชา · แก้คำอธิบายตั้งต้นที่มี ได้แก่ เช่น ต่าง ๆ และวงเล็บ · ช่องตรวจเกณฑ์ใน ก3"],
  ["19 พ.ย. 2569 (19:30)","คำอธิบายรายวิชาไม่ถูกแบ่งครึ่งข้ามหน้า: วิชาที่ไม่พอในหน้าเดิมขึ้นหน้าใหม่ทั้งวิชา"],
