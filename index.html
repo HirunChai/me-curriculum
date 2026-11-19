@@ -808,7 +808,7 @@ const CLO0={
 };
 
 const FAC_HINT={"adisorn.sa@mail.rmutk.ac.th":"นายอดิสร สโมสร"};
-const APP_VER="รุ่น 19 พ.ย. 2569 (10:30)";
+const APP_VER="รุ่น 19 พ.ย. 2569 (11:00)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -1479,8 +1479,7 @@ function bookSecHtml(id){
     const ksec=plos.map(p=>[`PLO ${p.n} ${p.t}`,...["K","S","E","C"].map(d=>subs.filter(s=>s.plo===p.n&&s.dom===d).map(s=>s.code+": "+s.t).join("\n"))]);
     return `${H("หมวดที่ 2 ข้อมูลเฉพาะของหลักสูตร")}${h3("1. ปรัชญา วัตถุประสงค์และผลลัพธ์การเรียนรู้ของหลักสูตร")}${li("<b>1.1 ปรัชญาของหลักสูตร</b>")}${BFlines("philo").map(s=>ind(esc(s))).join("")}${li("<b>1.2 วัตถุประสงค์ของหลักสูตร</b>")}${OBJ.map((o,i)=>li(`${i+1}. ${o[0]}`)).join("")}${li("<b>1.3 ผลลัพธ์การเรียนรู้ระดับหลักสูตร (PLOs)</b>")}${ind("เมื่อสิ้นสุดการเรียนการสอนในหลักสูตร ผู้สำเร็จการศึกษาจะสามารถ")}${plos.map(p=>`<p class="li"><b>PLO ${p.n}</b> ${esc(p.t)}</p>`+subs.filter(s=>s.plo===p.n).map(s=>`<p class="li2">Sub PLO ${s.code} ${esc(s.t)}</p>`).join("")).join("")}
     ${h3("2. ตารางแสดงความสัมพันธ์ระหว่างวัตถุประสงค์ของหลักสูตรกับ PLOs")}${bkT(OBJ.map((o,i)=>[`${i+1}. ${o[0]}`,...plos.map(p=>({t:o[1].includes(p.n)?"✓":"",cls:"c"}))]),["วัตถุประสงค์ของหลักสูตร",...plos.map(p=>"PLO"+p.n)])}
-    ${h3("3. รายละเอียดของผลลัพธ์การเรียนรู้ของหลักสูตรในแต่ละด้าน")}${bkT(ksec.map(r=>r.map(x=>({h:esc(x).replace(/\n/g,"<br>")}))),["PLO","ด้านความรู้ (K)","ด้านทักษะ (S)","ด้านจริยธรรม (E)","ด้านลักษณะบุคคล (C)"],{w:"100%"})}
-    ${h3("4. ความคาดหวังของผลลัพธ์การเรียนรู้ต่อการพัฒนาผู้เรียน (YLOs)")}${bkT(YLOS.map(y=>[`ปีที่ ${y.y}`,{h:esc(y.t).replace(/ · /g,"<br>- ")},{h:"Sub PLO: "+y.subs.join(", ")+"<br>อาชีพ: "+esc(y.job||"")},y.cri||""]),["ช่วงเวลา","ผลลัพธ์การเรียนรู้","สมรรถนะ / อาชีพ","เกณฑ์การประเมิน"],{w:"100%"})}`;
+    <div class="bk-land">${h3("3. รายละเอียดของผลลัพธ์การเรียนรู้ของหลักสูตรในแต่ละด้าน")}${ksecDetailTable(plos,subs)}<div class="bk-break"></div>${h3("4. ความคาดหวังของผลลัพธ์การเรียนรู้ต่อการพัฒนาผู้เรียนเมื่อสิ้นปีการศึกษา (Year Learning Outcomes: YLOs)")}${yloBookTable()}<p class="small-note">หมายเหตุ: YLO ครอบคลุมผลลัพธ์การเรียนรู้ของหลักสูตรทุกข้อ (PLO 1–${plos.length})</p></div>`;
   }
   if(id==="h3"){
     const plans=trs.map(t=>{const L=trackCourses(t).filter(c=>!(c.fl&&c.fl.pool));return `<p class="li"><b>แผน ก. แผนสหกิจศึกษาและการศึกษาเชิงบูรณาการกับการทำงาน · แขนงวิชา${TRACKS[t]}</b></p>`+TERMS.map(tm=>{const R=L.filter(c=>c.term===tm);if(!R.length)return "";const rows=R.map(c=>[c.g==="FREE"?"x-xxx-xxx":c.g==="TE"?"x-xxx-xxx":c.code,c.g==="FREE"?"วิชาเลือกเสรี":c.g==="TE"?"วิชาชีพเลือก":c.th,c.fl&&c.fl.nc?`(${c.t})`:String(c.cr),String(c.t),String(c.p),String(c.s)]);rows.push([{t:"รวม",span:2,cls:"r b"},{t:String(sumCr(R)),cls:"b"},"","",""]);return bkT(rows,[TERM_TH[tm],"","หน่วยกิต","ทฤษฎี","ปฏิบัติ","ศึกษาด้วยตนเอง"],{w:"88%"})}).join("")}).join('<div class="bk-break"></div>');
@@ -1573,11 +1572,25 @@ async function saveBookDoc(path,key,val,label){state[key]=val;render();await dbW
 function confirmClear(){return window.confirm("ล้างข้อความที่แก้บนหน้าของส่วนนี้ แล้วกลับไปใช้ข้อมูลอัตโนมัติ?")}
 
 const pgCssVars=fmt=>`--bk-font:'${fmt.font}','Angsana New','TH SarabunPSK','TH Sarabun New','Sarabun',serif;--bk-body:${fmt.body}pt;--bk-table:${fmt.table}pt;--bk-line:${fmt.line};--bk-mL:${fmt.mL}in;--bk-mR:${fmt.mR}in;--bk-mT:${fmt.mT}in;--bk-mB:${fmt.mB}in;--bk-pafter:${fmt.pAfter}pt;--bk-hbefore:${fmt.hBefore}pt;--bk-cgap:${fmt.cGap}in;--bk-tabw:${fmt.tabW||1.27}cm`;
-async function paginateHtml(html,fmt,trace){
+// ---- ตาราง หมวด 2 ข้อ 3 (KSEC) และข้อ 4 (YLOs) แบบหน้าแนวนอน ----
+function ksecDetailTable(plos,subs){const D=[["K","ด้านความรู้ (K)"],["S","ด้านทักษะ (S)"],["E","ด้านจริยธรรม (E)"],["C","ด้านคุณลักษณะ (C)"]];
+  const cell=(p,d)=>subs.filter(s=>s.plo===p.n&&s.dom===d).map(s=>`${esc(s.code)}: ${esc(s.t)}`).join("<br>");
+  return `<table class="bk-t" style="width:100%"><thead><tr><th rowspan="2" style="width:24%">ผลลัพธ์การเรียนรู้ของหลักสูตร</th><th colspan="4">รายละเอียดผลลัพธ์การเรียนรู้</th></tr><tr>${D.map(([,t])=>`<th style="width:19%">${t}</th>`).join("")}</tr></thead><tbody>${plos.map(p=>`<tr><td>PLO ${p.n} ${esc(p.t)}</td>${D.map(([d])=>`<td>${cell(p,d)}</td>`).join("")}</tr>`).join("")}</tbody></table>`}
+function yloBookTable(){
+  const yrAs=y=>{const ss=new Set(y.subs),o=new Set();COURSES.filter(c=>String(c.term||"").startsWith("Y"+y.y)).forEach(c=>clos(c.code).forEach(x=>{if((x.subs||[]).some(s=>ss.has(s))&&x.as)x.as.split(/[·,/]/).forEach(a=>{a=a.trim();if(a)o.add(a)})}));return [...o].slice(0,6)};
+  const rows=YLOS.map(y=>{const pl=[...new Set(y.subs.map(s=>{const sb=subOf(s);return sb?sb.plo:null}).filter(Boolean))].sort((a,b)=>a-b);
+    return `<tr><td class="c"><b>ปีที่ ${y.y}</b></td><td>${String(y.t).split(/ · /).map(x=>"- "+esc(x)).join("<br>")}<br><b>PLO ${pl.join(", ")}</b></td><td>${y.subs.map(esc).join(", ")}${y.job?`<br><br>อาชีพ: ${esc(y.job)}`:""}</td><td>${yrAs(y).map(a=>"- "+esc(a)).join("<br>")||"-"}</td><td>${esc(y.cri||"")}</td></tr>`}).join("");
+  return `<table class="bk-t" style="width:100%"><thead><tr><th style="width:11%">ช่วงเวลาในการวัดและประเมินผล</th><th style="width:33%">ผลลัพธ์การเรียนรู้</th><th style="width:20%">สมรรถนะที่ได้/อาชีพ</th><th style="width:19%">วิธีการวัดผลลัพธ์การเรียนรู้/สมรรถนะ</th><th style="width:17%">เกณฑ์การประเมินผล/สมรรถนะ</th></tr></thead><tbody>${rows}</tbody></table>`}
+const LAND_MARK="<!--bk-land-->";
+const splitLand=html=>{const d=document.createElement("div");d.innerHTML=html;const out=[];let cur=null;
+  [...d.childNodes].forEach(n=>{const land=n.nodeType===1&&n.classList.contains("bk-land");const html=land?n.innerHTML:(n.nodeType===1?n.outerHTML:n.textContent);
+    if(!cur||cur.land!==land){cur={land,html:""};out.push(cur)}cur.html+=html});return out};
+async function paginateHtml(html,fmt,trace,land){
   try{await document.fonts.ready}catch(e){}
   const host=document.createElement("div");host.className="bk-view";host.setAttribute("style",pgCssVars(fmt)+";position:fixed;left:-20000px;top:0;visibility:hidden");
-  const pg=document.createElement("div");pg.className="bk-pgc";pg.style.width=`calc(8.27in - ${fmt.mL}in - ${fmt.mR}in)`;host.appendChild(pg);document.body.appendChild(host);
-  const probe=document.createElement("div");probe.style.height=`calc(11.69in - ${fmt.mT}in - ${fmt.mB}in)`;host.appendChild(probe);const maxH=probe.offsetHeight;probe.remove();
+  const PW=land?11.69:8.27,PH=land?8.27:11.69;
+  const pg=document.createElement("div");pg.className="bk-pgc";pg.style.width=`calc(${PW}in - ${fmt.mL}in - ${fmt.mR}in)`;host.appendChild(pg);document.body.appendChild(host);
+  const probe=document.createElement("div");probe.style.height=`calc(${PH}in - ${fmt.mT}in - ${fmt.mB}in)`;host.appendChild(probe);const maxH=probe.offsetHeight;probe.remove();
   const src=document.createElement("div");src.innerHTML=html;
   const nodes=[...src.childNodes].filter(n=>n.nodeType===1||(n.nodeType===3&&n.textContent.trim()));
   const pages=[];let want=false;const flush=()=>{if(pg.innerHTML.trim()){pages.push(pg.innerHTML);want=true}pg.innerHTML=""};
@@ -1585,6 +1598,7 @@ async function paginateHtml(html,fmt,trace){
   const fits=()=>pg.scrollHeight<=maxH+1;
   for(const [ni,n] of nodes.entries()){
     if(n.nodeType===1&&n.classList.contains("bk-break")){flush();continue}
+    if(n.nodeType===1&&n.classList.contains("bk-land")&&!land){flush();rec(ni,-1);const sub=await paginateHtml(n.innerHTML,fmt,null,true);sub.forEach(p=>pages.push(LAND_MARK+p));want=true;continue}
     const c=n.cloneNode(true);rec(ni,-1);pg.appendChild(c);if(fits())continue;
     pg.removeChild(c);
     if(n.nodeType===1&&n.tagName==="TABLE"&&n.tBodies[0]&&n.tBodies[0].rows.length>1){
@@ -1602,7 +1616,7 @@ async function paginateHtml(html,fmt,trace){
 }
 const pageFoot=(i,n)=>`<div class="bk-foot"><span>หลักสูตรวิศวกรรมศาสตรบัณฑิต สาขาวิชาวิศวกรรมเครื่องกล (หลักสูตรปรับปรุง พ.ศ. 2571)</span><span>${i}</span></div>`;
 const BK_NOFOOT=["cover","front","toc"];
-const pageHtml=(p,i,n,fmt,nofoot)=>`<div class="bk-pg" style="${pgCssVars(fmt)}"><div class="bk-pgc" style="position:absolute;left:${fmt.mL}in;top:${fmt.mT}in;width:calc(8.27in - ${fmt.mL}in - ${fmt.mR}in)">${p}</div>${nofoot?"":pageFoot(i,n)}</div>`;
+const pageHtml=(p,i,n,fmt,nofoot)=>{const land=String(p).startsWith(LAND_MARK);if(land)p=p.slice(LAND_MARK.length);return `<div class="bk-pg${land?" land":""}" style="${pgCssVars(fmt)}"><div class="bk-pgc" style="position:absolute;left:${fmt.mL}in;top:${fmt.mT}in;width:calc(${land?11.69:8.27}in - ${fmt.mL}in - ${fmt.mR}in)">${p}</div>${nofoot?"":pageFoot(i,n)}</div>`};
 let pgSeq=0;
 async function paginatePreview(sec){
   const my=++pgSeq,fmt=bookFmt(sec);let html=bookSecFinal(sec);
@@ -1730,16 +1744,16 @@ async function bookPdfFile(){
     if(!window.html2canvas)await loadScript(PDF_CDN.h2c);if(!window.jspdf)await loadScript(PDF_CDN.jspdf);
     const els=[...ov.querySelectorAll(".bk-pg, section.docx")];const vars=ov.querySelector(".bka-view").getAttribute("style")||"";
     // เรนเดอร์ทีละหน้าใน iframe เบา ๆ เพื่อไม่ต้องคัดลอกทั้งหน้าเว็บทุกครั้ง
-    f=document.createElement("iframe");f.setAttribute("aria-hidden","true");f.style.cssText="position:fixed;left:-10000px;top:0;width:1000px;height:1400px;border:0";document.body.appendChild(f);
+    f=document.createElement("iframe");f.setAttribute("aria-hidden","true");f.style.cssText="position:fixed;left:-10000px;top:0;width:1200px;height:1400px;border:0";document.body.appendChild(f);
     const docxCss=[...document.querySelectorAll("style")].filter(s=>/\.docx/.test(s.textContent)&&!s.closest("#bkAll")).map(s=>s.outerHTML).join("");
     const d=f.contentDocument;d.open();d.write(`<!doctype html><html lang="th"><head><meta charset="utf-8">${docxCss}<style>${BOOK_CSS}${PAGE_CSS}${BKD_CSS}body{margin:0;background:#fff}.bk-pg{margin:0!important;box-shadow:none!important}.docx-wrapper>section.docx{margin:0!important;box-shadow:none!important}</style></head><body><div class="bk-view" style="${vars}" id="cap"></div></body></html>`);d.close();
     try{await d.fonts.ready}catch(e){}
-    const {jsPDF}=window.jspdf;const pdf=new jsPDF({unit:"mm",format:"a4",compress:true});const cap=d.getElementById("cap");
+    const {jsPDF}=window.jspdf;const pdf=new jsPDF({unit:"mm",format:"a4",orientation:els[0]&&els[0].classList.contains("land")?"landscape":"portrait",compress:true});const cap=d.getElementById("cap");
     for(let i=0;i<els.length;i++){const el=els[i];cap.innerHTML="";
       const node=el.cloneNode(true);if(el.matches("section.docx")){const w=d.createElement("div");w.className="docx-wrapper";w.appendChild(node);cap.appendChild(w)}else cap.appendChild(node);
       await new Promise(r=>setTimeout(r,30));
-      const cv=await html2canvas(node,{scale:1.4,backgroundColor:"#ffffff",logging:false,useCORS:true,windowWidth:1000});
-      if(i)pdf.addPage("a4","portrait");pdf.addImage(cv.toDataURL("image/jpeg",0.78),"JPEG",0,0,210,297,undefined,"FAST");cv.width=cv.height=0;
+      const cv=await html2canvas(node,{scale:1.4,backgroundColor:"#ffffff",logging:false,useCORS:true,windowWidth:1200});
+      const L=el.classList.contains("land");if(i)pdf.addPage("a4",L?"landscape":"portrait");pdf.addImage(cv.toDataURL("image/jpeg",0.78),"JPEG",0,0,L?297:210,L?210:297,undefined,"FAST");cv.width=cv.height=0;
       info.textContent=`กำลังสร้าง PDF หน้า ${i+1} / ${els.length}`;prog.firstChild.style.width=((i+1)/els.length*100)+"%"}
     info.textContent="กำลังบันทึกไฟล์…";pdf.save(ov.dataset.fname+".pdf");
     info.textContent=`บันทึกไฟล์ ${ov.dataset.fname}.pdf แล้ว (${els.length} หน้า) ดูได้ในโฟลเดอร์ดาวน์โหลดของเครื่อง`}
@@ -1758,7 +1772,7 @@ async function bookPrint(all){
   catch(e){console.error(e);state.msg="สร้าง PDF ไม่สำเร็จ: "+(e&&e.message||e);render()}
 }
 const YEAR_TXT="2571";
-const PAGE_CSS=`.bk-pg{position:relative;width:8.27in;height:11.69in;background:#fff;margin:0 auto 18px;box-shadow:0 1px 5px rgba(0,0,0,.25);overflow:hidden;box-sizing:border-box}.bk-foot{position:absolute;left:1in;right:1in;bottom:.45in;display:flex;justify-content:space-between;font-size:11pt;border-top:1px solid #555;padding-top:2px;color:#000}`;
+const PAGE_CSS=`.bk-pg{position:relative;width:8.27in;height:11.69in;background:#fff;margin:0 auto 18px;box-shadow:0 1px 5px rgba(0,0,0,.25);overflow:hidden;box-sizing:border-box}.bk-pg.land{width:11.69in;height:8.27in;page:land}@page land{size:A4 landscape;margin:0}.bk-foot{position:absolute;left:1in;right:1in;bottom:.45in;display:flex;justify-content:space-between;font-size:11pt;border-top:1px solid #555;padding-top:2px;color:#000}`;
 const BOOK_CSS=`table.ks-book{font-size:8pt;width:100%;table-layout:fixed;margin-bottom:10pt}table.ks-book th,table.ks-book td{padding:1pt 2pt!important;text-align:center}table.ks-book td:nth-child(1){font-family:inherit;white-space:nowrap;font-size:7.5pt}table.ks-book td:nth-child(2),table.ks-book td:nth-child(3){text-align:left}table.ks-book tr.ks-sem td{text-align:left;background:#e8e8e8}table.ks-book td.ks-est{font-style:italic}.bk-view{font-family:var(--bk-font);font-size:var(--bk-body);line-height:var(--bk-line);color:#000}
 .bk-view p{margin:0 0 var(--bk-pafter,2pt);text-align:left}.bk-view .ind{text-indent:.5in;text-align:justify}.bk-view .li{padding-left:.5in}.bk-view .li2{padding-left:1in}
 .bk-view h2.bk-h{font-size:1em;font-weight:700;text-align:center;margin:.4em 0 .6em}.bk-view h2.big{font-size:1.25em}.bk-view h3{font-size:1em;font-weight:700;margin:var(--bk-hbefore,8pt) 0 .2em}
@@ -2702,6 +2716,7 @@ document.addEventListener("keydown",e=>{if(e.target.id!=="cloQ"||e.key!=="Enter"
 
 // ---- แถบสถานะมุมขวาบน: ฉบับของหลักสูตร + การอัปเดตล่าสุด ----
 const CHANGELOG=[
+ ["19 พ.ย. 2569 (11:00)","หมวด 2 ข้อ 3 (KSEC) และข้อ 4 (YLOs) จัดเป็นหน้าแนวนอนตามแบบฟอร์ม ทั้งหน้าจอ PDF พิมพ์ และ Word"],
  ["19 พ.ย. 2569 (10:30)","ใช้ตารางคำกริยาแนะนำ (Bloom) ของมหาวิทยาลัย: ปรับระดับ Bloom ของ CLO ให้ตรงคำกริยา ปรับ Sub-PLO และ PLO5 ของสาขา และเตือนในแถบ ก3 (คง PLO1–2 และวิชาของมหาวิทยาลัย/คณะไว้)"],
  ["19 พ.ย. 2569 (10:00)","หมวด 2 ข้อ 1.1 ปรัชญาของหลักสูตรฉบับปรับปรุง พร้อมย่อหน้าความสอดคล้อง"],
  ["19 พ.ย. 2569 (09:45)","ข้อ 14.5 แสดงใต้หัวข้อ 14.5 เสมอ แม้หมวด 1 จะมีฉบับแก้มือ"],
@@ -3256,13 +3271,13 @@ new MutationObserver(()=>{document.querySelectorAll(".bk-view .bk-boxes:not([dat
 
 const LB=(l,v,cls)=>`<p class="li${cls?" "+cls:""}"><span class="bk-lbl">${l}</span><span class="bk-tab bk-lbltab">\t</span>${v}</p>`;
 const codeBoxes=v=>{const d=String(v||"").replace(/\D/g,"").slice(0,14);return `<span class="bk-boxes">${Array.from({length:14},(_,i)=>`<span class="bk-box">${d[i]||"\u2002"}</span>`).join("")}</span>`};
-async function bookDocxSection(D,k,html,fmt,pageNo){
+async function bookDocxSection(D,k,html,fmt,pageNo,land){const PW=land?11.69:8.27;
   const font=fmt.font||"Angsana New",body=fmt.body*2,tbl=fmt.table*2,line=Math.round(240*fmt.line),after=Math.round(fmt.pAfter*PT),hbef=Math.round(fmt.hBefore*PT);
-  const cw=(8.27-fmt.mL-fmt.mR)*IN;
+  const cw=(PW-fmt.mL-fmt.mR)*IN;
   const FO={ascii:font,hAnsi:font,cs:font,eastAsia:font,hint:"cs"},LG={value:"en-US",eastAsia:"en-US",bidirectional:"th-TH"};
   const TRun=o=>new D.TextRun(typeof o==="string"?{text:o,font:FO,language:LG}:{...o,font:FO,language:LG});
   // วาดในหน้าจอชั่วคราวเพื่อวัดความกว้างคอลัมน์และขนาดรูปให้ตรงกับเล่ม PDF
-  const host=document.createElement("div");host.className="bk-view";host.setAttribute("style",pgCssVars(fmt)+`;position:fixed;left:-30000px;top:0;width:${8.27-fmt.mL-fmt.mR}in`);host.innerHTML=html;document.body.appendChild(host);
+  const host=document.createElement("div");host.className="bk-view";host.setAttribute("style",pgCssVars(fmt)+`;position:fixed;left:-30000px;top:0;width:${PW-fmt.mL-fmt.mR}in`);host.innerHTML=html;document.body.appendChild(host);
   try{await Promise.all([...host.querySelectorAll("img")].map(i=>i.complete?0:new Promise(r=>{i.onload=i.onerror=r})))}catch(e){}
   const out=[];
   const runs=async(node,ctx,acc)=>{for(const n of node.childNodes){
@@ -3321,7 +3336,7 @@ async function bookDocxSection(D,k,html,fmt,pageNo){
   try{out.push(...await blocks(host,{sz:body},{}))}finally{host.remove()}
   const nofoot=BK_NOFOOT.includes(k);
   const footer=nofoot?undefined:{default:new D.Footer({children:[new D.Paragraph({border:{top:{style:D.BorderStyle.SINGLE,size:4,color:"555555",space:1}},tabStops:[{type:D.TabStopType.RIGHT,position:Math.round(cw)}],children:[TRun({text:window.__footTxt||"หลักสูตรวิศวกรรมศาสตรบัณฑิต สาขาวิชาวิศวกรรมเครื่องกล (หลักสูตรปรับปรุง พ.ศ. 2571)",size:22,font}),TRun({children:[new D.Tab(),D.PageNumber.CURRENT],size:22,font})]})]})};
-  return {properties:{page:{size:{width:11906,height:16838},margin:{top:Math.round(fmt.mT*IN),bottom:Math.round(fmt.mB*IN),left:Math.round(fmt.mL*IN),right:Math.round(fmt.mR*IN),footer:Math.round(.45*IN)},pageNumbers:pageNo?{start:pageNo}:undefined}},footers:footer,children:out.length?out:[new D.Paragraph("")]};
+  return {properties:{page:{size:land?{width:11906,height:16838,orientation:D.PageOrientation.LANDSCAPE}:{width:11906,height:16838},margin:{top:Math.round(fmt.mT*IN),bottom:Math.round(fmt.mB*IN),left:Math.round(fmt.mL*IN),right:Math.round(fmt.mR*IN),footer:Math.round(.45*IN)},pageNumbers:pageNo?{start:pageNo}:undefined}},footers:footer,children:out.length?out:[new D.Paragraph("")]};
 }
 async function bookDocx(all){
   const msg=t=>{state.msg=t;render()};
@@ -3330,7 +3345,7 @@ async function bookDocx(all){
     const secs=all?BOOK_SECS.map(([k])=>k):[state.bookSec||"cover"];
     const tmap=secs.includes("toc")?await computeTocPages():null;const sections=[];let first=true;
     const upl=[];for(const k of secs){const fmt=bookFmt(k);let html=k==="toc"?fillToc(bookSecFinal(k),tmap):bookSecFinal(k);if(bkdUse(k)){const m=bkdMeta()[k];upl.push((BOOK_SECS.find(x=>x[0]===k)||[k,k])[1]);html=`<p class="ind"><span class="bk-todo">[ส่วนนี้ใช้ไฟล์ Word ที่อัปโหลด: ${esc(m.name)} — ใน Word ให้วางเคอร์เซอร์ที่นี่ แล้วเลือก แทรก › วัตถุ › ข้อความจากไฟล์ เพื่อรวมไฟล์]</span></p>`}
-      const pn=!BK_NOFOOT.includes(k)&&first?1:undefined;if(pn)first=false;sections.push(await bookDocxSection(D,k,html,fmt,pn))}
+      let pn=!BK_NOFOOT.includes(k)&&first?1:undefined;if(pn)first=false;for(const seg of splitLand(html)){if(!seg.html.trim())continue;sections.push(await bookDocxSection(D,k,seg.html,fmt,pn,seg.land));pn=undefined}}
     const f0=bookFmt(secs[0]);
     const doc=new D.Document({creator:"ME curriculum platform",title:bookFileName(all),styles:{default:{document:{run:{font:{ascii:f0.font,hAnsi:f0.font,cs:f0.font,eastAsia:f0.font,hint:"cs"},size:f0.body*2,language:{value:"en-US",eastAsia:"en-US",bidirectional:"th-TH"}}}}},sections});
     const blob=await D.Packer.toBlob(doc);const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=bookFileName(all)+".docx";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
