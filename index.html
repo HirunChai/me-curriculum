@@ -808,7 +808,7 @@ const CLO0={
 };
 
 const FAC_HINT={"adisorn.sa@mail.rmutk.ac.th":"นายอดิสร สโมสร"};
-const APP_VER="รุ่น 19 พ.ย. 2569 (13:00)";
+const APP_VER="รุ่น 19 พ.ย. 2569 (13:30)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -1342,12 +1342,12 @@ const subKey=(s,n)=>`x_${s}_${n}`;
 function applySubs(sec,html){const subs=secSubs(sec);if(!subs.length)return html;
   const d=document.createElement("div");d.innerHTML=html;
   const isSub=e=>e.tagName==="H2"||(e.tagName==="H3"&&/^\d+\.\s/.test(e.textContent.trim()));
-  const findH=n=>[...d.children].find(e=>e.tagName==="H3"&&new RegExp("^"+n+"\\.\\s").test(e.textContent.trim()));
+  const findH=n=>[...d.querySelectorAll("h3")].find(e=>!e.classList.contains("bk-cont")&&new RegExp("^"+n+"\\.\\s").test(e.textContent.trim()));
   subs.forEach(([s,n,t])=>{const extra=BF(subKey(s,n));let hd=findH(n);
     if(!hd){hd=document.createElement("h3");hd.textContent=`${n}. ${t}`;const nx=[...d.children].find(e=>{const m=e.tagName==="H3"&&e.textContent.trim().match(/^(\d+)\.\s/);return m&&+m[1]>n});d.insertBefore(hd,nx||null);
       if(!extra){const p=document.createElement("p");p.innerHTML=bkTodo("ยังไม่มีเนื้อหา — กรอกได้ที่ ✎ แก้ไขข้อมูลส่วนนี้ หัวข้อ "+n);hd.after(p)}}
     if(extra){let end=hd.nextElementSibling;while(end&&!isSub(end))end=end.nextElementSibling;
-      extra.split(/\n+/).map(x=>x.trim()).filter(Boolean).forEach(x=>{const p=document.createElement("p");p.className="ind";p.textContent=x;d.insertBefore(p,end||null)})}});
+      extra.split(/\n+/).map(x=>x.trim()).filter(Boolean).forEach(x=>{const p=document.createElement("p");p.className="ind";p.textContent=x;hd.parentNode.insertBefore(p,end||null)})}});
   return d.innerHTML}
 function mergeOverride(oldHtml,newHtml,ovHtml){
   const mk=x=>{const d=document.createElement("div");d.innerHTML=x;return d};const nk=e=>e.textContent.replace(/\s+/g,"");
@@ -1492,7 +1492,7 @@ function bookSecHtml(id){
   if(id==="h2"){
     const ksec=plos.map(p=>[`PLO ${p.n} ${p.t}`,...["K","S","E","C"].map(d=>subs.filter(s=>s.plo===p.n&&s.dom===d).map(s=>s.code+": "+s.t).join("\n"))]);
     return `${H("หมวดที่ 2 ข้อมูลเฉพาะของหลักสูตร")}${h3("1. ปรัชญา วัตถุประสงค์และผลลัพธ์การเรียนรู้ของหลักสูตร")}${li("<b>1.1 ปรัชญาของหลักสูตร</b>")}${BFlines("philo").map(s=>ind(esc(s))).join("")}${li("<b>1.2 วัตถุประสงค์ของหลักสูตร</b>")}${OBJ.map((o,i)=>li(`${i+1}. ${o[0]}`)).join("")}${li("<b>1.3 ผลลัพธ์การเรียนรู้ระดับหลักสูตร (PLOs)</b>")}${ind("เมื่อสิ้นสุดการเรียนการสอนในหลักสูตร ผู้สำเร็จการศึกษาจะสามารถ")}${plos.map(p=>`<p class="li"><b>PLO ${p.n}</b> ${esc(p.t)}</p>`+subs.filter(s=>s.plo===p.n).map(s=>`<p class="li2">Sub PLO ${s.code} ${esc(s.t)}</p>`).join("")).join("")}
-    <div class="bk-land">${h3("2. ตารางแสดงความสัมพันธ์ระหว่างวัตถุประสงค์ของหลักสูตรกับ PLOs")}${objSubTables(OBJ,plos,subs)}<div class="bk-break"></div>${h3("3. รายละเอียดของผลลัพธ์การเรียนรู้ของหลักสูตรในแต่ละด้าน")}${ksecDetailTable(plos,subs)}<p class="li"><b>กลยุทธ์การจัดการเรียนรู้และวิธีการประเมินผลการเรียนรู้ จำแนกตามผลลัพธ์การเรียนรู้ของหลักสูตร</b></p>${ploStratTable(plos,true)}<p class="small-note">${esc(STRAT_NOTE)}</p><div class="bk-break"></div>${h3("4. ความคาดหวังของผลลัพธ์การเรียนรู้ต่อการพัฒนาผู้เรียนเมื่อสิ้นปีการศึกษา (Year Learning Outcomes: YLOs)")}${yloBookTable()}<p class="small-note">หมายเหตุ: YLO ครอบคลุมผลลัพธ์การเรียนรู้ของหลักสูตรทุกข้อ (PLO 1–${plos.length}) · ช่วงเวลาวัดผลกำหนดตามแผนการศึกษา · ประเมินแบบเชิงประจักษ์ (Authentic Assessment) จากชิ้นงานและการปฏิบัติจริง (Hands-on Activities) · เกณฑ์ปีที่ 4 เชื่อมโยงกับเกณฑ์การสำเร็จการศึกษาในหมวดที่ 6 ข้อ 3</p></div>`;
+    <div class="bk-land">${h3("2. ตารางแสดงความสัมพันธ์ระหว่างวัตถุประสงค์ของหลักสูตรกับ PLOs")}${objSubTables(OBJ,plos,subs)}<div class="bk-break"></div>${h3("3. รายละเอียดของผลลัพธ์การเรียนรู้ของหลักสูตรในแต่ละด้าน")}${ksecDetailTable(plos,subs)}<div class="bk-break"></div><p class="li" data-cont="1"><b>กลยุทธ์การจัดการเรียนรู้และวิธีการประเมินผลการเรียนรู้ จำแนกตามผลลัพธ์การเรียนรู้ของหลักสูตร</b></p>${ploStratTable(plos,true)}<p class="small-note">${esc(STRAT_NOTE)}</p><div class="bk-break"></div>${h3("4. ความคาดหวังของผลลัพธ์การเรียนรู้ต่อการพัฒนาผู้เรียนเมื่อสิ้นปีการศึกษา (Year Learning Outcomes: YLOs)")}${yloBookTable()}<p class="small-note">หมายเหตุ: YLO ครอบคลุมผลลัพธ์การเรียนรู้ของหลักสูตรทุกข้อ (PLO 1–${plos.length}) · ช่วงเวลาวัดผลกำหนดตามแผนการศึกษา · ประเมินแบบเชิงประจักษ์ (Authentic Assessment) จากชิ้นงานและการปฏิบัติจริง (Hands-on Activities) · เกณฑ์ปีที่ 4 เชื่อมโยงกับเกณฑ์การสำเร็จการศึกษาในหมวดที่ 6 ข้อ 3</p></div>`;
   }
   if(id==="h3"){
     const plans=trs.map(t=>{const L=trackCourses(t).filter(c=>!(c.fl&&c.fl.pool));return `<p class="li"><b>แผน ก. แผนสหกิจศึกษาและการศึกษาเชิงบูรณาการกับการทำงาน · แขนงวิชา${TRACKS[t]}</b></p>`+TERMS.map(tm=>{const R=L.filter(c=>c.term===tm);if(!R.length)return "";const rows=R.map(c=>[c.g==="FREE"?"x-xxx-xxx":c.g==="TE"?"x-xxx-xxx":c.code,c.g==="FREE"?"วิชาเลือกเสรี":c.g==="TE"?"วิชาชีพเลือก":c.th,c.fl&&c.fl.nc?`(${c.t})`:String(c.cr),String(c.t),String(c.p),String(c.s)]);rows.push([{t:"รวม",span:2,cls:"r b"},{t:String(sumCr(R)),cls:"b"},"","",""]);return bkT(rows,[TERM_TH[tm],"","หน่วยกิต","ทฤษฎี","ปฏิบัติ","ศึกษาด้วยตนเอง"],{w:"88%"})}).join("")}).join('<div class="bk-break"></div>');
@@ -1650,22 +1650,22 @@ async function paginateHtml(html,fmt,trace,land){
   const pages=[];let want=false;const flush=()=>{if(pg.innerHTML.trim()){pages.push(pg.innerHTML);want=true}pg.innerHTML=""};
   const rec=(i,r)=>{if(trace&&want){trace.push([i,r]);want=false}};
   const fits=()=>pg.scrollHeight<=maxH+1;
-  let lastH3="";
+  let lastH3="",lastHd=null;
   for(const [ni,n] of nodes.entries()){
-    if(n.nodeType===1&&n.tagName==="H3")lastH3=n.textContent.replace(/\s+/g," ").trim().replace(/\s*\(ต่อ\)$/,"");
+    if(n.nodeType===1&&(n.tagName==="H3"||(n.dataset&&n.dataset.cont))){lastH3=n.textContent.replace(/\s+/g," ").trim().replace(/\s*\(ต่อ\)$/,"");lastHd=n}
     if(n.nodeType===1&&n.classList.contains("bk-break")){flush();continue}
     if(n.nodeType===1&&n.classList.contains("bk-land")&&!land){flush();rec(ni,-1);const sub=await paginateHtml(n.innerHTML,fmt,null,true);sub.forEach(p=>pages.push(LAND_MARK+p));want=true;continue}
     const c=n.cloneNode(true);rec(ni,-1);pg.appendChild(c);if(fits())continue;
     pg.removeChild(c);
     if(n.nodeType===1&&n.tagName==="TABLE"&&n.tBodies[0]&&n.tBodies[0].rows.length>1){
       const head=n.tHead?n.tHead.cloneNode(true):null;const rows=[...n.tBodies[0].rows];
-      const mk=cont=>{if(cont&&lastH3){const h=document.createElement("h3");h.className="bk-cont";h.textContent=lastH3+" (ต่อ)";pg.appendChild(h)}const t=n.cloneNode(false);if(head)t.appendChild(head.cloneNode(true));const tb=document.createElement("tbody");t.appendChild(tb);pg.appendChild(t);return tb};
+      const mk=cont=>{if(cont&&lastH3){let h;if(lastHd&&lastHd.tagName!=="H3"){h=lastHd.cloneNode(false);h.removeAttribute("data-cont");h.classList.add("bk-cont");h.innerHTML="<b></b>";h.firstChild.textContent=lastH3+" (ต่อ)"}else{h=document.createElement("h3");h.className="bk-cont";h.textContent=lastH3+" (ต่อ)"}pg.appendChild(h)}const t=n.cloneNode(false);if(head)t.appendChild(head.cloneNode(true));const tb=document.createElement("tbody");t.appendChild(tb);pg.appendChild(t);return tb};
       let tb=mk();
-      for(const [ri,r] of rows.entries()){tb.appendChild(r.cloneNode(true));if(!fits()){tb.removeChild(tb.lastChild);if(!tb.rows.length){pg.removeChild(tb.parentNode);const hc=pg.lastElementChild;const keepH=hc&&hc.tagName==="H3"&&!hc.classList.contains("bk-cont");if(keepH)pg.removeChild(hc);flush();rec(ni,ri);if(keepH)pg.appendChild(hc);const pv=nodes.slice(0,ni).reverse().find(x=>x.nodeType===1&&!/^(DIV)$/.test(x.tagName));tb=mk(!keepH&&(ri>0||!!(pv&&pv.tagName==="TABLE")));tb.appendChild(r.cloneNode(true))}else{flush();rec(ni,ri);tb=mk(true);tb.appendChild(r.cloneNode(true))}}}
+      for(const [ri,r] of rows.entries()){tb.appendChild(r.cloneNode(true));if(!fits()){tb.removeChild(tb.lastChild);if(!tb.rows.length){pg.removeChild(tb.parentNode);const hc=pg.lastElementChild;const keepH=hc&&(hc.tagName==="H3"||(hc.dataset&&hc.dataset.cont))&&!hc.classList.contains("bk-cont");if(keepH)pg.removeChild(hc);flush();rec(ni,ri);if(keepH)pg.appendChild(hc);const pv=nodes.slice(0,ni).reverse().find(x=>x.nodeType===1&&!/^(DIV)$/.test(x.tagName));tb=mk(!keepH&&(ri>0||!!(pv&&pv.tagName==="TABLE")));tb.appendChild(r.cloneNode(true))}else{flush();rec(ni,ri);tb=mk(true);tb.appendChild(r.cloneNode(true))}}}
       continue;
     }
     // keep a heading with the next block: move trailing heading to the new page
-    const last=pg.lastElementChild;let carry=null;if(last&&/^H[23]$/.test(last.tagName)){carry=last;pg.removeChild(last)}
+    const last=pg.lastElementChild;let carry=null;if(last&&(/^H[23]$/.test(last.tagName)||(last.dataset&&last.dataset.cont))){carry=last;pg.removeChild(last)}
     flush();rec(carry?ni-1:ni,-1);if(carry)pg.appendChild(carry);pg.appendChild(c);
   }
   flush();host.remove();return pages;
@@ -2773,6 +2773,7 @@ document.addEventListener("keydown",e=>{if(e.target.id!=="cloQ"||e.key!=="Enter"
 
 // ---- แถบสถานะมุมขวาบน: ฉบับของหลักสูตร + การอัปเดตล่าสุด ----
 const CHANGELOG=[
+ ["19 พ.ย. 2569 (13:30)","หมวด 2: ตารางกลยุทธ์การจัดการเรียนรู้และวิธีการประเมินผลขึ้นหน้าใหม่พร้อมชื่อตาราง และใส่ชื่อ \"(ต่อ)\" เมื่อต่อหน้า"],
  ["19 พ.ย. 2569 (13:00)","หมวด 2 ข้อ 2–4 แสดงตารางแนวนอนรุ่นใหม่เสมอ แม้มีฉบับแก้มือของหมวด 2 ที่เก็บตารางเดิมไว้"],
  ["19 พ.ย. 2569 (12:30)","หมวด 2 ข้อ 2 เป็นตารางแนวนอน วัตถุประสงค์ × Sub-PLO · ตารางที่ต่อหน้าใส่หัวข้อ \"(ต่อ)\" ทุกส่วนของเล่ม"],
  ["19 พ.ย. 2569 (12:00)","ปรับตาม มคอ. 2565: กลยุทธ์และวิธีประเมิน (Direct/Indirect) แยกตาม PLO ในหมวด 2 ข้อ 3 และหมวด 4 ข้อ 2 · Sub-PLO ด้านจริยธรรม/ลักษณะบุคคลใช้ระดับจิตพิสัย · ชื่อด้าน C เป็น ลักษณะบุคคล · เกณฑ์ YLO เชื่อมหมวด 6 ข้อ 3"],
