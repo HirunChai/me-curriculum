@@ -808,7 +808,7 @@ const CLO0={
 };
 
 const FAC_HINT={"adisorn.sa@mail.rmutk.ac.th":"นายอดิสร สโมสร"};
-const APP_VER="รุ่น 19 พ.ย. 2569 (14:00)";
+const APP_VER="รุ่น 19 พ.ย. 2569 (14:30)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -1640,7 +1640,10 @@ function yloBookTable(){
 const LAND_MARK="<!--bk-land-->";
 const splitLand=html=>{const d=document.createElement("div");d.innerHTML=html;const out=[];let cur=null;
   [...d.childNodes].forEach(n=>{const land=n.nodeType===1&&n.classList.contains("bk-land");const html=land?n.innerHTML:(n.nodeType===1?n.outerHTML:n.textContent);
-    if(!cur||cur.land!==land){cur={land,html:""};out.push(cur)}cur.html+=html});return out};
+    if(!cur||cur.land!==land){cur={land,html:""};out.push(cur)}cur.html+=html});
+  return out.filter(o=>{const t=document.createElement("div");t.innerHTML=o.html;return bkHasContent(t)})};
+// หน้าที่ไม่มีข้อความ ตาราง หรือรูป (เช่น ย่อหน้าว่างหลังหน้าแนวนอน) ไม่นับเป็นหน้า
+const bkHasContent=el=>!!(el&&((el.textContent||"").replace(/[\s\u00a0\u200b]/g,"")||(el.querySelector&&el.querySelector("img,svg,canvas,table,hr,.bk-box"))));
 async function paginateHtml(html,fmt,trace,land){
   try{await document.fonts.ready}catch(e){}
   const host=document.createElement("div");host.className="bk-view";host.setAttribute("style",pgCssVars(fmt)+";position:fixed;left:-20000px;top:0;visibility:hidden");
@@ -1649,7 +1652,7 @@ async function paginateHtml(html,fmt,trace,land){
   const probe=document.createElement("div");probe.style.height=`calc(${PH}in - ${fmt.mT}in - ${fmt.mB}in)`;host.appendChild(probe);const maxH=probe.offsetHeight;probe.remove();
   const src=document.createElement("div");src.innerHTML=html;
   const nodes=[...src.childNodes].filter(n=>n.nodeType===1||(n.nodeType===3&&n.textContent.trim()));
-  const pages=[];let want=false;const flush=()=>{if(pg.innerHTML.trim()){pages.push(pg.innerHTML);want=true}pg.innerHTML=""};
+  const pages=[];let want=false;const flush=()=>{if(bkHasContent(pg)){pages.push(pg.innerHTML);want=true}pg.innerHTML=""};
   const rec=(i,r)=>{if(trace&&want){trace.push([i,r]);want=false}};
   const fits=()=>pg.scrollHeight<=maxH+1;
   let lastH3="",lastHd=null;
@@ -2775,6 +2778,7 @@ document.addEventListener("keydown",e=>{if(e.target.id!=="cloQ"||e.key!=="Enter"
 
 // ---- แถบสถานะมุมขวาบน: ฉบับของหลักสูตร + การอัปเดตล่าสุด ----
 const CHANGELOG=[
+ ["19 พ.ย. 2569 (14:30)","ตัดหน้าว่าง (เช่น หน้าแนวตั้งว่างท้ายหมวด 2) ออกจากเล่ม PDF และ Word เลขหน้าไม่คลาด"],
  ["19 พ.ย. 2569 (14:00)","วิธีการประเมิน Direct/Indirect ในตารางกลยุทธ์ตาม PLO เป็นภาษาไทย (ภาษาอังกฤษ) ทุกข้อ"],
  ["19 พ.ย. 2569 (13:30)","หมวด 2: ตารางกลยุทธ์การจัดการเรียนรู้และวิธีการประเมินผลขึ้นหน้าใหม่พร้อมชื่อตาราง และใส่ชื่อ \"(ต่อ)\" เมื่อต่อหน้า"],
  ["19 พ.ย. 2569 (13:00)","หมวด 2 ข้อ 2–4 แสดงตารางแนวนอนรุ่นใหม่เสมอ แม้มีฉบับแก้มือของหมวด 2 ที่เก็บตารางเดิมไว้"],
