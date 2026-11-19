@@ -808,7 +808,7 @@ const CLO0={
 };
 
 const FAC_HINT={"adisorn.sa@mail.rmutk.ac.th":"นายอดิสร สโมสร"};
-const APP_VER="รุ่น 19 พ.ย. 2569 (21:50)";
+const APP_VER="รุ่น 19 พ.ย. 2569 (22:00)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -1837,7 +1837,7 @@ function planYloBook(){const ck='<span style="font-size:1.05em">✓</span>';cons
     const body=Y.sems.map(sm=>`<tr><td class="grp" colspan="${ncol}">${sm.t}</td></tr>`+sm.rows.map(x=>row(x.c)).join("")).join("")+`<tr><td colspan="3" class="b">กลยุทธ์ของ CWIE (ประเภท / เครื่องมือ)</td><td colspan="${ncol-3}">${esc(cw[Y.y]||"")}</td></tr>`;
     const yl=YLOS.find(v=>v.y===Y.y)||{subs:[],t:""};const byD=KSEC.map(d=>[d,yl.subs.filter(s=>(subOf(s)||{}).dom===d)]).filter(x=>x[1].length);
     const lines=[`<b>สรุปผลลัพธ์การเรียนรู้รายชั้นปี</b>`,...String(yl.t).split(/ · /).map(x=>"- "+esc(x)),`<b>ผลลัพธ์การเรียนรู้ของชั้นปีที่ ${Y.y} (K, S, E, C)</b> (ดูจากหมวดที่ 4 ตาราง 3.2)`,...byD.map(([d,L])=>`&emsp;${d}: ${L.map(esc).join(", ")}`)];
-    const box=`<table class="bk-t" style="width:100%" data-nocont="2"><tbody>${lines.map((l,i)=>`<tr><td style="${i?"border-top:none;":""}${i<lines.length-1?"border-bottom:none;":""}padding:1px 6px">${l}</td></tr>`).join("")}</tbody></table>`;
+    const box=`<table class="bk-t bk-keep" style="width:100%" data-nocont="2"><tbody>${lines.map((l,i)=>`<tr><td style="${i?"border-top:none;":""}${i<lines.length-1?"border-bottom:none;":""}padding:1px 6px">${l}</td></tr>`).join("")}</tbody></table>`;
     return (yi?'<div class="bk-break"></div><p class="li" data-hd="1"><b>4.1 แผนสหกิจศึกษาและการศึกษาเชิงบูรณาการกับการทำงาน (ต่อ)</b></p>':"")+`<table class="bk-t" style="width:100%"><thead>${head}</thead><tbody>${body}</tbody></table>`+box}).join("")
    +`<p class="small-note"><b>หมายเหตุ</b> ✓ ความรับผิดชอบหลัก (รายวิชามี CLO ที่ตอบ Sub-PLO นั้น) · ศท. คือ หมวดวิชาศึกษาทั่วไป · พช. คือ กลุ่มวิชาพื้นฐานวิชาชีพ · ชค. คือ กลุ่มวิชาชีพบังคับ · ชล. คือ กลุ่มวิชาชีพเลือก · สปช. คือ กลุ่มวิชาเสริมสร้างประสบการณ์ในวิชาชีพ · ลส. คือ หมวดวิชาเลือกเสรี</p>`}
 function ksecDetailTable(plos,subs){const D=[["K","ด้านความรู้ (K)"],["S","ด้านทักษะ (S)"],["E","ด้านจริยธรรม (E)"],["C","ด้านลักษณะบุคคล (C)"]];
@@ -1880,7 +1880,7 @@ async function paginateHtml(html,fmt,trace,land){
     pg.removeChild(c);
     const contHd=()=>{let h;if(lastHd&&lastHd.tagName!=="H3"&&lastHd.querySelector("b,strong")){h=lastHd.cloneNode(true);["data-cont","data-hd","data-k"].forEach(a=>h.removeAttribute(a));h.classList.add("bk-cont");const bs=[...h.querySelectorAll("b,strong")],lb=bs[bs.length-1];lb.textContent=lb.textContent.replace(/\s*\(ต่อ\)$/,"")+" (ต่อ)";[...h.childNodes].forEach(x=>{if(x.nodeType===3&&x.textContent.trim())x.remove()})}else if(lastHd&&lastHd.tagName!=="H3"){h=lastHd.cloneNode(false);h.removeAttribute("data-cont");h.classList.add("bk-cont");h.innerHTML="<b></b>";h.firstChild.textContent=lastH3+" (ต่อ)"}else{h=document.createElement("h3");h.className="bk-cont";h.textContent=lastH3+" (ต่อ)"}pg.appendChild(h)};
     // คำอธิบายรายวิชา 1 วิชาไม่แยกหน้า: ถ้าไม่พอในหน้านี้แต่พอในหน้าใหม่ ให้ขึ้นหน้าใหม่ทั้งวิชา
-    if(n.nodeType===1&&n.tagName==="TABLE"&&n.classList.contains("bk-desc")&&pg.children.length){const pv=pg.lastElementChild;const carry=bkTakeHeads(pg);flush();rec(ni-carry.length,-1);
+    if(n.nodeType===1&&n.tagName==="TABLE"&&(n.classList.contains("bk-desc")||n.classList.contains("bk-keep"))&&pg.children.length){const pv=pg.lastElementChild;const carry=bkTakeHeads(pg);flush();rec(ni-carry.length,-1);
       if(carry.length)carry.forEach(x=>pg.appendChild(x));else if(lastH3&&pv&&pv.tagName==="TABLE")contHd();
       pg.appendChild(c);if(fits())continue;pg.removeChild(c)}
     if(n.nodeType===1&&n.tagName==="TABLE"&&n.tBodies[0]&&n.tBodies[0].rows.length>1){
@@ -3002,6 +3002,7 @@ document.addEventListener("keydown",e=>{if(e.target.id!=="cloQ"||e.key!=="Enter"
 
 // ---- แถบสถานะมุมขวาบน: ฉบับของหลักสูตร + การอัปเดตล่าสุด ----
 const CHANGELOG=[
+ ["19 พ.ย. 2569 (22:00)","หมวด 4 ข้อ 4.1: กรอบสรุปผลลัพธ์การเรียนรู้รายชั้นปีไม่แยกข้ามหน้า ถ้าไม่พอให้ขึ้นหน้าใหม่ทั้งกรอบ"],
  ["19 พ.ย. 2569 (21:50)","ตารางวิชาที่สอนให้สาขาอื่น: รหัสวิชาและสถานะขนาดเท่ารายวิชา แม้หมวด 4 มีฉบับแก้มือ"],
  ["19 พ.ย. 2569 (21:40)","หมวด 4 ตารางวิชาที่สอนให้สาขาอื่น: รหัสวิชาและสถานะใช้ขนาดตัวอักษรเท่ากับรายวิชาและตาราง CLO ด้านล่าง"],
  ["19 พ.ย. 2569 (21:30)","หมวด 4 ตามแบบฟอร์ม: 3.1 หมวดวิชาเฉพาะ (กลุ่มวิชา × PLO) · 3.2 PLO × K S E C รายชั้นปี (เลข Sub-PLO) และตารางวิชาชีพเลือก · 4.1 แผนรายชั้นปี × Sub-PLO (✓) พร้อมกลยุทธ์ CWIE และสรุปผลลัพธ์รายชั้นปี (แนวนอน)"],
