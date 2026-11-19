@@ -808,7 +808,7 @@ const CLO0={
 };
 
 const FAC_HINT={"adisorn.sa@mail.rmutk.ac.th":"นายอดิสร สโมสร"};
-const APP_VER="รุ่น 19 พ.ย. 2569 (09:30)";
+const APP_VER="รุ่น 19 พ.ย. 2569 (09:45)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -1265,6 +1265,7 @@ const BOOK_FIELDS={
  h4:[["proj","6. ข้อกำหนดเกี่ยวกับการทำโครงงาน","นักศึกษาทุกแขนงทำโครงงาน 2 รายวิชาต่อเนื่อง (4-116-307 และ 4-116-408) หัวข้ออยู่ในแขนงวิชาของตน และมีบทวิเคราะห์ผลกระทบต่อความปลอดภัยสาธารณะ สังคม และสิ่งแวดล้อม","area"]],
  h5:[],h6:[],h7:[],h8:[],apx:[["cmp","4. ข้อความเพิ่มเติมใต้ตารางเปรียบเทียบหลักสูตรเดิมกับหลักสูตรปรับปรุง (ระบบสร้างตารางให้จากข้อมูลรายวิชา)","","area"]]};
 const BF=(k)=>{const e=(state.bookEdit&&state.bookEdit.f)||{};if(e[k]!=null)return e[k];for(const L of Object.values(BOOK_FIELDS))for(const x of L)if(x[0]===k)return x[2];return ""};
+const n145=x=>`<p class="ind" data-k="n145">${x}</p>`;
 const BFh=k=>esc(BF(k)).replace(/\n/g,"<br>");
 const BFlines=k=>BF(k).split(/\n+/).map(s=>s.trim()).filter(Boolean);
 const bookLogo=()=>(state.bookEdit&&state.bookEdit.logo)||"";
@@ -1367,8 +1368,16 @@ function cvSyncApx(h){try{const d=document.createElement("div");d.innerHTML=h;co
   let en=kids.findIndex((e,i)=>i>st&&/^H[23]$/.test(e.tagName));if(en<0)en=kids.length;
   kids.slice(st+1,en).forEach(e=>e.remove());const t=document.createElement("template");t.innerHTML=cvBookHtml()+'<div class="bk-break"></div>';
   kids[st].after(t.content);return d.innerHTML}catch(e){return h}}
+// หมวด 1 ข้อ 14.5: ย่อหน้าสรุปความต้องการต้องอยู่ใต้หัวข้อ 14.5 เสมอ (ฉบับแก้มืออาจมีหัวข้อ 14.5 ที่พิมพ์เอง)
+function fix145(html){const d=document.createElement("div");d.innerHTML=html;const P=[...d.querySelectorAll('[data-k="n145"]')];if(!P.length)return html;
+  const kids=[...d.children],isH=el=>/^\s*14\.5\s/.test(el.textContent.replace(/\u00a0/g," "));const heads=kids.filter(isH);if(!heads.length)return html;
+  const hand=heads.filter(x=>x.dataset.k!=="h145");let head=heads[heads.length-1];if(hand.length){head=hand[hand.length-1];heads.filter(x=>x.dataset.k==="h145").forEach(x=>x.remove())}
+  let at=head;P.forEach(p=>{at.after(p);at=p});
+  // รายการเดิมของ 14.5 (กลุ่มผู้มีส่วนได้ส่วนเสียแบบหัวข้อสั้น) ที่ค้างอยู่ใต้หัวข้อในฉบับแก้มือ
+  let n=at.nextElementSibling;while(n&&!/^H[1-6]$/.test(n.tagName)&&!/^\s*(1[5-9]|[2-9]\d?)\.\s|^\s*หมวดที่/.test(n.textContent)&&Object.values(NEED_GROUPS).some(g=>n.textContent.replace(/\u00a0/g," ").trim().startsWith(g+":"))){const x=n.nextElementSibling;n.remove();n=x}
+  return d.innerHTML}
 function bookSecFinal(id){const o=state.bookEdit&&state.bookEdit.html&&state.bookEdit.html[id];if(!o)return applySubs(id,bookSecHtml(id));
-  let h=bookMergeInfo(id).h;if(id==="apx")h=cvSyncApx(h);if(id==="toc")h=tocNormalize(h);
+  let h=bookMergeInfo(id).h;if(id==="apx")h=cvSyncApx(h);if(id==="toc")h=tocNormalize(h);if(id==="h1")h=fix145(h);
   if(id==="front"){const i=h.indexOf("สารบัญ</h2>");if(i>0){const s=h.lastIndexOf("<h2",i);if(s>=0)return h.slice(0,s).replace(/<div class="bk-break"><\/div>\s*$/,"")}}return h}
 async function bookMergeSave(ids){const ed={...(state.bookEdit||{})},hh={...(ed.html||{})};let n=0;
   ids.forEach(id=>{const m=bookMergeInfo(id);if(m&&(m.upd||m.del)){hh[id]={...hh[id],h:m.h,base:m.auto,at:new Date().toISOString()};n++}});
@@ -1445,7 +1454,7 @@ function bookSecHtml(id){
     ${h3("11. อาชีพที่สามารถประกอบได้หลังสำเร็จการศึกษา")}${BFlines("careers").map((x,i)=>li(`${i+1}) ${esc(x)}`)).join("")}
     ${h3("12. ชื่อ-นามสกุล ตำแหน่ง และคุณวุฒิการศึกษาของอาจารย์ผู้รับผิดชอบหลักสูตร")}${bkT(rt,["ชื่อ-นามสกุล","ตำแหน่งทางวิชาการ","คุณวุฒิการศึกษา"],{auto:"resp"})}
     ${h3("13. สถานที่จัดการเรียนการสอน")}${ind(BFh("place"))}
-    ${h3("14. แนวคิดการออกแบบหลักสูตร")}${li("<b>14.1 สถานการณ์ภายนอกหรือการพัฒนาที่จำเป็นของประเทศ</b>")}${grpNeeds("NAT").map(n=>ind(esc(n.src+": "+n.t))).join("")}${li("<b>14.2 วิสัยทัศน์ พันธกิจ และอัตลักษณ์ของมหาวิทยาลัย</b>")}${grpNeeds("POL").map(n=>ind(esc(n.src+": "+String(n.t||"").replace(/\s*\([A-Z][^()]*\)\s*$/,"")))).join("")}${li("<b>14.3 การวิเคราะห์ความเสี่ยง</b>")}${BF("swot")?BFlines("swot").map(x=>ind(esc(x))).join(""):swotHtml()}${li("<b>14.4 การกำหนดผู้มีส่วนได้ส่วนเสีย</b>")}${na.filter(n=>n.g==="SUR").map((n,i)=>li(`${i+1}) ${esc(n.src)} — ${esc(n.how||"")}`)).join("")}${li("<b>14.5 ความต้องการของผู้มีส่วนได้ส่วนเสีย</b>")}${BFlines("need145").map(s=>ind(esc(s).replace(/^(ด้าน[^ ]+(?: [^ ]+){0,6}?(?:ในการทำงาน|และความสามารถ|ที่พึงประสงค์))/,"<b>$1</b>").replace(/\[([^\]]*)\]/g,(m,x)=>bkTodo("["+x+"]")))).join("")}`;
+    ${h3("14. แนวคิดการออกแบบหลักสูตร")}${li("<b>14.1 สถานการณ์ภายนอกหรือการพัฒนาที่จำเป็นของประเทศ</b>")}${grpNeeds("NAT").map(n=>ind(esc(n.src+": "+n.t))).join("")}${li("<b>14.2 วิสัยทัศน์ พันธกิจ และอัตลักษณ์ของมหาวิทยาลัย</b>")}${grpNeeds("POL").map(n=>ind(esc(n.src+": "+String(n.t||"").replace(/\s*\([A-Z][^()]*\)\s*$/,"")))).join("")}${li("<b>14.3 การวิเคราะห์ความเสี่ยง</b>")}${BF("swot")?BFlines("swot").map(x=>ind(esc(x))).join(""):swotHtml()}${li("<b>14.4 การกำหนดผู้มีส่วนได้ส่วนเสีย</b>")}${na.filter(n=>n.g==="SUR").map((n,i)=>li(`${i+1}) ${esc(n.src)} — ${esc(n.how||"")}`)).join("")}<p class="li" data-k="h145"><b>14.5 ความต้องการของผู้มีส่วนได้ส่วนเสีย</b></p>${BFlines("need145").map(s=>n145(esc(s).replace(/^(ด้าน[^ ]+(?: [^ ]+){0,6}?(?:ในการทำงาน|และความสามารถ|ที่พึงประสงค์))/,"<b>$1</b>").replace(/\[([^\]]*)\]/g,(m,x)=>bkTodo("["+x+"]")))).join("")}`;
   }
   if(id==="h2"){
     const ksec=plos.map(p=>[`PLO ${p.n} ${p.t}`,...["K","S","E","C"].map(d=>subs.filter(s=>s.plo===p.n&&s.dom===d).map(s=>s.code+": "+s.t).join("\n"))]);
@@ -2674,6 +2683,7 @@ document.addEventListener("keydown",e=>{if(e.target.id!=="cloQ"||e.key!=="Enter"
 
 // ---- แถบสถานะมุมขวาบน: ฉบับของหลักสูตร + การอัปเดตล่าสุด ----
 const CHANGELOG=[
+ ["19 พ.ย. 2569 (09:45)","ข้อ 14.5 แสดงใต้หัวข้อ 14.5 เสมอ แม้หมวด 1 จะมีฉบับแก้มือ"],
  ["19 พ.ย. 2569 (09:30)","หมวด 1 ข้อ 14.5 ความต้องการของผู้มีส่วนได้ส่วนเสีย เป็นข้อความสรุป 6 ย่อหน้า แก้ได้ที่ ✎ แก้ไขข้อความ"],
  ["19 พ.ย. 2569 (09:15)","ภาคผนวก ค ตัดผลสอบภาษาอังกฤษ (ไม่ใช่หลักสูตรนานาชาติ) เรียงข้อใหม่ทั้งเนื้อหาและสารบัญ และนำช่องกรอกผลสอบออกจากแถบ ข4"],
  ["19 พ.ย. 2569 (09:00)","แก้บนหน้า: ตารางที่ดึงข้อมูลอัตโนมัติคงการขึ้นบรรทัดใหม่และรูปแบบที่แก้มือไว้ แทนเฉพาะช่องที่ข้อมูลเปลี่ยน"],
