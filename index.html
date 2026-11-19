@@ -808,7 +808,7 @@ const CLO0={
 };
 
 const FAC_HINT={"adisorn.sa@mail.rmutk.ac.th":"นายอดิสร สโมสร"};
-const APP_VER="รุ่น 19 พ.ย. 2569 (08:45)";
+const APP_VER="รุ่น 19 พ.ย. 2569 (09:00)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -1336,7 +1336,12 @@ function mergeOverride(oldHtml,newHtml,ovHtml){
       // ตารางที่ถูกแยกเป็นหลายส่วน (หัวตารางซ้ำ) ก่อนถึงหัวข้อถัดไป รวมเป็นตารางเดียว
       for(let j=i+1;j<kids.length&&!/^H[1-6]$/.test(kids[j].tagName)&&!(kids[j].classList&&kids[j].classList.contains("li"));j++){if(kids[j].tagName==="TABLE"&&hk(kids[j])===h)kids[j].remove()}return kids[i]};
     const o=findIn(dO),a=findIn(dA);
-    if(o){if(o.textContent.replace(/\s+/g,"")!==b.textContent.replace(/\s+/g,""))forced++;const c=b.cloneNode(true);if(o.getAttribute("style"))c.setAttribute("style",o.getAttribute("style"));o.replaceWith(c)}
+    if(o){const T=x=>x.textContent.replace(/\s+/g,"");
+      // ข้อความเหมือนเดิม (เช่น แก้แค่ขึ้นบรรทัดใหม่ เยื้อง ฟอนต์) → คงฉบับแก้มือไว้ทั้งตาราง
+      if(T(o)!==T(b)){forced++;const co=[...o.querySelectorAll("td,th")],cb=[...b.querySelectorAll("td,th")];
+        // โครงตารางเท่าเดิม → แทนเฉพาะช่องที่ข้อมูลเปลี่ยน ช่องอื่นคงที่แก้มือไว้
+        if(co.length===cb.length&&o.querySelectorAll("tr").length===b.querySelectorAll("tr").length)co.forEach((c,i)=>{if(T(c)!==T(cb[i]))c.innerHTML=cb[i].innerHTML});
+        else{const c=b.cloneNode(true);if(o.getAttribute("style"))c.setAttribute("style",o.getAttribute("style"));o.replaceWith(c)}}}
     if(a)a.replaceWith(b.cloneNode(true))});
   const A=[...dA.children],B=[...dB.children],O=[...dO.children];
   const ka=A.map(nk),kb=B.map(nk),n=A.length,m=B.length;
@@ -2669,6 +2674,7 @@ document.addEventListener("keydown",e=>{if(e.target.id!=="cloQ"||e.key!=="Enter"
 
 // ---- แถบสถานะมุมขวาบน: ฉบับของหลักสูตร + การอัปเดตล่าสุด ----
 const CHANGELOG=[
+ ["19 พ.ย. 2569 (09:00)","แก้บนหน้า: ตารางที่ดึงข้อมูลอัตโนมัติคงการขึ้นบรรทัดใหม่และรูปแบบที่แก้มือไว้ แทนเฉพาะช่องที่ข้อมูลเปลี่ยน"],
  ["19 พ.ย. 2569 (08:45)","สารบัญฉบับแก้มือ: รายการภาคผนวกเต็มบรรทัดถึงแนวเส้นประ และทุกข้อเยื้องตรงกัน"],
  ["19 พ.ย. 2569 (08:20)","ช่องรหัสหลักสูตรขนาดเท่าตัวเลข และเริ่มตรงแนวข้อความชื่อหลักสูตร"],
  ["19 พ.ย. 2569 (08:00)","สารบัญ: รายการภาคผนวกเต็มบรรทัด ปรับระยะเยื้อง ชิดซ้ายแนวหัวข้อหลัก และเต็มแนวได้"],
