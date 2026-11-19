@@ -808,7 +808,7 @@ const CLO0={
 };
 
 const FAC_HINT={"adisorn.sa@mail.rmutk.ac.th":"นายอดิสร สโมสร"};
-const APP_VER="รุ่น 19 พ.ย. 2569 (16:30)";
+const APP_VER="รุ่น 19 พ.ย. 2569 (17:00)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -1382,7 +1382,7 @@ function mergeOverride(oldHtml,newHtml,ovHtml){
   return {h:dO.innerHTML,upd:upd+forced,skip,skipT,del}}
 // ฉบับแก้มือ: รวมข้อมูลใหม่จากแพลตฟอร์มเข้าทุกครั้งที่แสดง (คงรูปแบบที่จัดไว้) — ไม่ต้องรอกดบันทึก
 function bookMergeInfo(id){const o=state.bookEdit&&state.bookEdit.html&&state.bookEdit.html[id];if(!o)return null;
-  const auto=applySubs(id,bookSecHtml(id));const M=state.bookMerge=state.bookMerge||{};const key=(o.at||"")+"|"+auto.length+"|"+auto.slice(0,200)+auto.slice(-400);
+  const auto=bkDiagStrip(applySubs(id,bookSecHtml(id)));const M=state.bookMerge=state.bookMerge||{};const key=(o.at||"")+"|"+auto.length+"|"+auto.slice(0,200)+auto.slice(-400);
   if(M[id]&&M[id].key===key&&M[id].ovh===o.h)return M[id];
   let r={h:o.h,upd:0,skip:0,skipT:[],del:0};if(o.base){try{r=mergeOverride(o.base,auto,o.h)}catch(e){}}
   return M[id]={key,ovh:o.h,auto,...r};}
@@ -1411,8 +1411,10 @@ function fixH2Land(h){try{const auto=document.createElement("div");auto.innerHTM
       while(i+1<kids.length&&!(isHead(kids[i+1])&&!isSec(kids[i+1]))&&!(kids[i+1].dataset&&kids[i+1].dataset.landPh)){if(isHead(kids[i+1])&&isSec(kids[i+1]))break;kids[++i].remove()}}}
   const c=land.cloneNode(true);if(at)at.replaceWith(c);else d.appendChild(c);
   d.querySelectorAll("i[data-land-ph]").forEach(x=>x.remove());return d.innerHTML}catch(e){return h}}
+const bkDiagStrip=h=>String(h||"").replace(/(<img[^>]*?data-diag="(\w+)"[^>]*?)src="data:[^"]*"/g,'$1src=""');
+const bkDiagFill=h=>String(h||"").indexOf("data-diag")<0?h:String(h).replace(/(<img[^>]*?data-diag="(\w+)"[^>]*?)src="[^"]*"/g,(m,a,k)=>a+'src="'+codeDiagram(k)+'"');
 function bookSecFinal(id){const o=state.bookEdit&&state.bookEdit.html&&state.bookEdit.html[id];if(!o)return applySubs(id,bookSecHtml(id));
-  let h=bookMergeInfo(id).h;if(id==="apx")h=cvSyncApx(h);if(id==="toc")h=tocNormalize(h);if(id==="h1")h=fix145(h);if(id==="h2")h=fixH2Land(h);
+  let h=bkDiagFill(bookMergeInfo(id).h);if(id==="apx")h=cvSyncApx(h);if(id==="toc")h=tocNormalize(h);if(id==="h1")h=fix145(h);if(id==="h2")h=fixH2Land(h);
   if(id==="front"){const i=h.indexOf("สารบัญ</h2>");if(i>0){const s=h.lastIndexOf("<h2",i);if(s>=0)return h.slice(0,s).replace(/<div class="bk-break"><\/div>\s*$/,"")}}return h}
 async function bookMergeSave(ids){const ed={...(state.bookEdit||{})},hh={...(ed.html||{})};let n=0;
   ids.forEach(id=>{const m=bookMergeInfo(id);if(m&&(m.upd||m.del)){hh[id]={...hh[id],h:m.h,base:m.auto,at:new Date().toISOString()};n++}});
@@ -1498,7 +1500,7 @@ function codeDiagram(kind){if(_codeDiag[kind])return _codeDiag[kind];try{
     xs.forEach((x,i)=>{g.textAlign="center";g.font=`15px ${fam}`;g.fillText(String(i+1),x,base+24);g.font=`19px ${fam}`});
     labs.forEach((l,i)=>{const y=18+i*28,x=xs[i];g.beginPath();g.moveTo(x,base-14);g.lineTo(x,y);g.lineTo(LX,y);g.stroke();g.textAlign="left";g.fillText(l,LX+8,y)})}
   const url=cv.toDataURL("image/png");if(!document.fonts||document.fonts.status==="loaded")_codeDiag[kind]=url;return url}catch(e){return ""}}
-const bkDiag=(k,w)=>{const u=codeDiagram(k);return u?`<p style="text-align:center"><img src="${u}" alt="${k==="code"?"แผนภูมิความหมายของรหัสรายวิชา":"แผนภูมิความหมายของรหัสการจัดชั่วโมงเรียน"}" style="width:${w}in"></p>`:""};
+const bkDiag=(k,w)=>{const u=codeDiagram(k);return u?`<p style="text-align:center"><img data-diag="${k}" src="${u}" alt="${k==="code"?"แผนภูมิความหมายของรหัสรายวิชา":"แผนภูมิความหมายของรหัสการจัดชั่วโมงเรียน"}" style="width:${w}in"></p>`:""};
 // งบประมาณตามแผน (หมวด 3 ข้อ 2.10)
 const bgN=k=>regN()*Math.min(k+1,4)+smbN()*Math.min(k+1,3);
 const bgNum=v=>{const x=String(v==null?"":v).replace(/[,\s]/g,"");return /^\d+(\.\d+)?$/.test(x)?+x:null};
@@ -2906,6 +2908,7 @@ document.addEventListener("keydown",e=>{if(e.target.id!=="cloQ"||e.key!=="Enter"
 
 // ---- แถบสถานะมุมขวาบน: ฉบับของหลักสูตร + การอัปเดตล่าสุด ----
 const CHANGELOG=[
+ ["19 พ.ย. 2569 (17:00)","แก้ข้อความบนหน้าโดยตรงแล้วไม่เปลี่ยน: ฉบับแก้มือที่ขนาดใหญ่หายจากหน้าจอหลังบันทึก (ระบบดึงใหม่จากฐานข้อมูล) · ลดขนาดฉบับแก้มือโดยไม่เก็บรูปแผนภูมิซ้ำ"],
  ["19 พ.ย. 2569 (16:30)","หัวข้อย่อย (เช่น 2.3 คุณสมบัติของผู้เข้าศึกษา) ไม่ค้างท้ายหน้าอีก ระบบย้ายไปขึ้นหน้าใหม่พร้อมเนื้อหาให้เอง"],
  ["19 พ.ย. 2569 (16:00)","จัดหมวด 3 ตามแบบฟอร์มเล่มหลักสูตร: 1.1–1.2 · 2.1–2.10 (ปัญหาแรกเข้า กลยุทธ์ งบประมาณรายรับ-รายจ่าย) · โครงสร้างหลักสูตร · 3.1 ความหมายรหัสวิชา · 3.2 ชื่อรายวิชาไทย-อังกฤษ · 3.3 ตารางแผนการศึกษา · 3.4 คำอธิบายรายวิชาครบทุกหมวด · เพิ่มช่องชื่อวิชาภาษาอังกฤษใน ก3"],
  ["19 พ.ย. 2569 (15:00)","ภาคสมทบ (ปริญญาตรีใบที่ 2): ทฤษฎีออนไลน์ ปฏิบัติและสอบที่มหาวิทยาลัย · ผู้จบ วศ.บ. เทียบโอน 4-116-307 ได้ · เกณฑ์เทียบโอน (C, 3/4, 1 ปี) · หมวด 3 ข้อ 2.2 และ 3.3 หมวด 6 หมวด 7"],
@@ -4208,7 +4211,7 @@ document.addEventListener("click",async e=>{
   else if(b.id==="bkLogoDel"){const ed={...(state.bookEdit||{})};delete ed.logo;await saveBookEdit(ed,"ตรามหาวิทยาลัย")}
   else if(b.id==="bkDirectOpen"){state.bookDirect=state.bookSec;state.bookEditing=null;render()}
   else if(b.id==="bkDirectCancel"){state.bookDirect=null;state.bookTabDraft=null;dfxUndo.length=0;render()}
-  else if(b.id==="bkDirectSave"){const el=document.getElementById("bkSheet");if(state.bookTabDraft!=null){const f=bookFmtAll(),s=state.bookSec;f.sec[s]={...(f.sec[s]||{}),tabW:state.bookTabDraft};state.bookTabDraft=null;await saveFmtAll(f,"ระยะแท็บ")}const ed={...(state.bookEdit||{})},hh={...(ed.html||{})};hh[state.bookSec]={h:el.innerHTML,base:applySubs(state.bookSec,bookSecHtml(state.bookSec)),at:new Date().toISOString()};ed.html=hh;state.bookDirect=null;await saveBookEdit(ed,"หน้าที่แก้มือ")}
+  else if(b.id==="bkDirectSave"){const el=document.getElementById("bkSheet");if(state.bookTabDraft!=null){const f=bookFmtAll(),s=state.bookSec;f.sec[s]={...(f.sec[s]||{}),tabW:state.bookTabDraft};state.bookTabDraft=null;await saveFmtAll(f,"ระยะแท็บ")}const ed={...(state.bookEdit||{})},hh={...(ed.html||{})};hh[state.bookSec]={h:bkDiagStrip(el.innerHTML),base:bkDiagStrip(applySubs(state.bookSec,bookSecHtml(state.bookSec))),at:new Date().toISOString()};ed.html=hh;state.bookDirect=null;await saveBookEdit(ed,"หน้าที่แก้มือ")}
   else if(b.id==="bkMergeSave"){await bookMergeSave([state.bookSec]);return}
   else if(b.id==="bkMergeAll"){await bookMergeSave(BOOK_SECS.map(x=>x[0]));return}
   else if(b.id==="bkDirectClear"){if(!confirmClear())return;const ed={...(state.bookEdit||{})},hh={...(ed.html||{})};delete hh[state.bookSec];ed.html=hh;await saveBookEdit(ed,"หน้าที่แก้มือ")}
@@ -4339,6 +4342,8 @@ function makeSbDb(){
   sb.channel("kv-live").on("postgres_changes",{event:"*",schema:"public",table:"kv"},p=>{
     const r=p.new&&p.new.collection?p.new:p.old;if(!r||!r.collection)return;if(p.new&&p.new.collection){(state.kvMeta=state.kvMeta||{})[r.collection+"/"+r.id]={c:r.collection,id:r.id,at:p.new.updated_at||new Date().toISOString(),by:p.new.updated_by};if(window.updBarPaint)updBarPaint()}if(r.collection==="bookdocx"){if(window.bkdLoadMeta)window.bkdLoadMeta();return}if(r.collection==="labphoto"){if(window.labLoadPhotos)window.labLoadPhotos();return}
     if(p.eventType!=="DELETE"&&p.new){(state.kvMeta=state.kvMeta||{})[r.collection+"/"+r.id]={c:r.collection,id:r.id,at:p.new.updated_at||new Date().toISOString(),by:p.new.updated_by};if(window.updBarPaint)updBarPaint()}
+    // แถวใหญ่ (เช่น เล่มที่แก้มือ) Realtime อาจส่งมาโดยไม่มีข้อมูล → ดึงแถวนั้นใหม่ ไม่ล้างค่าที่มีอยู่
+    if(p.eventType!=="DELETE"&&(p.new.data==null||(p.errors&&p.errors.length))){sb.from("kv").select("data").match({collection:r.collection,id:r.id}).maybeSingle().then(({data})=>{if(data&&data.data!=null){(cache[r.collection]=cache[r.collection]||{})[r.id]=data.data;listeners.forEach(l=>l())}});return}
     if(p.eventType==="DELETE"){if(cache[r.collection])delete cache[r.collection][r.id]}else (cache[r.collection]=cache[r.collection]||{})[r.id]=p.new.data;
     listeners.forEach(l=>l());
   }).subscribe();
