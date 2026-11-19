@@ -808,7 +808,7 @@ const CLO0={
 };
 
 const FAC_HINT={"adisorn.sa@mail.rmutk.ac.th":"นายอดิสร สโมสร"};
-const APP_VER="รุ่น 19 พ.ย. 2569 (18:30)";
+const APP_VER="รุ่น 19 พ.ย. 2569 (18:40)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -1475,12 +1475,12 @@ const bkSort=L=>L.slice().sort((a,b)=>String(a.code).localeCompare(String(b.code
 const GE_GRP=[["0-121","กลุ่มวิชาภาษาเพื่อการสื่อสารในโลกสมัยใหม่"],["0-122","กลุ่มวิชาการพัฒนาตนเอง"],["0-123","กลุ่มวิชาพลเมืองเข้มแข็ง"],["0-124","กลุ่มวิชาวิทยาศาสตร์กับชีวิตวิถีใหม่"],["0-125","กลุ่มวิชาก้าวทันเทคโนโลยีดิจิทัล"]];
 const TB=n=>n>0?`<span class="bk-tab">${"\t".repeat(n)}</span>`:"";const TS=n=>n>0?`<span class="bk-tab">${"   ".repeat(n)}</span>`:"";
 // รายการรายวิชา (รหัส · ชื่อไทย/อังกฤษ · หน่วยกิต) แบบไม่มีเส้นตาราง
-function bkCourseList(L){return `<table class="bk-t bk-nb" style="width:94%" data-nocont="1"><tbody>${bkSort(L).map(c=>{const en=enName(c),nc=c.fl&&c.fl.nc?"*":"";
+function bkCourseList(L){return `<table class="bk-t bk-nb" style="width:94%"><tbody>${bkSort(L).map(c=>{const en=enName(c),nc=c.fl&&c.fl.nc?"*":"";
   return `<tr><td style="width:1.05in">${esc(c.code)}</td><td>${esc(c.th)}${nc}<br>${en?esc(en)+nc:bkTodo("(ชื่อวิชาภาษาอังกฤษ)")}</td><td class="r" style="width:.95in;white-space:nowrap">${crTxt2(c)}</td></tr>`}).join("")}</tbody></table>`}
 // คำอธิบายรายวิชา 1 วิชา
 function bkDescBlock(c){const svc=c.g==="SVC",d=svc?{th:c.dth,en:c.den}:descSaved(c.code),cl=svc?(c.clos||[]).map(x=>({t:x[0]})):clos(c.code),en=enName(c),nc=c.fl&&c.fl.nc?"*":"",pre=svc?null:PREREQ[c.code];
   const R=(h,cls="")=>`<tr><td></td><td colspan="2" class="${cls}">${h}</td></tr>`;
-  return `<table class="bk-t bk-nb bk-desc" style="width:100%" data-nocont="1"><tbody><tr><td class="b" style="width:1.05in">${esc(c.code)}</td><td class="b">${esc(c.th)}${nc}</td><td class="b r" style="width:.95in;white-space:nowrap">${crTxt2(c)}</td></tr>`
+  return `<table class="bk-t bk-nb bk-desc" style="width:100%"><tbody><tr><td class="b" style="width:1.05in">${esc(c.code)}</td><td class="b">${esc(c.th)}${nc}</td><td class="b r" style="width:.95in;white-space:nowrap">${crTxt2(c)}</td></tr>`
    +R(en?esc(en)+nc:bkTodo("(ชื่อวิชาภาษาอังกฤษ)"),"b")
    +(svc&&c.pre?R(`<b>วิชาบังคับก่อน :</b> ${esc(c.pre)}`):"")+(pre?R(`<b>วิชาบังคับก่อน :</b> ${pre.map(p=>{const x=COURSES.find(y=>y.code===p);return esc(p+(x?" "+x.th:""))}).join(", ")}`):"")
    +R(d.th?esc(d.th):bkTodo("(คำอธิบายรายวิชาภาษาไทย)"),"j")+R(d.en?esc(d.en):bkTodo("(Course description)"),"j")
@@ -1490,7 +1490,7 @@ function bkPlanTable(title,L,mark){const slot=c=>c.g==="FREE"||c.g==="TE";
   const R=L.slice().sort((a,b)=>(slot(a)-slot(b))||String(a.code).localeCompare(String(b.code)));
   const n=x=>+x||0,sum=k=>R.filter(c=>!(c.fl&&c.fl.nc)).reduce((a,c)=>a+n(c[k]),0);
   const rows=R.map(c=>`<tr><td class="c" style="width:1.08in;white-space:nowrap">${slot(c)?"x-xxx-xxx":esc(c.code)}</td><td>${c.g==="FREE"?"วิชาเลือกเสรี":c.g==="TE"?"วิชาชีพเลือก":esc(c.th)}${mark&&mark(c)?" "+mark(c):""}</td><td class="c">${c.fl&&c.fl.nc?`(${c.t})`:c.cr}</td><td class="c">${c.t}</td><td class="c">${c.p}</td><td class="c">${c.s}</td></tr>`).join("");
-  return `<table class="bk-t" style="width:100%" data-nocont="1"><thead><tr><th colspan="2">${esc(title)}</th><th style="width:.72in">หน่วยกิต</th><th style="width:.62in">ทฤษฎี</th><th style="width:.62in">ปฏิบัติ</th><th style="width:1.02in">ศึกษาด้วยตนเอง</th></tr></thead><tbody>${rows}<tr><td colspan="2" class="c b">รวม</td><td class="c b">${sumCr(R,c=>!(c.fl&&c.fl.nc))}</td><td class="c b">${sum("t")}</td><td class="c b">${sum("p")}</td><td class="c b">${sum("s")}</td></tr></tbody></table>`}
+  return `<table class="bk-t" style="width:100%" data-nocont="1" data-thcont="1"><thead><tr><th colspan="2">${esc(title)}</th><th style="width:.72in">หน่วยกิต</th><th style="width:.62in">ทฤษฎี</th><th style="width:.62in">ปฏิบัติ</th><th style="width:1.02in">ศึกษาด้วยตนเอง</th></tr></thead><tbody>${rows}<tr><td colspan="2" class="c b">รวม</td><td class="c b">${sumCr(R,c=>!(c.fl&&c.fl.nc))}</td><td class="c b">${sum("t")}</td><td class="c b">${sum("p")}</td><td class="c b">${sum("s")}</td></tr></tbody></table>`}
 // แผนภูมิความหมายของรหัสรายวิชา / รหัสการจัดชั่วโมงเรียน (วาดเป็นรูป ใช้ได้ทั้ง PDF และ Word)
 const _codeDiag={};
 function codeDiagram(kind){if(_codeDiag[kind])return _codeDiag[kind];try{
@@ -1555,7 +1555,7 @@ function h3Html(X){const {core,ME,cr,SPEC,trs,YEAR,H,h3,ind,li}=X;const li2=t=>`
     ${ind(B("ตัวเลขตำแหน่งที่ 5 หมายถึงปีที่ควรศึกษา")+" ตัวเลข 1–4 แทนความหมายดังต่อไปนี้")}${[1,2,3,4].map(y=>li2(`${y} แทน รายวิชาที่ควรศึกษาในชั้นปีที่ ${y}`)).join("")}
     ${ind(B("ตัวเลขตำแหน่งที่ 6 และ 7")+" เป็นกลุ่มตัวเลขที่แสดงลำดับที่ของรายวิชาในแต่ละกลุ่มวิชา ซึ่งสามารถกำหนดได้ถึง 99 รายวิชา จาก 01 – 99")}
     ${li(B("2) ความหมายของรหัสการจัดชั่วโมงเรียน"))}${bkDiag("hrs",5.2)}${NB([["ตำแหน่งที่ 1","จำนวนหน่วยกิต"],["ตำแหน่งที่ 2","จำนวนชั่วโมงเรียนทฤษฎี"],["ตำแหน่งที่ 3","จำนวนชั่วโมงเรียนปฏิบัติ"],["ตำแหน่งที่ 4","จำนวนชั่วโมงการศึกษานอกเวลา"]].map(([a,b])=>`<tr><td style="width:2.6in;white-space:nowrap">${TB(1)}${a}</td><td>คือ ${b}</td></tr>`))}`;
-  const GH=(t,n,tail)=>li(`${B(t)} ${n!=null?B(n+" หน่วยกิต"):""}${tail?" "+tail:""}`);
+  const GH=(t,n,tail)=>`<p class="li" data-hd="1">${B(t)} ${n!=null&&n!==""?B(n+" หน่วยกิต"):""}${tail?" "+tail:""}</p>`;
   const trC=t=>ME.length?COURSES.filter(c=>c.g==="TR"&&inTrack(c,t)):[];
   const names32=`${li(B("3.2 ชื่อรายวิชา"))}${GH("ก. หมวดวิชาศึกษาทั่วไป",cr(["GE"]))}${GH("1. วิชาบังคับ (ไม่นับหน่วยกิต)",ncCr,"ให้ศึกษาจากรายวิชาต่อไปนี้")}${bkCourseList(geNC)}<p class="li2"><b>หมายเหตุ</b> * คือ รายวิชาไม่นับหน่วยกิต</p>
     ${GH("2. วิชาบังคับ",reqCr,"ให้ศึกษาจากรายวิชาต่อไปนี้")}${gReq.map(([n,L])=>L.length?li2(`${B(n)} ${B(sumCr(L)+" หน่วยกิต")}`)+bkCourseList(L):"").join("")}
@@ -1779,7 +1779,7 @@ const splitLand=html=>{const d=document.createElement("div");d.innerHTML=html;co
 // หน้าที่ไม่มีข้อความ ตาราง หรือรูป (เช่น ย่อหน้าว่างหลังหน้าแนวนอน) ไม่นับเป็นหน้า
 const bkHasContent=el=>!!(el&&((el.textContent||"").replace(/[\s\u00a0\u200b]/g,"")||(el.querySelector&&el.querySelector("img,svg,canvas,table,hr,.bk-box"))));
 // หัวข้อ (h2/h3 หรือย่อหน้าตัวหนาสั้น ๆ เช่น "2.3 คุณสมบัติ…" "กรณีระดับปริญญาตรี") ต้องอยู่หน้าเดียวกับเนื้อหาถัดไป
-const bkIsHead=el=>{if(!el||el.nodeType!==1)return false;if(/^H[1-4]$/.test(el.tagName)||(el.dataset&&el.dataset.cont))return true;if(el.tagName!=="P")return false;
+const bkIsHead=el=>{if(!el||el.nodeType!==1)return false;if(/^H[1-4]$/.test(el.tagName)||(el.dataset&&(el.dataset.cont||el.dataset.hd)))return true;if(el.tagName!=="P")return false;
   const t=(el.textContent||"").replace(/[\s\u00a0]+/g," ").trim();if(!t||t.length>160)return false;const bt=[...el.querySelectorAll("b,strong")].map(b=>b.textContent).join("").replace(/[\s\u00a0]+/g," ").trim();return bt.length>0&&bt.length>=t.length-1};
 function bkTakeHeads(pg){const out=[];while(out.length<3&&pg.children.length>out.length+1){const l=pg.lastElementChild;if(!bkIsHead(l))break;out.unshift(l);pg.removeChild(l)}return out}
 async function paginateHtml(html,fmt,trace,land){
@@ -1795,16 +1795,16 @@ async function paginateHtml(html,fmt,trace,land){
   const fits=()=>pg.scrollHeight<=maxH+1;
   let lastH3="",lastHd=null;
   for(const [ni,n] of nodes.entries()){
-    if(n.nodeType===1&&(n.tagName==="H3"||(n.dataset&&n.dataset.cont))){lastH3=n.textContent.replace(/\s+/g," ").trim().replace(/\s*\(ต่อ\)$/,"");lastHd=n}
+    if(n.nodeType===1&&n.tagName!=="TABLE"&&!n.classList.contains("bk-cont")&&(n.tagName==="H3"||bkIsHead(n))){const bt=n.tagName==="H3"?"":[...n.querySelectorAll("b,strong")].map(b=>b.textContent).join(" ");lastH3=(bt||n.textContent).replace(/[\s\u00a0]+/g," ").trim().replace(/\s*\(ต่อ\)$/,"");lastHd=n}
     if(n.nodeType===1&&n.classList.contains("bk-break")){flush();continue}
     if(n.nodeType===1&&n.classList.contains("bk-land")&&!land){flush();rec(ni,-1);const sub=await paginateHtml(n.innerHTML,fmt,null,true);sub.forEach(p=>pages.push(LAND_MARK+p));want=true;continue}
     const c=n.cloneNode(true);rec(ni,-1);pg.appendChild(c);if(fits())continue;
     pg.removeChild(c);
     if(n.nodeType===1&&n.tagName==="TABLE"&&n.tBodies[0]&&n.tBodies[0].rows.length>1){
       const head=n.tHead?n.tHead.cloneNode(true):null;const rows=[...n.tBodies[0].rows];
-      const mk=cont=>{if(cont&&lastH3&&!(n.dataset&&n.dataset.nocont)){let h;if(lastHd&&lastHd.tagName!=="H3"){h=lastHd.cloneNode(false);h.removeAttribute("data-cont");h.classList.add("bk-cont");h.innerHTML="<b></b>";h.firstChild.textContent=lastH3+" (ต่อ)"}else{h=document.createElement("h3");h.className="bk-cont";h.textContent=lastH3+" (ต่อ)"}pg.appendChild(h)}const t=n.cloneNode(false);if(head)t.appendChild(head.cloneNode(true));const tb=document.createElement("tbody");t.appendChild(tb);pg.appendChild(t);return tb};
+      const mk=(cont,split)=>{if(cont&&lastH3&&!(n.dataset&&n.dataset.nocont)){let h;if(lastHd&&lastHd.tagName!=="H3"){h=lastHd.cloneNode(false);h.removeAttribute("data-cont");h.classList.add("bk-cont");h.innerHTML="<b></b>";h.firstChild.textContent=lastH3+" (ต่อ)"}else{h=document.createElement("h3");h.className="bk-cont";h.textContent=lastH3+" (ต่อ)"}pg.appendChild(h)}const t=n.cloneNode(false);if(head){const hc=head.cloneNode(true);if(cont&&split&&n.dataset&&n.dataset.thcont){const th=hc.rows[0]&&hc.rows[0].cells[0];if(th)th.textContent=th.textContent.replace(/\s*\(ต่อ\)$/,"")+" (ต่อ)"}t.appendChild(hc)}const tb=document.createElement("tbody");t.appendChild(tb);pg.appendChild(t);return tb};
       let tb=mk();
-      for(const [ri,r] of rows.entries()){tb.appendChild(r.cloneNode(true));if(!fits()){tb.removeChild(tb.lastChild);if(!tb.rows.length){pg.removeChild(tb.parentNode);const hs=bkTakeHeads(pg).filter(x=>!x.classList.contains("bk-cont"));const keepH=hs.length>0;flush();rec(ni,ri);hs.forEach(x=>pg.appendChild(x));const pv=nodes.slice(0,ni).reverse().find(x=>x.nodeType===1&&!/^(DIV)$/.test(x.tagName));tb=mk(!keepH&&(ri>0||!!(pv&&pv.tagName==="TABLE")));tb.appendChild(r.cloneNode(true))}else{flush();rec(ni,ri);tb=mk(true);tb.appendChild(r.cloneNode(true))}}}
+      for(const [ri,r] of rows.entries()){tb.appendChild(r.cloneNode(true));if(!fits()){tb.removeChild(tb.lastChild);if(!tb.rows.length){pg.removeChild(tb.parentNode);const hs=bkTakeHeads(pg).filter(x=>!x.classList.contains("bk-cont"));const keepH=hs.length>0;flush();rec(ni,ri);hs.forEach(x=>pg.appendChild(x));const pv=nodes.slice(0,ni).reverse().find(x=>x.nodeType===1&&!/^(DIV)$/.test(x.tagName));tb=mk(!keepH&&(ri>0||!!(pv&&pv.tagName==="TABLE")),ri>0);tb.appendChild(r.cloneNode(true))}else{flush();rec(ni,ri);tb=mk(true,true);tb.appendChild(r.cloneNode(true))}}}
       continue;
     }
     // keep a heading with the next block: move trailing heading to the new page
@@ -2917,6 +2917,7 @@ document.addEventListener("keydown",e=>{if(e.target.id!=="cloQ"||e.key!=="Enter"
 
 // ---- แถบสถานะมุมขวาบน: ฉบับของหลักสูตร + การอัปเดตล่าสุด ----
 const CHANGELOG=[
+ ["19 พ.ย. 2569 (18:40)","ตารางที่ต่อหน้าใช้ชื่อหัวข้อของตารางนั้นตามด้วย (ต่อ) เช่น 2.1 วิชาชีพบังคับร่วม (ต่อ) · ตารางแผนการศึกษาแสดง ปีที่ … / ภาคการศึกษาที่ … (ต่อ)"],
  ["19 พ.ย. 2569 (18:30)","หมวด 3 ข้อ 3.1 วาดแผนภูมิความหมายของรหัสรายวิชาและรหัสการจัดชั่วโมงเรียนใหม่ให้เหมือนแบบฟอร์ม"],
  ["19 พ.ย. 2569 (18:20)","ตารางโครงสร้างหลักสูตรหมวด 3 แสดงรูปแบบใหม่แม้มีฉบับแก้มือ (2.1–2.2 แท็บเดียว และ (เลือก 1 แขนงวิชา) บรรทัดเดียว)"],
  ["19 พ.ย. 2569 (18:10)","หมวด 3 โครงสร้างหลักสูตร: หัวข้อ 2.1–2.2 ลดระยะแท็บ 1 แท็บ และ (เลือก 1 แขนงวิชา) อยู่บรรทัดเดียวกัน"],
@@ -3018,7 +3019,7 @@ function altSchedule(k,t){const cfg=ALT_CFG[k],tr=new Set(altTransfer(k));
 function altPlansHtml(){const trs=Object.keys(TRACKS),ind=t=>`<p class="ind">${t}</p>`;const row=c=>[c.g==="FREE"||c.g==="TE"?"x-xxx-xxx":c.code,c.g==="FREE"?"วิชาเลือกเสรี":c.g==="TE"?"วิชาชีพเลือก":c.th,c.fl&&c.fl.nc?`(${c.t})`:String(c.cr),String(c.t),String(c.p),String(c.s)];
   return ["pvs","sec"].map((k,ki)=>{const cfg=ALT_CFG[k];const s0=altSchedule(k,trs[0]);
     const trT=bkT([...s0.tr.map(c=>[c.g==="FREE"?"x-xxx-xxx":c.code,c.th,c.fl&&c.fl.nc?`(${c.t})`:String(c.cr)]),[{t:"รวมเทียบโอนได้",span:2,cls:"r b"},{t:String(sumCr(s0.tr)),cls:"b"}]],["รหัสวิชา","รายวิชาที่เทียบโอน","หน่วยกิต"],{w:"88%"});
-    return `<p class="li"><b>${ki?"แผน ค.":"แผน ข."} ${cfg.t}</b></p>${ind(k==="pvs"?"ผู้เข้าศึกษาด้วยวุฒิ ปวส. เทียบโอนรายวิชาตามระเบียบมหาวิทยาลัยเทคโนโลยีราชมงคลกรุงเทพ ว่าด้วยการเทียบโอนผลการเรียน พ.ศ. 2564 รายวิชาที่เทียบโอนได้ตามตารางด้านล่าง ผู้ที่เทียบโอนได้ไม่ครบต้องลงเรียนรายวิชาที่ขาดเพิ่มตามแผนปกติ":"ผู้สำเร็จการศึกษาระดับปริญญาตรีเทียบโอนตามคุณสมบัติในข้อ 2.3 ข้อ 3 เรียนนอกวัน–เวลาราชการ ภาคการศึกษาละไม่เกิน "+cfg.cap+" หน่วยกิต รายวิชาที่ต้องลงเรียนเพิ่มกรณีเทียบโอนไม่ครบให้ลงเรียนตามแผนปกติ "+SEC_TR)}${k==="sec"?ind(esc(SEC_ENG))+'<p class="li"><b>รูปแบบการจัดการเรียนการสอน</b></p>'+SEC_MODE.map(x=>ind(esc(x))).join(""):""}${trT}${ind(`รวมหน่วยกิตที่ต้องเรียนในหลักสูตร ${140-sumCr(s0.tr)} หน่วยกิต ระยะเวลาตามแผน ${s0.years} ปีการศึกษา`)}`+
+    return `<p class="li"><b>${ki?"แผน ค.":"แผน ข."} ${cfg.t}</b></p>${ind(k==="pvs"?"ผู้เข้าศึกษาด้วยวุฒิ ปวส. เทียบโอนรายวิชาตามระเบียบมหาวิทยาลัยเทคโนโลยีราชมงคลกรุงเทพ ว่าด้วยการเทียบโอนผลการเรียน พ.ศ. 2564 รายวิชาที่เทียบโอนได้ตามตารางด้านล่าง ผู้ที่เทียบโอนได้ไม่ครบต้องลงเรียนรายวิชาที่ขาดเพิ่มตามแผนปกติ":"ผู้สำเร็จการศึกษาระดับปริญญาตรีเทียบโอนตามคุณสมบัติในข้อ 2.3 ข้อ 3 เรียนนอกวัน–เวลาราชการ ภาคการศึกษาละไม่เกิน "+cfg.cap+" หน่วยกิต รายวิชาที่ต้องลงเรียนเพิ่มกรณีเทียบโอนไม่ครบให้ลงเรียนตามแผนปกติ "+SEC_TR)}${k==="sec"?ind(esc(SEC_ENG))+'<p class="li"><b>รูปแบบการจัดการเรียนการสอน</b></p>'+SEC_MODE.map(x=>ind(esc(x))).join(""):""}<p class="li" data-hd="1"><b>รายวิชาที่เทียบโอนได้ · ${cfg.t}</b></p>${trT}${ind(`รวมหน่วยกิตที่ต้องเรียนในหลักสูตร ${140-sumCr(s0.tr)} หน่วยกิต ระยะเวลาตามแผน ${s0.years} ปีการศึกษา`)}`+
       trs.map(t=>{const S=altSchedule(k,t);return `<p class="li"><b>${cfg.t} · แขนงวิชา${TRACKS[t]}</b></p>`+S.slots.map(sl=>bkPlanTable(sl.name,sl.cs,c=>(cfg.engOnly||[]).includes(c.code)?"**":"")).join("")}).join('<div class="bk-break"></div>')}).join('<div class="bk-break"></div>')}
 function altEditorHtml(){const ed=state.isAdmin;const trs=Object.keys(TRACKS);
   const pool=COURSES.filter(c=>altReal(c)&&c.g!=="TR"&&c.g!=="TE").filter((c,i,s)=>s.findIndex(x=>x.code===c.code)===i).sort((a,b)=>TERMS.indexOf(a.term)-TERMS.indexOf(b.term));
