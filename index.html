@@ -808,7 +808,7 @@ const CLO0={
 };
 
 const FAC_HINT={"adisorn.sa@mail.rmutk.ac.th":"นายอดิสร สโมสร"};
-const APP_VER="รุ่น 19 พ.ย. 2569 (22:20)";
+const APP_VER="รุ่น 19 พ.ย. 2569 (22:30)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -1376,7 +1376,9 @@ function mergeOverride(oldHtml,newHtml,ovHtml){
       // ข้อความเหมือนเดิม (เช่น แก้แค่ขึ้นบรรทัดใหม่ เยื้อง ฟอนต์) → คงฉบับแก้มือไว้ทั้งตาราง
       if(T(o)!==T(b)){forced++;const co=[...o.querySelectorAll("td,th")],cb=[...b.querySelectorAll("td,th")];
         // โครงตารางเท่าเดิม → แทนเฉพาะช่องที่ข้อมูลเปลี่ยน ช่องอื่นคงที่แก้มือไว้
-        if(co.length===cb.length&&o.querySelectorAll("tr").length===b.querySelectorAll("tr").length)co.forEach((c,i)=>{if(T(c)!==T(cb[i]))c.innerHTML=cb[i].innerHTML});
+        // 3 ทาง: แทนเฉพาะช่องที่ข้อมูลในแพลตฟอร์มเปลี่ยนจากตอนบันทึกฉบับแก้มือ ช่องที่ผู้ใช้แก้เองและข้อมูลไม่เปลี่ยนคงไว้
+        const ca=a?[...a.querySelectorAll("td,th")]:null,three=ca&&ca.length===cb.length;
+        if(co.length===cb.length&&o.querySelectorAll("tr").length===b.querySelectorAll("tr").length)co.forEach((c,i)=>{if(three?T(ca[i])!==T(cb[i]):T(c)!==T(cb[i]))c.innerHTML=cb[i].innerHTML});
         else{const c=b.cloneNode(true);if(o.getAttribute("style"))c.setAttribute("style",o.getAttribute("style"));o.replaceWith(c)}}}
     if(a)a.replaceWith(b.cloneNode(true))});
   const A=[...dA.children],B=[...dB.children],O=[...dO.children];
@@ -3004,6 +3006,7 @@ document.addEventListener("keydown",e=>{if(e.target.id!=="cloQ"||e.key!=="Enter"
 
 // ---- แถบสถานะมุมขวาบน: ฉบับของหลักสูตร + การอัปเดตล่าสุด ----
 const CHANGELOG=[
+ ["19 พ.ย. 2569 (22:30)","ตารางที่ดึงจากข้อมูล (เช่น อาจารย์ประจำหลักสูตรหมวด 5) แก้บนหน้าได้: คงช่องที่แก้เองไว้ แทนเฉพาะช่องที่ข้อมูลในแพลตฟอร์มเปลี่ยน"],
  ["19 พ.ย. 2569 (22:20)","แถบหัวกลุ่มในตาราง (เช่น ภาคการศึกษาที่ 2) ไม่ค้างท้ายหน้า ย้ายไปขึ้นพร้อมรายวิชาในหน้าถัดไป ทุกหมวด"],
  ["19 พ.ย. 2569 (22:10)","กรอบสรุปผลลัพธ์รายชั้นปีขึ้นหน้าใหม่ทั้งกรอบ แม้หมวด 4 มีฉบับแก้มือที่บันทึกก่อนหน้า"],
  ["19 พ.ย. 2569 (22:00)","หมวด 4 ข้อ 4.1: กรอบสรุปผลลัพธ์การเรียนรู้รายชั้นปีไม่แยกข้ามหน้า ถ้าไม่พอให้ขึ้นหน้าใหม่ทั้งกรอบ"],
