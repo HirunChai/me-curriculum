@@ -808,7 +808,7 @@ const CLO0={
 };
 
 const FAC_HINT={"adisorn.sa@mail.rmutk.ac.th":"นายอดิสร สโมสร"};
-const APP_VER="รุ่น 19 พ.ย. 2569 (18:10)";
+const APP_VER="รุ่น 19 พ.ย. 2569 (18:20)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -1357,10 +1357,12 @@ function mergeOverride(oldHtml,newHtml,ovHtml){
   // ตารางที่ผูกกับข้อมูล (data-auto) ให้ตามข้อมูลล่าสุดเสมอ แม้ฉบับแก้มือจะแก้ตารางนั้นไว้
   const hk=t=>{const h=t&&t.querySelector&&t.querySelector("thead");return h?h.textContent.replace(/\s+/g,""):""};
   [...dB.children].filter(b=>b.dataset&&b.dataset.auto).forEach(b=>{const k=b.dataset.auto,h=hk(b);
-    const findIn=d=>{const kids=[...d.children];let i=kids.findIndex(x=>x.dataset&&x.dataset.auto===k);if(i<0)i=kids.findIndex(x=>x.tagName==="TABLE"&&!x.dataset.auto&&h&&hk(x)===h);if(i<0)return null;
+    const findIn=d=>{const kids=[...d.children];let i=kids.findIndex(x=>x.dataset&&x.dataset.auto===k);if(i<0)i=kids.findIndex(x=>x.tagName==="TABLE"&&!x.dataset.auto&&h&&hk(x)===h);if(i<0&&b.dataset.lv){const bt=b.textContent.replace(/\s+/g,"");i=kids.findIndex(x=>x.tagName==="TABLE"&&!x.dataset.auto&&x.textContent.replace(/\s+/g,"")===bt)}if(i<0)return null;
       // ตารางที่ถูกแยกเป็นหลายส่วน (หัวตารางซ้ำ) ก่อนถึงหัวข้อถัดไป รวมเป็นตารางเดียว
       for(let j=i+1;j<kids.length&&!/^H[1-6]$/.test(kids[j].tagName)&&!(kids[j].classList&&kids[j].classList.contains("li"));j++){if(kids[j].tagName==="TABLE"&&hk(kids[j])===h)kids[j].remove()}return kids[i]};
     const o=findIn(dO),a=findIn(dA);
+    // รูปแบบตารางรุ่นใหม่ (data-lv) → ใช้ตารางจากข้อมูลแทนฉบับแก้มือรุ่นเก่า
+    if(o&&b.dataset.lv&&o.getAttribute("data-lv")!==b.dataset.lv){forced++;o.replaceWith(b.cloneNode(true));if(a)a.replaceWith(b.cloneNode(true));return}
     if(o){const T=x=>x.textContent.replace(/\s+/g,"");
       // ข้อความเหมือนเดิม (เช่น แก้แค่ขึ้นบรรทัดใหม่ เยื้อง ฟอนต์) → คงฉบับแก้มือไว้ทั้งตาราง
       if(T(o)!==T(b)){forced++;const co=[...o.querySelectorAll("td,th")],cb=[...b.querySelectorAll("td,th")];
@@ -1536,11 +1538,11 @@ function h3Html(X){const {core,ME,cr,SPEC,trs,YEAR,H,h3,ind,li}=X;const li2=t=>`
   const ncCr=geNC.reduce((a,c)=>a+(+c.t||0),0),reqCr=sumCr(geReq),elCr=sumCr(geEl);
   const gReq=GE_GRP.map(([p,n])=>[n,geReq.filter(c=>c.code.startsWith(p))]);
   const SR=(lab,num,o={})=>`<tr><td${o.b?' class="b"':""}${o.nw?' style="white-space:nowrap"':""}>${TB(o.i||0)}${lab}</td><td${o.b?' class="b"':""} style="width:1.05in">${o.min?"ไม่น้อยกว่า":""}</td><td class="r${o.b?" b":""}" style="width:.45in">${num==null?"":num}</td><td${o.b?' class="b"':""} style="width:.8in">${num!=null||o.u?"หน่วยกิต":""}</td></tr>`;
-  const NB=rows=>`<table class="bk-t bk-nb" style="width:90%" data-nocont="1"><tbody>${rows.join("")}</tbody></table>`;
+  const NB=(rows,auto)=>`<table class="bk-t bk-nb" style="width:90%" data-nocont="1"${auto?` data-auto="${auto}" data-lv="3"`:""}><tbody>${rows.join("")}</tbody></table>`;
   const trTR=sumCr(ME,c=>c.g==="TR"),trCORE=sumCr(ME,c=>c.g==="CORE");
   const struct=NB([SR("ก. หมวดวิชาศึกษาทั่วไป",cr(["GE"]),{b:1,min:1}),SR("1) กลุ่มวิชาบังคับ (ไม่นับหน่วยกิต)",ncCr,{i:1}),SR("2) กลุ่มวิชาบังคับ",reqCr,{i:1}),...gReq.map(([n,L])=>SR("- "+n,sumCr(L),{i:1})),SR("3) กลุ่มวิชาเลือก",elCr,{i:1}),...GE_GRP.map(([,n])=>SR("- "+n,null,{i:1})),
     SR("ข. หมวดวิชาเฉพาะ",SPEC,{b:1,min:1}),SR("1. กลุ่มวิชาพื้นฐานวิชาชีพ",cr(["MS","EB"]),{i:1}),SR("2. กลุ่มวิชาชีพบังคับ",cr(["CORE","TR"]),{i:1}),SR("2.1 วิชาชีพบังคับร่วม",trCORE,{i:1,nw:1}),SR("2.2 วิชาบังคับแขนงวิชา (เลือก 1 แขนงวิชา)",trTR,{i:1,nw:1}),SR("3. กลุ่มวิชาชีพเลือก",cr(["TE"]),{i:1}),SR("4. กลุ่มวิชาเสริมสร้างประสบการณ์ในวิชาชีพ",cr(["EXP"]),{i:1}),
-    SR("ค. หมวดวิชาเลือกเสรี",cr(["FREE"]),{b:1,min:1})]);
+    SR("ค. หมวดวิชาเลือกเสรี",cr(["FREE"]),{b:1,min:1})],"h3struct");
   const P=(n,t)=>li(`${n} แทน ${t}`);
   const code31=`${li(B("3.1 รหัสรายวิชาหมวดวิชาเฉพาะ"))}${ind("การกำหนดเลขรหัสรายวิชาหมวดวิชาเฉพาะตามหลักสูตรระดับปริญญาตรี ประกอบด้วยตัวเลขรหัสทั้งหมด 7 ตัว รายละเอียดได้จำแนกดังแผนภูมิต่อไปนี้")}${li(B("1) ความหมายของรหัสรายวิชา"))}${bkDiag("code",4.8)}
     ${NB([["ตำแหน่งที่ 1","คณะ"],["ตำแหน่งที่ 2","ภาควิชา"],["ตำแหน่งที่ 3","สาขาวิชา"],["ตำแหน่งที่ 4","กลุ่มวิชา"],["ตำแหน่งที่ 5","ปีที่ควรศึกษา"],["ตำแหน่งที่ 6 และ 7","ลำดับวิชาในกลุ่มวิชา"]].map(([a,b])=>`<tr><td style="width:2.6in;white-space:nowrap">${TB(1)}${a}</td><td>หมายถึง ${b}</td></tr>`))}
@@ -2913,6 +2915,7 @@ document.addEventListener("keydown",e=>{if(e.target.id!=="cloQ"||e.key!=="Enter"
 
 // ---- แถบสถานะมุมขวาบน: ฉบับของหลักสูตร + การอัปเดตล่าสุด ----
 const CHANGELOG=[
+ ["19 พ.ย. 2569 (18:20)","ตารางโครงสร้างหลักสูตรหมวด 3 แสดงรูปแบบใหม่แม้มีฉบับแก้มือ (2.1–2.2 แท็บเดียว และ (เลือก 1 แขนงวิชา) บรรทัดเดียว)"],
  ["19 พ.ย. 2569 (18:10)","หมวด 3 โครงสร้างหลักสูตร: หัวข้อ 2.1–2.2 ลดระยะแท็บ 1 แท็บ และ (เลือก 1 แขนงวิชา) อยู่บรรทัดเดียวกัน"],
  ["19 พ.ย. 2569 (18:00)","หมวด 3 ข้อ 2.10 ใส่ประมาณการงบประมาณรายรับ-รายจ่าย 2571–2575 (ฐานจากเล่ม 2566 ปรับตามจำนวนนักศึกษาและภาคสมทบ)"],
  ["19 พ.ย. 2569 (17:30)","ป้องกันตรามหาวิทยาลัยและข้อมูลเล่มที่แก้ไว้หาย: การบันทึกเล่มรวมกับข้อมูลล่าสุดในฐานข้อมูลก่อนเขียนทับ"],
