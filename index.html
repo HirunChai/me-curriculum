@@ -808,7 +808,7 @@ const CLO0={
 };
 
 const FAC_HINT={"adisorn.sa@mail.rmutk.ac.th":"นายอดิสร สโมสร"};
-const APP_VER="รุ่น 19 พ.ย. 2569 (20:50)";
+const APP_VER="รุ่น 19 พ.ย. 2569 (21:00)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -1669,7 +1669,7 @@ function bookSecHtml(id){
     const map=all.filter(c=>/^\d-\d{3}-\d{3}$/.test(c.code)).sort((a,b)=>(a.g==="GE"?0:1)-(b.g==="GE"?0:1)||TERMS.indexOf(a.term)-TERMS.indexOf(b.term)).filter((c,i,s)=>s.findIndex(x=>x.code===c.code)===i).map(c=>{const m=ploOf(c).map||{};return [c.code,c.th,...plos.map(p=>({t:m[p.n]||"",cls:"c"}))]});
     return `${H("หมวดที่ 4 การจัดกระบวนการเรียนรู้")}${h3("1. การพัฒนาคุณลักษณะพิเศษของนักศึกษาที่โดดเด่นเมื่อเทียบกับหลักสูตรที่มีเนื้อหาคล้ายคลึงกัน")}${specialTable()}
     ${h3("2. การออกแบบการจัดกระบวนการเรียนรู้และการประเมินผลการเรียนรู้")}${BFlines("lp2").map(x=>ind(esc(x))).join("")}<div class="bk-land"><p class="li" data-hd="1"><b>2.1 แนวทางการออกแบบการจัดกระบวนการเรียนรู้</b></p>${ploDesignTable(plos,subs)}<p class="small-note"><b>หมายเหตุ</b> C = พุทธิพิสัย Cognitive (U = Remembering/Understanding, A = Applying/Analyzing, E = Evaluating/Creating) AF = จิตพิสัย Affective, P = ทักษะพิสัย Psychomotor · Generic LO = ผลลัพธ์การเรียนรู้ทั่วไปที่มหาวิทยาลัยกำหนด · Specific LO = ผลลัพธ์การเรียนรู้เฉพาะสาขา</p><div class="bk-break"></div><p class="li" data-hd="1"><b>2.2 กลยุทธ์การจัดการเรียนรู้และวิธีการประเมินผลการเรียนรู้</b></p>${ploStratTable(plos,true)}<p class="small-note">${esc(STRAT_NOTE)}</p></div>
-    ${h3("3. แผนที่กระจายความรับผิดชอบของผลลัพธ์การเรียนรู้สู่รายวิชา (Curriculum Mapping)")}${bkT(map,["รหัสวิชา","รายวิชา",...plos.map(p=>"PLO"+p.n)],{w:"100%"})}<p class="small-note">I = แนะนำ · R = ฝึกซ้ำ · M = ประเมินการบรรลุ</p>${ksecBookHtml()}${SERVICE.length?svcPloBookHtml():""}
+    <div class="bk-land">${h3("3. แผนที่กระจายความรับผิดชอบของผลลัพธ์การเรียนรู้ของหลักสูตรสู่รายวิชา (Curriculum Mapping)")}<p class="li" data-hd="1"><b>3.1 แผนที่กระจายความรับผิดชอบของผลลัพธ์การเรียนรู้ของหลักสูตรสู่รายวิชา (Curriculum Mapping)</b></p><p class="li2" data-hd="1"><b>- หมวดวิชาศึกษาทั่วไป</b></p>${cmapGeTable()}<p class="small-note"><b>หมายเหตุ</b> ผลลัพธ์การเรียนรู้ของหมวดวิชาศึกษาทั่วไปเป็น PLO 1 ของหลักสูตร รายละเอียดผลลัพธ์การเรียนรู้ย่อย (Sub-PLO) แสดงในหมวดที่ 2 ข้อ 1.3 · ✓ = รายวิชามีผลลัพธ์การเรียนรู้ (CLO) ที่รับผิดชอบผลลัพธ์การเรียนรู้ย่อยนั้น</p><div class="bk-break"></div><p class="li2" data-hd="1"><b>- หมวดวิชาเฉพาะ</b></p>${cmapSpecTable()}<p class="small-note"><b>หมายเหตุ</b> I = แนะนำ (Introduce) · R = ฝึกซ้ำ (Reinforce) · M = ประเมินการบรรลุ (Mastery) ระบุระดับสูงสุดของ CLO ในรายวิชาที่รับผิดชอบ PLO ในด้านนั้น</p><div class="bk-break"></div><p class="li" data-hd="1"><b>3.2 ความรับผิดชอบของรายวิชาต่อผลลัพธ์การเรียนรู้ของหลักสูตร จำแนกตามผลลัพธ์การเรียนรู้ 4 ด้าน รายชั้นปี</b></p>${ksecBookHtml().replace(/^<p class="li"><b>[^<]*<\/b><\/p>/,"")}${SERVICE.length?'<div class="bk-break"></div>'+svcPloBookHtml():""}</div>
     ${h3("4. แผนการศึกษาและการกระจายความรับผิดชอบของผลลัพธ์การเรียนรู้ของหลักสูตร ลงสู่รายวิชาและผลลัพธ์การเรียนรู้ระดับรายชั้นปี")}${studyPlanYloHtml()}${h3("5. องค์ประกอบเกี่ยวกับประสบการณ์ภาคสนาม (สหกิจศึกษา)")}${clos("4-116-302").map((x,i)=>li(`${i+1}) ${esc(x.t)}`)).join("")}${h3("6. ข้อกำหนดเกี่ยวกับการทำโครงงาน")}${ind(BFh("proj"))}`;
   }
   if(id==="h5"){
@@ -1798,6 +1798,19 @@ function ploDesignTable(plos,subs){const lv=b=>({Remember:"U",Understand:"U",App
 // หมวด 4 ข้อ 1 คุณลักษณะพิเศษ: กลยุทธ์หรือกิจกรรมเรียงเป็นข้อ 1. 2. 3.
 function specialTable(){const rows=BFlines("special").map(l=>{const [k,v]=l.split("|");const L=String(v||"").split(";").map(x=>x.trim()).filter(Boolean);return [k.trim(),{h:L.map((x,i)=>`${i+1}. ${esc(x)}`).join("<br>")}]});
   return bkT(rows,["คุณลักษณะพิเศษ","กลยุทธ์หรือกิจกรรม"],{w:"100%",cw:["32%","68%"]})}
+// หมวด 4 ข้อ 3 Curriculum Mapping (แนวนอน): หมวดศึกษาทั่วไปตาม Sub-PLO ของ PLO 1 และหมวดวิชาเฉพาะตาม PLO × 4 ด้าน
+const CM_DOM=[["K","ด้านความรู้"],["S","ด้านทักษะ"],["E","ด้านจริยธรรม"],["C","ด้านลักษณะบุคคล"]];
+function cmapGeTable(){const subs=SUBS.filter(s=>s.plo===1),ck='<span style="font-size:1.1em">✓</span>';
+  const doms=CM_DOM.map(([d,t])=>[d,t,subs.filter(s=>s.dom===d)]).filter(x=>x[2].length);
+  const GE=COURSES.filter(c=>c.g==="GE"&&/^\d-\d{3}-\d{3}$/.test(c.code)).sort((a,b)=>a.code.localeCompare(b.code));
+  const has=(c,s)=>clos(c.code).some(x=>(x.subs||[]).includes(s.code));const n=subs.length;
+  const row=c=>`<tr><td>${esc(c.code)} ${esc(c.th)}${c.fl&&c.fl.nc?"*":""}</td>${doms.map(([,,L])=>L.map(s=>`<td class="c">${has(c,s)?ck:""}</td>`).join("")).join("")}</tr>`;
+  return `<table class="bk-t" style="width:100%"><thead><tr><th rowspan="2" style="width:30%">รายวิชา</th>${doms.map(([,t,L])=>`<th colspan="${L.length}">${t}</th>`).join("")}</tr><tr>${doms.map(([,,L])=>L.map(s=>`<th style="font-size:.85em">${esc(s.code)}</th>`).join("")).join("")}</tr></thead><tbody><tr><td class="grp" colspan="${n+1}">กลุ่มวิชาบังคับ</td></tr>${GE.map(row).join("")}<tr><td class="grp" colspan="${n+1}">กลุ่มวิชาเลือก</td></tr><tr><td>รายวิชาในกลุ่มวิชาเลือกของหมวดวิชาศึกษาทั่วไป</td>${doms.map(([,,L])=>L.map(()=>`<td class="c"></td>`).join("")).join("")}</tr></tbody></table>`}
+function cmapSpecTable(){const cols=CM_DOM.map(([d,t])=>[d,t,PLOS.filter(p=>p.n>1&&String(p.d).split(/,\s*/).includes(d))]).filter(x=>x[2].length);const n=cols.reduce((a,x)=>a+x[2].length,0);
+  const trs=Object.keys(TRACKS),real=c=>/^\d-\d{3}-\d{3}$/.test(c.code)&&!(c.fl&&(c.fl.pool||c.fl.slot)),U=(L)=>L.filter(real).filter((c,i,s)=>s.findIndex(x=>x.code===c.code)===i).sort((a,b)=>a.code.localeCompare(b.code));
+  const G=[["กลุ่มวิชาพื้นฐานวิชาชีพ",U(COURSES.filter(c=>["MS","EB"].includes(c.g)))],["กลุ่มวิชาชีพบังคับ · วิชาชีพบังคับร่วม",U(COURSES.filter(c=>c.g==="CORE"))],...trs.map(t=>[`กลุ่มวิชาชีพบังคับ · วิชาบังคับแขนงวิชา${TRACKS[t]}`,U(COURSES.filter(c=>c.g==="TR"&&inTrack(c,t)))]),["กลุ่มวิชาชีพเลือก",U(COURSES.filter(c=>c.g==="TE"))],["กลุ่มวิชาเสริมสร้างประสบการณ์ในวิชาชีพ",U(COURSES.filter(c=>c.g==="EXP"))]].filter(x=>x[1].length);
+  const row=c=>{const m=courseKsec(c);return `<tr><td>${esc(c.code)} ${esc(c.th)}</td>${cols.map(([d,,P])=>P.map(p=>{const v=m[p.n+":"+d];return `<td class="c${v&&v.est?" ks-est":""}">${v?esc(v.lv):""}</td>`}).join("")).join("")}</tr>`};
+  return `<table class="bk-t" style="width:100%"><thead><tr><th rowspan="2" style="width:30%">รายวิชา</th>${cols.map(([,t,P])=>`<th colspan="${P.length}">${t}</th>`).join("")}</tr><tr>${cols.map(([,,P])=>P.map(p=>`<th>PLO${p.n}</th>`).join("")).join("")}</tr></thead><tbody>${G.map(([t,L])=>`<tr><td class="grp" colspan="${n+1}">${esc(t)}</td></tr>`+L.map(row).join("")).join("")}</tbody></table>`}
 function ksecDetailTable(plos,subs){const D=[["K","ด้านความรู้ (K)"],["S","ด้านทักษะ (S)"],["E","ด้านจริยธรรม (E)"],["C","ด้านลักษณะบุคคล (C)"]];
   const cell=(p,d)=>subs.filter(s=>s.plo===p.n&&s.dom===d).map(s=>`${esc(s.code)}: ${esc(s.t)}`).join("<br>");
   return `<table class="bk-t" style="width:100%"><thead><tr><th rowspan="2" style="width:24%">ผลลัพธ์การเรียนรู้ของหลักสูตร</th><th colspan="4">รายละเอียดผลลัพธ์การเรียนรู้</th></tr><tr>${D.map(([,t])=>`<th style="width:19%">${t}</th>`).join("")}</tr></thead><tbody>${plos.map(p=>`<tr><td>PLO ${p.n} ${esc(p.t)}</td>${D.map(([d])=>`<td>${cell(p,d)}</td>`).join("")}</tr>`).join("")}</tbody></table>`}
@@ -2959,6 +2972,7 @@ document.addEventListener("keydown",e=>{if(e.target.id!=="cloQ"||e.key!=="Enter"
 
 // ---- แถบสถานะมุมขวาบน: ฉบับของหลักสูตร + การอัปเดตล่าสุด ----
 const CHANGELOG=[
+ ["19 พ.ย. 2569 (21:00)","หมวด 4 ข้อ 3 Curriculum Mapping เป็นหน้าแนวนอนตามตัวอย่าง: 3.1 หมวดศึกษาทั่วไป (Sub-PLO ของ PLO 1 แยก 4 ด้าน ✓) และหมวดวิชาเฉพาะ (PLO × 4 ด้าน I/R/M แยกกลุ่มวิชา) · 3.2 ตาราง 4 ด้านรายชั้นปี"],
  ["19 พ.ย. 2569 (20:50)","หมวด 4 ข้อ 2: ข้อความนำ 4 ย่อหน้า (OBE · PLO 1 จากหมวดศึกษาทั่วไป · CLO→YLO→PLO · การประเมินและกำกับติดตามรายชั้นปี) ก่อนตาราง 2.1 · ข้อ 1 ใช้ข้อความที่อาจารย์ปรับเป็นค่าตั้งต้น"],
  ["19 พ.ย. 2569 (20:40)","หมวด 4 ข้อ 1 คุณลักษณะพิเศษที่โดดเด่นเมื่อเทียบกับหลักสูตรที่คล้ายคลึงกัน 5 ข้อ พร้อมกลยุทธ์เป็นข้อ ๆ ตามตัวอย่างแบบฟอร์ม (แก้ได้ที่ แก้ไขข้อมูลส่วนนี้)"],
  ["19 พ.ย. 2569 (20:30)","หมวด 4 ข้อ 2: หน้าแนวนอน 2.1 แนวทางการออกแบบการจัดกระบวนการเรียนรู้ (Generic/Specific LO · Bloom · 4 ด้าน) และ 2.2 กลยุทธ์และวิธีประเมิน"],
