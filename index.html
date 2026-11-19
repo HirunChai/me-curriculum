@@ -808,7 +808,7 @@ const CLO0={
 };
 
 const FAC_HINT={"adisorn.sa@mail.rmutk.ac.th":"นายอดิสร สโมสร"};
-const APP_VER="รุ่น 19 พ.ย. 2569 (08:00)";
+const APP_VER="รุ่น 19 พ.ย. 2569 (08:20)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -1421,8 +1421,8 @@ function bookSecHtml(id){
     const grpNeeds=g=>na.filter(n=>n.g===g&&n.st==="have");
     return `<h2 class="bk-h big">รายละเอียดหลักสูตร</h2><h2 class="bk-h big">หลักสูตรวิศวกรรมศาสตรบัณฑิต สาขาวิชาวิศวกรรมเครื่องกล<br>หลักสูตรปรับปรุง พ.ศ. ${YEAR}</h2>
     <p><b>ชื่อสถาบันอุดมศึกษา</b> มหาวิทยาลัยเทคโนโลยีราชมงคลกรุงเทพ</p><p><b>คณะ / ภาควิชา</b> คณะวิศวกรรมศาสตร์ ภาควิชาวิศวกรรมเครื่องกล</p>${H("หมวดที่ 1 ข้อมูลทั่วไป")}
-    ${h3("1. รหัสและชื่อหลักสูตร")}${li("รหัสหลักสูตร\u2003\u2003"+codeBoxes(BF("code14")))}${li("ภาษาไทย: หลักสูตรวิศวกรรมศาสตรบัณฑิต สาขาวิชาวิศวกรรมเครื่องกล")}${li("ภาษาอังกฤษ: Bachelor of Engineering Program in Mechanical Engineering")}
-    ${h3("2. ชื่อปริญญาและสาขาวิชา")}${li("ชื่อเต็ม (ภาษาไทย): วิศวกรรมศาสตรบัณฑิต (วิศวกรรมเครื่องกล)")}${li("ชื่อย่อ (ภาษาไทย): วศ.บ. (วิศวกรรมเครื่องกล)")}${li("ชื่อเต็ม (ภาษาอังกฤษ): Bachelor of Engineering (Mechanical Engineering)")}${li("ชื่อย่อ (ภาษาอังกฤษ): B.Eng. (Mechanical Engineering)")}
+    ${h3("1. รหัสและชื่อหลักสูตร")}${LB("รหัสหลักสูตร",codeBoxes(BF("code14")),"bk-codeln")}${LB("ภาษาไทย:","หลักสูตรวิศวกรรมศาสตรบัณฑิต สาขาวิชาวิศวกรรมเครื่องกล")}${LB("ภาษาอังกฤษ:","Bachelor of Engineering Program in Mechanical Engineering")}
+    ${h3("2. ชื่อปริญญาและสาขาวิชา")}${LB("ชื่อเต็ม (ภาษาไทย):","วิศวกรรมศาสตรบัณฑิต (วิศวกรรมเครื่องกล)")}${LB("ชื่อย่อ (ภาษาไทย):","วศ.บ. (วิศวกรรมเครื่องกล)")}${LB("ชื่อเต็ม (ภาษาอังกฤษ):","Bachelor of Engineering (Mechanical Engineering)")}${LB("ชื่อย่อ (ภาษาอังกฤษ):","B.Eng. (Mechanical Engineering)")}
     ${h3("3. วิชาเอก")}${trs.map((t,i)=>li(`3.${i+1} แขนงวิชา${TRACKS[t]} (${TR_EN[t]})`)).join("")}
     ${h3("4. จำนวนหน่วยกิตที่เรียนตลอดหลักสูตร")}${ind(`ไม่น้อยกว่า ${sumCr(ME)} หน่วยกิต`)}
     ${h3("5. รูปแบบของหลักสูตร")}${li("5.1 รูปแบบ หลักสูตรระดับปริญญาตรี หลักสูตร 4 ปี")}${li("5.2 ประเภทของหลักสูตร หลักสูตรปริญญาตรีทางวิชาชีพหรือปฏิบัติการ")}${li("5.3 ภาษาที่ใช้ หลักสูตรภาษาไทย")}
@@ -1722,7 +1722,7 @@ const BOOK_CSS=`table.ks-book{font-size:8pt;width:100%;table-layout:fixed;margin
 .bk-view p{margin:0 0 var(--bk-pafter,2pt);text-align:left}.bk-view .ind{text-indent:.5in;text-align:justify}.bk-view .li{padding-left:.5in}.bk-view .li2{padding-left:1in}
 .bk-view h2.bk-h{font-size:1em;font-weight:700;text-align:center;margin:.4em 0 .6em}.bk-view h2.big{font-size:1.25em}.bk-view h3{font-size:1em;font-weight:700;margin:var(--bk-hbefore,8pt) 0 .2em}
 .bk-view table.bk-t{border-collapse:collapse;margin:.3em auto .6em;font-size:var(--bk-table);line-height:1.1;page-break-inside:auto}.bk-view .bk-t th,.bk-view .bk-t td{border:1px solid #000;padding:2px 5px;vertical-align:top}.bk-view .bk-t th{background:#e7e6e6;text-align:center;font-size:inherit;font-weight:700;color:#000;text-transform:none;letter-spacing:0;white-space:normal}.bk-view .bk-t td.c{text-align:center}.bk-view .bk-t td.r{text-align:right}.bk-view .bk-t td.b{font-weight:700}.bk-view .bk-t td.grp{background:#f2f2f2;font-weight:700}.bk-view tr{break-inside:avoid}
-.bk-view .bk-boxes{display:inline-flex;vertical-align:middle;white-space:nowrap}.bk-view .bk-box{display:inline-block;width:1.45em;height:1.45em;line-height:1.45em;text-align:center;border:1px solid #000;margin-right:-1px;padding:0;box-sizing:border-box}.bk-view .bk-cover{display:flex;flex-direction:column;align-items:center;text-align:center;font-weight:700}.bk-view .bk-cv{font-size:calc(var(--s)*1pt);line-height:1.25}.bk-view .bk-gap{height:var(--bk-cgap,2.2in)}.bk-view .bk-cvlogo{text-align:center;color:#888;font-size:12pt;margin:.2in 0 .5in}
+.bk-view .bk-lbl{display:inline-block;min-width:var(--bk-lblw,5.6cm);padding-right:.4em;box-sizing:border-box;vertical-align:top}.bk-view .bk-lbltab{display:none}.bk-view .bk-boxes{display:inline-flex;vertical-align:-.2em;white-space:nowrap}.bk-view .bk-box{display:inline-block;width:1.05em;height:1.3em;line-height:1.3em;text-align:center;border:1px solid #000;margin-right:-1px;padding:0;box-sizing:border-box}.bk-view .bk-cover{display:flex;flex-direction:column;align-items:center;text-align:center;font-weight:700}.bk-view .bk-cv{font-size:calc(var(--s)*1pt);line-height:1.25}.bk-view .bk-gap{height:var(--bk-cgap,2.2in)}.bk-view .bk-cvlogo{text-align:center;color:#888;font-size:12pt;margin:.2in 0 .5in}
 .dfx-bar{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-top:6px}.dfx-g{display:inline-flex;align-items:center;gap:3px;border:1px solid var(--line);border-radius:8px;padding:2px 6px;background:#fff}.dfx-g select{padding:2px}.bk-subed{border:1px solid var(--line);border-radius:8px;padding:6px 10px;margin:6px 0}.bk-subed summary{cursor:pointer}.bk-subed label{display:block;margin-top:6px}.bk-subed textarea,.bk-subed input{width:100%}.bk-view{tab-size:var(--bk-tabw,1.27cm)}.bk-view .bk-tab{white-space:pre}.bk-sheet.editing .bk-tab{background:rgba(0,110,255,.10)}.bk-view .bk-sign{text-align:right;margin-top:1em;padding-right:.3in}.bk-view .toc{display:flex;gap:6px}.bk-view .toc .dots{flex:1;border-bottom:1px dotted #555;margin-bottom:.35em}.bk-view .toc{align-items:flex-end}.bk-view .toc>span:first-child{max-width:85%}.bk-view .toc .dots{min-width:2em}.bk-view .toc>span:last-child{min-width:1.6em;text-align:right}.bk-view .small-note{font-size:.85em;color:#555}.bk-view .bk-todo{background:#fff3b0}`;
 
 const BOOK_UI_CSS=`.cd-box{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;align-items:end}.cd-col{display:grid;gap:2px}.cd-big{font-size:28px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}.cd-big.late{color:var(--fail)}.cd-mid{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
@@ -2661,6 +2661,7 @@ document.addEventListener("keydown",e=>{if(e.target.id!=="cloQ"||e.key!=="Enter"
 
 // ---- แถบสถานะมุมขวาบน: ฉบับของหลักสูตร + การอัปเดตล่าสุด ----
 const CHANGELOG=[
+ ["19 พ.ย. 2569 (08:20)","ช่องรหัสหลักสูตรขนาดเท่าตัวเลข และเริ่มตรงแนวข้อความชื่อหลักสูตร"],
  ["19 พ.ย. 2569 (08:00)","สารบัญ: รายการภาคผนวกเต็มบรรทัด ปรับระยะเยื้อง ชิดซ้ายแนวหัวข้อหลัก และเต็มแนวได้"],
  ["19 พ.ย. 2569 (07:45)","ช่องรหัสหลักสูตร 14 ช่องในหมวด 1 (ช่องว่างเมื่อยังไม่ได้รหัส)"],
  ["19 พ.ย. 2569 (07:30)","ปุ่มจัดเอกสารในโหมดแก้บนหน้า: ให้ย่อหน้าเหมือนกัน และจัดข้อ 1. 2. 3. ทั้งหน้า"],
@@ -3195,6 +3196,17 @@ const cssLen=v=>{if(!v)return 0;const m=String(v).trim().match(/^(-?[\d.]+)(px|p
 async function imgData(src){try{const r=await fetch(src);const b=await r.arrayBuffer();return new Uint8Array(b)}catch(e){return null}}
 const imgType=src=>/^data:image\/(png|jpe?g|gif|bmp)/i.test(src)?RegExp.$1.toLowerCase().replace("jpeg","jpg"):/\.(png|jpe?g|gif|bmp)(\?|$)/i.test(src)?RegExp.$1.toLowerCase().replace("jpeg","jpg"):"png";
 
+// ---- จัดช่องรหัสหลักสูตรให้เริ่มตรงกับข้อความของบรรทัดถัดไป (เช่น "หลักสูตรวิศวกรรมศาสตรบัณฑิต …") ด้วยจำนวนแท็บ ----
+function codeBoxAlign(bx){const P=bx.closest("p,div");if(!P)return;bx.dataset.cbxDone="1";let Q=P.nextElementSibling,k=0;while(Q&&k<3&&!Q.querySelector(".bk-tab:not(.bk-lbltab),.bk-lbl")){Q=Q.nextElementSibling;k++}if(!Q)return;
+  let target=0;const ql=Q.querySelector(".bk-lbl");if(ql){target=ql.getBoundingClientRect().right}else{const tabs=[...Q.querySelectorAll(".bk-tab")];let n=tabs[tabs.length-1].nextSibling;if(!n)return;
+    const rg=document.createRange();if(n.nodeType===3){const i=Math.max(0,n.textContent.search(/\S/));rg.setStart(n,i);rg.setEnd(n,Math.min(n.textContent.length,i+1))}else rg.selectNode(n);target=rg.getBoundingClientRect().left}
+  if(!target)return;let lbl=P.querySelector(".bk-lbl");
+  if(!lbl){lbl=document.createElement("span");lbl.className="bk-lbl";let n=P.firstChild;const parts=[];while(n&&n!==bx&&!(n.nodeType===1&&n.contains(bx))){parts.push(n);n=n.nextSibling}parts.forEach(x=>{if(x.nodeType===1&&x.classList.contains("bk-tab"))x.remove();else lbl.appendChild(x)});
+    if(lbl.lastChild&&lbl.lastChild.nodeType===3)lbl.lastChild.textContent=lbl.lastChild.textContent.replace(/[\s\u2003]+$/,"");P.insertBefore(lbl,P.firstChild)}
+  const d=target-bx.getBoundingClientRect().left;if(Math.abs(d)<1.5)return;lbl.style.minWidth="0";lbl.style.width=Math.max(10,lbl.getBoundingClientRect().width+d)+"px"}
+new MutationObserver(()=>{document.querySelectorAll(".bk-view .bk-boxes:not([data-cbx-done])").forEach(bx=>{bx.dataset.cbxDone="1";const go=()=>{if(document.contains(bx))codeBoxAlign(bx)};requestAnimationFrame(go);setTimeout(go,350);setTimeout(go,1200);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(go)})}).observe(document.documentElement,{childList:true,subtree:true});
+
+const LB=(l,v,cls)=>`<p class="li${cls?" "+cls:""}"><span class="bk-lbl">${l}</span><span class="bk-tab bk-lbltab">\t</span>${v}</p>`;
 const codeBoxes=v=>{const d=String(v||"").replace(/\D/g,"").slice(0,14);return `<span class="bk-boxes">${Array.from({length:14},(_,i)=>`<span class="bk-box">${d[i]||"\u2002"}</span>`).join("")}</span>`};
 async function bookDocxSection(D,k,html,fmt,pageNo){
   const font=fmt.font||"Angsana New",body=fmt.body*2,tbl=fmt.table*2,line=Math.round(240*fmt.line),after=Math.round(fmt.pAfter*PT),hbef=Math.round(fmt.hBefore*PT);
