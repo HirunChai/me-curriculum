@@ -808,7 +808,7 @@ const CLO0={
 };
 
 const FAC_HINT={"adisorn.sa@mail.rmutk.ac.th":"นายอดิสร สโมสร"};
-const APP_VER="รุ่น 19 พ.ย. 2569 (22:10)";
+const APP_VER="รุ่น 19 พ.ย. 2569 (22:20)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -1809,7 +1809,7 @@ function cmapGeTable(){const subs=SUBS.filter(s=>s.plo===1),ck='<span style="fon
   return `<table class="bk-t" style="width:100%"><thead><tr><th rowspan="2" style="width:30%">รายวิชา</th>${doms.map(([,t,L])=>`<th colspan="${L.length}">${t}</th>`).join("")}</tr><tr>${doms.map(([,,L])=>L.map(s=>`<th style="font-size:.85em">${esc(s.code)}</th>`).join("")).join("")}</tr></thead><tbody><tr><td class="grp" colspan="${n+1}">กลุ่มวิชาบังคับ</td></tr>${GE.map(row).join("")}<tr><td class="grp" colspan="${n+1}">กลุ่มวิชาเลือก</td></tr><tr><td>รายวิชาในกลุ่มวิชาเลือกของหมวดวิชาศึกษาทั่วไป</td>${doms.map(([,,L])=>L.map(()=>`<td class="c"></td>`).join("")).join("")}</tr></tbody></table>`}
 const GRP_AB={GE:"ศท.",MS:"พช.",EB:"พช.",CORE:"ชค.",TR:"ชค.",TE:"ชล.",EXP:"สปช.",FREE:"ลส."};
 const cmReal=c=>/^\d-\d{3}-\d{3}$/.test(c.code)&&!(c.fl&&(c.fl.pool||c.fl.slot));
-const cmUniq=L=>L.filter(cmReal).filter((c,i,s)=>s.findIndex(x=>x.code===c.code)===i).sort((a,b)=>a.code.localeCompare(b.code));
+const cmUniq=L=>L.filter(c=>/^\d-\d{3}-\d{3}$/.test(c.code)&&!(c.fl&&c.fl.slot)).filter((c,i,s)=>s.findIndex(x=>x.code===c.code)===i).sort((a,b)=>a.code.localeCompare(b.code));
 const cmTrk=c=>{const t=Object.keys(TRACKS).filter(t=>inTrack(c,t));return c.g==="TR"&&t.length<Object.keys(TRACKS).length?` (แขนงวิชา${t.map(x=>TRACKS[x]).join(" / ")})`:""};
 // ระดับสูงสุดของรายวิชาต่อ PLO (จาก CLO) · ไม่มี CLO ใช้ระดับตั้งต้นของหลักสูตร
 const cmPloLv=(c,n)=>{const m=courseSubLv(c);let b="";Object.entries(m).forEach(([s,l])=>{const sb=subOf(s);if(sb&&sb.plo===n&&(!b||LV_RANK[l]>LV_RANK[b]))b=l});if(!b&&!clos(c.code).length)b=(c.plo||{})[n]||"";return b};
@@ -1887,7 +1887,9 @@ async function paginateHtml(html,fmt,trace,land){
       const head=n.tHead?n.tHead.cloneNode(true):null;const rows=[...n.tBodies[0].rows];
       const mk=(cont,split)=>{if(cont&&lastH3&&!(n.dataset&&n.dataset.nocont==="2"))contHd();const t=n.cloneNode(false);if(head){const hc=head.cloneNode(true);if(cont&&split&&n.dataset&&n.dataset.thcont){const th=hc.rows[0]&&hc.rows[0].cells[0];if(th)th.textContent=th.textContent.replace(/\s*\(ต่อ\)$/,"")+" (ต่อ)"}t.appendChild(hc)}const tb=document.createElement("tbody");t.appendChild(tb);pg.appendChild(t);return tb};
       let tb=mk();
-      for(const [ri,r] of rows.entries()){tb.appendChild(r.cloneNode(true));if(!fits()){tb.removeChild(tb.lastChild);if(!tb.rows.length){pg.removeChild(tb.parentNode);const hs=bkTakeHeads(pg).filter(x=>!x.classList.contains("bk-cont"));const keepH=hs.length>0;flush();rec(ni,ri);hs.forEach(x=>pg.appendChild(x));const pv=nodes.slice(0,ni).reverse().find(x=>x.nodeType===1&&!/^(DIV)$/.test(x.tagName));tb=mk(!keepH&&(ri>0||!!(pv&&pv.tagName==="TABLE")),ri>0);tb.appendChild(r.cloneNode(true))}else{flush();rec(ni,ri);tb=mk(true,true);tb.appendChild(r.cloneNode(true))}}}
+      for(const [ri,r] of rows.entries()){tb.appendChild(r.cloneNode(true));if(!fits()){tb.removeChild(tb.lastChild);if(!tb.rows.length){pg.removeChild(tb.parentNode);const hs=bkTakeHeads(pg).filter(x=>!x.classList.contains("bk-cont"));const keepH=hs.length>0;flush();rec(ni,ri);hs.forEach(x=>pg.appendChild(x));const pv=nodes.slice(0,ni).reverse().find(x=>x.nodeType===1&&!/^(DIV)$/.test(x.tagName));tb=mk(!keepH&&(ri>0||!!(pv&&pv.tagName==="TABLE")),ri>0);tb.appendChild(r.cloneNode(true))}else{const isG=x=>x&&x.cells&&x.cells.length===1&&x.cells[0].classList.contains("grp");let carryG=null;if(isG(tb.lastElementChild)){carryG=tb.lastElementChild;tb.removeChild(carryG)}
+        if(!tb.rows.length){pg.removeChild(tb.parentNode);const hs=bkTakeHeads(pg).filter(x=>!x.classList.contains("bk-cont"));flush();rec(ni,ri);hs.forEach(x=>pg.appendChild(x));const split=ri>1;tb=mk(!hs.length&&split,split)}else{flush();rec(ni,ri);tb=mk(true,true)}
+        if(carryG)tb.appendChild(carryG);tb.appendChild(r.cloneNode(true))}}}
       continue;
     }
     // keep a heading with the next block: move trailing heading to the new page
@@ -3002,6 +3004,7 @@ document.addEventListener("keydown",e=>{if(e.target.id!=="cloQ"||e.key!=="Enter"
 
 // ---- แถบสถานะมุมขวาบน: ฉบับของหลักสูตร + การอัปเดตล่าสุด ----
 const CHANGELOG=[
+ ["19 พ.ย. 2569 (22:20)","แถบหัวกลุ่มในตาราง (เช่น ภาคการศึกษาที่ 2) ไม่ค้างท้ายหน้า ย้ายไปขึ้นพร้อมรายวิชาในหน้าถัดไป ทุกหมวด"],
  ["19 พ.ย. 2569 (22:10)","กรอบสรุปผลลัพธ์รายชั้นปีขึ้นหน้าใหม่ทั้งกรอบ แม้หมวด 4 มีฉบับแก้มือที่บันทึกก่อนหน้า"],
  ["19 พ.ย. 2569 (22:00)","หมวด 4 ข้อ 4.1: กรอบสรุปผลลัพธ์การเรียนรู้รายชั้นปีไม่แยกข้ามหน้า ถ้าไม่พอให้ขึ้นหน้าใหม่ทั้งกรอบ"],
  ["19 พ.ย. 2569 (21:50)","ตารางวิชาที่สอนให้สาขาอื่น: รหัสวิชาและสถานะขนาดเท่ารายวิชา แม้หมวด 4 มีฉบับแก้มือ"],
