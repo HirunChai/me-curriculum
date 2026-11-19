@@ -808,7 +808,7 @@ const CLO0={
 };
 
 const FAC_HINT={"adisorn.sa@mail.rmutk.ac.th":"นายอดิสร สโมสร"};
-const APP_VER="รุ่น 18 พ.ย. 2569 (19:20)";
+const APP_VER="รุ่น 19 พ.ย. 2569 (07:30)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -1370,7 +1370,7 @@ function bookEditPanel(sec,adm){
     ${G("เยื้องทั้งย่อหน้า",B("ml-","◂","เลื่อนซ้าย 0.25 นิ้ว")+B("ml+","▸","เลื่อนขวา 0.25 นิ้ว"))}${G("เยื้องบรรทัดแรก",B("ti-","◂")+B("ti+","▸"))}
     ${G("จัดแนว",B("al:left","ชิดซ้าย")+B("al:center","กลาง")+B("al:right","ชิดขวา")+B("al:justify","เต็มแนว"))}
     ${G("ระยะแท็บ",`<select id="dfxTab">${[...new Set([0.5,0.75,1,1.27,1.5,2,2.5,3,4,5,tw])].sort((a,b)=>a-b).map(v=>`<option ${v==tw?"selected":""}>${v}</option>`).join("")}</select><span class="small">ซม.</span>`)}
-    ${B("tab","⇥ แท็บ","แทรกแท็บที่ตำแหน่งเคอร์เซอร์")}${B("nl","＋ บรรทัดว่าง","เพิ่มบรรทัดว่างต่อจากย่อหน้าที่เลือก")}${B("pb","⤓ ขึ้นหน้าใหม่","บังคับให้ย่อหน้าที่เลือกขึ้นหน้าใหม่")}${B("clr","ล้างรูปแบบย่อหน้า")}${B("undo","↶ ย้อนกลับ")}</div>
+    ${B("tab","⇥ แท็บ","แทรกแท็บที่ตำแหน่งเคอร์เซอร์")}${B("nl","＋ บรรทัดว่าง","เพิ่มบรรทัดว่างต่อจากย่อหน้าที่เลือก")}${B("pb","⤓ ขึ้นหน้าใหม่","บังคับให้ย่อหน้าที่เลือกขึ้นหน้าใหม่")}${G("จัดเอกสาร",B("match","☰ ให้เหมือนกัน","ลากคลุมหลายย่อหน้า แล้วกด: ทุกย่อหน้าจะใช้รูปแบบเดียวกัน (ตามแบบที่พบมากที่สุด) ลบบรรทัดว่างคั่น และล้างฟอนต์ที่ไม่ตรงกัน")+B("autolist","🔢 จัดข้อ 1. 2. 3. ทั้งหน้า","จัดทุกรายการที่ขึ้นต้นด้วยเลขข้อในส่วนนี้ให้ตรงกันอัตโนมัติ"))}${B("clr","ล้างรูปแบบย่อหน้า")}${B("undo","↶ ย้อนกลับ")}</div>
    <div class="row" style="gap:8px;margin-top:6px"><button class="sm primary" id="bkDirectSave">บันทึกส่วนนี้</button><button class="sm" id="bkDirectCancel">ยกเลิก</button><span class="pill" id="dfxPgN"></span><span class="small muted" id="dfxMsg"></span></div></div>`}
   if(state.bookEditing!==sec)return `<div class="row" style="gap:8px;margin-bottom:6px;flex-wrap:wrap"><button class="sm" id="bkEditOpen">✎ แก้ไขข้อมูลส่วนนี้${sec==="cover"?" / ใส่ตรามหาวิทยาลัย":""}</button><button class="sm" id="bkDirectOpen">แก้ข้อความบนหน้าโดยตรง</button>${sec==="cover"&&state.isAdmin?coverBar():""}${ov&&(()=>{const m=bookMergeInfo(sec);return m.upd||m.del||m.skip?`${m.upd||m.del?`<span class="pill warn">รวมข้อมูลใหม่ ${m.upd||m.del} ย่อหน้า</span><button class="sm primary" id="bkMergeSave">บันทึกฉบับรวม</button>`:""}${m.skip?`<span class="pill fail" title="${esc(m.skipT.join(" | "))}">ต้องตรวจ ${m.skip} ย่อหน้า (ดูตาราง "ตรวจเล่มให้ตรงกับข้อมูลล่าสุด" ด้านล่าง)</span>`:""}`:""})()||""}${ov?`<span class="pill warn">ใช้ฉบับแก้มือ (${esc(new Date(ov.at).toLocaleString("th-TH",{dateStyle:"short",timeStyle:"short"}))})</span><button class="sm" id="bkDirectClear">กลับไปใช้ข้อมูลอัตโนมัติ</button>`:""}</div>`;
   const logo=sec==="cover"||sec==="front"?`<div class="fl" style="align-items:center;gap:10px"><span class="small"><b>ตรามหาวิทยาลัย</b></span>${bookLogo()?`<img src="${bookLogo()}" alt="ตรามหาวิทยาลัย" style="height:60px">`:'<span class="small muted">ยังไม่มีรูป</span>'}<label class="sm btnlink" style="cursor:pointer">เลือกรูป (PNG/JPG)<input type="file" id="bkLogo" accept="image/*" style="display:none"></label>${bookLogo()?`<button class="sm" id="bkLogoDel">ลบรูป</button>`:""}<label class="ctl small">ความสูงบนปก <select id="bkLogoH">${[...new Set([1.5,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7,logoH()])].sort((a,b)=>a-b).map(v=>`<option ${logoH()==v?"selected":""}>${v}</option>`).join("")}</select> ซม.</label></div>`:"";
@@ -2651,6 +2651,7 @@ document.addEventListener("keydown",e=>{if(e.target.id!=="cloQ"||e.key!=="Enter"
 
 // ---- แถบสถานะมุมขวาบน: ฉบับของหลักสูตร + การอัปเดตล่าสุด ----
 const CHANGELOG=[
+ ["19 พ.ย. 2569 (07:30)","ปุ่มจัดเอกสารในโหมดแก้บนหน้า: ให้ย่อหน้าเหมือนกัน และจัดข้อ 1. 2. 3. ทั้งหน้า"],
  ["18 พ.ย. 2569 (19:20)","เพิ่มเจ้าหน้าที่ประจำห้องปฏิบัติการได้จากฟอร์มเพิ่มอาจารย์ และผูกบัญชีที่แถบ ง1 แบบเดียวกับอาจารย์"],
  ["18 พ.ย. 2569 (19:00)","แถบ ง1 เพิ่มชื่ออาจารย์ใหม่และผูกอีเมลได้ในขั้นตอนเดียว"],
  ["18 พ.ย. 2569 (18:45)","CLO ที่บันทึกไว้ของวิชาคณิต ฟิสิกส์ เคมี ชี้ Sub-PLO ใหม่ K2-8 K2-9 K2-10 S2-6 S2-7 อัตโนมัติ"],
@@ -3783,6 +3784,21 @@ async function dfxPages(){const sh=document.getElementById("bkSheet");if(!sh)ret
     else if(ri>=0&&el.tBodies&&el.tBodies[0]&&el.tBodies[0].rows[ri])el=el.tBodies[0].rows[ri];
     const d=document.createElement("div");d.className="dfx-pgline";d.style.top=(el.getBoundingClientRect().top-hb.top-3+host.scrollTop)+"px";d.innerHTML=`<span>หน้า ${k+2}</span>`;host.appendChild(d)});
   const m=document.getElementById("dfxPgN");if(m)m.textContent=`ส่วนนี้ ${pages.length} หน้า`}
+// ทำให้ย่อหน้าหลายย่อหน้ามีรูปแบบเดียวกัน: ใช้รูปแบบที่พบมากที่สุด ลบบรรทัดว่างคั่น และล้างฟอนต์/ขนาดอักษรที่ฝังมาในข้อความ
+function dfxMatch(L){const isEmpty=el=>!el.textContent.replace(/\u00a0/g," ").trim()&&!el.querySelector("img,table,svg");
+  const empt=L.filter(isEmpty);L=L.filter(el=>!isEmpty(el));empt.forEach(el=>el.remove());if(L.length<2)return {n:L.length,rm:empt.length};
+  const sig=el=>{const c=getComputedStyle(el);return [el.tagName,c.marginLeft,c.textIndent,c.paddingLeft,c.fontSize,c.lineHeight,c.marginTop,c.marginBottom].join("|")};
+  const cnt={};L.forEach(el=>{const s=sig(el);cnt[s]=(cnt[s]||0)+1});const best=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0][0];const ref=L.find(el=>sig(el)===best);
+  L.forEach(el=>{if(el!==ref){if(el.tagName!==ref.tagName){const n=document.createElement(ref.tagName);while(el.firstChild)n.appendChild(el.firstChild);el.replaceWith(n);el=n}
+      el.className=ref.className;const st=ref.getAttribute("style");st?el.setAttribute("style",st):el.removeAttribute("style")}
+    el.querySelectorAll("font").forEach(f=>{while(f.firstChild)f.before(f.firstChild);f.remove()});
+    el.querySelectorAll("[style]").forEach(x=>{x.style.fontFamily="";x.style.fontSize="";x.style.lineHeight="";if(!x.getAttribute("style"))x.removeAttribute("style")});
+    const fc=el.firstChild;if(fc&&fc.nodeType===3)fc.textContent=fc.textContent.replace(/^[\s\u00a0]+/,"")});
+  return {n:L.length,rm:empt.length}}
+const DFX_NUM=/^[\s\u00a0]*[\d๐-๙]+[.)]\s*/;
+function dfxAutoList(sh){const blocks=[...sh.querySelectorAll(DFX_BLK)].filter(el=>!el.closest("table")&&!el.querySelector(DFX_BLK));let runs=[],cur=[],gap=[];
+  blocks.forEach(el=>{const t=el.textContent;if(DFX_NUM.test(t)&&!/^h[1-4]$/i.test(el.tagName)){cur.push(...gap,el);gap=[]}else if(!t.replace(/\u00a0/g," ").trim()&&cur.length){gap.push(el)}else{if(cur.length>1)runs.push(cur);cur=[];gap=[]}});
+  if(cur.length>1)runs.push(cur);let n=0,rm=0;runs.forEach(r=>{const o=dfxMatch(r);n+=o.n;rm+=o.rm});return {runs:runs.length,n,rm}}
 function dfxDo(act,val){const sh=document.getElementById("bkSheet");if(!sh)return;const msg=document.getElementById("dfxMsg");
   if(act==="undo"){if(dfxUndo.length){sh.innerHTML=dfxUndo.pop();msg&&(msg.textContent="ย้อนกลับแล้ว")}else document.execCommand("undo");return}
   if(act==="tab"){sh.focus();if(dfxRange){const s=document.getSelection();s.removeAllRanges();s.addRange(dfxRange)}document.execCommand("insertHTML",false,'<span class="bk-tab">\t</span>');dfxPagesSoon();return}
@@ -3790,8 +3806,10 @@ function dfxDo(act,val){const sh=document.getElementById("bkSheet");if(!sh)retur
     if(act==="nl"){const p=document.createElement("p");p.className="ind";p.innerHTML="<br>";at.after(p);const r=document.createRange();r.setStart(p,0);r.collapse(true);const s=document.getSelection();s.removeAllRanges();s.addRange(r);dfxRange=r.cloneRange();msg&&(msg.textContent="เพิ่มบรรทัดว่างแล้ว พิมพ์ต่อได้เลย (ยังไม่บันทึก)")}
     else{const bk=document.createElement("div");bk.className="bk-break";L0[0].before(bk);msg&&(msg.textContent="ย่อหน้าที่เลือกจะขึ้นหน้าใหม่ (ลบได้ด้วยปุ่มย้อนกลับ)")}
     dfxPagesSoon();return}
+  if(act==="autolist"){dfxUndo.push(sh.innerHTML);const o=dfxAutoList(sh);msg&&(msg.textContent=o.runs?`จัดรายการเลขข้อ ${o.runs} ชุด ${o.n} ย่อหน้า${o.rm?` ลบบรรทัดว่างคั่น ${o.rm} บรรทัด`:""} (ยังไม่บันทึก)`:"ไม่พบรายการเลขข้อที่ต้องจัด");dfxPagesSoon();return}
   const L=dfxBlocks();if(!L.length){msg&&(msg.textContent="คลิกที่ย่อหน้าในหน้ากระดาษก่อน");return}
   dfxUndo.push(sh.innerHTML);if(dfxUndo.length>40)dfxUndo.shift();
+  if(act==="match"){if(L.length<2){msg&&(msg.textContent="ลากคลุมอย่างน้อย 2 ย่อหน้าก่อนกด");dfxUndo.pop();return}const o=dfxMatch(L);msg&&(msg.textContent=`จัด ${o.n} ย่อหน้าให้รูปแบบเดียวกัน${o.rm?` ลบบรรทัดว่าง ${o.rm} บรรทัด`:""} (ยังไม่บันทึก)`);dfxPagesSoon();return}
   const px=(el,p)=>parseFloat(getComputedStyle(el)[p])||0;
   L.forEach(el=>{const st=el.style;
     if(act==="lh")st.lineHeight=val||"";
