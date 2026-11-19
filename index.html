@@ -808,7 +808,7 @@ const CLO0={
 };
 
 const FAC_HINT={"adisorn.sa@mail.rmutk.ac.th":"นายอดิสร สโมสร"};
-const APP_VER="รุ่น 19 พ.ย. 2569 (18:20)";
+const APP_VER="รุ่น 19 พ.ย. 2569 (18:30)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -1494,18 +1494,20 @@ function bkPlanTable(title,L,mark){const slot=c=>c.g==="FREE"||c.g==="TE";
 // แผนภูมิความหมายของรหัสรายวิชา / รหัสการจัดชั่วโมงเรียน (วาดเป็นรูป ใช้ได้ทั้ง PDF และ Word)
 const _codeDiag={};
 function codeDiagram(kind){if(_codeDiag[kind])return _codeDiag[kind];try{
-  const S=2,W=540,H=kind==="code"?232:168,cv=document.createElement("canvas");cv.width=W*S;cv.height=H*S;const g=cv.getContext("2d");g.scale(S,S);
-  g.fillStyle="#fff";g.fillRect(0,0,W,H);g.strokeStyle="#000";g.fillStyle="#000";g.lineWidth=1.2;g.textBaseline="middle";
-  const fam=(getComputedStyle(document.documentElement).getPropertyValue("--bk-font")||"").trim()||"'TH SarabunPSK','Sarabun',Tahoma,sans-serif";g.font=`19px ${fam}`;
-  const LX=330;
-  if(kind==="code"){const labs=["คณะ","ภาควิชา","สาขาวิชา","กลุ่มวิชา","ปีที่ควรศึกษา","ลำดับวิชาในกลุ่มวิชา"];const xs=[70,120,150,180,230,260,290],base=212,top=base-22;
-    [["X",70],["-",95],["X",120],["X",150],["X",180],["-",205],["X",230],["X",260],["X",290]].forEach(([t,x])=>{g.textAlign="center";g.fillText(t,x,base)});
-    xs.forEach(x=>{g.beginPath();g.moveTo(x-9,top+4);g.lineTo(x+9,top+4);g.stroke()});
-    labs.forEach((l,i)=>{const y=18+i*30,x=i<5?xs[i]:(xs[5]+xs[6])/2;g.beginPath();g.moveTo(x,top+4);g.lineTo(x,y);g.lineTo(LX,y);g.stroke();if(i===5){g.beginPath();g.moveTo(xs[5],top+4);g.lineTo(xs[6],top+4);g.lineWidth=2.4;g.stroke();g.lineWidth=1.2}g.textAlign="left";g.fillText(l,LX+8,y)})}
-  else{const labs=["หน่วยกิต","ชั่วโมงเรียนทฤษฎี","ชั่วโมงเรียนปฏิบัติ","ชั่วโมงการศึกษานอกเวลา"];const xs=[120,165,205,245],base=128;
-    [["X",120],["(X",160],["-",185],["X",205],["-",225],["X)",250]].forEach(([t,x])=>{g.textAlign="center";g.fillText(t,x,base)});
-    xs.forEach((x,i)=>{g.textAlign="center";g.font=`15px ${fam}`;g.fillText(String(i+1),x,base+24);g.font=`19px ${fam}`});
-    labs.forEach((l,i)=>{const y=18+i*28,x=xs[i];g.beginPath();g.moveTo(x,base-14);g.lineTo(x,y);g.lineTo(LX,y);g.stroke();g.textAlign="left";g.fillText(l,LX+8,y)})}
+  const S=2,code=kind==="code",W=760,H=code?380:250,cv=document.createElement("canvas");cv.width=W*S;cv.height=H*S;const g=cv.getContext("2d");g.scale(S,S);
+  g.fillStyle="#fff";g.fillRect(0,0,W,H);g.strokeStyle="#000";g.fillStyle="#000";g.lineWidth=1.6;g.textBaseline="middle";
+  const fam="'Angsana New','AngsanaUPC','TH Sarabun New','TH SarabunPSK','Sarabun',serif";const F=n=>g.font=`${n}px ${fam}`;
+  const L=(x1,y1,x2,y2)=>{g.beginPath();g.moveTo(x1,y1);g.lineTo(x2,y2);g.stroke()};const T=(t,x,y,al="center")=>{g.textAlign=al;g.fillText(t,x,y)};
+  const LX=code?515:440,TX=LX+10;
+  if(code){const labs=["คณะ","ภาควิชา","สาขาวิชา","กลุ่มวิชา","ปีที่ควรศึกษา","ลำดับวิชาในกลุ่มวิชา"];
+    const seg=[[47,75],[90,118],[132,160],[174,202],[216,244],[258,320]],vx=[62,104,147,189,231,290],ly=[48,90,132,172,214,256],uy=320;
+    seg.forEach(([a,b])=>L(a,uy,b,uy));
+    vx.forEach((x,i)=>{L(x,uy-6,x,ly[i]);L(x,ly[i],LX,ly[i]);F(26);T(labs[i],TX,ly[i],"left")});
+    F(28);[["X",62],["-",83],["X",104],["X",146],["X",188],["-",210],["X",231],["X",276],["X",306]].forEach(([t,x])=>T(t,x,352))}
+  else{const labs=["หน่วยกิต","ชั่วโมงเรียนทฤษฎี","ชั่วโมงเรียนปฏิบัติ","ชั่วโมงการศึกษานอกเวลา"];
+    const vx=[200,252,300,348],ly=[40,82,124,166],by=205;
+    vx.forEach((x,i)=>{L(x,by-16,x,ly[i]);L(x,ly[i],LX,ly[i]);F(26);T(labs[i],TX,ly[i],"left")});
+    F(28);[["X",200],["(X",246],["-",276],["X",300],["-",324],["X)",352]].forEach(([t,x])=>T(t,x,by));F(20);vx.forEach((x,i)=>T(String(i+1),x,by+30))}
   const url=cv.toDataURL("image/png");if(!document.fonts||document.fonts.status==="loaded")_codeDiag[kind]=url;return url}catch(e){return ""}}
 const bkDiag=(k,w)=>{const u=codeDiagram(k);return u?`<p style="text-align:center"><img data-diag="${k}" src="${u}" alt="${k==="code"?"แผนภูมิความหมายของรหัสรายวิชา":"แผนภูมิความหมายของรหัสการจัดชั่วโมงเรียน"}" style="width:${w}in"></p>`:""};
 // งบประมาณตามแผน (หมวด 3 ข้อ 2.10)
@@ -1544,7 +1546,7 @@ function h3Html(X){const {core,ME,cr,SPEC,trs,YEAR,H,h3,ind,li}=X;const li2=t=>`
     SR("ข. หมวดวิชาเฉพาะ",SPEC,{b:1,min:1}),SR("1. กลุ่มวิชาพื้นฐานวิชาชีพ",cr(["MS","EB"]),{i:1}),SR("2. กลุ่มวิชาชีพบังคับ",cr(["CORE","TR"]),{i:1}),SR("2.1 วิชาชีพบังคับร่วม",trCORE,{i:1,nw:1}),SR("2.2 วิชาบังคับแขนงวิชา (เลือก 1 แขนงวิชา)",trTR,{i:1,nw:1}),SR("3. กลุ่มวิชาชีพเลือก",cr(["TE"]),{i:1}),SR("4. กลุ่มวิชาเสริมสร้างประสบการณ์ในวิชาชีพ",cr(["EXP"]),{i:1}),
     SR("ค. หมวดวิชาเลือกเสรี",cr(["FREE"]),{b:1,min:1})],"h3struct");
   const P=(n,t)=>li(`${n} แทน ${t}`);
-  const code31=`${li(B("3.1 รหัสรายวิชาหมวดวิชาเฉพาะ"))}${ind("การกำหนดเลขรหัสรายวิชาหมวดวิชาเฉพาะตามหลักสูตรระดับปริญญาตรี ประกอบด้วยตัวเลขรหัสทั้งหมด 7 ตัว รายละเอียดได้จำแนกดังแผนภูมิต่อไปนี้")}${li(B("1) ความหมายของรหัสรายวิชา"))}${bkDiag("code",4.8)}
+  const code31=`${li(B("3.1 รหัสรายวิชาหมวดวิชาเฉพาะ"))}${ind("การกำหนดเลขรหัสรายวิชาหมวดวิชาเฉพาะตามหลักสูตรระดับปริญญาตรี ประกอบด้วยตัวเลขรหัสทั้งหมด 7 ตัว รายละเอียดได้จำแนกดังแผนภูมิต่อไปนี้")}${li(B("1) ความหมายของรหัสรายวิชา"))}${bkDiag("code",5.2)}
     ${NB([["ตำแหน่งที่ 1","คณะ"],["ตำแหน่งที่ 2","ภาควิชา"],["ตำแหน่งที่ 3","สาขาวิชา"],["ตำแหน่งที่ 4","กลุ่มวิชา"],["ตำแหน่งที่ 5","ปีที่ควรศึกษา"],["ตำแหน่งที่ 6 และ 7","ลำดับวิชาในกลุ่มวิชา"]].map(([a,b])=>`<tr><td style="width:2.6in;white-space:nowrap">${TB(1)}${a}</td><td>หมายถึง ${b}</td></tr>`))}
     ${ind(B("ตัวเลขตำแหน่งที่ 1 หมายถึงเลขรหัสของคณะ")+" มหาวิทยาลัยเทคโนโลยีราชมงคลกรุงเทพกำหนดเลขรหัสของคณะไว้ ดังนี้")}${[["1","คณะศิลปศาสตร์"],["2","คณะวิทยาศาสตร์และเทคโนโลยี"],["3","คณะครุศาสตร์อุตสาหกรรม"],["4","คณะวิศวกรรมศาสตร์"],["5","คณะบริหารธุรกิจ"],["6","คณะเทคโนโลยีคหกรรมศาสตร์"],["7","คณะอุตสาหกรรมสิ่งทอ"],["8","วิทยาลัยนานาชาติ"],["9","สถาบันวิทยาศาสตร์ นวัตกรรม และวัฒนธรรม"]].map(([a,b])=>li2(`${a} แทน ${b}`)).join("")}
     ${ind(B("ตัวเลขตำแหน่งที่ 2 หมายถึงเลขรหัสของภาควิชา")+" คณะวิศวกรรมศาสตร์ ได้กำหนดรหัสของภาควิชาไว้ดังนี้")}${[["0","ไม่สังกัดภาควิชา (ทุกภาควิชาในคณะวิศวกรรมศาสตร์)"],["1","ภาควิชาวิศวกรรมเครื่องกลและอุตสาหการ"],["2","ภาควิชาวิศวกรรมไฟฟ้าและโทรคมนาคม"],["3","ภาควิชาวิศวกรรมโยธา"]].map(([a,b])=>li2(`${a} แทน ${b}`)).join("")}
@@ -1552,7 +1554,7 @@ function h3Html(X){const {core,ME,cr,SPEC,trs,YEAR,H,h3,ind,li}=X;const li2=t=>`
     ${ind(B("ตัวเลขตำแหน่งที่ 4 หมายถึงเลขรหัสของกลุ่มวิชา")+" กลุ่มวิชาในสาขาวิชาวิศวกรรมเครื่องกล กำหนดตามองค์ความรู้ของสภาวิศวกร ดังนี้")}${[["0","กลุ่มวิชาพื้นฐานทางวิศวกรรม"],["1","กลุ่มวิชากลศาสตร์ประยุกต์"],["2","กลุ่มวิชาวิศวกรรมความร้อนและพลังงาน"],["3","กลุ่มวิชาวิศวกรรมยานยนต์สมัยใหม่"],["4","กลุ่มวิชาวิศวกรรมระบบควบคุมและหุ่นยนต์"],["5","กลุ่มวิชากำลังงานของไหล"],["6","กลุ่มวิชาวิศวกรรมทั่วไป"]].map(([a,b])=>li2(`${a} แทน ${b}`)).join("")}
     ${ind(B("ตัวเลขตำแหน่งที่ 5 หมายถึงปีที่ควรศึกษา")+" ตัวเลข 1–4 แทนความหมายดังต่อไปนี้")}${[1,2,3,4].map(y=>li2(`${y} แทน รายวิชาที่ควรศึกษาในชั้นปีที่ ${y}`)).join("")}
     ${ind(B("ตัวเลขตำแหน่งที่ 6 และ 7")+" เป็นกลุ่มตัวเลขที่แสดงลำดับที่ของรายวิชาในแต่ละกลุ่มวิชา ซึ่งสามารถกำหนดได้ถึง 99 รายวิชา จาก 01 – 99")}
-    ${li(B("2) ความหมายของรหัสการจัดชั่วโมงเรียน"))}${bkDiag("hrs",4.6)}${NB([["ตำแหน่งที่ 1","จำนวนหน่วยกิต"],["ตำแหน่งที่ 2","จำนวนชั่วโมงเรียนทฤษฎี"],["ตำแหน่งที่ 3","จำนวนชั่วโมงเรียนปฏิบัติ"],["ตำแหน่งที่ 4","จำนวนชั่วโมงการศึกษานอกเวลา"]].map(([a,b])=>`<tr><td style="width:2.6in;white-space:nowrap">${TB(1)}${a}</td><td>คือ ${b}</td></tr>`))}`;
+    ${li(B("2) ความหมายของรหัสการจัดชั่วโมงเรียน"))}${bkDiag("hrs",5.2)}${NB([["ตำแหน่งที่ 1","จำนวนหน่วยกิต"],["ตำแหน่งที่ 2","จำนวนชั่วโมงเรียนทฤษฎี"],["ตำแหน่งที่ 3","จำนวนชั่วโมงเรียนปฏิบัติ"],["ตำแหน่งที่ 4","จำนวนชั่วโมงการศึกษานอกเวลา"]].map(([a,b])=>`<tr><td style="width:2.6in;white-space:nowrap">${TB(1)}${a}</td><td>คือ ${b}</td></tr>`))}`;
   const GH=(t,n,tail)=>li(`${B(t)} ${n!=null?B(n+" หน่วยกิต"):""}${tail?" "+tail:""}`);
   const trC=t=>ME.length?COURSES.filter(c=>c.g==="TR"&&inTrack(c,t)):[];
   const names32=`${li(B("3.2 ชื่อรายวิชา"))}${GH("ก. หมวดวิชาศึกษาทั่วไป",cr(["GE"]))}${GH("1. วิชาบังคับ (ไม่นับหน่วยกิต)",ncCr,"ให้ศึกษาจากรายวิชาต่อไปนี้")}${bkCourseList(geNC)}<p class="li2"><b>หมายเหตุ</b> * คือ รายวิชาไม่นับหน่วยกิต</p>
@@ -2915,6 +2917,7 @@ document.addEventListener("keydown",e=>{if(e.target.id!=="cloQ"||e.key!=="Enter"
 
 // ---- แถบสถานะมุมขวาบน: ฉบับของหลักสูตร + การอัปเดตล่าสุด ----
 const CHANGELOG=[
+ ["19 พ.ย. 2569 (18:30)","หมวด 3 ข้อ 3.1 วาดแผนภูมิความหมายของรหัสรายวิชาและรหัสการจัดชั่วโมงเรียนใหม่ให้เหมือนแบบฟอร์ม"],
  ["19 พ.ย. 2569 (18:20)","ตารางโครงสร้างหลักสูตรหมวด 3 แสดงรูปแบบใหม่แม้มีฉบับแก้มือ (2.1–2.2 แท็บเดียว และ (เลือก 1 แขนงวิชา) บรรทัดเดียว)"],
  ["19 พ.ย. 2569 (18:10)","หมวด 3 โครงสร้างหลักสูตร: หัวข้อ 2.1–2.2 ลดระยะแท็บ 1 แท็บ และ (เลือก 1 แขนงวิชา) อยู่บรรทัดเดียวกัน"],
  ["19 พ.ย. 2569 (18:00)","หมวด 3 ข้อ 2.10 ใส่ประมาณการงบประมาณรายรับ-รายจ่าย 2571–2575 (ฐานจากเล่ม 2566 ปรับตามจำนวนนักศึกษาและภาคสมทบ)"],
