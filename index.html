@@ -808,7 +808,7 @@ const CLO0={
 };
 
 const FAC_HINT={"adisorn.sa@mail.rmutk.ac.th":"นายอดิสร สโมสร"};
-const APP_VER="รุ่น 19 พ.ย. 2569 (21:30)";
+const APP_VER="รุ่น 19 พ.ย. 2569 (21:40)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -2567,9 +2567,10 @@ function svcSubs(c){return c.clos.map(x=>String(x[3]||"").split(/[,\s·]+/).filt
 function svcKsecHtml(book){const plos=PLOS,cols=plos.length*4;
   const th=`<thead><tr><th rowspan="2">รหัสวิชา</th><th rowspan="2">รายวิชา</th><th rowspan="2">สถานะ</th>${plos.map(p=>`<th colspan="4" class="c">PLO ${p.n}</th>`).join("")}</tr><tr>${plos.map(()=>KSEC.map(d=>`<th class="c ks">${d}</th>`).join("")).join("")}</tr></thead>`;
   const body=SERVICE.map(c=>{const m={};svcSubs(c).flat().forEach(s=>{const sb=subOf(s);if(sb)m[sb.plo+":"+sb.dom]=1});const draft=/^ร่าง/.test(c.map);
-    return `<tr><td class="mono">${esc(c.code)}</td><td>${esc(c.th)}</td><td class="small">${draft?"ร่าง":"ตามมติคณะ"}</td>${plos.map(p=>KSEC.map(d=>`<td class="c${draft?" ks-est":""}">${m[p.n+":"+d]?"●":""}</td>`).join("")).join("")}</tr>`}).join("");
-  const cg=book?`<colgroup><col style="width:11%"><col style="width:22%"><col style="width:8%">${"<col>".repeat(cols)}</colgroup>`:"";
-  return `<table class="${book?"bk-t ks-book":"ks-tbl"}">${cg}${th}<tbody>${body}</tbody></table>`}
+    return book?`<tr><td style="white-space:nowrap">${esc(c.code)}</td><td>${esc(c.th)}</td><td>${draft?"ร่าง":"ตามมติคณะ"}</td>${plos.map(p=>KSEC.map(d=>`<td class="c" style="padding:1px">${m[p.n+":"+d]?"●":""}</td>`).join("")).join("")}</tr>`
+      :`<tr><td class="mono">${esc(c.code)}</td><td>${esc(c.th)}</td><td class="small">${draft?"ร่าง":"ตามมติคณะ"}</td>${plos.map(p=>KSEC.map(d=>`<td class="c${draft?" ks-est":""}">${m[p.n+":"+d]?"●":""}</td>`).join("")).join("")}</tr>`}).join("");
+  const cg=book?`<colgroup><col style="width:10%"><col style="width:24%"><col style="width:9%">${"<col>".repeat(cols)}</colgroup>`:"";
+  return `<table class="${book?"bk-t":"ks-tbl"}"${book?' style="width:100%"':""}>${cg}${th}<tbody>${body}</tbody></table>`}
 function svcCloRows(){return SERVICE.flatMap(c=>c.clos.map((x,i)=>{const ss=svcSubs(c)[i];return [i?"":c.code+" "+c.th,`CLO${i+1} ${x[0]}`,x[1],ss.join(", ")||"-",[...new Set(ss.map(s=>{const sb=subOf(s);return sb?"PLO"+sb.plo+" ("+sb.dom+")":""}).filter(Boolean))].join(", ")||"-",x[2]]}))}
 const SVC_NOTE="● = CLO ของรายวิชารับผิดชอบ Sub-PLO ในด้านนั้น · ตัวเอียง = ร่างที่สาขาเทียบกับ PLO ของหลักสูตรวิศวกรรมเครื่องกล ต้องยืนยันกับหลักสูตรผู้เรียน · 4-000-101 เป็นวิชาพื้นฐานร่วมของคณะ รับผิดชอบ PLO2 ตามบันทึก วช.041";
 function svcPloBookHtml(){return `<p class="li"><b>ตารางแสดงความรับผิดชอบต่อผลลัพธ์การเรียนรู้ (PLOs) ของรายวิชาที่สาขาเปิดสอนให้นักศึกษาต่างสาขา</b></p>${svcKsecHtml(true)}${bkT(svcCloRows(),["รายวิชา","ผลลัพธ์การเรียนรู้ระดับรายวิชา (CLO)","Bloom","Sub-PLO","PLO (ด้าน)","การประเมิน"],{w:"100%",cw:["17%","37%","10%","10%","12%","14%"]})}<p class="small-note">${SVC_NOTE}</p>`}
@@ -3001,6 +3002,7 @@ document.addEventListener("keydown",e=>{if(e.target.id!=="cloQ"||e.key!=="Enter"
 
 // ---- แถบสถานะมุมขวาบน: ฉบับของหลักสูตร + การอัปเดตล่าสุด ----
 const CHANGELOG=[
+ ["19 พ.ย. 2569 (21:40)","หมวด 4 ตารางวิชาที่สอนให้สาขาอื่น: รหัสวิชาและสถานะใช้ขนาดตัวอักษรเท่ากับรายวิชาและตาราง CLO ด้านล่าง"],
  ["19 พ.ย. 2569 (21:30)","หมวด 4 ตามแบบฟอร์ม: 3.1 หมวดวิชาเฉพาะ (กลุ่มวิชา × PLO) · 3.2 PLO × K S E C รายชั้นปี (เลข Sub-PLO) และตารางวิชาชีพเลือก · 4.1 แผนรายชั้นปี × Sub-PLO (✓) พร้อมกลยุทธ์ CWIE และสรุปผลลัพธ์รายชั้นปี (แนวนอน)"],
  ["19 พ.ย. 2569 (21:00)","หมวด 4 ข้อ 3 Curriculum Mapping เป็นหน้าแนวนอนตามตัวอย่าง: 3.1 หมวดศึกษาทั่วไป (Sub-PLO ของ PLO 1 แยก 4 ด้าน ✓) และหมวดวิชาเฉพาะ (PLO × 4 ด้าน I/R/M แยกกลุ่มวิชา) · 3.2 ตาราง 4 ด้านรายชั้นปี"],
  ["19 พ.ย. 2569 (20:50)","หมวด 4 ข้อ 2: ข้อความนำ 4 ย่อหน้า (OBE · PLO 1 จากหมวดศึกษาทั่วไป · CLO→YLO→PLO · การประเมินและกำกับติดตามรายชั้นปี) ก่อนตาราง 2.1 · ข้อ 1 ใช้ข้อความที่อาจารย์ปรับเป็นค่าตั้งต้น"],
