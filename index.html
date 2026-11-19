@@ -808,7 +808,7 @@ const CLO0={
 };
 
 const FAC_HINT={"adisorn.sa@mail.rmutk.ac.th":"นายอดิสร สโมสร"};
-const APP_VER="รุ่น 19 พ.ย. 2569 (16:00)";
+const APP_VER="รุ่น 19 พ.ย. 2569 (16:30)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -1767,6 +1767,10 @@ const splitLand=html=>{const d=document.createElement("div");d.innerHTML=html;co
   return out.filter(o=>{const t=document.createElement("div");t.innerHTML=o.html;return bkHasContent(t)})};
 // หน้าที่ไม่มีข้อความ ตาราง หรือรูป (เช่น ย่อหน้าว่างหลังหน้าแนวนอน) ไม่นับเป็นหน้า
 const bkHasContent=el=>!!(el&&((el.textContent||"").replace(/[\s\u00a0\u200b]/g,"")||(el.querySelector&&el.querySelector("img,svg,canvas,table,hr,.bk-box"))));
+// หัวข้อ (h2/h3 หรือย่อหน้าตัวหนาสั้น ๆ เช่น "2.3 คุณสมบัติ…" "กรณีระดับปริญญาตรี") ต้องอยู่หน้าเดียวกับเนื้อหาถัดไป
+const bkIsHead=el=>{if(!el||el.nodeType!==1)return false;if(/^H[1-4]$/.test(el.tagName)||(el.dataset&&el.dataset.cont))return true;if(el.tagName!=="P")return false;
+  const t=(el.textContent||"").replace(/[\s\u00a0]+/g," ").trim();if(!t||t.length>160)return false;const bt=[...el.querySelectorAll("b,strong")].map(b=>b.textContent).join("").replace(/[\s\u00a0]+/g," ").trim();return bt.length>0&&bt.length>=t.length-1};
+function bkTakeHeads(pg){const out=[];while(out.length<3&&pg.children.length>out.length+1){const l=pg.lastElementChild;if(!bkIsHead(l))break;out.unshift(l);pg.removeChild(l)}return out}
 async function paginateHtml(html,fmt,trace,land){
   try{await document.fonts.ready}catch(e){}
   const host=document.createElement("div");host.className="bk-view";host.setAttribute("style",pgCssVars(fmt)+";position:fixed;left:-20000px;top:0;visibility:hidden");
@@ -1789,12 +1793,12 @@ async function paginateHtml(html,fmt,trace,land){
       const head=n.tHead?n.tHead.cloneNode(true):null;const rows=[...n.tBodies[0].rows];
       const mk=cont=>{if(cont&&lastH3&&!(n.dataset&&n.dataset.nocont)){let h;if(lastHd&&lastHd.tagName!=="H3"){h=lastHd.cloneNode(false);h.removeAttribute("data-cont");h.classList.add("bk-cont");h.innerHTML="<b></b>";h.firstChild.textContent=lastH3+" (ต่อ)"}else{h=document.createElement("h3");h.className="bk-cont";h.textContent=lastH3+" (ต่อ)"}pg.appendChild(h)}const t=n.cloneNode(false);if(head)t.appendChild(head.cloneNode(true));const tb=document.createElement("tbody");t.appendChild(tb);pg.appendChild(t);return tb};
       let tb=mk();
-      for(const [ri,r] of rows.entries()){tb.appendChild(r.cloneNode(true));if(!fits()){tb.removeChild(tb.lastChild);if(!tb.rows.length){pg.removeChild(tb.parentNode);const hc=pg.lastElementChild;const keepH=hc&&(hc.tagName==="H3"||(hc.dataset&&hc.dataset.cont))&&!hc.classList.contains("bk-cont");if(keepH)pg.removeChild(hc);flush();rec(ni,ri);if(keepH)pg.appendChild(hc);const pv=nodes.slice(0,ni).reverse().find(x=>x.nodeType===1&&!/^(DIV)$/.test(x.tagName));tb=mk(!keepH&&(ri>0||!!(pv&&pv.tagName==="TABLE")));tb.appendChild(r.cloneNode(true))}else{flush();rec(ni,ri);tb=mk(true);tb.appendChild(r.cloneNode(true))}}}
+      for(const [ri,r] of rows.entries()){tb.appendChild(r.cloneNode(true));if(!fits()){tb.removeChild(tb.lastChild);if(!tb.rows.length){pg.removeChild(tb.parentNode);const hs=bkTakeHeads(pg).filter(x=>!x.classList.contains("bk-cont"));const keepH=hs.length>0;flush();rec(ni,ri);hs.forEach(x=>pg.appendChild(x));const pv=nodes.slice(0,ni).reverse().find(x=>x.nodeType===1&&!/^(DIV)$/.test(x.tagName));tb=mk(!keepH&&(ri>0||!!(pv&&pv.tagName==="TABLE")));tb.appendChild(r.cloneNode(true))}else{flush();rec(ni,ri);tb=mk(true);tb.appendChild(r.cloneNode(true))}}}
       continue;
     }
     // keep a heading with the next block: move trailing heading to the new page
-    const last=pg.lastElementChild;let carry=null;if(last&&(/^H[23]$/.test(last.tagName)||(last.dataset&&last.dataset.cont))){carry=last;pg.removeChild(last)}
-    flush();rec(carry?ni-1:ni,-1);if(carry)pg.appendChild(carry);pg.appendChild(c);
+    const carry=bkTakeHeads(pg);
+    flush();rec(ni-carry.length,-1);carry.forEach(x=>pg.appendChild(x));pg.appendChild(c);
   }
   flush();host.remove();return pages;
 }
@@ -2902,6 +2906,7 @@ document.addEventListener("keydown",e=>{if(e.target.id!=="cloQ"||e.key!=="Enter"
 
 // ---- แถบสถานะมุมขวาบน: ฉบับของหลักสูตร + การอัปเดตล่าสุด ----
 const CHANGELOG=[
+ ["19 พ.ย. 2569 (16:30)","หัวข้อย่อย (เช่น 2.3 คุณสมบัติของผู้เข้าศึกษา) ไม่ค้างท้ายหน้าอีก ระบบย้ายไปขึ้นหน้าใหม่พร้อมเนื้อหาให้เอง"],
  ["19 พ.ย. 2569 (16:00)","จัดหมวด 3 ตามแบบฟอร์มเล่มหลักสูตร: 1.1–1.2 · 2.1–2.10 (ปัญหาแรกเข้า กลยุทธ์ งบประมาณรายรับ-รายจ่าย) · โครงสร้างหลักสูตร · 3.1 ความหมายรหัสวิชา · 3.2 ชื่อรายวิชาไทย-อังกฤษ · 3.3 ตารางแผนการศึกษา · 3.4 คำอธิบายรายวิชาครบทุกหมวด · เพิ่มช่องชื่อวิชาภาษาอังกฤษใน ก3"],
  ["19 พ.ย. 2569 (15:00)","ภาคสมทบ (ปริญญาตรีใบที่ 2): ทฤษฎีออนไลน์ ปฏิบัติและสอบที่มหาวิทยาลัย · ผู้จบ วศ.บ. เทียบโอน 4-116-307 ได้ · เกณฑ์เทียบโอน (C, 3/4, 1 ปี) · หมวด 3 ข้อ 2.2 และ 3.3 หมวด 6 หมวด 7"],
  ["19 พ.ย. 2569 (14:30)","ตัดหน้าว่าง (เช่น หน้าแนวตั้งว่างท้ายหมวด 2) ออกจากเล่ม PDF และ Word เลขหน้าไม่คลาด"],
