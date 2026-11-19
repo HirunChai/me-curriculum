@@ -808,7 +808,7 @@ const CLO0={
 };
 
 const FAC_HINT={"adisorn.sa@mail.rmutk.ac.th":"นายอดิสร สโมสร"};
-const APP_VER="รุ่น 19 พ.ย. 2569 (18:50)";
+const APP_VER="รุ่น 19 พ.ย. 2569 (19:10)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -1486,11 +1486,11 @@ function bkDescBlock(c){const svc=c.g==="SVC",d=svc?{th:c.dth,en:c.den}:descSave
    +R(d.th?esc(d.th):bkTodo("(คำอธิบายรายวิชาภาษาไทย)"),"j")+R(d.en?esc(d.en):bkTodo("(Course description)"),"j")
    +(cl.length?R("ผลลัพธ์การเรียนรู้","b")+cl.map((x,i)=>R(`${i+1}. ${esc(x.t)}`)).join(""):"")+`</tbody></table>`}
 // ตารางแผนการศึกษา 1 ภาคการศึกษา (หัวตารางตามแบบฟอร์ม และผลรวมทุกคอลัมน์)
-function bkPlanTable(title,L,mark){const slot=c=>c.g==="FREE"||c.g==="TE";
+function bkPlanTable(title,L,mark,tot){const slot=c=>c.g==="FREE"||c.g==="TE";
   const R=L.slice().sort((a,b)=>(slot(a)-slot(b))||String(a.code).localeCompare(String(b.code)));
   const n=x=>+x||0,sum=k=>R.filter(c=>!(c.fl&&c.fl.nc)).reduce((a,c)=>a+n(c[k]),0);
   const rows=R.map(c=>`<tr><td class="c" style="width:1.08in;white-space:nowrap">${slot(c)?"x-xxx-xxx":esc(c.code)}</td><td>${c.g==="FREE"?"วิชาเลือกเสรี":c.g==="TE"?"วิชาชีพเลือก":esc(c.th)}${mark&&mark(c)?" "+mark(c):""}</td><td class="c">${c.fl&&c.fl.nc?`(${c.t})`:c.cr}</td><td class="c">${c.t}</td><td class="c">${c.p}</td><td class="c">${c.s}</td></tr>`).join("");
-  return `<table class="bk-t" style="width:100%" data-thcont="1"><thead><tr><th colspan="2">${esc(title)}</th><th style="width:.72in">หน่วยกิต</th><th style="width:.62in">ทฤษฎี</th><th style="width:.62in">ปฏิบัติ</th><th style="width:1.02in">ศึกษาด้วยตนเอง</th></tr></thead><tbody>${rows}<tr><td colspan="2" class="c b">รวม</td><td class="c b">${sumCr(R,c=>!(c.fl&&c.fl.nc))}</td><td class="c b">${sum("t")}</td><td class="c b">${sum("p")}</td><td class="c b">${sum("s")}</td></tr></tbody></table>`}
+  return `<table class="bk-t" style="width:100%" data-thcont="1"><thead><tr><th colspan="2">${esc(title)}</th><th style="width:.72in">หน่วยกิต</th><th style="width:.62in">ทฤษฎี</th><th style="width:.62in">ปฏิบัติ</th><th style="width:1.02in">ศึกษาด้วยตนเอง</th></tr></thead><tbody>${rows}<tr><td colspan="2" class="c b">รวม</td><td class="c b">${tot?tot.cr:sumCr(R,c=>!(c.fl&&c.fl.nc))}</td><td class="c b">${tot?tot.t:sum("t")}</td><td class="c b">${tot?tot.p:sum("p")}</td><td class="c b">${tot?tot.s:sum("s")}</td></tr></tbody></table>`}
 // แผนภูมิความหมายของรหัสรายวิชา / รหัสการจัดชั่วโมงเรียน (วาดเป็นรูป ใช้ได้ทั้ง PDF และ Word)
 const _codeDiag={};
 function codeDiagram(kind){if(_codeDiag[kind])return _codeDiag[kind];try{
@@ -1530,10 +1530,22 @@ function bgTable(kind,YEAR){const lines=(BF(kind==="in"?"bgIn":"bgOut")||"").spl
   const foot=kind==="in"?`<tr><td class="b">รวมรายรับ</td>${T.map(v=>cell(v,"",1)).join("")}</tr>`
    :`<tr><td class="c b">รวมทั้งสิ้น</td>${T.map(v=>cell(v,"",1)).join("")}</tr><tr><td>จำนวนนักศึกษา</td>${ys.map(k=>`<td class="r">${bgN(k)}</td>`).join("")}</tr><tr><td class="b">ค่าใช้จ่ายต่อหัวนักศึกษา</td>${ys.map(k=>cell(T[k]==null?null:T[k]/bgN(k),"xx,xxx",1)).join("")}</tr>`;
   return `<table class="bk-t" style="width:100%"><thead><tr><th rowspan="2" style="width:38%">${kind==="in"?"รายละเอียดรายรับ":"รายละเอียดรายจ่าย"}</th><th colspan="5">ปีงบประมาณ</th></tr><tr>${ys.map(k=>`<th>${YEAR+k}</th>`).join("")}</tr></thead><tbody>${body}${foot}</tbody></table>`}
+// แผนการศึกษาชั้นปีที่ยังไม่แยกแขนงวิชา: รวมตารางของทุกแขนงวิชาเป็นชุดเดียว รายวิชาที่ต่างกันระบุแขนงวิชาในวงเล็บ
+const planYr=n=>+((String(n).match(/ปีที่ (\d)/)||[])[1]||0),planOrd=n=>planYr(n)*10+(/ฤดูร้อน/.test(n)?3:+((String(n).match(/ภาคการศึกษาที่ (\d)/)||[])[1]||0));
+function bkPlanYears(byT,keep,mark,ttl){const trs=Object.keys(byT),names=[];trs.forEach(t=>byT[t].forEach(sl=>{if(keep(sl.name)&&!names.includes(sl.name))names.push(sl.name)}));names.sort((a,b)=>planOrd(a)-planOrd(b));
+  const n=x=>+x||0,years=[...new Set(names.map(planYr))];
+  return years.map(y=>names.filter(nm=>planYr(nm)===y).map(nm=>{const per=trs.map(t=>(byT[t].find(sl=>sl.name===nm)||{cs:[]}).cs);const U=[],has={};
+    per.forEach((cs,i)=>cs.forEach(c=>{if(!has[c.code]){has[c.code]=[];U.push(c)}has[c.code].push(trs[i])}));
+    const lab=c=>{const m=mark?mark(c):"";const ts=has[c.code];return (m?m+" ":"")+(ts.length<trs.length?`(แขนงวิชา${ts.map(t=>TRACKS[t]).join(" / ")})`:"")};
+    const S=per.map(cs=>({cr:sumCr(cs,c=>!(c.fl&&c.fl.nc)),t:cs.filter(c=>!(c.fl&&c.fl.nc)).reduce((a,c)=>a+n(c.t),0),p:cs.filter(c=>!(c.fl&&c.fl.nc)).reduce((a,c)=>a+n(c.p),0),s:cs.filter(c=>!(c.fl&&c.fl.nc)).reduce((a,c)=>a+n(c.s),0)}));
+    const same=k=>S.every(x=>x[k]===S[0][k]);const tot={cr:same("cr")?S[0].cr:S.map(x=>x.cr).join("/"),t:same("t")?S[0].t:S.map(x=>x.t).join("/"),p:same("p")?S[0].p:S.map(x=>x.p).join("/"),s:same("s")?S[0].s:S.map(x=>x.s).join("/")};
+    return bkPlanTable(nm,U,lab,tot)}).join("")).join('<div class="bk-break"></div>'+ttl(1))}
 function h3Html(X){const {core,ME,cr,SPEC,trs,YEAR,H,h3,ind,li}=X;const li2=t=>`<p class="li2">${t}</p>`,B=t=>`<b>${t}</b>`;
-  const plans=trs.map(t=>{const L=trackCourses(t).filter(c=>!(c.fl&&c.fl.pool));const yrs=[1,2,3,4];
-    const ttl=c=>`<p style="text-align:center" data-hd="1"><b>แผน ก. แผนสหกิจศึกษาและการศึกษาเชิงบูรณาการกับการทำงาน</b><br><b>แขนงวิชา${esc(TRACKS[t])}${c?" (ต่อ)":""}</b></p>`;
-    return ttl(0)+yrs.map(y=>TERMS.filter(tm=>tm.startsWith("Y"+y)).map(tm=>{const R=L.filter(c=>c.term===tm);return R.length?bkPlanTable(termHead(tm),R):""}).join("")).filter(Boolean).join('<div class="bk-break"></div>'+ttl(1))}).join('<div class="bk-break"></div>');
+  const PA="แผน ก. แผนสหกิจศึกษาและการศึกษาเชิงบูรณาการกับการทำงาน";
+  const byT={};trs.forEach(t=>{const L=trackCourses(t).filter(c=>!(c.fl&&c.fl.pool));byT[t]=TERMS.map(tm=>({name:termHead(tm),cs:L.filter(c=>c.term===tm)})).filter(x=>x.cs.length)});
+  const ttlA=(sub,c)=>`<p style="text-align:center" data-hd="1"><b>${PA}</b><br><b>${sub}${c?" (ต่อ)":""}</b></p>`;
+  const plans=ttlA("ชั้นปีที่ 1–2 (ทุกแขนงวิชาเรียนร่วมกัน)",0)+bkPlanYears(byT,n=>planYr(n)<=2,null,c=>ttlA("ชั้นปีที่ 1–2 (ทุกแขนงวิชาเรียนร่วมกัน)",c))
+    +trs.map(t=>'<div class="bk-break"></div>'+ttlA(`แขนงวิชา${esc(TRACKS[t])} ชั้นปีที่ 3–4`,0)+bkPlanYears({[t]:byT[t]},n=>planYr(n)>=3,null,c=>ttlA(`แขนงวิชา${esc(TRACKS[t])} ชั้นปีที่ 3–4`,c))).join("");
   // ภาคปกติ/ภาคสมทบ: หน่วยกิตเฉลี่ยต่อภาคการศึกษาปกติ
   const nReg=sumCr(ME)/8;let nSec=null;try{const S=altSchedule("sec",trs[0]);const cs=S.slots.flatMap(s=>s.cs),reg=S.slots.filter(s=>!/ฤดูร้อน/.test(s.name)).length;nSec=reg?sumCr(cs)/reg:null}catch(e){}
   const ft=v=>v!=null&&v>=9?"แบบเต็มเวลา":"แบบไม่เต็มเวลา";
@@ -2918,6 +2930,8 @@ document.addEventListener("keydown",e=>{if(e.target.id!=="cloQ"||e.key!=="Enter"
 
 // ---- แถบสถานะมุมขวาบน: ฉบับของหลักสูตร + การอัปเดตล่าสุด ----
 const CHANGELOG=[
+ ["19 พ.ย. 2569 (19:10)","แผน ค. ปริญญาตรีใบที่ 2 (ภาคสมทบ) ชั้นปีที่ 1–2 รวมทุกแขนงวิชาเป็นตารางเดียวเหมือนแผน ก. และ ข."],
+ ["19 พ.ย. 2569 (19:00)","แผนการศึกษาหมวด 3 ข้อ 3.3: แผน ก. และแผน ข. ชั้นปีที่ 1–2 รวมทุกแขนงวิชาเป็นตารางเดียว รายวิชาเฉพาะแขนงระบุแขนงในวงเล็บ แยกแขนงตั้งแต่ชั้นปีที่ 3"],
  ["19 พ.ย. 2569 (18:50)","แผนการศึกษาหมวด 3: หน้าใหม่ของแผนเดียวกันขึ้นชื่อแผนและแขนงวิชาพร้อม (ต่อ)"],
  ["19 พ.ย. 2569 (18:40)","ตารางที่ต่อหน้าใช้ชื่อหัวข้อของตารางนั้นตามด้วย (ต่อ) เช่น 2.1 วิชาชีพบังคับร่วม (ต่อ) · ตารางแผนการศึกษาแสดง ปีที่ … / ภาคการศึกษาที่ … (ต่อ)"],
  ["19 พ.ย. 2569 (18:30)","หมวด 3 ข้อ 3.1 วาดแผนภูมิความหมายของรหัสรายวิชาและรหัสการจัดชั่วโมงเรียนใหม่ให้เหมือนแบบฟอร์ม"],
@@ -3022,7 +3036,8 @@ function altPlansHtml(){const trs=Object.keys(TRACKS),ind=t=>`<p class="ind">${t
   return ["pvs","sec"].map((k,ki)=>{const cfg=ALT_CFG[k];const s0=altSchedule(k,trs[0]);
     const trT=bkT([...s0.tr.map(c=>[c.g==="FREE"?"x-xxx-xxx":c.code,c.th,c.fl&&c.fl.nc?`(${c.t})`:String(c.cr)]),[{t:"รวมเทียบโอนได้",span:2,cls:"r b"},{t:String(sumCr(s0.tr)),cls:"b"}]],["รหัสวิชา","รายวิชาที่เทียบโอน","หน่วยกิต"],{w:"88%"});
     return `<p class="li"><b>${ki?"แผน ค.":"แผน ข."} ${cfg.t}</b></p>${ind(k==="pvs"?"ผู้เข้าศึกษาด้วยวุฒิ ปวส. เทียบโอนรายวิชาตามระเบียบมหาวิทยาลัยเทคโนโลยีราชมงคลกรุงเทพ ว่าด้วยการเทียบโอนผลการเรียน พ.ศ. 2564 รายวิชาที่เทียบโอนได้ตามตารางด้านล่าง ผู้ที่เทียบโอนได้ไม่ครบต้องลงเรียนรายวิชาที่ขาดเพิ่มตามแผนปกติ":"ผู้สำเร็จการศึกษาระดับปริญญาตรีเทียบโอนตามคุณสมบัติในข้อ 2.3 ข้อ 3 เรียนนอกวัน–เวลาราชการ ภาคการศึกษาละไม่เกิน "+cfg.cap+" หน่วยกิต รายวิชาที่ต้องลงเรียนเพิ่มกรณีเทียบโอนไม่ครบให้ลงเรียนตามแผนปกติ "+SEC_TR)}${k==="sec"?ind(esc(SEC_ENG))+'<p class="li"><b>รูปแบบการจัดการเรียนการสอน</b></p>'+SEC_MODE.map(x=>ind(esc(x))).join(""):""}<p class="li" data-hd="1"><b>รายวิชาที่เทียบโอนได้ · ${cfg.t}</b></p>${trT}${ind(`รวมหน่วยกิตที่ต้องเรียนในหลักสูตร ${140-sumCr(s0.tr)} หน่วยกิต ระยะเวลาตามแผน ${s0.years} ปีการศึกษา`)}`+
-      trs.map(t=>{const S=altSchedule(k,t);return `<p class="li"><b>${cfg.t} · แขนงวิชา${TRACKS[t]}</b></p>`+S.slots.map(sl=>bkPlanTable(sl.name,sl.cs,c=>(cfg.engOnly||[]).includes(c.code)?"**":"")).join("")}).join('<div class="bk-break"></div>')}).join('<div class="bk-break"></div>')}
+      (()=>{const mk=c=>(cfg.engOnly||[]).includes(c.code)?"**":"";const byT={};trs.forEach(t=>{byT[t]=altSchedule(k,t).slots});const T=(sub,c)=>`<p class="li" data-hd="1"><b>${cfg.t} · ${sub}${c?" (ต่อ)":""}</b></p>`;
+        const S12="ชั้นปีที่ 1–2 (ทุกแขนงวิชา)";return T(S12,0)+bkPlanYears(byT,n=>planYr(n)<=2,mk,c=>T(S12,c))+trs.map(t=>{const has=byT[t].some(sl=>planYr(sl.name)>=3);return has?'<div class="bk-break"></div>'+T(`แขนงวิชา${TRACKS[t]} ชั้นปีที่ 3 เป็นต้นไป`,0)+bkPlanYears({[t]:byT[t]},n=>planYr(n)>=3,mk,c=>T(`แขนงวิชา${TRACKS[t]} ชั้นปีที่ 3 เป็นต้นไป`,c)):""}).join("")})()}).join('<div class="bk-break"></div>')}
 function altEditorHtml(){const ed=state.isAdmin;const trs=Object.keys(TRACKS);
   const pool=COURSES.filter(c=>altReal(c)&&c.g!=="TR"&&c.g!=="TE").filter((c,i,s)=>s.findIndex(x=>x.code===c.code)===i).sort((a,b)=>TERMS.indexOf(a.term)-TERMS.indexOf(b.term));
   return `<section class="panel" id="altEd"><h2>ร่างแผนการศึกษา แผนเทียบโอน ปวส. และแผนปริญญาตรีใบที่ 2 (ข้อ A3)</h2>
