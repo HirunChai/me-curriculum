@@ -1,15 +1,18 @@
 {
-  "name": "แพลตฟอร์มหลักสูตรวิศวกรรมเครื่องกล มทร.กรุงเทพ",
-  "short_name": "หลักสูตรเครื่องกล",
+  "name": "แพลตฟอร์มหลักสูตร วศ.บ. วิศวกรรมเครื่องกล มทร.กรุงเทพ",
+  "short_name": "หลักสูตร ME",
+  "description": "ออกแบบหลักสูตร เล่มหลักสูตร และประกันคุณภาพ AUN-QA สาขาวิชาวิศวกรรมเครื่องกล",
+  "lang": "th",
+  "id": "./",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f5f6f4",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "background_color": "#ffffff",
   "theme_color": "#0f6b63",
-  "lang": "th",
   "icons": [
-    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
   ]
 }

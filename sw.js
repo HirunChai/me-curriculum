@@ -1,11 +1,21 @@
-// Service worker: ติดตั้งเป็นแอปได้ และเปิดหน้าแอปได้เร็ว ข้อมูลยังมาจาก Supabase ทุกครั้ง
-const CACHE = "me-platform-v1";
-const SHELL = ["./", "./index.html", "./config.js", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png"];
-self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL))); self.skipWaiting(); });
-self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k))))); self.clients.claim(); });
+// Service worker ของแพลตฟอร์มหลักสูตร ME
+// ใช้เครือข่ายก่อนเสมอ (ข้อมูลล่าสุด) ถ้าออฟไลน์จึงเปิดสำเนาที่เก็บไว้ · ไม่แตะคำขอไปยัง Supabase หรือโดเมนอื่น
+const CACHE = "me-curriculum-v1";
+const SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png"];
+self.addEventListener("install", e => {
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).catch(() => {}));
+  self.skipWaiting();
+});
+self.addEventListener("activate", e => {
+  e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));
+});
 self.addEventListener("fetch", e => {
-  const u = new URL(e.request.url);
-  if (e.request.method !== "GET" || u.origin !== location.origin) return;
-  e.respondWith(fetch(e.request).then(r => { const copy = r.clone(); caches.open(CACHE).then(c => c.put(e.request, copy)); return r; })
-    .catch(() => caches.match(e.request).then(r => r || caches.match("./index.html"))));
+  const r = e.request;
+  if (r.method !== "GET" || new URL(r.url).origin !== self.location.origin) return;
+  e.respondWith(
+    fetch(r).then(res => {
+      if (res && res.ok) { const cp = res.clone(); caches.open(CACHE).then(c => c.put(r, cp)); }
+      return res;
+    }).catch(() => caches.match(r).then(m => m || (r.mode === "navigate" ? caches.match("./index.html") : undefined)))
+  );
 });
