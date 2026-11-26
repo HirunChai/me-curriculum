@@ -843,7 +843,7 @@ const CLO0={
 };
 
 const FAC_HINT={"adisorn.sa@mail.rmutk.ac.th":"นายอดิสร สโมสร"};
-const APP_VER="รุ่น 26 พ.ย. 2569 (16:30)";
+const APP_VER="รุ่น 26 พ.ย. 2569 (17:00)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -1715,7 +1715,7 @@ function bookSecHtml(id){
   }
   if(id==="h5"){
     const l1=loads("S1").m,l2=loads("S2").m,ls=loads("SS").m;
-    const uy=(sem,f,yr)=>units(sem).filter(u=>u.year<=yr&&state.assign[sem][u.key]===f).reduce((a,u)=>a+u.hrs,0);
+    const uy=(sem,f,yr)=>units(sem).filter(u=>u.year<=yr&&(state.assign[sem][u.key]===f||(u.co&&state.assign[sem][u.key+"#2"]===f))).reduce((a,u)=>a+u.hrs,0);
     const wkY=(f,k)=>{const v=(uy("S1",f.id,k+1)+uy("S2",f.id,k+1)+uy("SS",f.id,k+1))/2;return v?String(Math.round(v*10)/10):"-"};
     const fr=(L,star)=>L.map((f,i)=>{return [String(i+1),formalName(f)+(star&&roleOf(f.id)&&homeOf(f.id)==="ME"?" *":"")+(homeOf(f.id)!=="ME"?" ("+FAC_HOME[homeOf(f.id)]+")":""),DEG[bookDegLv(f)]||"",(cvDegField(f.id)||{h:bkTodo("สาขา")}),POS[qualOf(f.id).pos]||"",...[0,1,2,3].map(k=>({t:wkY(f,k),cls:"c"}))]});
     const ext=[...new Set(Object.values(state.extOwners||{}).map(x=>String(x).trim()).filter(Boolean))];
@@ -3142,6 +3142,7 @@ document.addEventListener("keydown",e=>{if(e.target.id!=="cloQ"||e.key!=="Enter"
 
 // ---- แถบสถานะมุมขวาบน: ฉบับของหลักสูตร + การอัปเดตล่าสุด ----
 const CHANGELOG=[
+ ["26 พ.ย. 2569 (17:00)","ภาระสอน (ข2): กลุ่มปฏิบัติใช้จำนวนนักศึกษาเท่ากับกลุ่มบรรยาย (สูงสุด 60 คน) และเพิ่มอาจารย์ผู้สอนปฏิบัติคนที่ 2 ได้ นับชั่วโมงให้ทั้งสองคน · ตารางสอน (ข3) ตรวจการชนเวลาของผู้สอนทั้งสองคน"],
  ["26 พ.ย. 2569 (16:30)","อาจารย์สาขาวิชาวิศวกรรมเครื่องกลที่มีวุฒิด้านไฟฟ้า (เช่น วศ.บ. ไฟฟ้า) ติ๊ก \"วุฒิด้านไฟฟ้า\" ใน ข1 หรือระบบตรวจจากประวัติการศึกษา ข4 · เป็นผู้รับผิดชอบหลักสูตรแขนงยานยนต์ได้ · แผงอาจารย์คุณวุฒิด้านไฟฟ้าแยก 2 กลุ่ม และข้อความในเล่ม หมวด 5 ข้อ 4"],
  ["26 พ.ย. 2569 (16:15)","อาจารย์จากสาขาวิชาอื่น (เช่น วิศวกรรมไฟฟ้า) เป็นอาจารย์ประจำหลักสูตรเท่านั้น เลือกเป็นผู้รับผิดชอบหลักสูตรไม่ได้ · ผู้รับผิดชอบหลักสูตรทุกแขนงเป็นอาจารย์สาขาวิชาวิศวกรรมเครื่องกล"],
  ["26 พ.ย. 2569 (16:00)","อาจารย์ประจำหลักสูตรจากสาขาวิชาวิศวกรรมไฟฟ้า: ช่องสังกัดของอาจารย์ (ข1) แผงติดตามจำนวนและรายวิชาด้านไฟฟ้า แท็กความเชี่ยวชาญไฟฟ้ากำลังและอิเล็กทรอนิกส์สำหรับจัดผู้สอน (ข2) · นิยามอาจารย์ประจำ อาจารย์ประจำหลักสูตร อาจารย์ผู้รับผิดชอบหลักสูตร ตามเกณฑ์มาตรฐาน 2565 ใน ข1 และเล่ม มคอ.2 หมวด 5 ข้อ 4"],
@@ -3463,13 +3464,13 @@ function units(sem){
     const n=c.fl&&c.fl.pool?Math.min(regN(),teDecided()&&+teRow(c.code).n>0?Math.max(+teRow(c.code).n,10):40):c.tr===A?regN():Math.round(regN()*c.tr.reduce((a,t)=>a+trkShare(t),0)); // วิชาชีพเลือก: เปิด 1 กลุ่ม
     if(n<=0)return;const year=+c.term[1];
     if(c.t>0){const ls=Math.max(1,Math.ceil(n/60));for(let i=1;i<=ls;i++)res.push({key:`${c.code}|L${i}`,c,part:"L",sec:i,secs:ls,hrs:+c.t,n:Math.ceil(n/ls),year});}
-    if(c.p>0){const ps=Math.max(1,Math.ceil(n/20));for(let i=1;i<=ps;i++)res.push({key:`${c.code}|P${i}`,c,part:"P",sec:i,secs:ps,hrs:+c.p,n:Math.ceil(n/ps),year});}
+    if(c.p>0){const ps=Math.max(1,Math.ceil(n/60));for(let i=1;i<=ps;i++)res.push({key:`${c.code}|P${i}`,c,part:"P",sec:i,secs:ps,hrs:+c.p,n:Math.ceil(n/ps),year,co:true});} // ปฏิบัติ: จำนวนนักศึกษาต่อกลุ่มเท่ากับบรรยาย มีผู้สอนได้ 2 คน
   });
   return res;
 }
 function loads(sem){
   const U=units(sem),m={};state.faculty.forEach(f=>m[f.id]={h:0,n:0,codes:new Set()});
-  let un=0;U.forEach(u=>{const f=state.assign[sem][u.key];if(f&&m[f]){m[f].h+=u.hrs;m[f].codes.add(u.c.code)}else un+=u.hrs});
+  let un=0;U.forEach(u=>{const f=state.assign[sem][u.key];if(f&&m[f]){m[f].h+=u.hrs;m[f].codes.add(u.c.code)}else un+=u.hrs;const f2=u.co&&state.assign[sem][u.key+"#2"];if(f2&&f2!==f&&m[f2]){m[f2].h+=u.hrs;m[f2].codes.add(u.c.code)}});
   Object.values(m).forEach(x=>x.n=x.codes.size);
   return {U,m,un,total:U.reduce((a,u)=>a+u.hrs,0)};
 }
@@ -3508,8 +3509,8 @@ function viewLoad(){
    ${F.length?`<div class="scroll"><table><tr><th>อาจารย์</th><th class="r">ชม./สัปดาห์</th><th class="r">วิชา</th><th>เทียบค่าเฉลี่ย</th><th></th></tr>${facRows}</table></div>`:`<div class="empty">ยังไม่มีรายชื่ออาจารย์ เพิ่มชื่อและความเชี่ยวชาญด้านล่าง ระบบจะจัดภาระสอนให้ใกล้เคียงกัน</div>`}
    <h3>${state.editing?"แก้ไขอาจารย์":"เพิ่มอาจารย์ / เจ้าหน้าที่"}</h3>${facForm()}</section>${labStaffPanelHtml()}
   <section class="panel"><h2>กลุ่มเรียนที่สาขาสอน</h2><div class="scroll"><table><tr><th>รหัส</th><th>รายวิชา</th><th>ชั้นปี</th><th>ส่วน</th><th class="r">นศ.</th><th class="r">ชม.</th><th>ผู้สอน</th></tr>
-  ${Object.values(byCourse).map(us=>us.map((u,i)=>`<tr>${i===0?`<td class="mono" rowspan="${us.length}">${esc(u.c.code)}</td><td rowspan="${us.length}">${esc(u.c.th)}<div class="small muted">${u.c.tr===A?"ทุกแขนง":u.c.tr.map(t=>TRACKS[t]).join(", ")}</div></td><td rowspan="${us.length}" class="num">${u.year}</td>`:""}<td class="small">${u.part==="L"?"บรรยาย":"ปฏิบัติ"}${u.secs>1?" กลุ่ม "+u.sec:""}</td><td class="r num">${u.n}</td><td class="r num">${u.hrs}</td><td><select data-unit="${u.key}" aria-label="ผู้สอน ${esc(u.c.code)}" ${dis()}>${opts(u.key)}</select></td></tr>`).join("")).join("")}</table></div>
-  <p class="small muted">กลุ่มเรียนบรรยายสูงสุด 60 คน ปฏิบัติสูงสุด 20 คน ไม่รวมวิชาที่หน่วยงานอื่นสอนและการนิเทศสหกิจศึกษา</p></section>`;
+  ${Object.values(byCourse).map(us=>us.map((u,i)=>`<tr>${i===0?`<td class="mono" rowspan="${us.length}">${esc(u.c.code)}</td><td rowspan="${us.length}">${esc(u.c.th)}<div class="small muted">${u.c.tr===A?"ทุกแขนง":u.c.tr.map(t=>TRACKS[t]).join(", ")}</div></td><td rowspan="${us.length}" class="num">${u.year}</td>`:""}<td class="small">${u.part==="L"?"บรรยาย":"ปฏิบัติ"}${u.secs>1?" กลุ่ม "+u.sec:""}</td><td class="r num">${u.n}</td><td class="r num">${u.hrs}</td><td><select data-unit="${u.key}" aria-label="ผู้สอน ${esc(u.c.code)}" ${dis()}>${opts(u.key)}</select>${u.co?`<div style="margin-top:4px"><select data-unit="${u.key}#2" aria-label="ผู้สอนปฏิบัติคนที่ 2 ${esc(u.c.code)}" ${dis()}>${opts(u.key+"#2").replace("— ยังไม่จัด —","— ผู้สอนคนที่ 2 (ถ้ามี) —")}</select></div>`:""}</td></tr>`).join("")).join("")}</table></div>
+  <p class="small muted">กลุ่มเรียนบรรยายสูงสุด 60 คน กลุ่มปฏิบัติใช้จำนวนนักศึกษาเท่ากับกลุ่มบรรยาย และมีอาจารย์ผู้สอนปฏิบัติได้ 2 คนต่อกลุ่ม (นับชั่วโมงปฏิบัติเต็มให้ทั้งสองคน) ไม่รวมวิชาที่หน่วยงานอื่นสอนและการนิเทศสหกิจศึกษา</p></section>`;
 }
 // ---- เจ้าหน้าที่ประจำห้องปฏิบัติการ (program/labstaff: staff=[{name,email}], emails=[...] ใช้ตรวจสิทธิ์ใน SQL) ----
 const labStaffList=()=>{const L=(state.labStaffList||[]).map(x=>({name:x.name||"",email:canonEmail(x.email||"")}));const have=new Set(L.map(x=>x.email).filter(Boolean));(state.labStaff||[]).forEach(e=>{e=canonEmail(e);if(e&&!have.has(e))L.push({name:"",email:e})});return L};
@@ -3531,12 +3532,13 @@ function events(sem){if(state.ttTx)return txEvents();
   const ev=[];
   units(sem).filter(u=>!u.c.fl.capstone).forEach(u=>{const h=u.hrs;const parts=h>4?[Math.ceil(h/2),Math.floor(h/2)]:[h];
     const NA=Math.max(1,Math.ceil(regN()/20)),at=u.c.tr===A&&u.secs>1?Array.from({length:NA},(_,i)=>i).filter(i=>i>=Math.floor((u.sec-1)*NA/u.secs)&&i<Math.ceil(u.sec*NA/u.secs)):null; // กลุ่มย่อยของนักศึกษา (ห้องละ 2 กลุ่มปฏิบัติ)
-    parts.forEach((len,j)=>ev.push({id:u.key+"#"+j,u,len,fac:state.assign[sem][u.key]||null,year:u.year,at,grp:u.c.tr===A?(u.secs>1?"S"+u.sec:"ALL"):u.c.tr[0]}))});
+    parts.forEach((len,j)=>ev.push({id:u.key+"#"+j,u,len,fac:state.assign[sem][u.key]||null,fac2:(u.co&&state.assign[sem][u.key+"#2"])||null,year:u.year,at,grp:u.c.tr===A?(u.secs>1?"S"+u.sec:"ALL"):u.c.tr[0]}))});
   const pl=e=>e.u.c.fl&&e.u.c.fl.pool?1:0; // วางวิชาบังคับก่อน แล้วจึงวางวิชาชีพเลือก
   return ev.sort((a,b)=>pl(a)-pl(b)||b.len-a.len||a.year-b.year);
 }
-function clash(a,b){const pl=x=>x.u&&x.u.c&&x.u.c.fl&&x.u.c.fl.pool;if(pl(a)&&pl(b))return !!(a.fac&&a.fac===b.fac); // วิชาเลือกสองวิชาไม่ชนกันฝั่งนักศึกษา
-  if(a.tx||b.tx){if(a.fac&&a.fac===b.fac)return true;const ov=(a.tx||[]).some(x=>(b.tx||[]).includes(x));if(!ov)return false;if(a.grp[0]==="S"&&b.grp[0]==="S")return a.grp===b.grp||a.u.c.code!==b.u.c.code;return true}if(a.fac&&a.fac===b.fac)return true;if(a.year!==b.year)return false;
+const sameFac=(a,b)=>{const A=[a.fac,a.fac2].filter(Boolean),B=[b.fac,b.fac2].filter(Boolean);return A.some(x=>B.includes(x))};
+function clash(a,b){const pl=x=>x.u&&x.u.c&&x.u.c.fl&&x.u.c.fl.pool;if(pl(a)&&pl(b))return !!(sameFac(a,b)); // วิชาเลือกสองวิชาไม่ชนกันฝั่งนักศึกษา
+  if(a.tx||b.tx){if(sameFac(a,b))return true;const ov=(a.tx||[]).some(x=>(b.tx||[]).includes(x));if(!ov)return false;if(a.grp[0]==="S"&&b.grp[0]==="S")return a.grp===b.grp||a.u.c.code!==b.u.c.code;return true}if(sameFac(a,b))return true;if(a.year!==b.year)return false;
   if(a.grp==="ALL"||b.grp==="ALL")return true;
   if(a.grp[0]==="S"&&b.grp[0]==="S"){if(a.at&&b.at)return a.at.some(x=>b.at.includes(x));return a.grp===b.grp||a.u.c.code!==b.u.c.code}
   if(a.grp[0]==="S"||b.grp[0]==="S")return true;
@@ -3560,7 +3562,7 @@ function viewTimetable(){
   const years=[...new Set(SEM[sem].map(k=>+k[1]))];
   const keys=state.ttMode==="fac"?F.map(f=>[f.id,f.name]):state.ttTx?[...new Set(placed.concat(fail).flatMap(p=>p.tx||[]))].sort().map(k=>[k,k]):years.flatMap(y=>[[`${y}:ALL`,`ชั้นปี ${y} ทุกแขนง`],...Object.keys(TRACKS).map(t=>[`${y}:${t}`,`ชั้นปี ${y} แขนง${TRACKS[t]}`])]);
   if(!keys.some(k=>k[0]===state.ttKey))state.ttKey=keys[0]?keys[0][0]:"";
-  const mine=placed.filter(p=>{if(state.ttMode==="fac")return p.fac===state.ttKey;if(state.ttTx)return (p.tx||[]).includes(state.ttKey);const [y,t]=state.ttKey.split(":");if(p.year!==+y)return false;return t==="ALL"?p.grp==="ALL"||p.grp[0]==="S":p.grp===t||p.grp==="ALL"||p.grp[0]==="S"});
+  const mine=placed.filter(p=>{if(state.ttMode==="fac")return p.fac===state.ttKey||p.fac2===state.ttKey;if(state.ttTx)return (p.tx||[]).includes(state.ttKey);const [y,t]=state.ttKey.split(":");if(p.year!==+y)return false;return t==="ALL"?p.grp==="ALL"||p.grp[0]==="S":p.grp===t||p.grp==="ALL"||p.grp[0]==="S"});
   const hrs=mine.reduce((a,p)=>a+p.len,0);
   const D7=["จันทร์","อังคาร","พุธ","พฤหัสบดี","ศุกร์","เสาร์","อาทิตย์"],H0=8,H1=21,NC=H1-H0;
   let grid=`<div class="tt2" style="grid-template-columns:84px repeat(${NC},minmax(62px,1fr))"><div class="h" style="grid-row:1/3;grid-column:1">วัน / เวลา</div><div class="h grp" style="grid-row:1;grid-column:2/span ${18-H0}">ภาคปกติ 08:00–18:00 น.</div><div class="h grp eve" style="grid-row:1;grid-column:${2+18-H0}/span ${H1-18}">ภาคสมทบ 18:00–21:00 น. (จันทร์–ศุกร์)</div>`;
