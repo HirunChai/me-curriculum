@@ -843,7 +843,7 @@ const CLO0={
 };
 
 const FAC_HINT={"adisorn.sa@mail.rmutk.ac.th":"นายอดิสร สโมสร"};
-const APP_VER="รุ่น 26 พ.ย. 2569 (13:30)";
+const APP_VER="รุ่น 26 พ.ย. 2569 (14:00)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -2709,20 +2709,59 @@ function viewPlanAlt(k){const cfg=ALT_CFG[k],S=altSchedule(k,state.track),tr=S.t
   <div class="note">แผนนี้เป็นแผนเดียวกับที่ใส่ในเล่ม มคอ.2 หมวด 3 ข้อ 3.3 ${k==="pvs"?"(แผน ข.)":"(แผน ค.)"} ผู้ที่เทียบโอนได้ไม่ครบให้ลงเรียนรายวิชาที่ขาดเพิ่มตามแผนปกติ${(cfg.engOnly||[]).length?" · ผู้จบ วศ.บ. เทียบโอน "+cfg.engOnly.join(", ")+" เพิ่มได้":""}</div>`}
 function viewPlan(){
   if(state.planAdm&&state.planAdm!=="reg"&&ALT_CFG[state.planAdm])return viewPlanAlt(state.planAdm);
-  const L=trackCourses(state.track);
+  const isPool=c=>c.fl&&c.fl.pool;const L=trackCourses(state.track).filter(c=>!isPool(c));
   const byG=Object.keys(GROUPS).map(g=>[g,sumCr(L,c=>c.g===g)]);
-  const lv=c=>{const r=ploOf(c);return PLOS.map(p=>`<td class="c">${lvSpan(r.map[p.n],r.src==="default")}</td>`).join("")};
+  const lv=c=>{const r=ploOf(c);return PLOS.map(p=>`<td class="c">${c.fl&&c.fl.slot?"":lvSpan(r.map[p.n],r.src==="default")}</td>`).join("")};
   const ed=state.courseEdit;
-  return flowBar("plan")+`<p class="lead">โครงสร้างหน่วยกิตและแผนการเรียนรายภาค แก้ไขรายวิชาได้ที่ปุ่มแก้ไขของแต่ละแถว ระดับ PLO มาจาก CLO ใน ก3</p>
-  <div class="row" style="margin-bottom:12px">${planAdmSeg()}</div>
-  <div class="row" style="margin-bottom:12px">${trackSeg()}<span class="muted small">รวม ${sumCr(L)} หน่วยกิต</span><button id="courseAdd" ${dis()}>+ เพิ่มรายวิชา</button></div>
-  ${ed==="new"?`<section class="panel">${courseForm({code:"",th:"",cr:3,t:3,p:0,s:6,g:"TE",tr:[state.track],term:"Y3S1",dept:"ME",dom:""},true)}</section>`:""}
-  <section class="panel"><h2>โครงสร้างหน่วยกิต</h2><div class="scroll"><table><tr>${byG.map(([g])=>`<th>${GROUPS[g]}</th>`).join("")}<th>รวม</th></tr><tr>${byG.map(([,v])=>`<td class="num">${v}</td>`).join("")}<td class="num"><b>${sumCr(L)}</b></td></tr></table></div></section>
-  ${TERMS.map(k=>{const rows=L.filter(c=>c.term===k);if(!rows.length)return"";const y=k[1],first=TERMS.find(x=>x[1]===y&&L.some(c=>c.term===x))===k;return (first?`<h2 style="margin:18px 0 6px">ชั้นปีที่ ${y} <span class="muted small num">· ${sumCr(L.filter(c=>c.term[1]===y))} หน่วยกิต</span>${+y<=2?' <span class="tag">ทุกแขนงเรียนร่วมกัน</span>':""}</h2>`:"")+`<section class="panel"><h2>${TERM_TH[k]} <span class="muted small num">· ${sumCr(rows)} หน่วยกิต</span></h2>
+  const nm=c=>c.g==="TE"&&c.fl.slot?'<b>วิชาเลือกแขนง</b> <a href="#tePool" class="small">เลือกจากคลังวิชาเลือกแขนง</a>':c.g==="FREE"?"วิชาเลือกเสรี"+(/SS$/.test(c.term)?' <span class="small muted">(สาขาเปิดในภาคฤดูร้อน)</span>':""):esc(c.th);
+  const termPanel=k=>{const rows=L.filter(c=>c.term===k);if(!rows.length)return"";return `<section class="panel"><h2>${TERM_TH[k]} <span class="muted small num">· ${sumCr(rows)} หน่วยกิต</span></h2>
   <div class="scroll"><table><tr><th>รหัส</th><th>รายวิชา</th><th>นก. (ท-ป-ศ)</th><th>กลุ่ม</th>${PLOS.map(p=>`<th class="c">PLO${p.n}</th>`).join("")}<th></th></tr>
-  ${rows.map(c=>ed===c.code?`<tr><td colspan="${PLOS.length+5}">${courseForm(c,false)}</td></tr>`:`<tr><td class="mono">${esc(c.code)}</td><td>${esc(c.th)}${c.fl.proposed?' <span class="tag">ร่างใหม่</span>':""}${c.fl.added?' <span class="tag">เพิ่มบนเว็บ</span>':""}${c.fl.edited?' <span class="tag">แก้ไขแล้ว</span>':""}${c.dept==="EXT"?' <span class="tag">สอนโดยหน่วยงานอื่น</span>':""}</td><td class="mono">${c.cr}(${c.t}-${c.p}-${c.s})</td><td class="small muted">${GROUPS[c.g]}</td>${lv(c)}<td><button class="sm" data-courseedit="${esc(c.code)}" ${dis()}>แก้ไข</button></td></tr>`).join("")}</table></div></section>`}).join("")}
-  <div class="note">กรอบเส้นประ = ระดับตั้งต้นของวิชาที่ยังไม่มี CLO · วิชาเลือกแขนงแสดงเฉพาะวิชาที่สมมติว่าเปิดในแต่ละปี</div>`;
+  ${rows.map(c=>ed===c.code?`<tr><td colspan="${PLOS.length+5}">${courseForm(c,false)}</td></tr>`:`<tr><td class="mono">${c.fl.slot?"x-xxx-xxx":esc(c.code)}</td><td>${nm(c)}${c.g==="TR"?' <span class="tag">วิชาของแขนง</span>':""}${c.fl.proposed?' <span class="tag">ร่างใหม่</span>':""}${c.fl.added?' <span class="tag">เพิ่มบนเว็บ</span>':""}${c.fl.edited?' <span class="tag">แก้ไขแล้ว</span>':""}${c.dept==="EXT"&&!c.fl.slot&&c.g!=="FREE"?' <span class="tag">สอนโดยหน่วยงานอื่น</span>':""}</td><td class="mono">${c.cr}(${c.t}-${c.p}-${c.s})</td><td class="small muted">${GROUPS[c.g]}</td>${lv(c)}<td>${c.fl.slot?"":`<button class="sm" data-courseedit="${esc(c.code)}" ${dis()}>แก้ไข</button>`}</td></tr>`).join("")}</table></div></section>`};
+  const yearHead=(ys,extra)=>ys.map(y=>`<h2 style="margin:18px 0 6px">ชั้นปีที่ ${y} <span class="muted small num">· ${sumCr(L.filter(c=>c.term[1]===y))} หน่วยกิต</span>${extra||""}</h2>`+TERMS.filter(k=>k[1]===y).map(termPanel).join("")).join("");
+  return flowBar("plan")+`<p class="lead">โครงสร้างหน่วยกิตและแผนการเรียนรายภาค ชั้นปีที่ 1–2 ทุกแขนงเรียนเหมือนกัน แยกแขนงตั้งแต่ชั้นปีที่ 3 แก้ไขรายวิชาได้ที่ปุ่มแก้ไขของแต่ละแถว ระดับ PLO มาจาก CLO ใน ก3</p>
+  <div class="row" style="margin-bottom:12px">${planAdmSeg()}<span class="muted small">รวม ${sumCr(L)} หน่วยกิตทุกแขนง</span><button id="courseAdd" ${dis()}>+ เพิ่มรายวิชา</button></div>
+  ${ed==="new"?`<section class="panel">${courseForm({code:"",th:"",cr:3,t:3,p:0,s:6,g:"TE",tr:[state.track],term:"Y3S1",dept:"ME",dom:""},true)}</section>`:""}
+  <section class="panel"><h2>โครงสร้างหน่วยกิต (เท่ากันทุกแขนง)</h2><div class="scroll"><table><tr>${byG.map(([g])=>`<th>${GROUPS[g]}</th>`).join("")}<th>รวม</th></tr><tr>${byG.map(([,v])=>`<td class="num">${v}</td>`).join("")}<td class="num"><b>${sumCr(L)}</b></td></tr></table></div></section>
+  <h2 style="margin:22px 0 4px;font-size:1.25em">ชั้นปีที่ 1–2 · ทุกแขนงเรียนร่วมกัน</h2>
+  ${yearHead(["1","2"])}
+  <h2 style="margin:26px 0 8px;font-size:1.25em">ชั้นปีที่ 3–4 · แยกตามแขนงวิชา</h2>
+  <div class="row" style="margin-bottom:8px">${trackSeg()}<span class="muted small">แสดงแขนง${esc(TRACKS[state.track])}</span></div>
+  ${yearHead(["3","4"])}
+  ${tePoolHtml()}
+  <div class="note">กรอบเส้นประ = ระดับตั้งต้นของวิชาที่ยังไม่มี CLO · ช่อง "วิชาเลือกแขนง" นักศึกษาเลือกจากคลังวิชาเลือกแขนงตามกระบวนการด้านล่าง</div>`;
 }
+// ---- คลังวิชาเลือกแขนง: กระบวนการเลือกของนักศึกษา และรายวิชาที่เปิดสอน (ส่งต่อไปตารางสอน ข3 / ภาระสอน ข2) ----
+const TE_REC={auto:"EV",energy:"CE"};const teRec=c=>TE_REC[c.dom]||"ME";const TE_ORD={ME:0,EV:1,CE:2};
+const teSel=()=>(state.altplan&&state.altplan.te)||null;const teMin=()=>{const t=teSel();return t&&+t.min>0?+t.min:10};
+const teRow=code=>((teSel()||{}).c||{})[code]||{};
+const teOpen=c=>{const r=teRow(c.code);if(r.open!=null)return !!r.open;return (+r.n||0)>=teMin()};
+const teDecided=()=>{const t=teSel();return !!(t&&t.c&&Object.keys(t.c).length)};
+function tePoolHtml(){const ed=state.isAdmin;const P=COURSES.filter(c=>c.fl&&c.fl.pool).filter((c,i,s)=>s.findIndex(x=>x.code===c.code)===i).sort((a,b)=>TE_ORD[teRec(a)]-TE_ORD[teRec(b)]||a.code.localeCompare(b.code));
+  const nOpen=P.filter(teOpen).length;
+  return `<section class="panel" id="tePool"><h2>คลังวิชาเลือกแขนง <span class="muted small num">· ${P.length} วิชา · เปิดสอน ${teDecided()?nOpen:"ยังไม่สรุป"}</span></h2>
+  <p class="small"><b>กระบวนการเลือกของนักศึกษา</b></p>
+  <ol class="small" style="margin:4px 0 10px 18px;line-height:1.7">
+   <li>ภาคการศึกษาที่ 2 ของชั้นปีที่ 3 สาขาประกาศคลังวิชาเลือกแขนง อาจารย์ผู้สอน และวิชาที่แนะนำของแต่ละแขนง</li>
+   <li>นักศึกษาปรึกษาอาจารย์ที่ปรึกษา แล้วเลือกวิชาเลือกแขนง 3 อันดับผ่านแบบฟอร์มออนไลน์ของสาขา</li>
+   <li>กรรมการบริหารหลักสูตรสรุปจำนวนผู้เลือกอันดับ 1 ลงในตารางนี้ วิชาที่มีผู้เลือกตั้งแต่ <b>${teMin()}</b> คนเปิดสอน วิชาที่ไม่ถึงเกณฑ์ ให้นักศึกษาใช้อันดับถัดไป (กรรมการปรับเปิด/ไม่เปิดเองได้)</li>
+   <li>รายวิชาที่เปิดสอนเข้าตารางสอน (ข3) และภาระสอน (ข2) ของภาคการศึกษาที่เลือกโดยอัตโนมัติ</li>
+   <li>นักศึกษาลงทะเบียนวิชาเลือกแขนงตามผลการเลือกในชั้นปีที่ 4 ภาคการศึกษาที่ 1</li></ol>
+  <div class="row small" style="margin-bottom:6px">เกณฑ์เปิดสอน (คน) <input type="number" min="1" max="60" value="${teMin()}" data-temin="1" style="width:70px" ${ed?"":"disabled"} aria-label="จำนวนผู้เลือกขั้นต่ำ">${ed?"":'<span class="muted">กรรมการหลักสูตรเท่านั้นที่บันทึกผลการเลือกได้</span>'}</div>
+  <div class="scroll"><table class="small"><tr><th>รหัส</th><th>รายวิชา</th><th>นก. (ท-ป-ศ)</th><th>แนะนำแขนง</th><th class="c">ผู้เลือก (คน)</th><th class="c">เปิดสอน</th><th>ภาคที่เปิด</th></tr>
+  ${P.map(c=>{const r=teRow(c.code),o=teOpen(c);return `<tr${o&&teDecided()?' style="background:var(--accent-soft)"':""}><td class="mono">${esc(c.code)}</td><td>${esc(c.th)}${c.fl.proposed?' <span class="tag">ร่างใหม่</span>':""}</td><td class="mono">${c.cr}(${c.t}-${c.p}-${c.s})</td><td><span class="tag">${esc(TRACKS[teRec(c)])}</span></td>
+   <td class="c"><input type="number" min="0" max="200" value="${r.n!=null?r.n:""}" data-tevote="${esc(c.code)}" style="width:64px" ${ed?"":"disabled"} aria-label="จำนวนผู้เลือก ${esc(c.code)}"></td>
+   <td class="c"><input type="checkbox" data-teopen="${esc(c.code)}" ${o?"checked":""} ${ed?"":"disabled"} aria-label="เปิดสอน ${esc(c.code)}"></td>
+   <td><select data-tesem="${esc(c.code)}" ${ed?"":"disabled"} aria-label="ภาคที่เปิด ${esc(c.code)}"><option value="S1" ${(r.sem||"S1")==="S1"?"selected":""}>ภาค 1 (ปี 4)</option><option value="S2" ${r.sem==="S2"?"selected":""}>ภาค 2 (กรณีพิเศษ เช่น นักศึกษาภาคสมทบ)</option></select></td></tr>`}).join("")}</table></div>
+  <p class="small muted">ก่อนบันทึกผลการเลือก ตารางสอนและภาระสอนสมมติว่าเปิดทุกวิชาในคลังตามภาคเดิมของรายวิชา เมื่อบันทึกผลแล้วจะใช้เฉพาะวิชาที่เปิดสอน</p></section>`}
+async function teSave(){render();await dbWrite(db=>db.doc("program/altplan").set({...state.altplan,updatedAt:new Date().toISOString()}),"ผลการเลือกวิชาเลือกแขนง")}
+document.addEventListener("change",e=>{const d=e.target.dataset||{};if(!(d.tevote||d.teopen||d.tesem||d.temin))return;if(!state.isAdmin)return;
+  const t={min:teMin(),c:{},...((state.altplan||{}).te||{})};t.c={...(t.c||{})};
+  if(d.temin)t.min=Math.max(1,+e.target.value||10);
+  else{const k=d.tevote||d.teopen||d.tesem;const r={...(t.c[k]||{})};
+    if(d.tevote){r.n=e.target.value===""?null:Math.max(0,+e.target.value);delete r.open}
+    if(d.teopen)r.open=e.target.checked;
+    if(d.tesem)r.sem=e.target.value;t.c[k]=r}
+  state.altplan={...(state.altplan||{}),te:t};teSave()});
 function courseForm(c,isNew){
   const tr=c.tr===A?["ALL"]:c.tr;
   return `<form class="form" id="courseForm" data-code="${esc(c.code)}" data-new="${isNew?1:0}">
@@ -3075,6 +3114,7 @@ document.addEventListener("keydown",e=>{if(e.target.id!=="cloQ"||e.key!=="Enter"
 
 // ---- แถบสถานะมุมขวาบน: ฉบับของหลักสูตร + การอัปเดตล่าสุด ----
 const CHANGELOG=[
+ ["26 พ.ย. 2569 (14:00)","แถบ ก5: ชั้นปีที่ 1–2 แสดงครั้งเดียว (ทุกแขนงเหมือนกัน) และแยกแถบแขนงตั้งแต่ชั้นปีที่ 3 · ช่องวิชาเลือกในตารางชื่อ \"วิชาเลือกแขนง\" · คลังวิชาเลือกแขนงพร้อมกระบวนการเลือกของนักศึกษา บันทึกจำนวนผู้เลือก เปิด/ไม่เปิด และภาคที่เปิด · วิชาที่เปิดสอนเข้าตารางสอน (ข3) และภาระสอน (ข2)"],
  ["26 พ.ย. 2569 (13:30)","แถบ ก5 แผนการเรียน: เลือกแผนการรับ แผน ก. ปกติ 4 ปี · แผน ข. เทียบโอน ปวส. · แผน ค. ปริญญาตรีใบที่ 2 (ภาคสมทบ) แสดงแผนรายชั้นปีและรายภาคของแต่ละแขนง พร้อมรายวิชาที่เทียบโอน"],
  ["26 พ.ย. 2569 (13:00)","ภาคฤดูร้อนปี 2 เป็นวิชาเลือกเสรี 1–2 ที่สาขาเปิด (มหาวิทยาลัยไม่เปิดวิชาศึกษาทั่วไปภาคฤดูร้อน) · ย้ายวิชาเลือกศึกษาทั่วไป 1 ไปปี 4 ภาค 1"],
  ["26 พ.ย. 2569 (12:30)","แผนการเรียน: ชั้นปีที่ 1–2 ไม่มีรายวิชาของแขนง ย้ายวิชาปฏิบัติงานของแขนง (4-116-102, 4-113-207, 4-112-208) จากปี 2 ภาคฤดูร้อนไปปี 3 ภาค 1 และย้ายวิชาเลือกศึกษาทั่วไป 1 ไปปี 2 ภาคฤดูร้อนแทน · ปรับข้อความหมวด 3 ข้อ 2.8 การเลือกแขนง คุณลักษณะพิเศษ และ CWIE ให้ตรงกัน"],
@@ -3382,8 +3422,8 @@ function viewCheck(){
 // ---- views: manage ----
 function units(sem){
   const res=[];
-  COURSES.filter(c=>SEM[sem].includes(c.term)&&c.dept==="ME"&&!c.fl.coop&&!c.fl.slot).forEach(c=>{
-    const n=c.fl&&c.fl.pool?Math.min(regN(),40):c.tr===A?regN():Math.round(regN()*c.tr.reduce((a,t)=>a+trkShare(t),0)); // วิชาชีพเลือก: เปิด 1 กลุ่ม
+  COURSES.filter(c=>c.dept==="ME"&&!c.fl.coop&&!c.fl.slot&&(c.fl&&c.fl.pool&&teDecided()?teOpen(c)&&(teRow(c.code).sem||"S1")===sem:SEM[sem].includes(c.term))).forEach(c=>{
+    const n=c.fl&&c.fl.pool?Math.min(regN(),teDecided()&&+teRow(c.code).n>0?Math.max(+teRow(c.code).n,10):40):c.tr===A?regN():Math.round(regN()*c.tr.reduce((a,t)=>a+trkShare(t),0)); // วิชาชีพเลือก: เปิด 1 กลุ่ม
     if(n<=0)return;const year=+c.term[1];
     if(c.t>0){const ls=Math.max(1,Math.ceil(n/60));for(let i=1;i<=ls;i++)res.push({key:`${c.code}|L${i}`,c,part:"L",sec:i,secs:ls,hrs:+c.t,n:Math.ceil(n/ls),year});}
     if(c.p>0){const ps=Math.max(1,Math.ceil(n/20));for(let i=1;i<=ps;i++)res.push({key:`${c.code}|P${i}`,c,part:"P",sec:i,secs:ps,hrs:+c.p,n:Math.ceil(n/ps),year});}
