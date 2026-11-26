@@ -843,7 +843,7 @@ const CLO0={
 };
 
 const FAC_HINT={"adisorn.sa@mail.rmutk.ac.th":"นายอดิสร สโมสร"};
-const APP_VER="รุ่น 26 พ.ย. 2569 (14:30)";
+const APP_VER="รุ่น 26 พ.ย. 2569 (15:00)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -2699,12 +2699,17 @@ const PLAN_ADM=[["reg","แผน ก. ปกติ 4 ปี (ม.6 / ปวช.
 function planAdmSeg(){const a=state.planAdm||"reg";return `<div class="seg" role="group" aria-label="เลือกแผนการรับ">${PLAN_ADM.map(([k,v])=>`<button data-planadm="${k}" aria-pressed="${a===k}">${v}</button>`).join("")}</div>`}
 function planRowsHtml(rows,lv){return `<div class="scroll"><table><tr><th>รหัส</th><th>รายวิชา</th><th>นก. (ท-ป-ศ)</th><th>กลุ่ม</th>${lv?PLOS.map(p=>`<th class="c">PLO${p.n}</th>`).join(""):""}</tr>
   ${rows.map(c=>`<tr><td class="mono">${c.g==="FREE"||c.g==="TE"?"x-xxx-xxx":esc(c.code)}</td><td>${esc(c.th)}${c.g==="TR"?' <span class="tag">วิชาของแขนง</span>':""}${c.g==="TE"?' <span class="tag">วิชาชีพเลือก</span>':""}</td><td class="mono">${c.fl&&c.fl.nc?`(${c.t})`:c.cr}(${c.t}-${c.p}-${c.s})</td><td class="small muted">${GROUPS[c.g]}</td>${lv?lv(c):""}</tr>`).join("")}</table></div>`}
+function planSemCheck(){const bad=[];Object.keys(TRACKS).forEach(t=>["pvs","sec"].forEach(k=>{altSchedule(k,t).slots.forEach(x=>x.cs.forEach(c=>{if(c.dept!=="ME"||/SS$/.test(c.term)||(c.fl&&c.fl.coop))return;const sm=/ฤดูร้อน/.test(x.name)?"SS":(x.name.match(/ภาคการศึกษาที่ (\d)/)||[])[1];if(sm!==c.term.slice(-1))bad.push([k,t,c.code,x.name])}))}));return bad}
+function planSemNote(){const b=planSemCheck();const n=COURSES.filter(c=>c.dept==="ME"&&!(c.fl&&c.fl.pool)&&!/SS$/.test(c.term)).filter((c,i,s)=>s.findIndex(x=>x.code===c.code)===i);
+  return b.length?`<div class="note" style="border-color:#b42318">รายวิชาที่สาขาเปิดแต่อยู่คนละภาคการศึกษาระหว่างแผนการรับ ${b.length} รายการ: ${b.slice(0,8).map(x=>esc(x[2]+" ("+ALT_CFG[x[0]].t+" "+TRACKS[x[1]]+" "+x[3]+")")).join(" · ")}</div>`
+   :`<div class="note">รายวิชาที่สาขาเปิด ${n.length} วิชา (ภาค 1: ${n.filter(c=>c.term.endsWith("1")).length} · ภาค 2: ${n.filter(c=>c.term.endsWith("2")).length}) อยู่ภาคการศึกษาเดียวกันทั้ง 3 แผนการรับ จึงเปิดสอนครั้งเดียวรองรับนักศึกษาทุกแผน (ภาคสมทบเปิดกลุ่มเรียนนอกเวลาราชการในภาคเดียวกัน)</div>`}
 function viewPlanAlt(k){const cfg=ALT_CFG[k],S=altSchedule(k,state.track),tr=S.tr,rest=S.slots.flatMap(x=>x.cs);
   const yrs=[...new Set(S.slots.map(x=>Math.floor(x.i/3)+1))];const trackStart=S.slots.find(x=>x.cs.some(c=>c.g==="TR"));
   return flowBar("plan")+`<p class="lead">${esc(cfg.t)} · แผนรายภาคสร้างจากแผนปกติ โดยตัดรายวิชาที่เทียบโอนออกและจัดรายวิชาที่เหลือตามลำดับวิชาบังคับก่อน ภาคฤดูร้อนจัดเฉพาะวิชาเลือกที่สาขาเปิด (มหาวิทยาลัยไม่เปิดวิชาศึกษาทั่วไปภาคฤดูร้อน) ภาคการศึกษาปกติไม่เกิน ${cfg.cap} หน่วยกิต ภาคฤดูร้อนไม่เกิน ${cfg.capSS} หน่วยกิต</p>
   <div class="row" style="margin-bottom:12px">${planAdmSeg()}</div>
   <div class="row" style="margin-bottom:12px">${trackSeg()}<span class="muted small">เทียบโอน ${sumCr(tr)} · เรียนในหลักสูตร ${sumCr(rest)} หน่วยกิต · ${S.years} ปีการศึกษา${trackStart?" · เริ่มวิชาของแขนง "+esc(trackStart.name):""}</span><button class="sm" data-gohash="#book/review">แก้รายวิชาที่เทียบโอน (ค4)</button></div>
   <section class="panel"><h2>รายวิชาที่เทียบโอนได้ <span class="muted small num">· ${sumCr(tr)} หน่วยกิต</span></h2>${tr.length?planRowsHtml(tr):'<p class="muted small">ยังไม่ได้กำหนดรายวิชาที่เทียบโอน</p>'}</section>
+  ${planSemNote()}
   ${yrs.map(y=>{const sl=S.slots.filter(x=>Math.floor(x.i/3)+1===y);return `<h2 style="margin:18px 0 6px">ชั้นปีที่ ${y} <span class="muted small num">· ${sumCr(sl.flatMap(x=>x.cs))} หน่วยกิต</span></h2>`+sl.map(x=>`<section class="panel"><h2>${esc(x.name)} <span class="muted small num">· ${sumCr(x.cs,c=>!(c.fl&&c.fl.nc))} หน่วยกิต</span></h2>${planRowsHtml(x.cs)}</section>`).join("")}).join("")}
   <div class="note">แผนนี้เป็นแผนเดียวกับที่ใส่ในเล่ม มคอ.2 หมวด 3 ข้อ 3.3 ${k==="pvs"?"(แผน ข.)":"(แผน ค.)"} ผู้ที่เทียบโอนได้ไม่ครบให้ลงเรียนรายวิชาที่ขาดเพิ่มตามแผนปกติ${(cfg.engOnly||[]).length?" · ผู้จบ วศ.บ. เทียบโอน "+cfg.engOnly.join(", ")+" เพิ่มได้":""}</div>`}
 function viewPlan(){
@@ -2728,6 +2733,7 @@ function viewPlan(){
   <div class="row" style="margin-bottom:8px">${trackSeg()}<span class="muted small">แสดงแขนง${esc(TRACKS[state.track])}</span></div>
   ${yearHead(["3","4"])}
   ${tePoolHtml()}
+  ${planSemNote()}
   <div class="note">กรอบเส้นประ = ระดับตั้งต้นของวิชาที่ยังไม่มี CLO · ช่อง "วิชาเลือกแขนง" นักศึกษาเลือกจากคลังวิชาเลือกแขนงตามกระบวนการด้านล่าง</div>`;
 }
 // ---- คลังวิชาเลือกแขนง: กระบวนการเลือกของนักศึกษา และรายวิชาที่เปิดสอน (ส่งต่อไปตารางสอน ข3 / ภาระสอน ข2) ----
@@ -3114,6 +3120,7 @@ document.addEventListener("keydown",e=>{if(e.target.id!=="cloQ"||e.key!=="Enter"
 
 // ---- แถบสถานะมุมขวาบน: ฉบับของหลักสูตร + การอัปเดตล่าสุด ----
 const CHANGELOG=[
+ ["26 พ.ย. 2569 (15:00)","จัดแผน ข. (เทียบโอน ปวส.) และแผน ค. (ปริญญาตรีใบที่ 2) ให้รายวิชาที่สาขาเปิดอยู่ภาคการศึกษาเดียวกับแผนปกติ เปิดสอนครั้งเดียวรองรับทุกแผนการรับ · แถบ ก5 แสดงผลตรวจการเปิดสอนร่วม"],
  ["26 พ.ย. 2569 (14:30)","แผนการเรียนปี 1: ย้าย 2-110-152 เคมีสำหรับวิศวกร และ 2-110-153 ปฏิบัติการเคมีสำหรับวิศวกร ไปภาคการศึกษาที่ 2 และย้าย 0-122-002 มนุษย์กับการพัฒนาตนเอง มาภาคการศึกษาที่ 1 (ภาค 1 = 19 หน่วยกิต ภาค 2 = 20 หน่วยกิต)"],
  ["26 พ.ย. 2569 (14:00)","แถบ ก5: ชั้นปีที่ 1–2 แสดงครั้งเดียว (ทุกแขนงเหมือนกัน) และแยกแถบแขนงตั้งแต่ชั้นปีที่ 3 · ช่องวิชาเลือกในตารางชื่อ \"วิชาเลือกแขนง\" · คลังวิชาเลือกแขนงพร้อมกระบวนการเลือกของนักศึกษา บันทึกจำนวนผู้เลือก เปิด/ไม่เปิด และภาคที่เปิด · วิชาที่เปิดสอนเข้าตารางสอน (ข3) และภาระสอน (ข2)"],
  ["26 พ.ย. 2569 (13:30)","แถบ ก5 แผนการเรียน: เลือกแผนการรับ แผน ก. ปกติ 4 ปี · แผน ข. เทียบโอน ปวส. · แผน ค. ปริญญาตรีใบที่ 2 (ภาคสมทบ) แสดงแผนรายชั้นปีและรายภาคของแต่ละแขนง พร้อมรายวิชาที่เทียบโอน"],
@@ -3233,22 +3240,25 @@ function altTransfer(k){const S=state.altplan&&state.altplan[k];if(Array.isArray
   if(cfg.def)return cfg.def;return COURSES.filter(c=>cfg.defG.includes(c.g)&&altReal(c)).map(c=>c.code).filter((x,i,s)=>s.indexOf(x)===i)}
 function altSchedule(k,t){const cfg=ALT_CFG[k],tr=new Set(altTransfer(k));
   const L=trackCourses(t).filter(c=>altReal(c)&&!tr.has(c.code));const coop=L.filter(c=>c.fl&&c.fl.coop);
-  const flex=c=>c.g==="GE"||c.g==="FREE";const rest=L.filter(c=>!(c.fl&&c.fl.coop)).sort((a,b)=>(flex(a)-flex(b))||TERMS.indexOf(a.term)-TERMS.indexOf(b.term));
+  const flex=c=>c.g==="GE"||c.g==="FREE";const dep={};const depth=x=>{if(dep[x]!=null)return dep[x];dep[x]=0;let d=0;ALT_SEQ.forEach(([p,q])=>{if(p===x)d=Math.max(d,1+depth(q))});return dep[x]=d};
+  const rest=L.filter(c=>!(c.fl&&c.fl.coop)).sort((a,b)=>(flex(a)-flex(b))||TERMS.indexOf(a.term)-TERMS.indexOf(b.term)||depth(b.code)-depth(a.code));
   const isSS=i=>i%3===2;let load,at,coopIdx;
   const place=ci=>{load=[];at={};coopIdx=ci;
   // ภาคฤดูร้อน: มหาวิทยาลัยไม่เปิดวิชาศึกษาทั่วไป สาขาเปิดเฉพาะวิชาเลือก (เลือกเสรี/วิชาชีพเลือก)
   const sumOK=c=>c.g==="FREE"||c.g==="TE";const cap=(i,c)=>isSS(i)?cfg.capSS:cfg.cap;
+  // วิชาที่สาขาเปิด (และช่องวิชาเลือกแขนง) ต้องอยู่ภาคการศึกษาเดียวกับแผนปกติ เพื่อเปิดสอนครั้งเดียวรองรับทุกแผนการรับ
+  const semFix=c=>(c.dept==="ME"||(c.fl&&c.fl.slot&&c.g==="TE"))&&!/SS$/.test(c.term);
   rest.forEach(c=>{const oy=+c.term[1]||1;
     let lo=flex(c)?0:Math.max(0,Math.max(0,oy-cfg.yoff)*3-1);ALT_SEQ.forEach(([a,b])=>{if(b===c.code&&at[a]!=null)lo=Math.max(lo,at[a]+1)});
-    const ss=/SS$/.test(c.term),noSS=!sumOK(c);const ok=(i,allowSS)=>i!==coopIdx&&(!isSS(i)||ss||(allowSS&&!noSS))&&(load[i]||0)+c.cr<=cap(i,c);
-    let i=-1;for(const allowSS of [false,true]){for(let j=lo;j<coopIdx;j++){if(ss&&!isSS(j)&&j<lo+3)continue;if(ok(j,allowSS)){i=j;break}}if(i>=0)break}
+    const ss=/SS$/.test(c.term),noSS=!sumOK(c),fx=semFix(c),sm=c.term.slice(-1);const ok=(i,allowSS,soft)=>i!==coopIdx&&(!isSS(i)||ss||(allowSS&&!noSS&&!fx))&&(!(fx||soft)||isSS(i)||String(i%3+1)===sm||!/^[12]$/.test(sm))&&(load[i]||0)+c.cr<=cap(i,c);
+    let i=-1;for(const [allowSS,soft] of [[false,!flex(c)],[false,false],[true,false]]){for(let j=lo;j<coopIdx;j++){if(ss&&!isSS(j)&&j<lo+3)continue;if(ok(j,allowSS,soft)){i=j;break}}if(i>=0)break}
     if(i<0){i=coopIdx+1;while(!ok(i,false))i++}
     load[i]=(load[i]||0)+c.cr;at[c.code]=i});};
   place(coop.length?cfg.years*3-2:9999);if(coop.length&&Math.max(-1,...Object.values(at))>coopIdx)place(9999);
   if(coop.length){const last=Math.max(-1,...Object.values(at));let i=coopIdx<9999?coopIdx:last+1;if(last>=i){i=last+1}while(isSS(i))i++;coop.forEach(c=>{at[c.code]=i;load[i]=(load[i]||0)+c.cr})}
   const n=Math.max(-1,...Object.values(at))+1,slots=[];
   for(let i=0;i<n;i++){const cs=L.filter(c=>at[c.code]===i).sort((a,b)=>TERMS.indexOf(a.term)-TERMS.indexOf(b.term)||a.code.localeCompare(b.code));if(cs.length)slots.push({i,name:`ปีที่ ${Math.floor(i/3)+1} / ${isSS(i)?"ภาคฤดูร้อน":"ภาคการศึกษาที่ "+(i%3+1)}`,cs})}
-  return {slots,tr:trackCourses(t).filter(c=>altReal(c)&&tr.has(c.code)),years:Math.ceil(n/3)}}
+  return {slots,tr:trackCourses(t).filter(c=>altReal(c)&&tr.has(c.code)),years:(n-1)%3===0?Math.floor((n-1)/3)+0.5:Math.ceil(n/3)}}
 function altPlansHtml(){const trs=Object.keys(TRACKS),ind=t=>`<p class="ind">${t}</p>`;const row=c=>[c.g==="FREE"||c.g==="TE"?"x-xxx-xxx":c.code,c.g==="FREE"?"วิชาเลือกเสรี":c.g==="TE"?"วิชาชีพเลือก":c.th,c.fl&&c.fl.nc?`(${c.t})`:String(c.cr),String(c.t),String(c.p),String(c.s)];
   return ["pvs","sec"].map((k,ki)=>{const cfg=ALT_CFG[k];const s0=altSchedule(k,trs[0]);
     const trT=bkT([...s0.tr.map(c=>[c.g==="FREE"?"x-xxx-xxx":c.code,c.th,c.fl&&c.fl.nc?`(${c.t})`:String(c.cr)]),[{t:"รวมเทียบโอนได้",span:2,cls:"r b"},{t:String(sumCr(s0.tr)),cls:"b"}]],["รหัสวิชา","รายวิชาที่เทียบโอน","หน่วยกิต"],{w:"88%"});
