@@ -843,7 +843,7 @@ const CLO0={
 };
 
 const FAC_HINT={"adisorn.sa@mail.rmutk.ac.th":"นายอดิสร สโมสร"};
-const APP_VER="รุ่น 26 พ.ย. 2569 (16:15)";
+const APP_VER="รุ่น 26 พ.ย. 2569 (16:30)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -2550,7 +2550,9 @@ const FAC_DEF=[["อาจารย์ประจำ","บุคคลที่
  ["อาจารย์ประจำหลักสูตร","อาจารย์ประจำที่มีคุณวุฒิตรงหรือสัมพันธ์กับสาขาวิชาของหลักสูตรที่เปิดสอน ซึ่งมีหน้าที่สอนและค้นคว้าวิจัยในสาขาวิชาดังกล่าว ทั้งนี้ เป็นอาจารย์ประจำหลักสูตรหลายหลักสูตรในเวลาเดียวกันได้ แต่ต้องเป็นหลักสูตรที่มีคุณวุฒิตรงหรือสัมพันธ์กับสาขาวิชาของหลักสูตร"],
  ["อาจารย์ผู้รับผิดชอบหลักสูตร","อาจารย์ประจำหลักสูตรที่มีภาระหน้าที่ในการบริหารและพัฒนาหลักสูตรและการเรียนการสอน ตั้งแต่การวางแผน การควบคุมคุณภาพ การติดตามประเมินผล และการพัฒนาหลักสูตร ต้องอยู่ประจำหลักสูตรตลอดระยะเวลาที่จัดการศึกษา และเป็นอาจารย์ผู้รับผิดชอบหลักสูตรเกิน 1 หลักสูตรในเวลาเดียวกันไม่ได้ หลักสูตรที่มีหลายแขนงวิชาต้องมีอาจารย์ผู้รับผิดชอบหลักสูตรที่มีคุณวุฒิตรงหรือสัมพันธ์กับแขนงวิชาแขนงละไม่น้อยกว่า 3 คน"],
  ["อาจารย์พิเศษ","ผู้สอนที่ไม่ใช่อาจารย์ประจำ"]];
-const FAC_EE_NOTE="หลักสูตรมี 3 แขนงวิชา แขนงวิชาวิศวกรรมยานยนต์พลังงานใหม่มีรายวิชาด้านไฟฟ้ากำลังและอิเล็กทรอนิกส์ จึงแต่งตั้งอาจารย์ประจำจากสาขาวิชาวิศวกรรมไฟฟ้า คณะวิศวกรรมศาสตร์ ซึ่งมีคุณวุฒิสัมพันธ์กับแขนงวิชา เป็นอาจารย์ประจำหลักสูตรเพิ่มเติม เพื่อสอนและร่วมพัฒนารายวิชาด้านไฟฟ้า ทั้งนี้ อาจารย์จากสาขาวิชาอื่นเป็นอาจารย์ประจำหลักสูตรเท่านั้น ไม่เป็นอาจารย์ผู้รับผิดชอบหลักสูตร อาจารย์ผู้รับผิดชอบหลักสูตรทุกแขนงเป็นอาจารย์ของสาขาวิชาวิศวกรรมเครื่องกล";
+const FAC_EE_NOTE="หลักสูตรมี 3 แขนงวิชา แขนงวิชาวิศวกรรมยานยนต์พลังงานใหม่มีรายวิชาด้านไฟฟ้ากำลังและอิเล็กทรอนิกส์ หลักสูตรจึงจัดอาจารย์ที่มีคุณวุฒิด้านวิศวกรรมไฟฟ้า 2 กลุ่ม คือ (1) อาจารย์ของสาขาวิชาวิศวกรรมเครื่องกลที่มีคุณวุฒิปริญญาตรีหรือสูงกว่าด้านวิศวกรรมไฟฟ้า ซึ่งเป็นอาจารย์ผู้รับผิดชอบหลักสูตรของแขนงวิชาวิศวกรรมยานยนต์พลังงานใหม่ได้ เพราะมีคุณวุฒิสัมพันธ์กับแขนงวิชา และ (2) อาจารย์ประจำจากสาขาวิชาวิศวกรรมไฟฟ้า คณะวิศวกรรมศาสตร์ ซึ่งเป็นอาจารย์ประจำหลักสูตรเท่านั้น ไม่เป็นอาจารย์ผู้รับผิดชอบหลักสูตร ทั้งสองกลุ่มสอนและร่วมพัฒนารายวิชาด้านไฟฟ้าของหลักสูตร";
+const EE_RX=/ไฟฟ้า|อิเล็กทรอนิกส์|Electrical|Electronic/i;const eeAuto=id=>(cvOf(id).deg||[]).some(d=>EE_RX.test(d.name||""));
+const eeQual=id=>{if(homeOf(id)==="EE")return true;const v=((state.team&&state.team.eeq)||{})[id];return v==null?eeAuto(id):!!v};
 async function saveTeam(t){state.team=t;render();await dbWrite(db=>db.doc("program/team").set({...t,updatedAt:new Date().toISOString()}),"อาจารย์ผู้รับผิดชอบหลักสูตร")}
 const formalName=f=>{const n=shortName(f.name),p=qualOf(f.id).pos;return p&&p!=="L"?POS[p]+n:p==="L"?"นาย"+n:n};
 const shortName=n=>String(n||"").trim().replace(/^(?:ผู้ช่วยศาสตราจารย์|รองศาสตราจารย์|ศาสตราจารย์|อาจารย์|นางสาว|นาย|นาง)\s*/,"").replace(/^(?:[ก-๙A-Za-z]{1,4}\.)+\s*/,"").trim();
@@ -2667,15 +2669,18 @@ function viewStruct(){
     if(state.sDel===f.id)return `<div>${esc(f.name)}</div><div class="row small" style="gap:6px;margin-top:4px"><span style="color:var(--fail)">ลบชื่อนี้ออกจากหลักสูตร?</span><button class="sm" type="button" data-sdelok="${f.id}" style="color:var(--fail);border-color:var(--fail)">ยืนยันลบ</button><button class="sm" type="button" data-scancel="1">ยกเลิก</button></div>`;
     return `<div><div style="white-space:nowrap">${esc(f.name)}</div>${state.canWrite?`<span class="row no-print" style="gap:4px;margin-top:4px"><button class="sm" type="button" data-sedit="${f.id}">แก้ไข</button><button class="sm" type="button" data-sdel="${f.id}">ลบ</button></span>`:""}</div>`};
   const photoCell=f=>`<div class="av-edit">${avatar(f,"sm")}<span class="no-print"><label class="sm" style="cursor:pointer;text-decoration:underline;font-size:12px">${state.photos[f.id]?"เปลี่ยนรูป":"รูป"}<input type="file" accept="image/*" data-photo="${f.id}" ${dis()} hidden></label>${state.photos[f.id]&&state.canWrite?` <button type="button" class="sm" data-photodel="${f.id}" style="font-size:11px">ลบ</button>`:""}</span></div>`;
-  const ee=F.filter(f=>homeOf(f.id)==="EE"),eeC=COURSES.filter(c=>c.dom==="elec").filter((c,i,a)=>a.findIndex(x=>x.code===c.code)===i);
-  const homeSel=f=>`<select data-home="${f.id}" aria-label="สังกัด ${esc(f.name)}" ${dis()}>${Object.entries(FAC_HOME).map(([k,v])=>`<option value="${k}" ${homeOf(f.id)===k?"selected":""}>${v}</option>`).join("")}</select>`;
+  const ee=F.filter(f=>homeOf(f.id)==="EE"),eeC=COURSES.filter(c=>c.dom==="elec").filter((c,i,a)=>a.findIndex(x=>x.code===c.code)===i),eeAll=F.filter(f=>eeQual(f.id)),eeMe=eeAll.filter(f=>homeOf(f.id)==="ME"),evEE=(ta.per.EV||[]).filter(f=>eeQual(f.id));
+  const homeSel=f=>`<select data-home="${f.id}" aria-label="สังกัด ${esc(f.name)}" ${dis()}>${Object.entries(FAC_HOME).map(([k,v])=>`<option value="${k}" ${homeOf(f.id)===k?"selected":""}>${v}</option>`).join("")}</select>${homeOf(f.id)==="ME"?`<div><label class="small" style="white-space:nowrap"><input type="checkbox" data-eeq="${f.id}" ${eeQual(f.id)?"checked":""} ${dis()}> วุฒิด้านไฟฟ้า${eeAuto(f.id)?' <span class="muted">(จาก ข4)</span>':""}</label></div>`:""}`;
   return orgChart(ta)+`<p class="lead">เลือกอาจารย์ผู้รับผิดชอบหลักสูตรของแต่ละแขนง แขนงละอย่างน้อย 3 คน อาจารย์ที่ไม่ได้เลือกเป็นอาจารย์ประจำหลักสูตรโดยอัตโนมัติ หนึ่งคนรับผิดชอบได้แขนงเดียว</p>
   <details class="panel" style="margin-bottom:12px"><summary style="cursor:pointer;font-weight:600">นิยามอาจารย์ตามเกณฑ์มาตรฐานหลักสูตร พ.ศ. 2565</summary><dl class="small" style="margin:8px 0 0">${FAC_DEF.map(([k,v])=>`<dt style="font-weight:600;margin-top:6px">${esc(k)}</dt><dd style="margin:2px 0 0 0">${esc(v)}</dd>`).join("")}</dl><p class="small muted" style="margin-top:8px">ที่มา: ${esc(FAC_DEF_SRC)}</p></details>
-  <section class="panel"><h2>อาจารย์ประจำหลักสูตรจากสาขาวิชาวิศวกรรมไฟฟ้า · ${ee.length} คน ${ee.length>=2?pill("pass","ครบตามที่แนะนำ"):pill("fail",ee.length?"แนะนำอย่างน้อย 2 คน":"ยังไม่มี")}</h2>
+  <section class="panel"><h2>อาจารย์ที่มีคุณวุฒิด้านวิศวกรรมไฟฟ้า · ${eeAll.length} คน ${eeAll.length>=2?pill("pass","ครบตามที่แนะนำ"):pill("fail",eeAll.length?"แนะนำอย่างน้อย 2 คน":"ยังไม่มี")}</h2>
    <p class="small">${esc(FAC_EE_NOTE)}</p>
-   <div class="chips" style="margin:6px 0">${ee.map(f=>`<span class="tag" style="font-size:13px;padding:2px 8px">${esc(formalName(f))}</span>`).join("")||'<span class="muted small">เพิ่มชื่อที่ "+ เพิ่มชื่ออาจารย์ใหม่" ในตารางด้านล่าง แล้วเลือกสังกัดเป็นสาขาวิชาวิศวกรรมไฟฟ้า และติดแท็กความเชี่ยวชาญ "ไฟฟ้ากำลังและอิเล็กทรอนิกส์" ในหน้า ข2</span>'}</div>
-   <p class="small">อาจารย์จากสาขาวิชาอื่นเป็น<b>อาจารย์ประจำหลักสูตรเท่านั้น</b> ไม่เป็นอาจารย์ผู้รับผิดชอบหลักสูตร ผู้รับผิดชอบหลักสูตรทุกแขนงต้องเป็นอาจารย์ของสาขาวิชาวิศวกรรมเครื่องกล</p>
-   <p class="small"><b>รายวิชาด้านไฟฟ้าที่ควรให้อาจารย์จากสาขาวิศวกรรมไฟฟ้าสอนหรือร่วมสอน (${eeC.length} วิชา):</b> ${eeC.map(c=>`<span class="mono">${esc(c.code)}</span> ${esc(c.th)}`).join(" · ")}</p></section>
+   <div class="small" style="margin-top:6px"><b>(1) อาจารย์สาขาวิชาวิศวกรรมเครื่องกลที่มีวุฒิด้านไฟฟ้า · ${eeMe.length} คน</b> <span class="muted">เป็นผู้รับผิดชอบหลักสูตรได้</span></div>
+   <div class="chips" style="margin:4px 0">${eeMe.map(f=>`<span class="tag" style="font-size:13px;padding:2px 8px">${esc(formalName(f))}${roleOf(f.id)?" · ผู้รับผิดชอบแขนง"+esc(TRACKS[roleOf(f.id)]):""}</span>`).join("")||'<span class="muted small">ยังไม่มี · ติ๊ก "วุฒิด้านไฟฟ้า" ในตารางด้านล่าง หรือกรอกประวัติการศึกษาในหน้า ข4 (ระบบตรวจคำว่า ไฟฟ้า/อิเล็กทรอนิกส์ ในชื่อปริญญาให้เอง)</span>'}</div>
+   <div class="small" style="margin-top:6px"><b>(2) อาจารย์จากสาขาวิชาวิศวกรรมไฟฟ้า · ${ee.length} คน</b> <span class="muted">อาจารย์ประจำหลักสูตรเท่านั้น</span></div>
+   <div class="chips" style="margin:4px 0">${ee.map(f=>`<span class="tag" style="font-size:13px;padding:2px 8px">${esc(formalName(f))}</span>`).join("")||'<span class="muted small">ยังไม่มี · เพิ่มชื่อแล้วเลือกสังกัดเป็นสาขาวิชาวิศวกรรมไฟฟ้า</span>'}</div>
+   <p class="small">ผู้รับผิดชอบหลักสูตรแขนงยานยนต์พลังงานใหม่ที่มีวุฒิด้านไฟฟ้า: <b>${evEE.length}</b> คน ${evEE.length?pill("pass","มีแล้ว"):pill("warn","แนะนำอย่างน้อย 1 คน จากกลุ่ม (1)")}</p>
+   <p class="small"><b>รายวิชาด้านไฟฟ้าที่ควรให้อาจารย์กลุ่ม (1) หรือ (2) สอนหรือร่วมสอน (${eeC.length} วิชา):</b> ${eeC.map(c=>`<span class="mono">${esc(c.code)}</span> ${esc(c.th)}`).join(" · ")} · ติดแท็ก "ไฟฟ้ากำลังและอิเล็กทรอนิกส์" ในหน้า ข2 เพื่อให้ระบบจัดผู้สอนอัตโนมัติ</p></section>
   <div class="sum">${Object.keys(TRACKS).map(card).join("")}</div>
   ${ta.lowDeg.length?`<div class="note" style="color:var(--fail)">ผู้รับผิดชอบหลักสูตรต้องมีคุณวุฒิขั้นต่ำปริญญาโท: ${ta.lowDeg.map(f=>esc(f.name)).join(", ")}</div>`:""}
   ${ta.noQual.length?`<div class="note">ยังไม่ระบุคุณวุฒิ: ${ta.noQual.map(f=>esc(f.name)).join(", ")}</div>`:""}
@@ -3137,6 +3142,7 @@ document.addEventListener("keydown",e=>{if(e.target.id!=="cloQ"||e.key!=="Enter"
 
 // ---- แถบสถานะมุมขวาบน: ฉบับของหลักสูตร + การอัปเดตล่าสุด ----
 const CHANGELOG=[
+ ["26 พ.ย. 2569 (16:30)","อาจารย์สาขาวิชาวิศวกรรมเครื่องกลที่มีวุฒิด้านไฟฟ้า (เช่น วศ.บ. ไฟฟ้า) ติ๊ก \"วุฒิด้านไฟฟ้า\" ใน ข1 หรือระบบตรวจจากประวัติการศึกษา ข4 · เป็นผู้รับผิดชอบหลักสูตรแขนงยานยนต์ได้ · แผงอาจารย์คุณวุฒิด้านไฟฟ้าแยก 2 กลุ่ม และข้อความในเล่ม หมวด 5 ข้อ 4"],
  ["26 พ.ย. 2569 (16:15)","อาจารย์จากสาขาวิชาอื่น (เช่น วิศวกรรมไฟฟ้า) เป็นอาจารย์ประจำหลักสูตรเท่านั้น เลือกเป็นผู้รับผิดชอบหลักสูตรไม่ได้ · ผู้รับผิดชอบหลักสูตรทุกแขนงเป็นอาจารย์สาขาวิชาวิศวกรรมเครื่องกล"],
  ["26 พ.ย. 2569 (16:00)","อาจารย์ประจำหลักสูตรจากสาขาวิชาวิศวกรรมไฟฟ้า: ช่องสังกัดของอาจารย์ (ข1) แผงติดตามจำนวนและรายวิชาด้านไฟฟ้า แท็กความเชี่ยวชาญไฟฟ้ากำลังและอิเล็กทรอนิกส์สำหรับจัดผู้สอน (ข2) · นิยามอาจารย์ประจำ อาจารย์ประจำหลักสูตร อาจารย์ผู้รับผิดชอบหลักสูตร ตามเกณฑ์มาตรฐาน 2565 ใน ข1 และเล่ม มคอ.2 หมวด 5 ข้อ 4"],
  ["26 พ.ย. 2569 (15:30)","แผน ค. ปริญญาตรีใบที่ 2 (ภาคสมทบ) เปิดเฉพาะแขนงวิศวกรรมเครื่องกล เลือกวิชาเลือกแขนงจากคลังของทุกแขนงได้ · ปรับแถบ ก5 เล่ม มคอ.2 หมวด 3 ข้อ 2.8 และ 3.3 และภาระสอน/ตารางสอนภาคสมทบให้ตรงกัน"],
@@ -4760,6 +4766,7 @@ document.addEventListener("change",async e=>{
   if(t.dataset.extowner!==undefined){const o={...(state.extOwners||{})};const v=t.value.trim().replace(/\s+/g," ");if(v)o[t.dataset.extowner]=v;else delete o[t.dataset.extowner];state.extOwners=o;render();await dbWrite(db=>db.doc("owners/ext").set({map:o,updatedAt:new Date().toISOString()}),"ผู้สอนจากหน่วยงานอื่น");return}
   if(t.dataset.owner!==undefined){const o={...state.owners};if(t.value)o[t.dataset.owner]=t.value;else delete o[t.dataset.owner];state.owners=o;render();await dbWrite(db=>db.doc("owners/map").set({map:o,cv:5,updatedAt:new Date().toISOString()}),"ผู้รับผิดชอบรายวิชา");return}
   if(t.dataset.role!==undefined){const r={...(state.team.role||{})};if(t.value)r[t.dataset.role]=t.value;else delete r[t.dataset.role];await saveTeam({...state.team,role:r});return}
+  if(t.dataset.eeq!==undefined){const q={...((state.team&&state.team.eeq)||{})};q[t.dataset.eeq]=t.checked;await saveTeam({...state.team,eeq:q});return}
   if(t.dataset.home!==undefined){const id=t.dataset.home,h={...((state.team&&state.team.home)||{})},r={...((state.team&&state.team.role)||{})};if(t.value&&t.value!=="ME"){h[id]=t.value;delete r[id]}else delete h[id];await saveTeam({...state.team,home:h,role:r});return}
   if(t.dataset.qdeg!==undefined||t.dataset.qpos!==undefined){const id=t.dataset.qdeg||t.dataset.qpos;const q={...(state.team.qual||{})};q[id]={...qualOf(id),[t.dataset.qdeg?"deg":"pos"]:t.value};await saveTeam({...state.team,qual:q});return}
   if(t.id==="meSel"){state.me=t.value;if(!state.me)state.cloMine=false;try{localStorage.setItem("mecp_me",state.me)}catch(e){};render();return}
@@ -4972,7 +4979,7 @@ const withTO=(p,ms,st)=>Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(
   db.doc("program/bookcheck").onSnapshot(s=>{const d=s.exists&&s.data();const m={...(d||{})};delete m.updatedAt;state.bookCheck=m;softRender()},err);
   db.doc("program/regs").onSnapshot(s=>{const d=s.exists&&s.data();state.regs={items:(d&&d.items)||[],notes:(d&&d.notes)||{}};const ae=document.activeElement;if(ae&&ae.dataset&&ae.dataset.regnote!==undefined)return;softRender()},err);
   db.doc("program/transition").onSnapshot(s=>{const d=s.exists&&s.data();if(d){const sel=state.tx&&state.tx.sel;state.tx={...d,sel};delete state.tx.updatedAt}softRender()},err);
-  db.doc("program/team").onSnapshot(s=>{const d=s.exists&&s.data();state.team={role:(d&&d.role)||{},qual:(d&&d.qual)||{},home:(d&&d.home)||{}};softRender()},err);
+  db.doc("program/team").onSnapshot(s=>{const d=s.exists&&s.data();state.team={role:(d&&d.role)||{},qual:(d&&d.qual)||{},home:(d&&d.home)||{},eeq:(d&&d.eeq)||{}};softRender()},err);
   db.collection("photo").onSnapshot(s=>{const m={};s.docs.forEach(d=>{const x=d.data();if(x&&x.fid&&x.img)m[x.fid]=x.img});state.photos=m;softRender()},err);
   db.collection("courses").onSnapshot(s=>{const m={};s.docs.forEach(d=>{const r=d.data(),x=aliasCourse(r);if(x&&x.code&&!(m[x.code]&&m[x.code].__new))m[x.code]={...x,__new:r&&r.cv===5}});state.courseOv=m;rebuild();buildExpected();softRender()},err);
   db.doc("program/altplan").onSnapshot(s=>{state.altplan=s.exists?s.data():null;softRender()},err);
