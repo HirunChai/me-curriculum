@@ -843,7 +843,7 @@ const CLO0={
 };
 
 const FAC_HINT={"adisorn.sa@mail.rmutk.ac.th":"นายอดิสร สโมสร"};
-const APP_VER="รุ่น 26 พ.ย. 2569 (13:00)";
+const APP_VER="รุ่น 26 พ.ย. 2569 (13:30)";
 const canonEmail=e=>String(e||"").trim().toLowerCase().replace(/@rmutk\.ac\.th$/,"@mail.rmutk.ac.th");
 const state={phase:"design",view:"needs",track:"ME",countComputing:true,sem:"S1",ttMode:"fac",ttKey:"",intake:{ME:15,EV:15,CE:10,rooms:2,smbN:15,smbTrack:"ME"},
   faculty:[],assign:{S1:{},S2:{},SS:{}},needsOv:{},cloOv:{},courseOv:{},db:null,canWrite:true,msg:"",editing:null,cloCourse:"4-111-308",cloDraft:null,cloFilter:"me",owners:{},extOwners:{},me:"",cloMine:false,isAdmin:true,user:null,team:{role:{},qual:{}},photos:{},sEdit:null,sDel:null,ploEdit:null,ploDraft:null,ploReset:false,needEdit:null,courseEdit:null,pending:false,descDraft:{},ai:null,bookFmt:null,bookPlan:null,bookCheck:{},bookSec:"cover",bookZoom:0.8,bookEdit:null,bookEditing:null,bookDirect:null};
@@ -2695,16 +2695,30 @@ function readCloForm(){
   return [...f.querySelectorAll(".clo-row")].map(r=>{const i=r.dataset.i;return {t:r.querySelector("[name=t]").value.trim(),bloom:r.querySelector("[name=bl]").value,lv:r.querySelector("[name=lv]").value,as:r.querySelector("[name=as]").value.trim(),subs:[...r.querySelectorAll(`input[name=cs${i}]:checked`)].map(x=>x.value)}});
 }
 
+const PLAN_ADM=[["reg","แผน ก. ปกติ 4 ปี (ม.6 / ปวช.)"],["pvs","แผน ข. เทียบโอน ปวส. (ภาคปกติ)"],["sec","แผน ค. ปริญญาตรีใบที่ 2 (ภาคสมทบ)"]];
+function planAdmSeg(){const a=state.planAdm||"reg";return `<div class="seg" role="group" aria-label="เลือกแผนการรับ">${PLAN_ADM.map(([k,v])=>`<button data-planadm="${k}" aria-pressed="${a===k}">${v}</button>`).join("")}</div>`}
+function planRowsHtml(rows,lv){return `<div class="scroll"><table><tr><th>รหัส</th><th>รายวิชา</th><th>นก. (ท-ป-ศ)</th><th>กลุ่ม</th>${lv?PLOS.map(p=>`<th class="c">PLO${p.n}</th>`).join(""):""}</tr>
+  ${rows.map(c=>`<tr><td class="mono">${c.g==="FREE"||c.g==="TE"?"x-xxx-xxx":esc(c.code)}</td><td>${esc(c.th)}${c.g==="TR"?' <span class="tag">วิชาของแขนง</span>':""}${c.g==="TE"?' <span class="tag">วิชาชีพเลือก</span>':""}</td><td class="mono">${c.fl&&c.fl.nc?`(${c.t})`:c.cr}(${c.t}-${c.p}-${c.s})</td><td class="small muted">${GROUPS[c.g]}</td>${lv?lv(c):""}</tr>`).join("")}</table></div>`}
+function viewPlanAlt(k){const cfg=ALT_CFG[k],S=altSchedule(k,state.track),tr=S.tr,rest=S.slots.flatMap(x=>x.cs);
+  const yrs=[...new Set(S.slots.map(x=>Math.floor(x.i/3)+1))];const trackStart=S.slots.find(x=>x.cs.some(c=>c.g==="TR"));
+  return flowBar("plan")+`<p class="lead">${esc(cfg.t)} · แผนรายภาคสร้างจากแผนปกติ โดยตัดรายวิชาที่เทียบโอนออกและจัดรายวิชาที่เหลือตามลำดับวิชาบังคับก่อน ภาคฤดูร้อนจัดเฉพาะวิชาเลือกที่สาขาเปิด (มหาวิทยาลัยไม่เปิดวิชาศึกษาทั่วไปภาคฤดูร้อน) ภาคการศึกษาปกติไม่เกิน ${cfg.cap} หน่วยกิต ภาคฤดูร้อนไม่เกิน ${cfg.capSS} หน่วยกิต</p>
+  <div class="row" style="margin-bottom:12px">${planAdmSeg()}</div>
+  <div class="row" style="margin-bottom:12px">${trackSeg()}<span class="muted small">เทียบโอน ${sumCr(tr)} · เรียนในหลักสูตร ${sumCr(rest)} หน่วยกิต · ${S.years} ปีการศึกษา${trackStart?" · เริ่มวิชาของแขนง "+esc(trackStart.name):""}</span><button class="sm" data-gohash="#book/review">แก้รายวิชาที่เทียบโอน (ค4)</button></div>
+  <section class="panel"><h2>รายวิชาที่เทียบโอนได้ <span class="muted small num">· ${sumCr(tr)} หน่วยกิต</span></h2>${tr.length?planRowsHtml(tr):'<p class="muted small">ยังไม่ได้กำหนดรายวิชาที่เทียบโอน</p>'}</section>
+  ${yrs.map(y=>{const sl=S.slots.filter(x=>Math.floor(x.i/3)+1===y);return `<h2 style="margin:18px 0 6px">ชั้นปีที่ ${y} <span class="muted small num">· ${sumCr(sl.flatMap(x=>x.cs))} หน่วยกิต</span></h2>`+sl.map(x=>`<section class="panel"><h2>${esc(x.name)} <span class="muted small num">· ${sumCr(x.cs,c=>!(c.fl&&c.fl.nc))} หน่วยกิต</span></h2>${planRowsHtml(x.cs)}</section>`).join("")}).join("")}
+  <div class="note">แผนนี้เป็นแผนเดียวกับที่ใส่ในเล่ม มคอ.2 หมวด 3 ข้อ 3.3 ${k==="pvs"?"(แผน ข.)":"(แผน ค.)"} ผู้ที่เทียบโอนได้ไม่ครบให้ลงเรียนรายวิชาที่ขาดเพิ่มตามแผนปกติ${(cfg.engOnly||[]).length?" · ผู้จบ วศ.บ. เทียบโอน "+cfg.engOnly.join(", ")+" เพิ่มได้":""}</div>`}
 function viewPlan(){
+  if(state.planAdm&&state.planAdm!=="reg"&&ALT_CFG[state.planAdm])return viewPlanAlt(state.planAdm);
   const L=trackCourses(state.track);
   const byG=Object.keys(GROUPS).map(g=>[g,sumCr(L,c=>c.g===g)]);
   const lv=c=>{const r=ploOf(c);return PLOS.map(p=>`<td class="c">${lvSpan(r.map[p.n],r.src==="default")}</td>`).join("")};
   const ed=state.courseEdit;
   return flowBar("plan")+`<p class="lead">โครงสร้างหน่วยกิตและแผนการเรียนรายภาค แก้ไขรายวิชาได้ที่ปุ่มแก้ไขของแต่ละแถว ระดับ PLO มาจาก CLO ใน ก3</p>
+  <div class="row" style="margin-bottom:12px">${planAdmSeg()}</div>
   <div class="row" style="margin-bottom:12px">${trackSeg()}<span class="muted small">รวม ${sumCr(L)} หน่วยกิต</span><button id="courseAdd" ${dis()}>+ เพิ่มรายวิชา</button></div>
   ${ed==="new"?`<section class="panel">${courseForm({code:"",th:"",cr:3,t:3,p:0,s:6,g:"TE",tr:[state.track],term:"Y3S1",dept:"ME",dom:""},true)}</section>`:""}
   <section class="panel"><h2>โครงสร้างหน่วยกิต</h2><div class="scroll"><table><tr>${byG.map(([g])=>`<th>${GROUPS[g]}</th>`).join("")}<th>รวม</th></tr><tr>${byG.map(([,v])=>`<td class="num">${v}</td>`).join("")}<td class="num"><b>${sumCr(L)}</b></td></tr></table></div></section>
-  ${TERMS.map(k=>{const rows=L.filter(c=>c.term===k);if(!rows.length)return"";return `<section class="panel"><h2>${TERM_TH[k]} <span class="muted small num">· ${sumCr(rows)} หน่วยกิต</span></h2>
+  ${TERMS.map(k=>{const rows=L.filter(c=>c.term===k);if(!rows.length)return"";const y=k[1],first=TERMS.find(x=>x[1]===y&&L.some(c=>c.term===x))===k;return (first?`<h2 style="margin:18px 0 6px">ชั้นปีที่ ${y} <span class="muted small num">· ${sumCr(L.filter(c=>c.term[1]===y))} หน่วยกิต</span>${+y<=2?' <span class="tag">ทุกแขนงเรียนร่วมกัน</span>':""}</h2>`:"")+`<section class="panel"><h2>${TERM_TH[k]} <span class="muted small num">· ${sumCr(rows)} หน่วยกิต</span></h2>
   <div class="scroll"><table><tr><th>รหัส</th><th>รายวิชา</th><th>นก. (ท-ป-ศ)</th><th>กลุ่ม</th>${PLOS.map(p=>`<th class="c">PLO${p.n}</th>`).join("")}<th></th></tr>
   ${rows.map(c=>ed===c.code?`<tr><td colspan="${PLOS.length+5}">${courseForm(c,false)}</td></tr>`:`<tr><td class="mono">${esc(c.code)}</td><td>${esc(c.th)}${c.fl.proposed?' <span class="tag">ร่างใหม่</span>':""}${c.fl.added?' <span class="tag">เพิ่มบนเว็บ</span>':""}${c.fl.edited?' <span class="tag">แก้ไขแล้ว</span>':""}${c.dept==="EXT"?' <span class="tag">สอนโดยหน่วยงานอื่น</span>':""}</td><td class="mono">${c.cr}(${c.t}-${c.p}-${c.s})</td><td class="small muted">${GROUPS[c.g]}</td>${lv(c)}<td><button class="sm" data-courseedit="${esc(c.code)}" ${dis()}>แก้ไข</button></td></tr>`).join("")}</table></div></section>`}).join("")}
   <div class="note">กรอบเส้นประ = ระดับตั้งต้นของวิชาที่ยังไม่มี CLO · วิชาเลือกแขนงแสดงเฉพาะวิชาที่สมมติว่าเปิดในแต่ละปี</div>`;
@@ -3061,6 +3075,7 @@ document.addEventListener("keydown",e=>{if(e.target.id!=="cloQ"||e.key!=="Enter"
 
 // ---- แถบสถานะมุมขวาบน: ฉบับของหลักสูตร + การอัปเดตล่าสุด ----
 const CHANGELOG=[
+ ["26 พ.ย. 2569 (13:30)","แถบ ก5 แผนการเรียน: เลือกแผนการรับ แผน ก. ปกติ 4 ปี · แผน ข. เทียบโอน ปวส. · แผน ค. ปริญญาตรีใบที่ 2 (ภาคสมทบ) แสดงแผนรายชั้นปีและรายภาคของแต่ละแขนง พร้อมรายวิชาที่เทียบโอน"],
  ["26 พ.ย. 2569 (13:00)","ภาคฤดูร้อนปี 2 เป็นวิชาเลือกเสรี 1–2 ที่สาขาเปิด (มหาวิทยาลัยไม่เปิดวิชาศึกษาทั่วไปภาคฤดูร้อน) · ย้ายวิชาเลือกศึกษาทั่วไป 1 ไปปี 4 ภาค 1"],
  ["26 พ.ย. 2569 (12:30)","แผนการเรียน: ชั้นปีที่ 1–2 ไม่มีรายวิชาของแขนง ย้ายวิชาปฏิบัติงานของแขนง (4-116-102, 4-113-207, 4-112-208) จากปี 2 ภาคฤดูร้อนไปปี 3 ภาค 1 และย้ายวิชาเลือกศึกษาทั่วไป 1 ไปปี 2 ภาคฤดูร้อนแทน · ปรับข้อความหมวด 3 ข้อ 2.8 การเลือกแขนง คุณลักษณะพิเศษ และ CWIE ให้ตรงกัน"],
  ["26 พ.ย. 2569 (12:00)","ปรับรายวิชาแขนงตามมติ: บังคับแขนงยานยนต์ 4-113-315 แบตเตอรี่ BMS และการจัดการความร้อน (แทน 4-113-307) · ยกเลิก 4-113-308 · วิชาเลือกใหม่ 4-113-305 เครื่องมือวัด อิเล็กทรอนิกส์ และเซนเซอร์ · 4-113-314 มอเตอร์ขับเคลื่อน · 4-113-316 อิเล็กทรอนิกส์กำลัง · 4-113-403 ADAS · รวมไมโครคอนโทรลเลอร์เข้า 4-113-309 · เปลี่ยนชื่อ 4-113-312 ระบบไฟฟ้ากำลังและการอัดประจุ · แขนงพลังงานฯ ปรับชื่อและเนื้อหา 4-112-310, 4-112-311, 4-112-320 · องค์ความรู้สภาวิศวกรจากวิชาบังคับ 15 หัวข้อเท่ากันทุกแขนง"],
@@ -3178,14 +3193,18 @@ function altTransfer(k){const S=state.altplan&&state.altplan[k];if(Array.isArray
 function altSchedule(k,t){const cfg=ALT_CFG[k],tr=new Set(altTransfer(k));
   const L=trackCourses(t).filter(c=>altReal(c)&&!tr.has(c.code));const coop=L.filter(c=>c.fl&&c.fl.coop);
   const flex=c=>c.g==="GE"||c.g==="FREE";const rest=L.filter(c=>!(c.fl&&c.fl.coop)).sort((a,b)=>(flex(a)-flex(b))||TERMS.indexOf(a.term)-TERMS.indexOf(b.term));
-  const isSS=i=>i%3===2,cap=i=>isSS(i)?cfg.capSS:cfg.cap,load=[],at={},coopIdx=coop.length?cfg.years*3-2:9999;
+  const isSS=i=>i%3===2;let load,at,coopIdx;
+  const place=ci=>{load=[];at={};coopIdx=ci;
+  // ภาคฤดูร้อน: มหาวิทยาลัยไม่เปิดวิชาศึกษาทั่วไป สาขาเปิดเฉพาะวิชาเลือก (เลือกเสรี/วิชาชีพเลือก)
+  const sumOK=c=>c.g==="FREE"||c.g==="TE";const cap=(i,c)=>isSS(i)?cfg.capSS:cfg.cap;
   rest.forEach(c=>{const oy=+c.term[1]||1;
     let lo=flex(c)?0:Math.max(0,Math.max(0,oy-cfg.yoff)*3-1);ALT_SEQ.forEach(([a,b])=>{if(b===c.code&&at[a]!=null)lo=Math.max(lo,at[a]+1)});
-    const ss=/SS$/.test(c.term);const ok=(i,allowSS)=>i!==coopIdx&&(!isSS(i)||ss||allowSS)&&(load[i]||0)+c.cr<=cap(i);
+    const ss=/SS$/.test(c.term),noSS=!sumOK(c);const ok=(i,allowSS)=>i!==coopIdx&&(!isSS(i)||ss||(allowSS&&!noSS))&&(load[i]||0)+c.cr<=cap(i,c);
     let i=-1;for(const allowSS of [false,true]){for(let j=lo;j<coopIdx;j++){if(ss&&!isSS(j)&&j<lo+3)continue;if(ok(j,allowSS)){i=j;break}}if(i>=0)break}
     if(i<0){i=coopIdx+1;while(!ok(i,false))i++}
-    load[i]=(load[i]||0)+c.cr;at[c.code]=i});
-  if(coop.length){let i=coopIdx;const last=Math.max(-1,...Object.values(at));if(last>i){i=last+1;while(isSS(i))i++}coop.forEach(c=>{at[c.code]=i;load[i]=(load[i]||0)+c.cr})}
+    load[i]=(load[i]||0)+c.cr;at[c.code]=i});};
+  place(coop.length?cfg.years*3-2:9999);if(coop.length&&Math.max(-1,...Object.values(at))>coopIdx)place(9999);
+  if(coop.length){const last=Math.max(-1,...Object.values(at));let i=coopIdx<9999?coopIdx:last+1;if(last>=i){i=last+1}while(isSS(i))i++;coop.forEach(c=>{at[c.code]=i;load[i]=(load[i]||0)+c.cr})}
   const n=Math.max(-1,...Object.values(at))+1,slots=[];
   for(let i=0;i<n;i++){const cs=L.filter(c=>at[c.code]===i).sort((a,b)=>TERMS.indexOf(a.term)-TERMS.indexOf(b.term)||a.code.localeCompare(b.code));if(cs.length)slots.push({i,name:`ปีที่ ${Math.floor(i/3)+1} / ${isSS(i)?"ภาคฤดูร้อน":"ภาคการศึกษาที่ "+(i%3+1)}`,cs})}
   return {slots,tr:trackCourses(t).filter(c=>altReal(c)&&tr.has(c.code)),years:Math.ceil(n/3)}}
@@ -4560,6 +4579,7 @@ document.addEventListener("click",async e=>{
   if(b.id==="monCsv"){const blob=new Blob([monitorCsv()],{type:"text/csv"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="clo-progress.csv";a.click();return}
   if(d.track){if(state.cloDraft&&state.cloDraft.dirty)markCloDirty();state.track=d.track;savePrefs();render()}
   else if(d.sem){state.sem=d.sem;render()}
+  else if(d.planadm){state.planAdm=d.planadm;render()}
   else if(d.photodel){await delPhoto(d.photodel)}
   else if(b.id==="sAdd"){state.sEdit="new";state.sDel=null;render();const i=document.getElementById("sName");if(i)i.focus()}
   else if(d.sedit){state.sEdit=d.sedit;state.sDel=null;render();const i=document.getElementById("sName");if(i){i.focus();i.select()}}
